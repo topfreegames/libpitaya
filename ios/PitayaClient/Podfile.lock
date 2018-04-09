@@ -1,0 +1,22 @@
+PODS:
+  - libuv (1.4.0)
+  - OpenSSL-Universal (1.0.2.13)
+  - Pitaya (0.0.1):
+    - libuv (~> 1.4.0)
+    - OpenSSL-Universal (~> 1.0.2.13)
+
+DEPENDENCIES:
+  - Pitaya (from `../../`)
+
+EXTERNAL SOURCES:
+  Pitaya:
+    :path: ../../
+
+SPEC CHECKSUMS:
+  libuv: 8497e469e7918518052d895945a4b17e6dbb088e
+  OpenSSL-Universal: 401888162f11c33ebbd46f782d9229da35c61327
+  Pitaya: 95b1727c42aeafce043f43a0c90f237524e70ee8
+
+PODFILE CHECKSUM: bb0fd389571ffaf25575f04f6f23a59bb7d6d42f
+
+COCOAPODS: 1.4.0
