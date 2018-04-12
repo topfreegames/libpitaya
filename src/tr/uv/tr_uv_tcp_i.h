@@ -134,11 +134,6 @@ struct tr_uv_tcp_transport_s {
      */
     pc_JSON* route_to_code;
     pc_JSON* code_to_route;
-    pc_JSON* dict_ver;
-
-    pc_JSON* server_protos;
-    pc_JSON* client_protos;
-    pc_JSON* proto_ver;
 };
 
 typedef struct {

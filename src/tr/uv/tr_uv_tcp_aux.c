@@ -676,11 +676,6 @@ void tcp__cleanup_async_cb(uv_async_t* a)
 
     tcp__cleanup_pc_json(&tt->route_to_code);
     tcp__cleanup_pc_json(&tt->code_to_route);
-    tcp__cleanup_pc_json(&tt->dict_ver);
-
-    tcp__cleanup_pc_json(&tt->server_protos);
-    tcp__cleanup_pc_json(&tt->client_protos);
-    tcp__cleanup_pc_json(&tt->proto_ver);
 }
 
 void tcp__disconnect_async_cb(uv_async_t* a)
@@ -935,19 +930,8 @@ void tcp__send_handshake(tr_uv_tcp_transport_t* tt)
 
     assert(tt->state == TR_UV_TCP_HANDSHAKEING);
 
-    assert((tt->proto_ver && tt->client_protos && tt->server_protos)
-            || (!tt->proto_ver && !tt->client_protos && !tt->server_protos));
-
-    assert((tt->dict_ver && tt->route_to_code && tt->code_to_route)
-            || (!tt->dict_ver && !tt->route_to_code && !tt->code_to_route));
-
-    if (tt->proto_ver) {
-        pc_JSON_AddItemReferenceToObject(sys, "protoVersion", tt->proto_ver);
-    }
-
-    if (tt->dict_ver) {
-        pc_JSON_AddItemReferenceToObject(sys, "dictVersion", tt->dict_ver);
-    }
+    assert((tt->route_to_code && tt->code_to_route)
+            || (!tt->route_to_code && !tt->code_to_route));
 
     pc_JSON_AddItemToObject(sys, "type", pc_JSON_CreateString(pc_lib_platform_type));
     pc_JSON_AddItemToObject(sys, "version", pc_JSON_CreateString(pc_lib_version_str()));
@@ -1070,12 +1054,10 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
 
     tmp = pc_JSON_GetObjectItem(sys, "useDict");
     if (!tmp || tmp->type == pc_JSON_False) {
-        if (tt->dict_ver && tt->route_to_code && tt->code_to_route) {
-            pc_JSON_Delete(tt->dict_ver);
+        if (tt->route_to_code && tt->code_to_route) {
             pc_JSON_Delete(tt->route_to_code);
             pc_JSON_Delete(tt->code_to_route);
 
-            tt->dict_ver = NULL;
             tt->route_to_code = NULL;
             tt->code_to_route = NULL;
             need_sync = 1;
@@ -1083,76 +1065,9 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     } else {
         pc_JSON* route2code = pc_JSON_DetachItemFromObject(sys, "routeToCode");
         pc_JSON* code2route = pc_JSON_DetachItemFromObject(sys, "codeToRoute");
-        pc_JSON* dict_ver = pc_JSON_DetachItemFromObject(sys, "dictVersion");
 
-        assert((dict_ver && route2code && code2route) || (!dict_ver && !route2code && !code2route));
-
-        if (dict_ver) {
-            if (tt->dict_ver && tt->route_to_code && tt->code_to_route) {
-                pc_JSON_Delete(tt->dict_ver);
-                pc_JSON_Delete(tt->route_to_code);
-                pc_JSON_Delete(tt->code_to_route);
-
-                tt->dict_ver = NULL;
-                tt->route_to_code = NULL;
-                tt->code_to_route = NULL;
-            }
-
-            tt->dict_ver = dict_ver;
-            tt->route_to_code = route2code;
-            tt->code_to_route = code2route;
-            need_sync = 1;
-        }
-        assert(tt->dict_ver && tt->route_to_code && tt->code_to_route);
+        assert(tt->route_to_code && tt->code_to_route);
     }
-
-    tmp = pc_JSON_GetObjectItem(sys, "useProto");
-    if (!tmp || tmp->type == pc_JSON_False) {
-        if (tt->client_protos && tt->proto_ver && tt->server_protos) {
-            pc_JSON_Delete(tt->client_protos);
-            pc_JSON_Delete(tt->proto_ver);
-            pc_JSON_Delete(tt->server_protos);
-
-            tt->client_protos = NULL;
-            tt->proto_ver = NULL;
-            tt->server_protos = NULL;
-            need_sync = 1;
-        }
-    } else {
-        pc_JSON* server_protos = NULL;
-        pc_JSON* client_protos = NULL;
-        pc_JSON* proto_ver = NULL;
-
-        protos = pc_JSON_GetObjectItem(sys, "protos");
-
-        if (protos) {
-            server_protos = pc_JSON_DetachItemFromObject(protos, "server");
-            client_protos = pc_JSON_DetachItemFromObject(protos, "client");
-            proto_ver = pc_JSON_DetachItemFromObject(protos, "version");
-        }
-
-        assert((proto_ver && server_protos && client_protos) || (!proto_ver && !server_protos && !client_protos));
-
-        if (proto_ver) {
-            if (tt->client_protos && tt->proto_ver && tt->server_protos) {
-                pc_JSON_Delete(tt->client_protos);
-                pc_JSON_Delete(tt->proto_ver);
-                pc_JSON_Delete(tt->server_protos);
-
-                tt->client_protos = NULL;
-                tt->proto_ver = NULL;
-                tt->server_protos = NULL;
-            }
-
-            tt->client_protos = client_protos;
-            tt->server_protos = server_protos;
-            tt->proto_ver = proto_ver;
-
-            need_sync = 1;
-        }
-        assert(tt->proto_ver && tt->server_protos && tt->client_protos);
-    }
-
     pc_JSON_Delete(res);
     res = NULL;
 
@@ -1160,10 +1075,6 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
         pc_JSON* lc = pc_JSON_CreateObject();
         char* data;
         size_t len;
-
-        if (tt->dict_ver) {
-            pc_JSON_AddItemReferenceToObject(lc, TR_UV_LCK_DICT_VERSION, tt->dict_ver);
-        }
 
         if (tt->route_to_code) {
             pc_JSON_AddItemReferenceToObject(lc, TR_UV_LCK_ROUTE_2_CODE, tt->route_to_code);
@@ -1173,17 +1084,6 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
             pc_JSON_AddItemReferenceToObject(lc, TR_UV_LCK_CODE_2_ROUTE, tt->code_to_route);
         }
 
-        if (tt->proto_ver) {
-            pc_JSON_AddItemReferenceToObject(lc, TR_UV_LCK_PROTO_VERSION, tt->proto_ver);
-        }
-
-        if (tt->client_protos) {
-            pc_JSON_AddItemReferenceToObject(lc, TR_UV_LCK_PROTO_CLIENT, tt->client_protos);
-        }
-
-        if (tt->server_protos) {
-            pc_JSON_AddItemReferenceToObject(lc, TR_UV_LCK_PROTO_SERVER, tt->server_protos);
-        }
         data = pc_JSON_PrintUnformatted(lc);
         pc_JSON_Delete(lc);
 

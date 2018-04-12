@@ -165,7 +165,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     return msg;
 }
 
-pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_JSON* server_protos, const pc_buf_t* buf)
+pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
 {
     const char *route_str = NULL;
     const char *origin_route = NULL;
@@ -231,12 +231,10 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_JSON* server_
             json_msg = pc_body_json_decode(body.base, 0, body.len);
         } else {
             pc_JSON* pb_def;
-            if (server_protos && (pb_def = pc_JSON_GetObjectItem(server_protos, msg.route))) {
-                /* pb definition found */
-                json_msg = pc_body_pb_decode(body.base, 0, body.len, server_protos, pb_def);
-            } else {
+            // TODO prever deconding raw
+            // } else {
                 json_msg = pc_body_json_decode(body.base, 0, body.len);
-            }
+            // }
         }
 
         if (!json_msg) {
@@ -387,7 +385,7 @@ static uint8_t pc__msg_id_length(uint32_t id)
     return len;
 }
 
-pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_JSON* client_protos, const pc_msg_t* msg)
+pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg)
 {
     pc_buf_t msg_buf;
     pc_buf_t body_buf;
@@ -412,20 +410,14 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_JSON* client_
 
     assert(json_msg);
 
-    if (client_protos && (pb_def = pc_JSON_GetObjectItem(client_protos, msg->route))) {
-        /* pb definition found */
-        body_buf = pc_body_pb_encode(json_msg, client_protos, pb_def);
-        if(body_buf.len == -1) {
-            assert(body_buf.base == NULL);
-            pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with protobuf: %s\n", msg->route);
-        }
-    } else {
+    //TODO prever encode n json
+    // } else {
         body_buf = pc_body_json_encode(json_msg);
         if(body_buf.len == -1) {
             assert(body_buf.base == NULL);
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with json: %s\n", msg->route);
         }
-    }
+    //}
 
     if (body_buf.len == -1) {
         assert(body_buf.base == NULL);
@@ -477,7 +469,7 @@ uv_buf_t pr_default_msg_encoder(tr_uv_tcp_transport_t* tt, const pc_msg_t* msg)
     pc_buf_t pb;
     uv_buf_t ub;
 
-    pb = pc_default_msg_encode(tt->route_to_code, tt->client_protos, msg);
+    pb = pc_default_msg_encode(tt->route_to_code, msg);
     ub.base = pb.base;
     ub.len = pb.len;
     return ub;
@@ -489,5 +481,5 @@ pc_msg_t pr_default_msg_decoder(tr_uv_tcp_transport_t* tt, const uv_buf_t* buf)
     pb.base = buf->base;
     pb.len = buf->len;
 
-    return pc_default_msg_decode(tt->code_to_route, tt->server_protos, &pb);
+    return pc_default_msg_decode(tt->code_to_route, &pb);
 }
