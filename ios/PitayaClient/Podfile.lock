@@ -8,14 +8,9 @@ PODS:
 DEPENDENCIES:
   - Pitaya (from `../../`)
 
-SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
-    - libuv
-    - OpenSSL-Universal
-
 EXTERNAL SOURCES:
   Pitaya:
-    :path: "../../"
+    :path: ../../
 
 SPEC CHECKSUMS:
   libuv: 8497e469e7918518052d895945a4b17e6dbb088e
@@ -24,4 +19,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: bb0fd389571ffaf25575f04f6f23a59bb7d6d42f
 
-COCOAPODS: 1.5.0
+COCOAPODS: 1.4.0

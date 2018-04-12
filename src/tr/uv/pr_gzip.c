@@ -65,3 +65,18 @@ int decompress(unsigned char** output,
     } while (inflate_s.avail_out == 0);
     return inflateEnd(&inflate_s);
 }
+
+int is_compressed(unsigned char* data, size_t size)
+{
+    return size > 2 &&
+    (
+     // zlib
+     (
+      data[0] == 0x78 &&
+      (data[1] == 0x9C ||
+       data[1] == 0x01 ||
+       data[1] == 0xDA ||
+       data[1] == 0x5E)) ||
+     // gzip
+     (data[0] == 0x1F && data[1] == 0x8B));
+}

@@ -16,3 +16,5 @@ int decompress(unsigned char** output,
                size_t* output_size,
                unsigned char* data,
                size_t size);
+
+int is_compressed(unsigned char* data, size_t size);

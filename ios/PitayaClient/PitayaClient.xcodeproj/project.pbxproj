@@ -106,6 +106,8 @@
 				174AD626207BF58400C2D521 /* Sources */,
 				174AD627207BF58400C2D521 /* Frameworks */,
 				174AD628207BF58400C2D521 /* Resources */,
+				BDD1CF8C8663E1AA20EDC09E /* [CP] Embed Pods Frameworks */,
+				C82B23AB01CDD6A1014F4E98 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -127,7 +129,7 @@
 				TargetAttributes = {
 					174AD629207BF58400C2D521 = {
 						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -163,6 +165,36 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		BDD1CF8C8663E1AA20EDC09E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PitayaClient/Pods-PitayaClient-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C82B23AB01CDD6A1014F4E98 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PitayaClient/Pods-PitayaClient-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		F25901BFEBA13FBA1C15F643 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -328,15 +360,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8J2APFQ8ES;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 3THJCX5EUA;
 				INFOPLIST_FILE = PitayaClient/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.felipejfc.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "bb3a2c0e-9c35-4ac4-8774-c4affce49d72";
+				PROVISIONING_PROFILE_SPECIFIER = "Dev Top Free Games";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -347,14 +379,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8J2APFQ8ES;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 3THJCX5EUA;
 				INFOPLIST_FILE = PitayaClient/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.felipejfc.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "bb3a2c0e-9c35-4ac4-8774-c4affce49d72";
+				PROVISIONING_PROFILE_SPECIFIER = "Dev Top Free Games";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

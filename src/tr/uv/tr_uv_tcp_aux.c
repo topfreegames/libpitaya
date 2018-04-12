@@ -19,6 +19,7 @@
 #include "tr_uv_tcp_aux.h"
 #include "tr_uv_tcp_i.h"
 #include "pr_pkg.h"
+#include "pr_gzip.h"
 
 #define GET_TT(x) tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t* )(x->data); assert(tt)
 
@@ -990,16 +991,24 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     int code = -1;
     pc_JSON* res;
     pc_JSON* tmp;
-    pc_JSON* protos;
     pc_JSON* sys;
     int i;
     int need_sync = 0;
+    const char* uncompressed_data;
+    size_t uncompressed_len;
 
     assert(tt->state == TR_UV_TCP_HANDSHAKEING);
 
     tt->reconn_times = 0;
 
-    res = pc_JSON_Parse(data);
+    if (is_compressed((unsigned char*)data, len)) {
+        decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
+    } else {
+        uncompressed_data = data;
+        uncompressed_len = len;
+    }
+    
+    res = pc_JSON_Parse(uncompressed_data);
 
     pc_lib_log(PC_LOG_INFO, "tcp__on_handshake_resp - tcp get handshake resp");
 
