@@ -994,21 +994,20 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     pc_JSON* sys;
     int i;
     int need_sync = 0;
-    const char* uncompressed_data;
-    size_t uncompressed_len;
 
     assert(tt->state == TR_UV_TCP_HANDSHAKEING);
 
     tt->reconn_times = 0;
 
     if (is_compressed((unsigned char*)data, len)) {
+        char* uncompressed_data = pc_lib_malloc(1);
+        size_t uncompressed_len;
         decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
+        res = pc_JSON_Parse(uncompressed_data);
+        pc_lib_free(uncompressed_data);
     } else {
-        uncompressed_data = data;
-        uncompressed_len = len;
+        res = pc_JSON_Parse(data);
     }
-    
-    res = pc_JSON_Parse(uncompressed_data);
 
     pc_lib_log(PC_LOG_INFO, "tcp__on_handshake_resp - tcp get handshake resp");
 
