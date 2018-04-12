@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include <pc_lib.h>
+#include <gzip.hpp>
 
 #include "pr_msg.h"
 #include "tr_uv_tcp_i.h"
@@ -41,6 +42,7 @@ typedef struct {
     uint32_t id;
     pc_msg_type type;
     uint8_t is_route_compressed;
+    uint8_t is_gzipped;
     union {
         uint16_t route_code;
         const char *route_str;
@@ -71,6 +73,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
 
     uint8_t flag;
     uint8_t type;
+    uint8_t gzipped;
     uint8_t is_route_compressed;
     uint16_t route_code = 0;
     size_t route_len;
@@ -89,7 +92,8 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     }
 
     flag = data[offset++];
-    type = flag >> 1;
+    type = 0b1110 & flag;
+    gzipped = 0b10000 & flag;
     is_route_compressed = flag & 0x01;
 
     if (!PC_IS_VALID_TYPE(type)) {
@@ -146,6 +150,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     memset(msg, 0, sizeof(pc__msg_raw_t));
 
     msg->type = (pc_msg_type)type;
+    msg->is_gzipped = gzipped;
     msg->is_route_compressed = is_route_compressed;
 
     assert(id != PC_INVALID_REQ_ID);
@@ -224,8 +229,10 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
     }
 
     /* body.base is within msg */
+    std::string body_s = raw_msg->body;
     body = raw_msg->body;
     if (body.len > 0) {
+        body.base = gzip::decompress(body.base, body.len);
         json_msg = NULL;
         if (!msg.route) {
             json_msg = pc_body_json_decode(body.base, 0, body.len);

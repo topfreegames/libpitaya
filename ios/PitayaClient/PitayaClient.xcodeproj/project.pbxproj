@@ -360,6 +360,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 3THJCX5EUA;
 				INFOPLIST_FILE = PitayaClient/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.topfreegames.staticlibproject.PitayaClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -377,6 +378,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = PitayaClient/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.topfreegames.staticlibproject.PitayaClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
