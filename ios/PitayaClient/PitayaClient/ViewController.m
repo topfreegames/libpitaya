@@ -35,7 +35,7 @@ static pc_client_t* client;
 - (IBAction)onConnectBt:(id)sender {
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TCP;
-    pc_lib_init(NULL, NULL, NULL, NULL);
+    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
     client = (pc_client_t*)malloc(pc_client_size());
     pc_client_init(client, NULL, &config);
     pc_client_add_ev_handler(client, event_cb, NULL, NULL);

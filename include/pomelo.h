@@ -155,8 +155,8 @@ PC_EXPORT void pc_lib_set_default_log_level(int level);
 /**
  * pc_lib_init and pc_lib_cleanup both should be invoked only once.
  */
-PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...),
-        void* (*pc_alloc)(size_t len), void (*pc_free)(void* d), const char* platform);
+PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_alloc)(size_t), void (*pc_free)(void* ), void* (*pc_realloc)(void*, size_t), const char* platform);
+
 PC_EXPORT void pc_lib_cleanup();
 
 PC_EXPORT size_t pc_client_size();

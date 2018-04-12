@@ -31,6 +31,7 @@
 void (*pc_lib_log)(int level, const char* msg, ...) = NULL;
 void* (*pc_lib_malloc)(size_t len) = NULL;
 void (*pc_lib_free)(void* data) = NULL;
+void* (*pc_lib_realloc)(void* ptr, size_t len) = NULL;
 
 const char* pc_lib_platform_type = NULL;
 
@@ -51,6 +52,16 @@ static void* default_malloc(size_t len)
         abort();
 
     return d;
+}
+
+static void* default_realloc(void* ptr, size_t len){
+    ptr = realloc(ptr, len);
+    
+    if (!ptr){
+        abort();
+    }
+    
+    return ptr;
 }
 
 static void default_log(int level, const char* msg, ...)
@@ -89,12 +100,13 @@ static void default_log(int level, const char* msg, ...)
     fflush(stdout);
 }
 
-void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_alloc)(size_t), void (*pc_free)(void* ), const char* platform)
+void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_alloc)(size_t), void (*pc_free)(void* ), void* (*pc_realloc)(void*, size_t), const char* platform)
 {
     pc_transport_plugin_t* tp;
 
     pc_lib_log = pc_log ? pc_log : default_log;
     pc_lib_malloc = pc_alloc ? pc_alloc : default_malloc;
+    pc_lib_realloc = pc_realloc ? pc_realloc : default_realloc;
     pc_lib_free = pc_free ? pc_free: free;
     pc_lib_platform_type = platform ? pc_lib_strdup(platform) : pc_lib_strdup("desktop");
 

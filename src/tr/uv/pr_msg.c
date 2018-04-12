@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 #include <pc_lib.h>
-#include <gzip.hpp>
 
 #include "pr_msg.h"
 #include "tr_uv_tcp_i.h"
@@ -92,9 +91,9 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     }
 
     flag = data[offset++];
-    type = 0b1110 & flag;
-    gzipped = 0b10000 & flag;
-    is_route_compressed = flag & 0x01;
+    type = 0b111 & (flag >> 1);
+    gzipped = 0b1 & (flag >> 4);
+    is_route_compressed = flag & 0b1;
 
     if (!PC_IS_VALID_TYPE(type)) {
         pc_lib_log(PC_LOG_ERROR, "pc_msg_decode_to_raw - unknow message type");
@@ -229,18 +228,15 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
     }
 
     /* body.base is within msg */
-    std::string body_s = raw_msg->body;
     body = raw_msg->body;
     if (body.len > 0) {
-        body.base = gzip::decompress(body.base, body.len);
         json_msg = NULL;
         if (!msg.route) {
-            json_msg = pc_body_json_decode(body.base, 0, body.len);
+            json_msg = pc_body_json_decode(body.base, 0, body.len, raw_msg->is_gzipped);
         } else {
-            pc_JSON* pb_def;
             // TODO prever deconding raw
             // } else {
-                json_msg = pc_body_json_decode(body.base, 0, body.len);
+            json_msg = pc_body_json_decode(body.base, 0, body.len, raw_msg->is_gzipped);
             // }
         }
 
