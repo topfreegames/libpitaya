@@ -1003,7 +1003,7 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
         char* uncompressed_data = pc_lib_malloc(1);
         size_t uncompressed_len;
         decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
-        res = pc_JSON_Parse(uncompressed_data);
+        
         pc_lib_free(uncompressed_data);
     } else {
         res = pc_JSON_Parse(data);

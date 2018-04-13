@@ -30,6 +30,19 @@ typedef struct {
     int len;
 } pc_buf_t;
 
+typedef struct {
+    char route_compressed:1;
+    char message_type:3;
+    char data_compressed:1;
+    char error:1;
+    char unused:2;
+} pc_message_flag;
+
+typedef struct {
+    char value:7;
+    char continues:1;
+} pc_message_id_byte;
+
 pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg);
 pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf);
 

@@ -37,15 +37,17 @@ typedef enum {
     PC_MSG_PUSH
 } pc_msg_type;
 
+typedef union {
+    uint16_t route_code;
+    char *route_str;
+} pc_message_route;
+
 typedef struct {
     uint32_t id;
     pc_msg_type type;
     uint8_t is_route_compressed;
     uint8_t is_gzipped;
-    union {
-        uint16_t route_code;
-        const char *route_str;
-    } route;
+    pc_message_route route;
     pc_buf_t body;
 } pc__msg_raw_t;
 
@@ -60,112 +62,73 @@ static PC_INLINE const char *pc__resolve_dictionary(const pc_JSON* code2route, u
     return tmp->valuestring;
 }
 
+static void* length_error() {
+    pc_lib_log(PC_LOG_ERROR, "pc_msg_decode_to_raw - invalid length");
+    return NULL;
+}
 
 static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
 {
-    const char* data = buf->base;
     size_t len = buf->len;
-    pc__msg_raw_t *msg = NULL;
-    char *route_str = NULL;
-    size_t body_len;
+    if (len < PC_MSG_FLAG_BYTES) return length_error();
+
+    const char* data = buf->base;
     size_t offset = 0;
-
-    uint8_t flag;
-    uint8_t type;
-    uint8_t gzipped;
-    uint8_t is_route_compressed;
-    uint16_t route_code = 0;
-    size_t route_len;
-
-    /*
-     * invalid req id for error msg
-     * notify req id for push message
-     */
-    uint32_t id = PC_INVALID_REQ_ID;
-
-    int i = 0;
-    uint8_t m;
-
-    if (len < PC_MSG_FLAG_BYTES) {
-        return NULL;
-    }
-
-    flag = data[offset++];
-    type = 0b111 & (flag >> 1);
-    gzipped = 0b1 & (flag >> 4);
-    is_route_compressed = flag & 0b1;
-
-    if (!PC_IS_VALID_TYPE(type)) {
+    pc_message_flag* flag = (pc_message_flag*) &(data[offset++]);
+    
+    if (!PC_IS_VALID_TYPE(flag->message_type)) {
         pc_lib_log(PC_LOG_ERROR, "pc_msg_decode_to_raw - unknow message type");
         return NULL;
     }
 
-    if (PC_MSG_HAS_ID(type)) {
+    uint32_t id = PC_NOTIFY_PUSH_REQ_ID;
+    if (PC_MSG_HAS_ID(flag->message_type)) {
+        pc_message_id_byte* id_byte = (pc_message_id_byte*)&data[offset++];
         id = 0;
+        size_t i = 0;
         do {
-            if (offset < len) {
-                m = data[offset++];
-                id = id + ((m & 0x7f) << (7 * i));
-                i++;
-            } else {
-                pc_lib_log(PC_LOG_ERROR, "pc_msg_decode_to_raw - invalid length");
-                return NULL;
-            }
-        } while(m & 0x80);
-    } else {
-        id = PC_NOTIFY_PUSH_REQ_ID;
+            if (offset >= len) return length_error();
+            
+            static const int id_bits_count = 7; // google protobuf varint definition
+            id += id_byte->value << (id_bits_count * i++);
+            id_byte = (pc_message_id_byte*) &data[offset++];
+        } while (id_byte->continues);
+        --offset;
     }
 
-    /* route */
-    if (PC_MSG_HAS_ROUTE(type)) {
-        if (is_route_compressed) {
-            if (offset + PC_MSG_ROUTE_CODE_BYTES - 1 < len) {
-                route_code |= (uint8_t)data[offset++] << 8;
-                route_code |= (uint8_t)data[offset++];
-            } else {
-                pc_lib_log(PC_LOG_ERROR, "pc_msg_decode_to_raw - invalid length");
-                return NULL;
-            }
+    // route
+    pc_message_route route = { 0 };
+    if (PC_MSG_HAS_ROUTE(flag->message_type)) {
+        if (flag->route_compressed) {
+            if (offset + PC_MSG_ROUTE_CODE_BYTES - 1 >= len) return length_error();
+
+            route.route_code = (uint16_t)data[offset];
+            offset += 2;
         } else {
-            if (offset + PC_MSG_ROUTE_LEN_BYTES - 1 < len) {
-                route_len = data[offset++];
-                if (offset + route_len - 1 < len) {
-                    route_str = (char *)pc_lib_malloc(route_len + 1);
-                    memset(route_str, 0, route_len + 1);
-                    memcpy(route_str, data + offset, route_len);
-                    offset += route_len;
-                } else {
-                    pc_lib_log(PC_LOG_ERROR, "pc_msg_decode_to_raw - invalid length");
-                    return NULL;
-                }
-            } else {
-                pc_lib_log(PC_LOG_ERROR, "pc_msg_decode_to_raw - invalid length");
-                return NULL;
-            }
+            size_t route_len;
+            if (offset + PC_MSG_ROUTE_LEN_BYTES - 1 >= len || (route_len = data[offset++]) >= len) return length_error();
+            
+            route.route_str = (char *)pc_lib_malloc(route_len + 1);
+            route.route_str[route_len] = '\0';
+            strcpy(route.route_str, &data[offset]);
+            offset += route_len;
         }
     }
 
-    msg = (pc__msg_raw_t *)pc_lib_malloc(sizeof(pc__msg_raw_t));
-    memset(msg, 0, sizeof(pc__msg_raw_t));
+    pc__msg_raw_t *msg = (pc__msg_raw_t *)pc_lib_malloc(sizeof(pc__msg_raw_t));
 
-    msg->type = (pc_msg_type)type;
-    msg->is_gzipped = gzipped;
-    msg->is_route_compressed = is_route_compressed;
-
-    assert(id != PC_INVALID_REQ_ID);
+    msg->type = (pc_msg_type)flag->message_type;
+    msg->is_gzipped = flag->data_compressed;
+    msg->is_route_compressed = flag->route_compressed;
     msg->id = id;
+    memcpy(&msg->route, &route, sizeof(route));
 
-    if (is_route_compressed) {
-        msg->route.route_code = route_code;
-    } else {
-        msg->route.route_str = route_str;
-    }
-
-    /* borrow memory from original pc_buf_t */
-    body_len = len - offset;
+    // borrow memory from original pc_buf_t
     msg->body.base = (char* )data + offset;
-    msg->body.len = body_len;
+    msg->body.len = len - offset;
 
+    assert(msg->id != PC_INVALID_REQ_ID);
+    
     return msg;
 }
 
@@ -221,7 +184,7 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
         msg.route = NULL;
     }
 
-    if (PC_MSG_HAS_ROUTE(raw_msg->type) &&  !msg.route) {
+    if (PC_MSG_HAS_ROUTE(raw_msg->type) && !msg.route) {
         msg.id = PC_INVALID_REQ_ID;
         pc_lib_free(raw_msg);
         return msg;
