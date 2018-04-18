@@ -1,3 +1,5 @@
 ios/PitayaClient/Pods
 *.xcuserdatad
+*.xcuserstate
 Assembly-CSharp.csproj.CoreCompileInputs.cache
+

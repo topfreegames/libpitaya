@@ -15,6 +15,7 @@ typedef struct tr_uv_tcp_transport_s tr_uv_tcp_transport_t;
 
 typedef struct {
     unsigned int id;
+    int error;
     const char* route;
     const char* msg;
 } pc_msg_t;

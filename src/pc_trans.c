@@ -270,9 +270,9 @@ void pc__trans_sent(pc_client_t* client, unsigned int seq_num, int rc)
     }
 }
 
-static void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp);
+static void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error);
 
-void pc_trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp)
+void pc_trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error)
 {
     if (!client) {
         pc_lib_log(PC_LOG_ERROR, "pc_trans_resp - client is null");
@@ -280,13 +280,13 @@ void pc_trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char*
     }
 
     if (client->config.enable_polling) {
-        pc__trans_queue_resp(client, req_id, rc, resp);
+        pc__trans_queue_resp(client, req_id, rc, resp, error);
     } else {
-        pc__trans_resp(client, req_id, rc, resp);
+        pc__trans_resp(client, req_id, rc, resp, error);
     }
 }
 
-void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp)
+void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error)
 {
     pc_event_t* ev;
     int i;
@@ -323,7 +323,7 @@ void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, cons
     pc_mutex_unlock(&client->event_mutex);
 }
 
-void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp)
+void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error)
 {
     QUEUE* q;
     pc_request_t* req;
@@ -333,7 +333,7 @@ void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char
     target = NULL;
     pc_mutex_lock(&client->req_mutex);
     QUEUE_FOREACH(q, &client->req_queue) {
-        req= (pc_request_t* )QUEUE_DATA(q, pc_common_req_t, queue);
+        req = (pc_request_t* )QUEUE_DATA(q, pc_common_req_t, queue);
         if (req->req_id == req_id) {
 
             pc_lib_log(PC_LOG_INFO, "pc__trans_resp - fire resp event, req_id: %u, rc: %s",
@@ -348,8 +348,12 @@ void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char
     pc_mutex_unlock(&client->req_mutex);
 
     if (target) {
-        target->cb(target, rc, resp);
-
+        if (error && target->error_cb) {
+            target->error_cb(target, rc, resp);
+        } else {
+            target->cb(target, rc, resp);
+        }
+            
         pc_lib_free((char*)target->base.msg);
         pc_lib_free((char*)target->base.route);
 

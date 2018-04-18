@@ -75,7 +75,7 @@ static void request_cb(const pc_request_t* req, int rc, const char* resp)
 }
 
 - (IBAction)requestButtonClicked:(id)sender {
-    pc_request_with_timeout(client, [[_routeTF text] cString], "{}", NULL, 10, request_cb);
+    pc_request_with_timeout(client, [[_routeTF text] cString], "{}", NULL, 10, request_cb, NULL);
 }
 
 - (void)didReceiveMemoryWarning

@@ -27,7 +27,7 @@ static void tcp__reset_wi(pc_client_t* client, tr_uv_wi_t* wi)
 {
     if (TR_UV_WI_IS_RESP(wi->type)) {
         pc_lib_log(PC_LOG_DEBUG, "tcp__reset_wi - reset request, req_id: %u", wi->req_id);
-        pc_trans_resp(client, wi->req_id, PC_RC_RESET, NULL);
+        pc_trans_resp(client, wi->req_id, PC_RC_RESET, NULL, 0);
     } else if (TR_UV_WI_IS_NOTIFY(wi->type)) {
         pc_lib_log(PC_LOG_DEBUG, "tcp__reset_wi - reset notify, seq_num: %u", wi->seq_num);
         pc_trans_sent(client, wi->seq_num, PC_RC_RESET);
@@ -476,7 +476,7 @@ void tcp__write_async_cb(uv_async_t* a)
             }
 
             if (TR_UV_WI_IS_RESP(wi->type)) {
-                pc_trans_resp(tt->client, wi->req_id, ret, NULL);
+                pc_trans_resp(tt->client, wi->req_id, ret, NULL, 0);
             }
             /* if internal, do nothing here. */
 
@@ -546,7 +546,7 @@ void tcp__write_done_cb(uv_write_t* w, int status)
         }
 
         if (TR_UV_WI_IS_RESP(wi->type)) {
-            pc_trans_resp(tt->client, wi->req_id, status, NULL);
+            pc_trans_resp(tt->client, wi->req_id, status, NULL, 0);
         }
         /* if internal, do nothing here. */
 
@@ -583,7 +583,7 @@ int tcp__check_queue_timeout(QUEUE* ql, pc_client_t* client, int cont)
                     pc_trans_sent(client, wi->seq_num, PC_RC_TIMEOUT);
                 } else if (TR_UV_WI_IS_RESP(wi->type)) {
                     pc_lib_log(PC_LOG_WARN, "tcp__check_queue_timeout - request timeout, req id: %u", wi->req_id);
-                    pc_trans_resp(client, wi->req_id, PC_RC_TIMEOUT, NULL);
+                    pc_trans_resp(client, wi->req_id, PC_RC_TIMEOUT, NULL, 0);
                 }
 
                 /* if internal, just drop it. */
@@ -872,7 +872,7 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
     pc_lib_log(PC_LOG_INFO, "tcp__on_data_recieved - recived data, req_id: %d", msg.id);
     if (msg.id != PC_NOTIFY_PUSH_REQ_ID) {
         /* request */
-        pc_trans_resp(tt->client, msg.id, PC_RC_OK, msg.msg);
+        pc_trans_resp(tt->client, msg.id, PC_RC_OK, msg.msg, msg.error);
 
         /*
          * As we will stop iterating if matched wi found,
@@ -1002,7 +1002,7 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     if (is_compressed((unsigned char*)data, len)) {
         char* uncompressed_data = pc_lib_malloc(1);
         size_t uncompressed_len;
-        decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
+        pr_decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
         
         pc_lib_free(uncompressed_data);
     } else {

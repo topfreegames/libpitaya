@@ -22,14 +22,19 @@ pc_buf_t pc_body_json_encode(const pc_JSON* msg)
     buf.len = -1;
 
     assert(msg);
-
+    
     res = pc_JSON_PrintUnformatted(msg);
     if (!res) {
         pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - json encode error");
-    } else {
-        buf.base = res;
-        buf.len = strlen(res);
+        return buf;
     }
+    
+    const size_t res_len = strlen(res);
+    if (pr_compress((unsigned char**)&buf.base, (size_t*)&buf.len, (unsigned char*)res, res_len) != 0 || buf.len >= res_len) {
+        buf.base = res;
+        buf.len = (int)strlen(res);
+    }
+    
     return buf;
 }
 
@@ -37,11 +42,11 @@ pc_JSON* pc_body_json_decode(const char *data, size_t offset, size_t len, boolea
 {
     const char* end = NULL;
     const char* finalData = data;
-    unsigned char * out = pc_lib_malloc(len);
+    unsigned char * out = NULL;
     size_t outLen = len;
 
     if (gzipped){
-        int decomprRet = decompress(&out, &outLen, (unsigned char*)(data + offset), len);
+        int decomprRet = pr_decompress(&out, &outLen, (unsigned char*)(data + offset), len);
         
         if (decomprRet != 0) {
             pc_lib_log(PC_LOG_ERROR, "pc_body_gzip_inflate - gzip inflate error");

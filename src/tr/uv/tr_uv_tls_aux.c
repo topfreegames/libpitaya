@@ -421,7 +421,7 @@ void tls__write_done_cb(uv_write_t* w, int status)
         }
 
         if (TR_UV_WI_IS_RESP(wi->type)) {
-            pc_trans_resp(tt->client, wi->req_id, status, NULL);
+            pc_trans_resp(tt->client, wi->req_id, status, NULL, 0);
         }
         /* if internal, do nothing here. */
 
@@ -463,7 +463,7 @@ void tls__write_timeout_check_cb(uv_timer_t* t)
             pc_trans_sent(tt->client, wi->seq_num, PC_RC_TIMEOUT);
         } else if (TR_UV_WI_IS_RESP(wi->type)) {
             pc_lib_log(PC_LOG_WARN, "tls__write_timeout_check_cb - request timeout, req id: %u", wi->req_id);
-            pc_trans_resp(tt->client, wi->req_id, PC_RC_TIMEOUT, NULL);
+            pc_trans_resp(tt->client, wi->req_id, PC_RC_TIMEOUT, NULL, 0);
         }
 
         /* if internal, just drop it. */

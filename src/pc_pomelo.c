@@ -307,7 +307,7 @@ static void pc__handle_event(pc_client_t* client, pc_event_t* ev)
     assert(PC_EV_IS_RESP(ev->type) || PC_EV_IS_NOTIFY_SENT(ev->type) || PC_EV_IS_NET_EVENT(ev->type));
 
     if (PC_EV_IS_RESP(ev->type)) {
-        pc__trans_resp(client, ev->data.req.req_id, ev->data.req.rc, ev->data.req.resp);
+        pc__trans_resp(client, ev->data.req.req_id, ev->data.req.rc, ev->data.req.resp, 0);
         pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans resp, req_id: %u, rc: %s",
                 ev->data.req.req_id, pc_client_rc_str(ev->data.req.rc));
         pc_lib_free((char* )ev->data.req.resp);
@@ -515,7 +515,7 @@ void* pc_client_trans_data(pc_client_t* client)
 }
 
 int pc_request_with_timeout(pc_client_t* client, const char* route, const char* msg, void* ex_data,
-        int timeout, pc_request_cb_t cb)
+        int timeout, pc_request_cb_t cb, pc_request_cb_t error_cb)
 {
     pc_request_t* req;
     int i;
@@ -579,6 +579,7 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
         client->req_id_seq = 1;
     req->req_id = client->req_id_seq++;
     req->cb = cb;
+    req->error_cb = error_cb;
 
     pc_mutex_unlock(&client->req_mutex);
 
