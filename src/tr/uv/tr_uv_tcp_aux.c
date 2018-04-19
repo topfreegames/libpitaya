@@ -989,7 +989,7 @@ void tcp__send_handshake(tr_uv_tcp_transport_t* tt)
 void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t len)
 {
     int code = -1;
-    pc_JSON* res;
+    pc_JSON* res = NULL;
     pc_JSON* tmp;
     pc_JSON* sys;
     int i;
@@ -1000,9 +1000,10 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     tt->reconn_times = 0;
 
     if (is_compressed((unsigned char*)data, len)) {
-        char* uncompressed_data = pc_lib_malloc(1);
+        char* uncompressed_data = NULL;
         size_t uncompressed_len;
         pr_decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
+        res = pc_JSON_Parse(uncompressed_data);
         
         pc_lib_free(uncompressed_data);
     } else {
