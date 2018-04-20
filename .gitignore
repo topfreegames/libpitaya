@@ -1,2 +1,5 @@
 ios/PitayaClient/Pods
 Assembly-CSharp.csproj.CoreCompileInputs.cache
+out/
+.vscode/
+build/
