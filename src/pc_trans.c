@@ -44,7 +44,7 @@ void pc__trans_queue_event(pc_client_t* client, int ev_type, const char* arg1, c
     }
 
     if (ev_type == PC_EV_CONNECT_ERROR || ev_type == PC_EV_UNEXPECTED_DISCONNECT
-        || ev_type == PC_EV_PROTO_ERROR || ev_type == PC_EV_CONNECT_FAILED) {
+        || ev_type == PC_EV_PROTO_ERROR || ev_type == PC_EV_CONNECT_FAILED || ev_type == PC_EV_RECONNECT_FAILED) {
         if (!arg1) {
             pc_lib_log(PC_LOG_ERROR, "pc__trans_queue_event - event should be with a reason description");
             return ;
@@ -110,7 +110,7 @@ void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, co
     }
 
     if (ev_type == PC_EV_CONNECT_ERROR || ev_type == PC_EV_UNEXPECTED_DISCONNECT
-        || ev_type == PC_EV_PROTO_ERROR || ev_type == PC_EV_CONNECT_FAILED) {
+        || ev_type == PC_EV_PROTO_ERROR || ev_type == PC_EV_CONNECT_FAILED || ev_type == PC_EV_RECONNECT_FAILED) {
         if (!arg1) {
             pc_lib_log(PC_LOG_ERROR, "pc__transport_fire_event - event should be with a reason description");
             return ;
@@ -134,7 +134,12 @@ void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, co
             assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_DISCONNECTING);
             client->state = PC_ST_INITED;
             break;
-
+            
+        case PC_EV_RECONNECT_FAILED:
+            assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_DISCONNECTING);
+            client->state = PC_ST_INITED;
+            break;
+            
         case PC_EV_DISCONNECT:
             assert(client->state == PC_ST_DISCONNECTING);
             client->state = PC_ST_INITED;

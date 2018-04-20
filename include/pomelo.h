@@ -54,7 +54,7 @@ extern "C" {
 typedef struct pc_client_s pc_client_t;
 typedef struct pc_request_s pc_request_t;
 typedef struct pc_notify_s pc_notify_t;
-
+    
 /**
  * client state
  */
@@ -188,6 +188,7 @@ PC_EXPORT void* pc_client_trans_data(pc_client_t* client);
  *   PC_EV_CONNECT_FAILED - arg1 as short reason description
  *   PC_EV_UNEXPECTED_DISCONNECT - arg1 as short reason description
  *   PC_EV_PROTO_ERROR - arg1 as short reason description
+ *   PC_EV_RECONNECT_FAILED - arg1 as short reason description
  *
  * For other events, arg1 and arg2 will be set to NULL.
  */
@@ -201,7 +202,8 @@ typedef void (*pc_event_cb_t)(pc_client_t *client, int ev_type, void* ex_data,
 #define PC_EV_KICKED_BY_SERVER 5
 #define PC_EV_UNEXPECTED_DISCONNECT 6
 #define PC_EV_PROTO_ERROR 7
-#define PC_EV_COUNT 8
+#define PC_EV_RECONNECT_FAILED 8
+#define PC_EV_COUNT 9
 
 #define PC_EV_INVALID_HANDLER_ID -1
 

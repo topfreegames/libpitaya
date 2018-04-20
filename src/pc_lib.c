@@ -181,6 +181,7 @@ static const char* ev_str[] = {
     "PC_EV_KICKED_BY_SERVER",
     "PC_EV_UNEXPECTED_DISCONNECT",
     "PC_EV_PROTO_ERROR",
+    "PC_EV_RECONNECT_FAILED",
     NULL
 };
 
