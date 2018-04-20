@@ -233,6 +233,7 @@
         'targets':[ {
           'target_name': 'cspomelo',
           'type': 'shared_library',
+          'product_extension': 'bundle',
           'dependencies': [
             'libpomelo2',
           ],
