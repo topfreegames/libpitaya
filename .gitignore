@@ -3,3 +3,6 @@ Assembly-CSharp.csproj.CoreCompileInputs.cache
 out/
 .vscode/
 build/
+output/
+*.xcodeproj
+

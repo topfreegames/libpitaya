@@ -19,7 +19,7 @@ python setup.py install
 ```
 #### Generate native IDE project files by [gyp](https://gyp.gsrc.io/)
 
-    $ gyp --depth=. pomelo.gyp [options]
+    $ gyp --depth=. pomelo.gyp --generator-output=build [options]
 
 options:
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0784B155A086EB302DED83D9 /* libPods-PitayaClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10658BD7632A9AE5B3DA3470 /* libPods-PitayaClient.a */; };
+		172C660F2087E05E0072EEC2 /* Pitaya.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 172C660E2087E05E0072EEC2 /* Pitaya.podspec */; };
 		174AD62F207BF58400C2D521 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 174AD62E207BF58400C2D521 /* AppDelegate.m */; };
 		174AD632207BF58400C2D521 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 174AD631207BF58400C2D521 /* ViewController.m */; };
 		174AD635207BF58400C2D521 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 174AD633207BF58400C2D521 /* Main.storyboard */; };
@@ -18,6 +19,7 @@
 
 /* Begin PBXFileReference section */
 		10658BD7632A9AE5B3DA3470 /* libPods-PitayaClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PitayaClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		172C660E2087E05E0072EEC2 /* Pitaya.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Pitaya.podspec; path = ../../Pitaya.podspec; sourceTree = "<group>"; };
 		174AD62A207BF58400C2D521 /* PitayaClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PitayaClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		174AD62D207BF58400C2D521 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		174AD62E207BF58400C2D521 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -47,6 +49,7 @@
 		174AD621207BF58400C2D521 = {
 			isa = PBXGroup;
 			children = (
+				172C660E2087E05E0072EEC2 /* Pitaya.podspec */,
 				174AD62C207BF58400C2D521 /* PitayaClient */,
 				174AD62B207BF58400C2D521 /* Products */,
 				DCB05BB40E2A7E6B8000277E /* Pods */,
@@ -158,6 +161,7 @@
 			files = (
 				174AD63A207BF58400C2D521 /* LaunchScreen.storyboard in Resources */,
 				174AD637207BF58400C2D521 /* Assets.xcassets in Resources */,
+				172C660F2087E05E0072EEC2 /* Pitaya.podspec in Resources */,
 				174AD635207BF58400C2D521 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
