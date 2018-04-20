@@ -188,26 +188,18 @@ CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* c
 
 }
 
-CS_POMELO_EXPORT pc_client_t* create(int enable_tls, int enable_poll, char* (*read)(), int (*write)(char*))
+CS_POMELO_EXPORT pc_client_t* create(int enable_tls, int enable_poll, int enable_reconnect)
 {
     pc_client_t* client = NULL;
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
-    lc_callback_t* lc_cb = NULL;
     if (enable_tls) {
         config.transport_name = PC_TR_NAME_UV_TLS;
     }
     if (enable_poll) {
         config.enable_polling = 1;
     }
-
-    lc_cb= (lc_callback_t*)malloc(sizeof(lc_callback_t));
-    if (!lc_cb) {
-        return NULL;
-    }
-    lc_cb->read = read;
-    lc_cb->write = write;
-    config.ls_ex_data = lc_cb;
-    config.local_storage_cb = local_storage_cb;
+    
+    config.enable_reconn = enable_reconnect;
 
     client = (pc_client_t *)malloc(pc_client_size());
     if (pc_client_init(client, NULL, &config) == PC_RC_OK) {
