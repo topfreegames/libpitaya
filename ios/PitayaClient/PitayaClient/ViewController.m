@@ -30,7 +30,7 @@
     [super viewDidLoad];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionEstablished:) name:@"connectionOkNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gotResponse:) name:@"gotResponse" object:nil];
-    pc_lib_init(NULL, NULL, NULL, NULL);
+    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
     
     
     self.clients = [NSMutableArray array];
@@ -89,7 +89,7 @@ static void request_cb(const pc_request_t* req, int rc, const char* resp)
     for(NSValue *value in self.clients){
         pc_client_t* client;
         [value getValue:&client];
-        pc_request_with_timeout(client, [@"metagame.playerHandler.authenticate" cString], [@"{}" cString], NULL, 10, request_cb);
+        pc_request_with_timeout(client, [@"metagame.playerHandler.authenticate" cString], [@"{}" cString], NULL, 10, request_cb, NULL);
     }
 }
 

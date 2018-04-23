@@ -175,6 +175,15 @@ static void default_request_cb(const pc_request_t* req, int rc, const char* resp
     r.cb(r.cbid, rc, resp);
 }
 
+static void default_error_cb(const pc_request_t* req, int rc, const char* resp)
+{
+    request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
+    assert(rp);
+    request_cb_t r = *rp;
+    free(rp);
+    r.cb(r.cbid, rc, resp);
+}
+
 CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* ca_path)
 {
 #if !defined(PC_NO_UV_TLS_TRANS)
@@ -185,13 +194,12 @@ CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* c
 
     pc_lib_set_default_log_level(log_level);
 #if defined(__ANDROID__)
-    pc_lib_init(android_log, NULL, NULL, "CSharp Client");
+    pc_lib_init(android_log, NULL, NULL, NULL, "CSharp Client");
 #elif defined(__UNITYEDITOR__)
-    pc_lib_init(unity_log, NULL, NULL, "CSharp Client");
+    pc_lib_init(unity_log, NULL, NULL, NULL,"CSharp Client");
 #else
-    pc_lib_init(NULL, NULL, NULL, "CSharp Client");
+    pc_lib_init(NULL, NULL, NULL, NULL, "CSharp Client");
 #endif
-
 }
 
 CS_POMELO_EXPORT pc_client_t* create(int enable_tls, int enable_poll, int enable_reconnect)
@@ -243,6 +251,6 @@ CS_POMELO_EXPORT int request(pc_client_t* client, const char* route, const char*
     }
     rp->cb = cb;
     rp->cbid= cbid;
-    return pc_request_with_timeout(client, route, msg, rp, timeout, default_request_cb);
+    return pc_request_with_timeout(client, route, msg, rp, timeout, default_request_cb, default_error_cb);
 }
 
