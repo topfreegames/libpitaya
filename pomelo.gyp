@@ -175,6 +175,9 @@
         'include_dirs': [
           './include/',
         ],
+        'link_settings': {
+          'libraries': ['-lcmocka'],
+        },
         'sources': [
           './test/test-tr_tls.c',
         ],
