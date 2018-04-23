@@ -13,7 +13,7 @@
 
 #include "pr_msg.h"
 
-pc_buf_t pc_body_json_encode(const pc_JSON* msg)
+pc_buf_t pc_body_json_encode(const pc_JSON* msg, int compress_data)
 {
     pc_buf_t buf;
     char* res;
@@ -29,10 +29,12 @@ pc_buf_t pc_body_json_encode(const pc_JSON* msg)
         return buf;
     }
     
-    const size_t res_len = strlen(res);
-    if (pr_compress((unsigned char**)&buf.base, (size_t*)&buf.len, (unsigned char*)res, res_len) != 0 || buf.len >= res_len) {
-        buf.base = res;
-        buf.len = (int)strlen(res);
+    if (compress_data) {
+        const size_t res_len = strlen(res);
+        if (pr_compress((unsigned char**)&buf.base, (size_t*)&buf.len, (unsigned char*)res, res_len) != 0 || buf.len >= res_len) {
+            buf.base = res;
+            buf.len = (int)strlen(res);
+        }
     }
     
     return buf;

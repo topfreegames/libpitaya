@@ -355,7 +355,7 @@ static uint8_t pc__msg_id_length(uint32_t id)
     return len;
 }
 
-pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg)
+pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, int compress_data)
 {
     pc_buf_t msg_buf;
     pc_buf_t body_buf;
@@ -382,7 +382,7 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg)
 
     //TODO prever encode n json
     // } else {
-        body_buf = pc_body_json_encode(json_msg);
+        body_buf = pc_body_json_encode(json_msg, compress_data);
         if(body_buf.len == -1) {
             assert(body_buf.base == NULL);
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with json: %s\n", msg->route);
@@ -409,9 +409,9 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg)
             && code->type == pc_JSON_Number) {
         route_code = code->valueint;
     }
-    
-    int compressed = is_compressed((unsigned char*)body_buf.base, body_buf.len);
 
+    int compressed = is_compressed((unsigned char*)body_buf.base, body_buf.len);
+    
     if (route_code > 0) {
         msg_buf = pc_msg_encode_code(msg->id, type, route_code, compressed, body_buf);
         if(msg_buf.len == -1) {
@@ -441,7 +441,7 @@ uv_buf_t pr_default_msg_encoder(tr_uv_tcp_transport_t* tt, const pc_msg_t* msg)
     pc_buf_t pb;
     uv_buf_t ub;
 
-    pb = pc_default_msg_encode(tt->route_to_code, msg);
+    pb = pc_default_msg_encode(tt->route_to_code, msg, !tt->config->disable_compression);
     ub.base = pb.base;
     ub.len = pb.len;
     return ub;
