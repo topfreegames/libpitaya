@@ -7,6 +7,7 @@
 #define PC_POMELO_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -276,7 +277,12 @@ PC_EXPORT const char* pc_client_rc_str(int rc);
 
 #if !defined(PC_NO_UV_TCP_TRANS) && !defined(PC_NO_UV_TLS_TRANS)
 
-void tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
+/**
+ * Sets the certificates that the client trust in order to verify the server for TLS communication.
+ * Returns `true` in case of success otherwise `false`. For more information, see
+ * https://www.openssl.org/docs/man1.0.2/ssl/SSL_CTX_load_verify_locations.html
+ */
+bool tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
 
 #endif /* uv_tls */
 

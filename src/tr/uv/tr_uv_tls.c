@@ -6,6 +6,7 @@
 #include <assert.h>
 
 #include <pc_lib.h>
+#include <stdbool.h>
 
 #include "pr_msg.h"
 #include "tr_uv_tls.h"
@@ -25,7 +26,7 @@ static tr_uv_tls_transport_plugin_t instance =
         pr_default_msg_decoder  /* decoder */
     },
     NULL, /* ssl ctx */
-    0 /* enable verify */
+    1 /* enables the verification of the  */
 };
 
 pc_transport_plugin_t* pc_tr_uv_tls_trans_plugin()
@@ -33,17 +34,17 @@ pc_transport_plugin_t* pc_tr_uv_tls_trans_plugin()
     return (pc_transport_plugin_t* )&instance;
 }
 
-void tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path)
+bool tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path)
 {
-    int ret;
     if (instance.ctx) {
-        ret = SSL_CTX_load_verify_locations(instance.ctx, ca_file, ca_path);
+        int ret = SSL_CTX_load_verify_locations(instance.ctx, ca_file, ca_path);
         if (!ret) {
             pc_lib_log(PC_LOG_WARN, "tr_uv_tls_set_ca_file - load verify locations error, cafile: %s, capath: %s", ca_file, ca_path);
-            instance.enable_verify = 0;
-        } else {
-            instance.enable_verify = 1;
+            return false;
         }
+        return true;
+    } else {
+        return false;
     }
 }
 
