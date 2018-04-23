@@ -126,6 +126,8 @@ typedef struct {
     void* ls_ex_data;
 
     int transport_name;
+    
+    int disable_compression;
 } pc_client_config_t;
 
 #define PC_CLIENT_CONFIG_DEFAULT                      \
@@ -138,8 +140,9 @@ typedef struct {
     1, /* reconn_exp_backoff */                       \
     0, /* enable_polling */                           \
     NULL, /* local_storage_cb */                      \
-    NULL, /* ls_ex_data */                               \
-    PC_TR_NAME_UV_TCP /* transport_name */            \
+    NULL, /* ls_ex_data */                            \
+    PC_TR_NAME_UV_TCP, /* transport_name */           \
+    0 /* disable_compression */                       \
 }
 
 PC_EXPORT int pc_lib_version();
