@@ -11,6 +11,12 @@
 
 #include <pomelo.h>
 
+#define __UNITYEDITOR__
+
+#ifdef __UNITYEDITOR__
+#include <time.h>
+#endif
+
 #ifdef _WIN32
 #define CS_POMELO_EXPORT __declspec(dllexport)
 #else
@@ -80,16 +86,16 @@ void unity_log(int level, const char* msg, ...)
 
     switch(level) {
         case PC_LOG_DEBUG:
-            fprintf(f, "[DEBUG] ");
+            fprintf(f, "U[DEBUG] ");
             break;
         case PC_LOG_INFO:
-            fprintf(f, "[INFO] ");
+            fprintf(f, "U[INFO] ");
             break;
         case PC_LOG_WARN:
-            fprintf(f, "[WARN] ");
+            fprintf(f, "U[WARN] ");
             break;
         case PC_LOG_ERROR:
-            fprintf(f, "[ERROR] ");
+            fprintf(f, "U[ERROR] ");
             break;
     }
 
@@ -230,9 +236,10 @@ CS_POMELO_EXPORT void destroy(pc_client_t* client)
 CS_POMELO_EXPORT int request(pc_client_t* client, const char* route, const char* msg,
                              unsigned int cbid, int timeout, request_callback cb)
 {
+    unity_log(PC_LOG_DEBUG, "route: %s msg %s cbid: %d timeout %d ",  route, msg, cbid, timeout);
     request_cb_t* rp = (request_cb_t*)malloc(sizeof(request_cb_t));
     if (!rp) {
-        return PC_RC_ERROR;
+        return PC_RC_TIMEOUT;
     }
     rp->cb = cb;
     rp->cbid= cbid;

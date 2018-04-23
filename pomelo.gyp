@@ -16,7 +16,6 @@
   },
 
     'target_defaults': {
-      'product_dir': 'output',
       'conditions': [
         ['build_type=="Debug"', {
           'cflags': ['-g', '-O0']

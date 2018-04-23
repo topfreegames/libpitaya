@@ -36,6 +36,8 @@ const char* pc_lib_platform_type = NULL;
 
 static int pc__default_log_level = 0;
 
+static int pc_initiateded = 0;
+
 /**
  * default malloc never return NULL
  * so we don't have to check its return value
@@ -86,11 +88,15 @@ static void default_log(int level, const char* msg, ...)
 
     printf("\n");
 
-    fflush(stdout);
+    fflush(stderr   );
 }
 
 void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_alloc)(size_t), void (*pc_free)(void* ), const char* platform)
 {
+    if(pc_initiateded == 1){
+        return; // init function already called
+    }
+    pc_initiateded = 1;
     pc_transport_plugin_t* tp;
 
     pc_lib_log = pc_log ? pc_log : default_log;
@@ -120,6 +126,7 @@ void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_all
 
 void pc_lib_cleanup()
 {
+    return;
 #if !defined(PC_NO_DUMMY_TRANS)
     pc_transport_plugin_deregister(PC_TR_NAME_DUMMY);
     pc_lib_log(PC_LOG_INFO, "pc_lib_cleanup - deregister dummy plugin");
