@@ -80,13 +80,44 @@ notify_cb(const pc_notify_t* noti, int rc)
 }
 
 void
+connect_failed_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
+{
+    Unused(client);
+
+    bool *called = ex_data;
+    *called = true;
+
+    assert_int_equal(ev_type, PC_EV_CONNECT_FAILED);
+    assert_string_equal(arg1, "TLS Handshake Error");
+    assert_null(arg2);
+}
+
+void
+test_invalid_handshake()
+{
+    // The client fails the connection when no certificate files are set
+    // with the function tr_uv_tls_set_ca_file.
+    assert_int_equal(pc_client_state(g_client), PC_ST_INITED);
+
+    bool called = false;
+    int handler_id = pc_client_add_ev_handler(g_client, connect_failed_event_cb, &called, NULL);
+    assert_int_not_equal(handler_id, PC_EV_INVALID_HANDLER_ID);
+
+    assert_int_equal(pc_client_connect(g_client, "127.0.0.1", TLS_PORT, NULL), PC_RC_OK);
+    SLEEP_SECONDS(1);
+
+    assert_true(called);
+
+    assert_int_equal(pc_client_disconnect(g_client), PC_RC_INVALID_STATE);
+    assert_int_equal(pc_client_rm_ev_handler(g_client, handler_id), PC_RC_OK);
+}
+
+void
 test_tls_connection(void **state)
 {
     Unused(state);
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TLS;
-
-    assert_non_null(g_client);
 
 #define RANDOM_PTR (void*)0xdeadbeef
     pc_client_init(g_client, RANDOM_PTR, &config);
@@ -95,6 +126,21 @@ test_tls_connection(void **state)
     assert_int_equal(pc_client_state(g_client), PC_ST_INITED);
 
     int handler_id = pc_client_add_ev_handler(g_client, event_cb, EV_HANDLER_EX, NULL);
+    assert_int_not_equal(handler_id, PC_EV_INVALID_HANDLER_ID);
+
+    // Without setting a CA file, the handshake should fail.
+    test_invalid_handshake();
+
+    // Setting an unexistent CA file should fail the function and also fail the handshake.
+    assert_false(tr_uv_tls_set_ca_file("./this/ca/does/not/exist.crt", NULL));
+    test_invalid_handshake();
+
+    // Setting the WRONG CA file should not fail the function but make the handshake fail.
+    assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca_incorrect.crt", NULL));
+    test_invalid_handshake();
+
+    // Set CA file so that the handshake is successful.
+    tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL);
 
     pc_client_connect(g_client, "127.0.0.1", TLS_PORT, NULL);
     SLEEP_SECONDS(1);
@@ -111,7 +157,6 @@ test_tls_connection(void **state)
     pc_client_cleanup(g_client);
 
     assert_int_equal(pc_client_state(g_client), PC_ST_NOT_INITED);
-
 #undef RANDOM_PTR
 }
 
