@@ -12,18 +12,14 @@
       'python_header%': "/usr/include/python2.7",
       'build_jpomelo%': "false",
       'build_cspomelo%': "false",
-      'build_type%': 'Release',
+      'build_type%': "Release",
+      'use_xcode%': "true",
   },
 
     'target_defaults': {
-      'xcode_settings': {'OTHER_LDFLAGS': ['-lz']},
       'conditions': [
-        ['build_type=="Debug"', {
-          'cflags': ['-g', '-O0']
-        }],
-        ['build_type=="Release"', {
-          'cflags': ['-g', '-O3']
-        }],
+      ],    # conditions
+      'conditions': [
         ['OS == "win"', {
           'msvs_settings': {
             'VCCLCompilerTool': {
@@ -38,7 +34,7 @@
               '_WINDLL',
               'UNICODE',
               '_UNICODE',
-           },
+          },
           'link_settings': {
             'libraries': [
               '-ladvapi32.lib',
@@ -48,16 +44,24 @@
               '-lws2_32.lib'
             ],
           },
-        },
-      {  # else
-        'defines':[
-          '_LARGEFILE_SOURCE',
-          '_FILE_OFFSET_BITS=64',
-          '_GNU_SOURCE'
-        ]
-      }],   # OS == "win"
-      ],    # conditions
-      'conditions': [
+        }, {  # else
+          'defines':[
+            '_LARGEFILE_SOURCE',
+            '_FILE_OFFSET_BITS=64',
+            '_GNU_SOURCE'
+          ]
+        }],   # OS == "win"
+        ['use_xcode == "true"', {
+          'xcode_settings': {'OTHER_LDFLAGS': ['-lz']},
+        }, {
+          'product_dir': 'output',
+        }],
+        ['build_type=="Debug"', {
+          'cflags': ['-g', '-O0']
+        }],
+        ['build_type=="Release"', {
+          'cflags': ['-g', '-O3']
+        }],
         [ 'no_uv_support == "false"', {
           'conditions' : [
             ['use_sys_uv == "false"', {
@@ -135,7 +139,9 @@
               './src/tr/uv/tr_uv_tcp_aux.c',
             ],
             'link_settings': {
-               'libraries': ['-lz'],
+               'libraries': [
+                 '-lz', 
+               ],
             },
             'conditions': [
               ['no_tls_support == "false"', {
