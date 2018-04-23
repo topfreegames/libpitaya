@@ -5,4 +5,7 @@ out/
 build/
 output/
 *.xcodeproj
+*.xcuserdatad
+*.xcuserstate
+Assembly-CSharp.csproj.CoreCompileInputs.cache
 

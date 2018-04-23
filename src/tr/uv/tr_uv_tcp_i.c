@@ -219,11 +219,7 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
 
     tt->route_to_code = NULL;
     tt->code_to_route = NULL;
-    tt->dict_ver = NULL;
 
-    tt->server_protos = NULL;
-    tt->client_protos = NULL;
-    tt->proto_ver = NULL;
 
     if (tt->config->local_storage_cb) {
         size_t len;
@@ -257,31 +253,14 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
 
             tt->route_to_code = pc_JSON_DetachItemFromObject(lc, TR_UV_LCK_ROUTE_2_CODE);
             tt->code_to_route = pc_JSON_DetachItemFromObject(lc, TR_UV_LCK_CODE_2_ROUTE);
-            tt->dict_ver = pc_JSON_DetachItemFromObject(lc, TR_UV_LCK_DICT_VERSION);
 
             /* the local dict is complete */
-            if (!tt->dict_ver || !tt->code_to_route || !tt->route_to_code) {
-                pc_JSON_Delete(tt->dict_ver);
+            if (!tt->code_to_route || !tt->route_to_code) {
                 pc_JSON_Delete(tt->code_to_route);
                 pc_JSON_Delete(tt->route_to_code);
 
-                tt->dict_ver = NULL;
                 tt->code_to_route = NULL;
                 tt->route_to_code = NULL;
-            }
-
-            tt->client_protos = pc_JSON_DetachItemFromObject(lc, TR_UV_LCK_PROTO_CLIENT);
-            tt->server_protos = pc_JSON_DetachItemFromObject(lc, TR_UV_LCK_PROTO_SERVER);
-            tt->proto_ver = pc_JSON_DetachItemFromObject(lc, TR_UV_LCK_PROTO_VERSION);
-
-            if (!tt->proto_ver || !tt->client_protos || !tt->server_protos) {
-                pc_JSON_Delete(tt->proto_ver);
-                pc_JSON_Delete(tt->server_protos);
-                pc_JSON_Delete(tt->client_protos);
-
-                tt->proto_ver = NULL;
-                tt->client_protos = NULL;
-                tt->server_protos = NULL;
             }
             pc_JSON_Delete(lc);
         }

@@ -79,6 +79,7 @@ struct pc_request_s {
 
     unsigned int req_id;
     pc_request_cb_t cb;
+    pc_request_cb_t error_cb;
 };
 
 struct pc_notify_s {
@@ -142,7 +143,7 @@ struct pc_client_s {
     int is_in_poll;
 };
 
-void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp);
+void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error);
 void pc__trans_sent(pc_client_t* client, unsigned int req_num, int rc);
 void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, const char* arg2);
 
