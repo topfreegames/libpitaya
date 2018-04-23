@@ -9,3 +9,4 @@ output/
 *.xcuserstate
 Assembly-CSharp.csproj.CoreCompileInputs.cache
 
+server-exe

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVER_DIR=test/server
-SERVER_EXE=./server
+SERVER_EXE=server-exe
 LOG_FILE=out.log
 BUILD_DIR=build
 OUTPUT_DIR=$BUILD_DIR/output
@@ -15,7 +15,7 @@ TLS_TEST_EXE=tr_tls
 if [[ ! -f $EXECUTABLE ]]; then
     echo Creating the server binary to use for testing...
     pushd test/server
-    go build
+    go build -o $SERVER_EXE
     popd
 fi
 
@@ -30,7 +30,7 @@ if [[ ! -f "$BUILD_DIR/Makefile" ]]; then
 fi
 
 pushd $SERVER_DIR
-$SERVER_EXE &> $LOG_FILE &
+./$SERVER_EXE &> $LOG_FILE &
 popd
 
 sleep 0.5
