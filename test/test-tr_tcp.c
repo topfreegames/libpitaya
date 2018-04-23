@@ -11,74 +11,13 @@
 #include <pomelo.h>
 #include <pomelo_trans.h>
 
-#include <setjmp.h>
-#include <stddef.h>
-#include <cmocka.h>
-
-// Macro to sign to the compiler that the parameter is unused, avoiding a warning.
-#define Unused(x) ((void)(x))
-
-#define REQ_ROUTE "connector.getsessiondata"
-#define REQ_MSG "{\"name\": \"test\"}"
-#define REQ_EX ((void*)0x22)
-#define REQ_TIMEOUT 10
-
-#define NOTI_ROUTE "test.testHandler.notify"
-#define NOTI_MSG "{\"content\": \"test content\"}"
-#define NOTI_EX ((void*)0x33)
-#define NOTI_TIMEOUT 30
-
-#define EV_HANDLER_EX ((void*)0x44)
-#define SERVER_PUSH "onPush"
-
-#define PORT 3251
-
-#define PC_CLIENT_CONFIG_TEST                         \
-{                                                     \
-    30, /* conn_timeout */                            \
-    false, /* enable_reconn */                            \
-    0, /* reconn_max_retry */           \
-    0, /* reconn_delay */                             \
-    0, /* reconn_delay_max */                        \
-    0, /* reconn_exp_backoff */                       \
-    0, /* enable_polling */                           \
-    NULL, /* local_storage_cb */                      \
-    NULL, /* ls_ex_data */                               \
-    PC_TR_NAME_UV_TCP /* transport_name */            \
-}
-
-
-// QUESTION: Do we need ifdefs for windows since we do not use them?
-#ifdef _WIN32
-#include <windows.h>
-#define SLEEP(x) Sleep(x * 1000);
-#else
-#include <unistd.h>
-#define SLEEP(x) sleep(x)
-#endif
+#include "test_common.h"
 
 static pc_client_t* g_client = NULL;
 
-static void quiet_log(int level, const char *msg, ...)
-{
-    // Use an empty log to avoid messing up the output of the tests.
-    // TODO: maybe print only logs of a certain level?
-}
-
-static int
-setup_pc_lib(void **state)
-{
-    pc_lib_init(quiet_log, NULL, NULL, NULL);
-    //pc_lib_init(NULL, NULL, NULL, NULL);
-    return 0;
-}
-
-static int
-teardown_pc_lib(void **state)
-{
-    pc_lib_cleanup();
-    return 0;
-}
+static bool g_event_cb_called = false;
+static bool g_request_cb_called = false;
+static bool g_notify_cb_called = false;
 
 static int
 setup_global_client(void **state)
@@ -100,18 +39,12 @@ teardown_global_client(void **state)
     return 0;
 }
 
-static bool g_event_cb_called = false;
-static bool g_request_cb_called = false;
-static bool g_notify_cb_called = false;
-static bool g_local_storage_cb_called = false;
-
 static inline void
 reset_cb_flags()
 {
     g_event_cb_called = false;
     g_request_cb_called = false;
     g_notify_cb_called = false;
-    g_local_storage_cb_called = false;
 }
 
 static void
@@ -135,8 +68,8 @@ test_client_polling()
     int handler_id = pc_client_add_ev_handler(g_client, empty_event_cb, &called, NULL);
     assert_int_not_equal(handler_id, PC_EV_INVALID_HANDLER_ID);
 
-    assert_int_equal(pc_client_connect(g_client, "127.0.0.1", PORT, NULL), PC_RC_OK);
-    SLEEP(1);
+    assert_int_equal(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, NULL), PC_RC_OK);
+    SLEEP_SECONDS(1);
     assert_false(called);
 
     assert_int_equal(pc_client_poll(NULL), PC_RC_INVALID_ARG);
@@ -146,48 +79,6 @@ test_client_polling()
 
     assert_int_equal(pc_client_rm_ev_handler(g_client, handler_id), PC_RC_OK);
     assert_int_equal(pc_client_cleanup(g_client), PC_RC_OK);
-}
-
-static int
-local_storage_cb(pc_local_storage_op_t op, char* data, size_t* len, void* ex_data)
-{
-    // 0 - success, -1 - fail
-    g_local_storage_cb_called = true;
-    char buf[1024];
-    size_t length;
-    size_t offset;
-    FILE* f;
-
-    if (op == PC_LOCAL_STORAGE_OP_WRITE) {
-      f = fopen("pomelo.dat", "w");
-      if (!f) {
-          return -1;
-      }
-      fwrite(data, 1, *len, f);
-      fclose(f);
-      return 0;
-
-    } else {
-        f = fopen("pomelo.dat", "r");
-        if (!f) {
-            *len = 0;
-            return -1;
-        }
-        *len = 0;
-        offset = 0;
-
-        while((length = fread(buf, 1, 1024, f))) {
-            *len += length;
-            if (data) {
-                memcpy(data + offset, buf, length);
-            }
-            offset += length;
-        }
-
-        fclose(f);
-
-        return 0;
-    }
 }
 
 static void
@@ -227,63 +118,29 @@ test_event_notify_and_request_callbacks(void **state)
 {
     Unused(state);
 
-    {
-        pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
-        config.local_storage_cb = local_storage_cb;
-        config.transport_name = PC_TR_NAME_UV_TCP;
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+    config.transport_name = PC_TR_NAME_UV_TCP;
 
-        assert_int_equal(pc_client_init(g_client, NULL, &config), PC_RC_OK);
+    assert_int_equal(pc_client_init(g_client, NULL, &config), PC_RC_OK);
 
-        int handler_id = pc_client_add_ev_handler(g_client, event_cb, EV_HANDLER_EX, NULL);
-        assert_int_not_equal(handler_id, PC_EV_INVALID_HANDLER_ID);
+    int handler_id = pc_client_add_ev_handler(g_client, event_cb, EV_HANDLER_EX, NULL);
+    assert_int_not_equal(handler_id, PC_EV_INVALID_HANDLER_ID);
 
-        assert_int_equal(pc_client_connect(g_client, "127.0.0.1", PORT, NULL), PC_RC_OK);
+    assert_int_equal(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, NULL), PC_RC_OK);
 
-        SLEEP(1);
-        assert_int_equal(pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb), PC_RC_OK);
-        assert_int_equal(pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, NOTI_EX, NOTI_TIMEOUT, notify_cb), PC_RC_OK);
-        SLEEP(1);
+    SLEEP_SECONDS(1);
+    assert_int_equal(pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb), PC_RC_OK);
+    assert_int_equal(pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, NOTI_EX, NOTI_TIMEOUT, notify_cb), PC_RC_OK);
+    SLEEP_SECONDS(1);
 
-        assert_true(g_event_cb_called);
-        assert_true(g_notify_cb_called);
-        assert_true(g_request_cb_called);
-        assert_true(g_local_storage_cb_called);
-        reset_cb_flags();
+    assert_true(g_event_cb_called);
+    assert_true(g_notify_cb_called);
+    assert_true(g_request_cb_called);
+    reset_cb_flags();
 
-        assert_int_equal(pc_client_disconnect(g_client), PC_RC_OK);
-        assert_int_equal(pc_client_rm_ev_handler(g_client, handler_id), PC_RC_OK);
-        assert_int_equal(pc_client_cleanup(g_client), PC_RC_OK);
-    }
-    // TODO: consider adding these assertions when the server supports tls.
-#if 0
-    {
-        pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
-        config.local_storage_cb = local_storage_cb;
-        config.transport_name = PC_TR_NAME_UV_TLS;
-
-        assert_int_equal(pc_client_init(g_client, NULL, &config), PC_RC_OK);
-
-        int handler_id = pc_client_add_ev_handler(g_client, event_cb, EV_HANDLER_EX, NULL);
-        assert_int_not_equal(handler_id, PC_EV_INVALID_HANDLER_ID);
-
-        assert_int_equal(pc_client_connect(g_client, "127.0.0.1", PORT, NULL), PC_RC_OK);
-
-        SLEEP(1);
-        assert_int_equal(pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb), PC_RC_OK);
-        assert_int_equal(pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, NOTI_EX, NOTI_TIMEOUT, notify_cb), PC_RC_OK);
-        SLEEP(2);
-
-        assert_true(g_event_cb_called);
-        assert_true(g_notify_cb_called);
-        assert_true(g_request_cb_called);
-        assert_true(g_local_storage_cb_called);
-        reset_cb_flags();
-
-        assert_int_equal(pc_client_disconnect(g_client), PC_RC_OK);
-        assert_int_equal(pc_client_rm_ev_handler(g_client, handler_id), PC_RC_OK);
-        assert_int_equal(pc_client_cleanup(g_client), PC_RC_OK);
-    }
-#endif
+    assert_int_equal(pc_client_disconnect(g_client), PC_RC_OK);
+    assert_int_equal(pc_client_rm_ev_handler(g_client, handler_id), PC_RC_OK);
+    assert_int_equal(pc_client_cleanup(g_client), PC_RC_OK);
 }
 
 static void
@@ -302,10 +159,9 @@ test_connect_errors(void **state)
     Unused(state);
 
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
-    config.local_storage_cb = local_storage_cb;
     config.transport_name = PC_TR_NAME_UV_TCP;
 
-    assert_int_equal(pc_client_connect(g_client, "127.0.0.1", PORT, NULL), PC_RC_INVALID_STATE);
+    assert_int_equal(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, NULL), PC_RC_INVALID_STATE);
 
     // Initializing the client
     assert_int_equal(pc_client_init(g_client, NULL, &config), PC_RC_OK);
@@ -315,19 +171,19 @@ test_connect_errors(void **state)
     assert_int_not_equal(handler_id, PC_EV_INVALID_HANDLER_ID);
 
     // Invalid arguments for pc_client_connect
-    assert_int_equal(pc_client_connect(NULL, "127.0.0.1", PORT, NULL), PC_RC_INVALID_ARG);
-    assert_int_equal(pc_client_connect(g_client, NULL, PORT, NULL), PC_RC_INVALID_ARG);
+    assert_int_equal(pc_client_connect(NULL, "127.0.0.1", TCP_PORT, NULL), PC_RC_INVALID_ARG);
+    assert_int_equal(pc_client_connect(g_client, NULL, TCP_PORT, NULL), PC_RC_INVALID_ARG);
     assert_int_equal(pc_client_connect(g_client, "127.0.0.1", -1, NULL), PC_RC_INVALID_ARG);
     assert_int_equal(pc_client_connect(g_client, "127.0.0.1", (1 << 16), NULL), PC_RC_INVALID_ARG);
 
     // Invalid JSON errors
     const char *invalid_handshake_opts = "wqdojh";
-    const int invalid_port = PORT + 50;
-    assert_int_equal(pc_client_connect(g_client, "127.0.0.1", PORT, invalid_handshake_opts), PC_RC_INVALID_JSON);
+    const int invalid_port = TCP_PORT + 50;
+    assert_int_equal(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, invalid_handshake_opts), PC_RC_INVALID_JSON);
 
     const char *valid_handshake_opts = "{ \"oi\": 2 }";
     assert_int_equal(pc_client_connect(g_client, "127.0.0.1", invalid_port, valid_handshake_opts), PC_RC_OK);
-    SLEEP(2);
+    SLEEP_SECONDS(2);
 
     assert_true(cb_called);
 
@@ -356,8 +212,6 @@ test_pc_client_getters(void **state)
 
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
 
-    config.local_storage_cb = local_storage_cb;
-
 #define RANDOM_PTR (void*)0xdeadbeef
 
     pc_client_init(g_client, RANDOM_PTR, &config);
@@ -379,18 +233,6 @@ test_pc_client_getters(void **state)
     assert_int_equal(pc_client_state(g_client), PC_ST_NOT_INITED);
 
 #undef RANDOM_PTR
-}
-
-static void
-test_pc_client_incorrectly_initialized(void **state)
-{
-    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
-
-    // Return invalid argument when NULL is passed as a client pointer.
-    int rc = pc_client_init(NULL, NULL, NULL);
-    assert_int_equal(rc, PC_RC_INVALID_ARG);
-
-    pc_client_cleanup(g_client);
 }
 
 int main()
