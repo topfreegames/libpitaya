@@ -123,7 +123,7 @@ CS_POMELO_EXPORT void native_log(const char* msg)
     if (!msg || strlen(msg) == 0) {
         return;
     }
-    pc_lib_log(PC_LOG_DEBUG, msg);
+//    pc_lib_log(PC_LOG_DEBUG, msg);
 }
 
 typedef void (*request_handler)(const char* err, const char* resp);
