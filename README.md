@@ -60,3 +60,13 @@ configure jpomelo compilation for java
 - -Dbuild_cspomelo=[true|false], `false` by default.
 
 configure cspomelo compilation for c#
+
+Tests
+=====
+
+In order to run the tests, you need the following dependencies:
+- [go](https://golang.org) installed for the tests server.
+- [cmocka](https://cmocka.org/) installed as a dynamic library.
+
+Having the dependencies met, you can run the tests with the script `run-tests.sh`.
+
