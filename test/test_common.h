@@ -62,8 +62,8 @@ quiet_log(int level, const char *msg, ...)
 static int
 setup_pc_lib(void **state)
 {
-    pc_lib_init(quiet_log, NULL, NULL, NULL);
-//    pc_lib_init(NULL, NULL, NULL, NULL);
+    pc_lib_init(quiet_log, NULL, NULL, NULL, NULL);
+//    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
     return 0;
 }
 

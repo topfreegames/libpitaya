@@ -53,7 +53,7 @@ void notify_cb(const pc_notify_t* noti, int rc)
 int main()
 {
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
-    pc_lib_init(NULL, NULL, NULL, NULL);
+    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
 
     config.transport_name = PC_TR_NAME_DUMMY;
 
@@ -70,7 +70,7 @@ int main()
 
     PC_TEST_ASSERT(pc_client_state(client) == PC_ST_CONNECTED);
 
-    pc_request_with_timeout(client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb);
+    pc_request_with_timeout(client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb, NULL);
     pc_notify_with_timeout(client, NOTI_ROUTE, NOTI_MSG, NOTI_EX, NOTI_TIMEOUT, notify_cb);
 
     pc_client_disconnect(client);

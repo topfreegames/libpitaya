@@ -144,7 +144,7 @@ test_tls_connection(void **state)
 
     pc_client_connect(g_client, "127.0.0.1", TLS_PORT, NULL);
     SLEEP_SECONDS(1);
-    pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb);
+    pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb, NULL);
     pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, NOTI_EX, NOTI_TIMEOUT, notify_cb);
     SLEEP_SECONDS(2);
 

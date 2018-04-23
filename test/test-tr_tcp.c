@@ -129,7 +129,7 @@ test_event_notify_and_request_callbacks(void **state)
     assert_int_equal(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, NULL), PC_RC_OK);
 
     SLEEP_SECONDS(1);
-    assert_int_equal(pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb), PC_RC_OK);
+    assert_int_equal(pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, REQ_EX, REQ_TIMEOUT, request_cb, NULL), PC_RC_OK);
     assert_int_equal(pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, NOTI_EX, NOTI_TIMEOUT, notify_cb), PC_RC_OK);
     SLEEP_SECONDS(1);
 
