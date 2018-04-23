@@ -16,6 +16,7 @@
   },
 
     'target_defaults': {
+      'xcode_settings': {'OTHER_LDFLAGS': ['-lz']},
       'conditions': [
         ['build_type=="Debug"', {
           'cflags': ['-g', '-O0']
@@ -125,17 +126,17 @@
           }],
           ['no_uv_support == "false"', {
             'sources': [
+              './src/tr/uv/pr_gzip.c',
               './src/tr/uv/pr_msg.c',
               './src/tr/uv/pr_msg_json.c',
               './src/tr/uv/pr_pkg.c',
               './src/tr/uv/tr_uv_tcp.c',
               './src/tr/uv/tr_uv_tcp_i.c',
               './src/tr/uv/tr_uv_tcp_aux.c',
-              './src/tr/uv/pr_msg_pb.c',
-              './src/tr/uv/pb_i.c',
-              './src/tr/uv/pb_decode.c',
-              './src/tr/uv/pb_encode.c',
             ],
+            'link_settings': {
+               'libraries': ['-lz'],
+            },
             'conditions': [
               ['no_tls_support == "false"', {
                 'sources': [
