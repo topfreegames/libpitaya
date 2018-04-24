@@ -9,6 +9,12 @@ Currently, the api does not make the distinction between the two kind of errors.
 - Currently, calling `pc_lib_init` `pc_lib_cleanup` and after `pc_lib_init` crashes the client. It
   seems to be something related to the SSL library. This bug is currently not high priority, since `pc_lib_init` should be called only once.
 
+# Success and Error callbacks in `pc_request_with_timeout`
+Currently, there are possibly two error callbacks in the function. The last parameter receives one
+error callback function. Before the last one there is a generic callback, that can receive a status
+code (i.e. success and failures). A better change would be to make one callback only for errors and
+one only for successes.
+
 # Solving things with GYP
 ## Specifying build types
 It is not that obvious how one selects the build type. A solution that we found was to define a variable `build_type` and use it for branching on the specific build.
