@@ -205,6 +205,22 @@
           './test/test-tr_tcp.c',
         ],
       },
+      {
+        'target_name': 'test_functionality',
+        'type': 'executable',
+        'dependencies': [
+          'libpomelo2',
+        ],
+        'include_dirs': [
+          './include/',
+        ],
+        'link_settings': {
+          'libraries': ['-lcmocka'],
+        },
+        'sources': [
+          './test/test_functionality.c',
+        ],
+      },
     ],
     'conditions': [
       ['build_pypomelo == "true"', {

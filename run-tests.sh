@@ -8,6 +8,7 @@ OUTPUT_DIR=$BUILD_DIR/output
 
 TCP_TEST_EXE=tr_tcp
 TLS_TEST_EXE=tr_tls
+FUNCTIONALITY_TEST_EXE=test_functionality
 
 # NOTE: This script can in the future be extended to work with 
 # different build tools, not only make.
@@ -41,13 +42,19 @@ popd
 
 pushd $OUTPUT_DIR
 echo
-echo ------------------------------
+echo ------------------------------------
 echo "  Running tcp tests..."
-echo ------------------------------
+echo ------------------------------------
 ./$TCP_TEST_EXE
 
 echo
-echo ------------------------------
+echo ------------------------------------
 echo "  Running tls tests..."
-echo ------------------------------
+echo ------------------------------------
 ./$TLS_TEST_EXE
+
+echo
+echo ------------------------------------
+echo "  Running functionality tests..."
+echo ------------------------------------
+./$FUNCTIONALITY_TEST_EXE

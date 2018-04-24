@@ -27,6 +27,9 @@
 #define REQ_EX ((void*)0x22)
 #define REQ_TIMEOUT 10
 
+#define EMPTY_RESP "{\"Data\":{}}"
+#define SUCCESS_RESP "{\"Code\":200,\"Msg\":\"success\"}"
+
 #define NOTI_ROUTE "test.testHandler.notify"
 #define NOTI_MSG "{\"content\": \"test content\"}"
 #define NOTI_EX ((void*)0x33)
