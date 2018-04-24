@@ -9,6 +9,7 @@ OUTPUT_DIR=$BUILD_DIR/output
 TCP_TEST_EXE=tr_tcp
 TLS_TEST_EXE=tr_tls
 FUNCTIONALITY_TEST_EXE=test_functionality
+RECONNECTION_TEST_EXE=test_reconnection
 
 # NOTE: This script can in the future be extended to work with 
 # different build tools, not only make.
@@ -58,3 +59,9 @@ echo ------------------------------------
 echo "  Running functionality tests..."
 echo ------------------------------------
 ./$FUNCTIONALITY_TEST_EXE
+
+echo
+echo ------------------------------------
+echo "  Running reconnection tests..."
+echo ------------------------------------
+./$RECONNECTION_TEST_EXE

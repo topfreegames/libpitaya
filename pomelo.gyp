@@ -221,6 +221,22 @@
           './test/test_functionality.c',
         ],
       },
+      {
+        'target_name': 'test_reconnection',
+        'type': 'executable',
+        'dependencies': [
+          'libpomelo2',
+        ],
+        'include_dirs': [
+          './include/',
+        ],
+        'link_settings': {
+          'libraries': ['-lcmocka'],
+        },
+        'sources': [
+          './test/test_reconnection.c',
+        ],
+      },
     ],
     'conditions': [
       ['build_pypomelo == "true"', {
