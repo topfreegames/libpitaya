@@ -104,6 +104,11 @@ do_test_session_persistence(pc_client_config_t *config, int port)
     SLEEP_SECONDS(1);
     assert_true(session_cb_data.called);
 
+    session_cb_data.called = false;
+    assert_int_equal(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", &session_cb_data, REQ_TIMEOUT, get_session_request_cb, NULL), PC_RC_OK);
+    SLEEP_SECONDS(1);
+    assert_true(session_cb_data.called);
+
     pc_client_disconnect(g_client);
     pc_client_rm_ev_handler(g_client, handler_id);
     pc_client_cleanup(g_client);
