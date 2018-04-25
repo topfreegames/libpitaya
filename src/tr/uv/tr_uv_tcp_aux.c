@@ -147,6 +147,11 @@ void tcp__reconn(tr_uv_tcp_transport_t* tt)
          return;
     }
 
+    if (tt->reconn_times == 0) {
+        // This is the first time the reconnection is being called, therefore send an event informing the user.
+        pc_trans_fire_event(tt->client, PC_EV_RECONNECT_STARTED, "Started the reconnection", NULL);
+    }
+
     tt->reconn_times ++;
     if (config->reconn_max_retry != PC_ALWAYS_RETRY && config->reconn_max_retry < tt->reconn_times) {
         pc_lib_log(PC_LOG_WARN, "tcp__reconn - reconn time exceeded");
