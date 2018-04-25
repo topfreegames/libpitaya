@@ -22,6 +22,8 @@
 #define SLEEP_SECONDS(x) sleep(x)
 #endif
 
+#define LOCALHOST "127.0.0.1"
+
 #define REQ_ROUTE "connector.getsessiondata"
 #define REQ_MSG "{\"name\": \"test\"}"
 #define REQ_EX ((void*)0x22)
@@ -34,6 +36,8 @@
 #define NOTI_MSG "{\"content\": \"test content\"}"
 #define NOTI_EX ((void*)0x33)
 #define NOTI_TIMEOUT 30
+
+#define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #define EV_HANDLER_EX ((void*)0x44)
 #define SERVER_PUSH "onPush"

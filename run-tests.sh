@@ -2,7 +2,12 @@
 
 SERVER_DIR=test/server
 SERVER_EXE=server-exe
+
+MOCK_SERVER=mock-server.js
+MOCK_SERVER_DIR=test/mock-server
+
 LOG_FILE=out.log
+MOCK_SERVER_LOG_FILE=mock-out.log
 BUILD_DIR=build
 OUTPUT_DIR=$BUILD_DIR/output
 
@@ -31,8 +36,14 @@ if [[ ! -f "$BUILD_DIR/Makefile" ]]; then
     exit
 fi
 
+echo Starting server
 pushd $SERVER_DIR
 ./$SERVER_EXE &> $LOG_FILE &
+popd
+
+echo Starting mock server
+pushd $MOCK_SERVER_DIR
+node $MOCK_SERVER &> $MOCK_SERVER_LOG_FILE &
 popd
 
 sleep 0.5
