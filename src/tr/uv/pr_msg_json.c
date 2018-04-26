@@ -40,7 +40,7 @@ pc_buf_t pc_body_json_encode(const pc_JSON* msg, int compress_data)
     return buf;
 }
 
-pc_JSON* pc_body_json_decode(const char *data, size_t offset, size_t len, boolean_t gzipped)
+pc_JSON* pc_body_json_decode(const char *data, size_t offset, size_t len, int gzipped)
 {
     const char* end = NULL;
     const char* finalData = data;
