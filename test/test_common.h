@@ -35,6 +35,9 @@
 #define NOTI_EX ((void*)0x33)
 #define NOTI_TIMEOUT 30
 
+#define MOCK_TCP_PORT 4000
+#define MOCK_TLS_PORT MOCK_TCP_PORT+1
+
 #define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #define EV_HANDLER_EX ((void*)0x44)

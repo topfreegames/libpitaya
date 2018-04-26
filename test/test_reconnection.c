@@ -5,9 +5,6 @@
 
 #include "test_common.h"
 
-#define MOCK_TCP_PORT 4000
-#define MOCK_TLS_PORT MOCK_TCP_PORT+1
-
 static pc_client_t *g_client = NULL;
 
 static void *
