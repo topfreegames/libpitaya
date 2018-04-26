@@ -17,52 +17,40 @@ TESTS_EXE=tests
 # different build tools, not only make.
 
 if [[ ! -f $EXECUTABLE ]]; then
-    echo Creating the server binary to use for testing...
-    pushd test/server
+    echo "-->  Creating the server binary to use for testing..."
+    pushd test/server > /dev/null
     go build -o $SERVER_EXE
-    popd
+    popd > /dev/null
 fi
 
 if [[ ! -d $BUILD_DIR ]]; then
-    echo Build directory \'$BUILD_DIR\' does not exist...
+    echo "-->  Build directory \'$BUILD_DIR\' does not exist..."
     exit
 fi
 
 if [[ ! -f "$BUILD_DIR/Makefile" ]]; then
-    echo Makefile does not exist in the build directory, please create it.
+    echo "-->  Makefile does not exist in the build directory, please create it."
     exit
 fi
 
-echo
-echo ------------------------------------
-echo   "  Starting server..."
-echo ------------------------------------
-pushd $SERVER_DIR
+echo   "-->  Starting server..."
+pushd $SERVER_DIR > /dev/null
 ./$SERVER_EXE &> $SERVER_LOG_FILE &
-popd
+popd > /dev/null
 
-echo
-echo ------------------------------------
-echo   "  Starting mock server..."
-echo ------------------------------------
-pushd $MOCK_SERVER_DIR
+echo   "-->  Starting mock server..."
+pushd $MOCK_SERVER_DIR > /dev/null
 node $MOCK_SERVER &> $MOCK_SERVER_LOG_FILE &
-popd
+popd > /dev/null
 
 sleep 0.5
 
-echo
-echo ------------------------------------
-echo   "  Making project..."
-echo ------------------------------------
-pushd $BUILD_DIR
-make
-popd
+echo   "-->  Making project..."
+pushd $BUILD_DIR > /dev/null
+make > /dev/null
+popd > /dev/null
 
-pushd $OUTPUT_DIR
-echo
-echo ------------------------------------
-echo "  Running tests..."
-echo ------------------------------------
-./$TESTS_EXE
+pushd $OUTPUT_DIR > /dev/null
+echo "-->  Running tests..."
+./$TESTS_EXE "${@}"
 

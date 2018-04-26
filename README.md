@@ -66,7 +66,13 @@ Tests
 
 In order to run the tests, you need the following dependencies:
 - [go](https://golang.org) installed for the tests server.
-- [cmocka](https://cmocka.org/) installed as a dynamic library.
+- [nodejs](https://nodejs.org) for the mock server.
 
-Having the dependencies met, you can run the tests with the script `run-tests.sh`.
+Having the dependencies met, you can run all the tests with the script `run-tests.sh`. Passing
+`--help` to the script will give some information about how to use it. For example, you can say
+`./run-tests.sh /my_suite` to run just one suite by name, or `./run-tests.sh /my_suite/test1` for
+one specific test.
+
+You can also directly use the executable `tests`, however you will have to manually start the mock and normal
+servers and also compile the project if necessary.
 
