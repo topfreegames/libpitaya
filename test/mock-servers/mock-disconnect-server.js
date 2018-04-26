@@ -43,6 +43,7 @@ function processPacket(packet, clientSocket) {
         break;
 
     case pkt.PacketType.Data:
+        console.log('DATA PACKAGE BOI');
         // if a.GetStatus() < constants.StatusWorking {
             // return fmt.Errorf("receive data on socket which is not yet ACK, session will be closed immediately, remote=%s",
                                 // a.RemoteAddr().String())
@@ -139,9 +140,9 @@ const tlsServer = tls.createServer(tlsOptions, (socket) => {
 });
 
 tcpServer.listen(TCP_PORT, HOST, () => {
-    console.log(`TCP port on ${HOST}:${TCP_PORT}`);
+    console.log(`TCP server on ${HOST}:${TCP_PORT}`);
 });
 
 tlsServer.listen(TLS_PORT, HOST, () => {
-    console.log(`TLS port on ${HOST}:${TLS_PORT}`);
+    console.log(`TLS server on ${HOST}:${TLS_PORT}`);
 });

@@ -4,9 +4,9 @@ SERVER_DIR=test/server
 SERVER_EXE=server-exe
 SERVER_LOG_FILE=out.log
 
-MOCK_SERVER=mock-server.js
-MOCK_SERVER_DIR=test/mock-server
-MOCK_SERVER_LOG_FILE=mock-out.log
+MOCK_SERVER=mock-disconnect-server.js
+MOCK_SERVER_DIR=test/mock-servers
+MOCK_SERVER_LOG_FILE=mock-disconnect-server-out.log
 
 BUILD_DIR=build
 OUTPUT_DIR=$BUILD_DIR/output
