@@ -5,7 +5,8 @@
 
 #include "test_common.h"
 
-#define MOCK_SERVER_PORT 4000
+#define MOCK_TCP_PORT 4000
+#define MOCK_TLS_PORT MOCK_TCP_PORT+1
 
 static pc_client_t *g_client = NULL;
 
@@ -48,21 +49,30 @@ test_success(const MunitParameter params[], void *data)
 {
     Unused(params); Unused(data);
 
-    pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
+    static int ports[] = {MOCK_TCP_PORT, MOCK_TLS_PORT};
+    static int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+    assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL));
 
-    int num_calls = 0;
-    int handler_id = pc_client_add_ev_handler(g_client, reconnect_success_event_cb, &num_calls, NULL);
-    assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
+    for (int i = 0; i < ArrayCount(ports); i++) {
+        pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
+        config.transport_name = transports[i];
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, MOCK_SERVER_PORT, NULL), ==, PC_RC_OK);
-    SLEEP_SECONDS(10);
+        assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
 
-    assert_int(num_calls, ==, ArrayCount(SUCCESS_RECONNECT_EV_ORDER));
-    assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
-    assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
-    assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+        int num_calls = 0;
+        int handler_id = pc_client_add_ev_handler(g_client, reconnect_success_event_cb, &num_calls, NULL);
+        assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
+
+        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        SLEEP_SECONDS(10);
+
+        assert_int(num_calls, ==, ArrayCount(SUCCESS_RECONNECT_EV_ORDER));
+        assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
+        assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+    }
+
     return MUNIT_OK;
 }
 

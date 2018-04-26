@@ -41,6 +41,7 @@ int main(int argc, char **argv)
 
     // Run this function only one time, otherwise things break.
     pc_lib_init(quiet_log, NULL, NULL, NULL, NULL);
+//    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
 
     int ret = munit_suite_main(&main_suite, NULL, argc, argv);
 

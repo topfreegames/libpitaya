@@ -1,8 +1,6 @@
+#include <stdio.h>
 #include <pomelo.h>
 #include "test_common.h"
-
-#define MUNIT_ENABLE_ASSERT_ALIASES
-#include <munit.h>
 
 static pc_client_t *g_client = NULL;
 
@@ -87,7 +85,20 @@ test_pc_client_config(const MunitParameter params[], void *data)
 static MunitResult
 test_pc_client_conn_quality(const MunitParameter params[], void *data)
 {
-    // TODO
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+    pc_client_init(g_client, NULL, &config);
+
+    pc_client_connect(g_client, LOCALHOST, TCP_PORT, NULL);
+
+//    for (int i = 0; i < 300; i++)
+//    {
+//        SLEEP_SECONDS(1);
+//        int cq = pc_client_conn_quality(g_client);
+//        printf("Connection quality: %d\n", cq);
+//        fflush(stdout);
+//    }
+
+    pc_client_cleanup(g_client);
     return MUNIT_SKIP;
 }
 
