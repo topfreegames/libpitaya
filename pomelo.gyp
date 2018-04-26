@@ -160,36 +160,7 @@
         ],
       },
       {
-        'target_name': 'tr_dummy',
-        'type': 'executable',
-        'dependencies': [
-          'libpomelo2',
-        ],
-        'include_dirs': [
-          './include/',
-        ],
-        'sources': [
-          './test/test-tr_dummy.c',
-        ],
-      },
-      {
-        'target_name': 'tr_tls',
-        'type': 'executable',
-        'dependencies': [
-          'libpomelo2',
-        ],
-        'include_dirs': [
-          './include/',
-        ],
-        'link_settings': {
-          'libraries': ['-lcmocka'],
-        },
-        'sources': [
-          './test/test-tr_tls.c',
-        ],
-      },
-      {
-        'target_name': 'tr_tcp',
+        'target_name': 'tests',
         'type': 'executable',
         'dependencies': [
           'libpomelo2',
@@ -197,44 +168,16 @@
         'include_dirs': [
           './include/',
           '/usr/local/include',
+          './deps/munit'
         ],
-        'link_settings': {
-          'libraries': ['-lcmocka'],
-        },
         'sources': [
+          './test/main.c',
           './test/test-tr_tcp.c',
-        ],
-      },
-      {
-        'target_name': 'test_functionality',
-        'type': 'executable',
-        'dependencies': [
-          'libpomelo2',
-        ],
-        'include_dirs': [
-          './include/',
-        ],
-        'link_settings': {
-          'libraries': ['-lcmocka'],
-        },
-        'sources': [
-          './test/test_functionality.c',
-        ],
-      },
-      {
-        'target_name': 'test_reconnection',
-        'type': 'executable',
-        'dependencies': [
-          'libpomelo2',
-        ],
-        'include_dirs': [
-          './include/',
-        ],
-        'link_settings': {
-          'libraries': ['-lcmocka'],
-        },
-        'sources': [
+          './test/test-tr_tls.c',
+          './test/test_pc_client.c',
           './test/test_reconnection.c',
+          './test/test_session.c',
+          './deps/munit/munit.c',
         ],
       },
     ],

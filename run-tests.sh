@@ -2,19 +2,16 @@
 
 SERVER_DIR=test/server
 SERVER_EXE=server-exe
+SERVER_LOG_FILE=out.log
 
 MOCK_SERVER=mock-server.js
 MOCK_SERVER_DIR=test/mock-server
-
-LOG_FILE=out.log
 MOCK_SERVER_LOG_FILE=mock-out.log
+
 BUILD_DIR=build
 OUTPUT_DIR=$BUILD_DIR/output
 
-TCP_TEST_EXE=tr_tcp
-TLS_TEST_EXE=tr_tls
-FUNCTIONALITY_TEST_EXE=test_functionality
-RECONNECTION_TEST_EXE=test_reconnection
+TESTS_EXE=tests
 
 # NOTE: This script can in the future be extended to work with 
 # different build tools, not only make.
@@ -36,18 +33,28 @@ if [[ ! -f "$BUILD_DIR/Makefile" ]]; then
     exit
 fi
 
-echo Starting server
+echo
+echo ------------------------------------
+echo   "  Starting server..."
+echo ------------------------------------
 pushd $SERVER_DIR
-./$SERVER_EXE &> $LOG_FILE &
+./$SERVER_EXE &> $SERVER_LOG_FILE &
 popd
 
-echo Starting mock server
+echo
+echo ------------------------------------
+echo   "  Starting mock server..."
+echo ------------------------------------
 pushd $MOCK_SERVER_DIR
 node $MOCK_SERVER &> $MOCK_SERVER_LOG_FILE &
 popd
 
 sleep 0.5
 
+echo
+echo ------------------------------------
+echo   "  Making project..."
+echo ------------------------------------
 pushd $BUILD_DIR
 make
 popd
@@ -55,24 +62,7 @@ popd
 pushd $OUTPUT_DIR
 echo
 echo ------------------------------------
-echo "  Running tcp tests..."
+echo "  Running tests..."
 echo ------------------------------------
-./$TCP_TEST_EXE
+./$TESTS_EXE
 
-echo
-echo ------------------------------------
-echo "  Running tls tests..."
-echo ------------------------------------
-./$TLS_TEST_EXE
-
-echo
-echo ------------------------------------
-echo "  Running functionality tests..."
-echo ------------------------------------
-./$FUNCTIONALITY_TEST_EXE
-
-echo
-echo ------------------------------------
-echo "  Running reconnection tests..."
-echo ------------------------------------
-./$RECONNECTION_TEST_EXE

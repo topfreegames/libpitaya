@@ -5,10 +5,8 @@
 #ifndef TEST_COMMON_H
 #define TEST_COMMON_H
 
-// Headers necessary for the cmocka library.
-#include <setjmp.h>
-#include <stddef.h>
-#include <cmocka.h>
+#define MUNIT_ENABLE_ASSERT_ALIASES
+#include <munit.h>
 
 // Macro to sign to the compiler that the parameter is unused, avoiding a warning.
 #define Unused(x) ((void)(x))
