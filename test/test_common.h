@@ -35,16 +35,19 @@
 #define NOTI_EX ((void*)0x33)
 #define NOTI_TIMEOUT 30
 
-#define MOCK_TCP_PORT 4000
-#define MOCK_TLS_PORT MOCK_TCP_PORT+1
+typedef struct {
+    int tcp_port;
+    int tls_port;
+} test_server_t;
+
+static test_server_t g_disconnect_mock_server = {4000, 4001};
+static test_server_t g_compression_mock_server = {4100, 4101};
+static test_server_t g_test_server = {3251, 3252};
 
 #define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #define EV_HANDLER_EX ((void*)0x44)
 #define SERVER_PUSH "onPush"
-
-#define TCP_PORT 3251
-#define TLS_PORT (TCP_PORT+1)
 
 #define PC_CLIENT_CONFIG_TEST                         \
 {                                                     \

@@ -72,7 +72,7 @@ test_notify_callback(const MunitParameter params[], void *data)
     config.transport_name = PC_TR_NAME_UV_TCP;
 
     assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
-    assert_int(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
 
     SLEEP_SECONDS(1);
     assert_int(pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, &called, NOTI_TIMEOUT, notify_cb), ==, PC_RC_OK);
@@ -96,7 +96,7 @@ test_request_callback(const MunitParameter params[], void *data)
     config.transport_name = PC_TR_NAME_UV_TCP;
 
     assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
-    assert_int(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
 
     SLEEP_SECONDS(1);
     assert_int(pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
@@ -136,7 +136,7 @@ test_event_callback(const MunitParameter params[], void *data)
     int handler_id = pc_client_add_ev_handler(g_client, event_cb, &num_called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, TCP_PORT, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
 
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
@@ -166,7 +166,7 @@ test_connect_errors(const MunitParameter params[], void *data)
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     config.transport_name = PC_TR_NAME_UV_TCP;
 
-    assert_int(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, NULL), ==, PC_RC_INVALID_STATE);
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_INVALID_STATE);
 
     // Initializing the client
     assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
@@ -176,18 +176,18 @@ test_connect_errors(const MunitParameter params[], void *data)
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
     // Invalid arguments for pc_client_connect
-    assert_int(pc_client_connect(NULL, "127.0.0.1", TCP_PORT, NULL), ==, PC_RC_INVALID_ARG);
-    assert_int(pc_client_connect(g_client, NULL, TCP_PORT, NULL), ==, PC_RC_INVALID_ARG);
-    assert_int(pc_client_connect(g_client, "127.0.0.1", -1, NULL), ==, PC_RC_INVALID_ARG);
-    assert_int(pc_client_connect(g_client, "127.0.0.1", (1 << 16), NULL), ==, PC_RC_INVALID_ARG);
+    assert_int(pc_client_connect(NULL, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_INVALID_ARG);
+    assert_int(pc_client_connect(g_client, NULL, g_test_server.tcp_port, NULL), ==, PC_RC_INVALID_ARG);
+    assert_int(pc_client_connect(g_client, LOCALHOST, -1, NULL), ==, PC_RC_INVALID_ARG);
+    assert_int(pc_client_connect(g_client, LOCALHOST, (1 << 16), NULL), ==, PC_RC_INVALID_ARG);
 
     // Invalid JSON errors
     const char *invalid_handshake_opts = "wqdojh";
-    const int invalid_port = TCP_PORT + 50;
-    assert_int(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, invalid_handshake_opts), ==, PC_RC_INVALID_JSON);
+    const int invalid_port = g_test_server.tcp_port + 50;
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, invalid_handshake_opts), ==, PC_RC_INVALID_JSON);
 
     const char *valid_handshake_opts = "{ \"oi\": 2 }";
-    assert_int(pc_client_connect(g_client, "127.0.0.1", invalid_port, valid_handshake_opts), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, LOCALHOST, invalid_port, valid_handshake_opts), ==, PC_RC_OK);
     SLEEP_SECONDS(2);
 
     assert_true(cb_called);

@@ -117,11 +117,11 @@ test_persistence(const MunitParameter params[], void *data)
     Unused(data); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     // Test with TCP
-    do_test_session_persistence(&config, TCP_PORT);
+    do_test_session_persistence(&config, g_test_server.tcp_port);
     // Test with TLS
     config.transport_name = PC_TR_NAME_UV_TLS;
     assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL));
-    do_test_session_persistence(&config, TLS_PORT);
+    do_test_session_persistence(&config, g_test_server.tls_port);
 
     return MUNIT_OK;
 }

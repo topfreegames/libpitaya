@@ -46,8 +46,8 @@ test_success(const MunitParameter params[], void *data)
 {
     Unused(params); Unused(data);
 
-    static int ports[] = {MOCK_TCP_PORT, MOCK_TLS_PORT};
-    static int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
+    int ports[] = {g_disconnect_mock_server.tcp_port, g_disconnect_mock_server.tls_port};
+    int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
     assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL));
 
@@ -105,7 +105,7 @@ test_max_retry(const MunitParameter params[], void *data)
     int handler_id = pc_client_add_ev_handler(g_client, reconnect_event_cb, &num_called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
-    assert_int(pc_client_connect(g_client, "invalidhost", TCP_PORT, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, "invalidhost", g_test_server.tcp_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(8);
 
     // There should be reconn_max_retry reconnections retries. This means the event_cb should be called

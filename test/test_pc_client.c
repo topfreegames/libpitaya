@@ -44,7 +44,7 @@ test_polling(const MunitParameter params[], void *data)
     int handler_id = pc_client_add_ev_handler(g_client, empty_event_cb, &called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
-    assert_int(pc_client_connect(g_client, "127.0.0.1", TCP_PORT, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
     assert_false(called);
 
@@ -88,7 +88,7 @@ test_pc_client_conn_quality(const MunitParameter params[], void *data)
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     pc_client_init(g_client, NULL, &config);
 
-    pc_client_connect(g_client, LOCALHOST, TCP_PORT, NULL);
+    pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL);
 
 //    for (int i = 0; i < 300; i++)
 //    {
