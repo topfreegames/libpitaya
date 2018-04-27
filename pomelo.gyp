@@ -177,6 +177,7 @@
           './test/test_pc_client.c',
           './test/test_reconnection.c',
           './test/test_compression.c',
+          './test/test_kick.c',
           './test/test_session.c',
           './deps/munit/munit.c',
         ],

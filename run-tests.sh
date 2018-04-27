@@ -4,9 +4,16 @@ SERVER_DIR=test/server
 SERVER_EXE=server-exe
 SERVER_LOG_FILE=out.log
 
-MOCK_SERVER=mock-disconnect-server.js
 MOCK_SERVER_DIR=test/mock-servers
-MOCK_SERVER_LOG_FILE=mock-disconnect-server-out.log
+
+MOCK_DISCONNECT_SERVER=mock-disconnect-server.js
+MOCK_DISCONNECT_SERVER_LOG_FILE=mock-disconnect-server-out.log
+
+MOCK_COMPRESSION_SERVER=mock-compression-server.js
+MOCK_COMPRESSION_SERVER_LOG_FILE=mock-compression-server-out.log
+
+MOCK_KICK_SERVER=mock-kick-server.js
+MOCK_KICK_SERVER_LOG_FILE=mock-kick-server-out.log
 
 BUILD_DIR=build
 OUTPUT_DIR=$BUILD_DIR/output
@@ -38,9 +45,11 @@ pushd $SERVER_DIR > /dev/null
 ./$SERVER_EXE &> $SERVER_LOG_FILE &
 popd > /dev/null
 
-echo   "-->  Starting mock server..."
+echo   "-->  Starting mock servers..."
 pushd $MOCK_SERVER_DIR > /dev/null
-node $MOCK_SERVER &> $MOCK_SERVER_LOG_FILE &
+node $MOCK_DISCONNECT_SERVER &> $MOCK_DISCONNECT_SERVER_LOG_FILE &
+node $MOCK_COMPRESSION_SERVER &> $MOCK_COMPRESSION_SERVER_LOG_FILE &
+node $MOCK_KICK_SERVER &> $MOCK_KICK_SERVER_LOG_FILE &
 popd > /dev/null
 
 sleep 0.5

@@ -42,6 +42,7 @@ typedef struct {
 
 static test_server_t g_disconnect_mock_server = {4000, 4001};
 static test_server_t g_compression_mock_server = {4100, 4101};
+static test_server_t g_kick_mock_server = {4200, 4201};
 static test_server_t g_test_server = {3251, 3252};
 
 #define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
