@@ -16,25 +16,26 @@
 pc_buf_t pc_body_json_encode(const pc_JSON* msg, int compress_data)
 {
     pc_buf_t buf;
-    char* res;
-
     buf.base = NULL;
     buf.len = -1;
 
     assert(msg);
-    
-    res = pc_JSON_PrintUnformatted(msg);
+
+    char *res = pc_JSON_PrintUnformatted(msg);
     if (!res) {
         pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - json encode error");
         return buf;
     }
-    
+
     if (compress_data) {
         const size_t res_len = strlen(res);
         if (pr_compress((unsigned char**)&buf.base, (size_t*)&buf.len, (unsigned char*)res, res_len) != 0 || buf.len >= res_len) {
             buf.base = res;
             buf.len = (int)strlen(res);
         }
+    } else {
+        buf.base = res;
+        buf.len = strlen(res);
     }
     
     return buf;
