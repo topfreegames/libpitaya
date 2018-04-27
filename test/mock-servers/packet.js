@@ -10,6 +10,9 @@ const PacketType = Object.freeze({
 const HEADER_LENGTH = 4;
 const MAX_PACKET_SIZE = 64 * 1024;
 
+let handshakeResponseData;
+let heartbeatResponseData;
+
 function encode(packetType, data) {
     if (packetType < PacketType.Handshake || packetType > PacketType.Kick) {
         throw new Error(`Trying to encode invalid packet type ${packetType}`);
@@ -24,11 +27,35 @@ function encode(packetType, data) {
 
     if (data) {
         console.log('data length ', data.length);
-        return Buffer.concat([headerBuf, data], HEADER_LENGTH + data.length);
+        return Buffer.concat([headerBuf, data]);
     } else {
         return headerBuf;
     }
 };
+
+function encodeHanshakeAndHeartbeatResponse(heartbeatInterval) {
+    // Hardcoded handshake data
+    const hData = {
+        'code': 200,
+        'sys': {
+            'heartbeat': heartbeatInterval,
+            'dict': {
+		            'connector.getsessiondata': 1,
+		            'connector.setsessiondata': 2,
+		            'room.room.getsessiondata': 3,
+		            'onMessage':                4,
+		            'onMembers':                5,
+            }
+        }
+    };
+    const data = JSON.stringify(hData);
+    console.log(data);
+
+    handshakeResponseData = encode(PacketType.Handshake, Buffer.from(data));
+    heartbeatResponseData = encode(PacketType.Heartbeat);
+
+    console.log('Handshake response data: ', handshakeResponseData);
+}
 
 class Packet {
     constructor(type, length, data) {
@@ -101,9 +128,21 @@ class RawPackets {
 
 }
 
+function sendHandshakeResponse(socket) {
+    socket.write(handshakeResponseData);
+}
+
+function sendHeartbeat(socket) {
+    console.log('sending heartbeat');
+    socket.write(heartbeatResponseData);
+}
+
 exports.RawPackets = RawPackets;
 exports.HEADER_LENGTH = HEADER_LENGTH;
 exports.MAX_PACKET_SIZE = MAX_PACKET_SIZE;
 exports.PacketType = PacketType;
 exports.encode = encode;
 exports.Packet = Packet;
+exports.sendHandshakeResponse = sendHandshakeResponse;
+exports.sendHeartbeat = sendHeartbeat;
+exports.encodeHanshakeAndHeartbeatResponse = encodeHanshakeAndHeartbeatResponse;
