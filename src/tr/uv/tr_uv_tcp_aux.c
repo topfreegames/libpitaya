@@ -993,9 +993,9 @@ void tcp__send_handshake(tr_uv_tcp_transport_t* tt)
 void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t len)
 {
     int code = -1;
-    pc_JSON* res;
-    pc_JSON* tmp;
-    pc_JSON* sys;
+    pc_JSON* res = NULL;
+    pc_JSON* tmp = NULL;
+    pc_JSON* sys = NULL;
     int i;
     int need_sync = 0;
 
@@ -1007,9 +1007,14 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
         char* uncompressed_data = pc_lib_malloc(1);
         size_t uncompressed_len;
         pr_decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
-        
+
+        pc_lib_log(PC_LOG_INFO, "data: %s", uncompressed_data);
+
+        res = pc_JSON_Parse(uncompressed_data);
+
         pc_lib_free(uncompressed_data);
     } else {
+        pc_lib_log(PC_LOG_INFO, "data: %s", data);
         res = pc_JSON_Parse(data);
     }
 
@@ -1027,6 +1032,7 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     }
 
     tmp = pc_JSON_GetObjectItem(res, "code");
+
     if (!tmp || tmp->type != pc_JSON_Number || (code = tmp->valueint) != PC_HANDSHAKE_OK) {
         pc_lib_log(PC_LOG_ERROR, "tcp__on_handshake_resp - handshake fail, code: %d", code);
         pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Handshake Error", NULL);
