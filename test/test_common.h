@@ -50,40 +50,27 @@ static test_server_t g_test_server = {3251, 3252};
 #define EV_HANDLER_EX ((void*)0x44)
 #define SERVER_PUSH "onPush"
 
-#define PC_CLIENT_CONFIG_TEST                         \
-{                                                     \
-    30, /* conn_timeout */                            \
-    false, /* enable_reconn */                            \
-    0, /* reconn_max_retry */           \
-    0, /* reconn_delay */                             \
-    0, /* reconn_delay_max */                        \
-    0, /* reconn_exp_backoff */                       \
-    0, /* enable_polling */                           \
-    NULL, /* local_storage_cb */                      \
-    NULL, /* ls_ex_data */                               \
-    PC_TR_NAME_UV_TCP /* transport_name */            \
+#define PC_CLIENT_CONFIG_TEST                    \
+{                                               \
+    30, /* conn_timeout */                      \
+    false, /* enable_reconn */                  \
+    0, /* reconn_max_retry */ \
+    0, /* reconn_delay */                   \
+    0, /* reconn_delay_max */              \
+    0, /* reconn_exp_backoff */             \
+    0, /* enable_polling */                 \
+    NULL, /* local_storage_cb */            \
+    NULL, /* ls_ex_data */                  \
+    PC_TR_NAME_UV_TCP, /* transport_name */ \
+    0 /* disable_compression */             \
 }
 
 static void
 quiet_log(int level, const char *msg, ...)
 {
+    Unused(level); Unused(msg);
     // Use an empty log to avoid messing up the output of the tests.
     // TODO: maybe print only logs of a certain level?
-}
-
-static int
-setup_pc_lib(void **state)
-{
-    pc_lib_init(quiet_log, NULL, NULL, NULL, NULL);
-//    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
-    return 0;
-}
-
-static int
-teardown_pc_lib(void **state)
-{
-    pc_lib_cleanup();
-    return 0;
 }
 
 #endif // TEST_COMMON_H

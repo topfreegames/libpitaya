@@ -34,6 +34,7 @@ static int EV_ORDER[] = {
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
+    Unused(client);
     int *num_called = ex_data;
     assert_int(ev_type, ==, EV_ORDER[*num_called]);
     (*num_called)++;
