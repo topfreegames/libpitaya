@@ -36,13 +36,13 @@ request_cb(const pc_request_t* req, int rc, const char* resp)
 }
 
 static void
-request_error_cb(const pc_request_t* req, int rc, const char* resp)
+request_error_cb(const pc_request_t* req, pc_request_error_t error)
 {
     g_error_cb_called = true;
 
-    // TODO: Instead of returning a json string, return an Error object, so that it is easier to deal with.
-    assert_int(rc, ==, PC_RC_OK);
-    assert_string_equal(resp, "{\"Code\":\"PIT-404\",\"Msg\":\"pitaya/handler: connector.invalid.route not found\"}");
+    assert_string_equal(error.code, "PIT-404");
+    assert_string_equal(error.msg, "pitaya/handler: connector.invalid.route not found");
+    assert_null(error.metadata);
 }
 
 MunitResult
@@ -64,7 +64,8 @@ test_invalid_route(const MunitParameter params[], void *data)
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(2);
 
-        assert_int(pc_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
+        assert_int(pc_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, REQ_TIMEOUT,
+                                           request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(2);
 

@@ -79,7 +79,7 @@ struct pc_request_s {
 
     unsigned int req_id;
     pc_request_cb_t cb;
-    pc_request_cb_t error_cb;
+    pc_request_error_cb_t error_cb;
 };
 
 struct pc_notify_s {

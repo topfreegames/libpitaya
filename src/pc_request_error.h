@@ -38,10 +38,11 @@ pc__request_error_json(pc_JSON *json)
     assert(code->type == pc_JSON_String);
     assert(msg->type == pc_JSON_String);
 
-    pc_request_error_t err;
-    err.code = pc_JSON_PrintUnformatted(code);
-    err.msg = pc_JSON_PrintUnformatted(msg);
-    err.metadata = NULL;
+    pc_request_error_t err = {
+        .code = (char*)pc_lib_strdup(code->valuestring),
+        .msg = (char*)pc_lib_strdup(msg->valuestring),
+        .metadata = NULL,
+    };
 
     if (metadata) {
         assert(metadata->type == pc_JSON_Object);

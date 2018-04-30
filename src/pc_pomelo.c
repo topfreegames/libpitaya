@@ -517,7 +517,7 @@ void* pc_client_trans_data(pc_client_t* client)
 }
 
 int pc_request_with_timeout(pc_client_t* client, const char* route, const char* msg, void* ex_data,
-        int timeout, pc_request_cb_t cb, pc_request_cb_t error_cb)
+        int timeout, pc_request_cb_t cb, pc_request_error_cb_t error_cb)
 {
     if (!client || !route || !msg || !cb) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - invalid args");

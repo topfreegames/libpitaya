@@ -228,6 +228,7 @@ typedef struct {
 } pc_request_error_t;
 
 typedef void (*pc_request_cb_t)(const pc_request_t* req, int rc, const char* resp);
+typedef void (*pc_request_error_cb_t)(const pc_request_t* req, pc_request_error_t error);
 
 /**
  * pc_request_t getters.
@@ -247,7 +248,7 @@ PC_EXPORT void* pc_request_ex_data(const pc_request_t* req);
  * Initiate a request.
  */
 PC_EXPORT int pc_request_with_timeout(pc_client_t* client, const char* route,
-        const char* msg, void* ex_data, int timeout, pc_request_cb_t cb, pc_request_cb_t error_cb);
+        const char* msg, void* ex_data, int timeout, pc_request_cb_t cb, pc_request_error_cb_t error_cb);
 
 /**
  * Notify

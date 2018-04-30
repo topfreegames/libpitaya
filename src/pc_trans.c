@@ -356,8 +356,8 @@ void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char
 
     if (target) {
         if (error.code && target->error_cb) {
-            target->error_cb(target, rc, resp);
-        } else {
+            target->error_cb(target, error);
+        } else if (!error.code) {
             target->cb(target, rc, resp);
         }
 
