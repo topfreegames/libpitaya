@@ -84,13 +84,12 @@ pc__request_error_dup(const pc_request_error_t *err)
     return new_err;
 }
 
-static inline void pc__request_error_free(pc_request_error_t err)
+static inline void
+pc__request_error_free(pc_request_error_t err)
 {
     pc_lib_free(err.code);
     pc_lib_free(err.msg);
     pc_lib_free(err.metadata);
 }
-
-
 
 #endif // PC_REQUEST_ERROR_H

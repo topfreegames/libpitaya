@@ -20,6 +20,7 @@
 #include "tr_uv_tcp_i.h"
 #include "pr_pkg.h"
 #include "pr_gzip.h"
+#include "pc_request_error.h"
 
 #define GET_TT(x) tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t* )(x->data); assert(tt)
 
@@ -27,7 +28,9 @@ static void tcp__reset_wi(pc_client_t* client, tr_uv_wi_t* wi)
 {
     if (TR_UV_WI_IS_RESP(wi->type)) {
         pc_lib_log(PC_LOG_DEBUG, "tcp__reset_wi - reset request, req_id: %u", wi->req_id);
-        pc_trans_resp(client, wi->req_id, PC_RC_RESET, NULL, 0);
+        pc_request_error_t err = pc__request_error_reset();
+        pc_trans_resp(client, wi->req_id, PC_RC_RESET, NULL, err);
+        pc__request_error_free(err);
     } else if (TR_UV_WI_IS_NOTIFY(wi->type)) {
         pc_lib_log(PC_LOG_DEBUG, "tcp__reset_wi - reset notify, seq_num: %u", wi->seq_num);
         pc_trans_sent(client, wi->seq_num, PC_RC_RESET);
@@ -480,7 +483,9 @@ void tcp__write_async_cb(uv_async_t* a)
             }
 
             if (TR_UV_WI_IS_RESP(wi->type)) {
-                pc_trans_resp(tt->client, wi->req_id, ret, NULL, 0);
+                pc_request_error_t err = pc__request_error_uv(uv_strerror(ret));
+                pc_trans_resp(tt->client, wi->req_id, ret, NULL, err);
+                pc__request_error_free(err);
             }
             /* if internal, do nothing here. */
 
@@ -518,6 +523,10 @@ void tcp__write_done_cb(uv_write_t* w, int status)
         pc_lib_log(PC_LOG_ERROR, "tcp__write_done_cb - uv_write callback error: %s", uv_strerror(status));
     }
 
+    const char *err_str = NULL;
+    if (status) {
+        err_str = uv_strerror(status);
+    }
     status = status == 0 ? PC_RC_OK : PC_RC_ERROR;
 
     pc_mutex_lock(&tt->wq_mutex);
@@ -547,7 +556,11 @@ void tcp__write_done_cb(uv_write_t* w, int status)
         }
 
         if (TR_UV_WI_IS_RESP(wi->type)) {
-            pc_trans_resp(tt->client, wi->req_id, status, NULL, status);
+            if (err_str) {
+                pc_request_error_t err = pc__request_error_uv(err_str);
+                pc_trans_resp(tt->client, wi->req_id, status, NULL, err);
+                pc__request_error_free(err);
+            }
         }
         /* if internal, do nothing here. */
 
@@ -584,7 +597,9 @@ int tcp__check_queue_timeout(QUEUE* ql, pc_client_t* client, int cont)
                     pc_trans_sent(client, wi->seq_num, PC_RC_TIMEOUT);
                 } else if (TR_UV_WI_IS_RESP(wi->type)) {
                     pc_lib_log(PC_LOG_WARN, "tcp__check_queue_timeout - request timeout, req id: %u", wi->req_id);
-                    pc_trans_resp(client, wi->req_id, PC_RC_TIMEOUT, NULL, 0);
+                    pc_request_error_t err = pc__request_error_timeout();
+                    pc_trans_resp(client, wi->req_id, PC_RC_TIMEOUT, NULL, err);
+                    pc__request_error_free(err);
                 }
 
                 /* if internal, just drop it. */
@@ -852,7 +867,7 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
 
     pc_msg_t msg = plugin->pr_msg_decoder(tt, &buf);
 
-    if (msg.id == PC_INVALID_REQ_ID || !msg.msg) {
+    if (msg.id == PC_INVALID_REQ_ID || !msg.json_msg) {
         pc_lib_log(PC_LOG_ERROR, "tcp__on_data_recieved - decode error, will reconn");
         pc_trans_fire_event(tt->client, PC_EV_PROTO_ERROR, "Decode Error", NULL);
         tt->reconn_fn(tt);
@@ -870,9 +885,20 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
             || (msg.id != PC_NOTIFY_PUSH_REQ_ID && !msg.route));
 
     pc_lib_log(PC_LOG_INFO, "tcp__on_data_recieved - recived data, req_id: %d", msg.id);
+
+    char *msg_str = pc_JSON_PrintUnformatted(msg.json_msg);
+    assert(msg_str);
+
     if (msg.id != PC_NOTIFY_PUSH_REQ_ID) {
         /* request */
-        pc_trans_resp(tt->client, msg.id, PC_RC_OK, msg.msg, msg.error);
+        if (msg.error) {
+            pc_request_error_t err = pc__request_error_json(msg.json_msg);
+            pc_trans_resp(tt->client, msg.id, PC_RC_OK, msg_str, err);
+            pc__request_error_free(err);
+        } else {
+            pc_request_error_t err = {0};
+            pc_trans_resp(tt->client, msg.id, PC_RC_OK, msg_str, err);
+        }
 
         /*
          * As we will stop iterating if matched wi found,
@@ -902,11 +928,12 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
             break;
         }
     } else {
-        pc_trans_fire_event(tt->client, PC_EV_USER_DEFINED_PUSH, msg.route, msg.msg);
+        pc_trans_fire_event(tt->client, PC_EV_USER_DEFINED_PUSH, msg.route, msg_str);
     }
 
     pc_lib_free((char *)msg.route);
-    pc_lib_free((char *)msg.msg);
+    pc_JSON_Delete(msg.json_msg);
+    pc_lib_free(msg_str);
 }
 
 void tcp__on_kick_recieved(tr_uv_tcp_transport_t* tt)

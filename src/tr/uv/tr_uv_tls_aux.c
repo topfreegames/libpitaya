@@ -14,6 +14,7 @@
 
 #include "tr_uv_tcp_aux.h"
 #include "tr_uv_tls_aux.h"
+#include "pc_request_error.h"
 
 #define GET_TLS(x) tr_uv_tls_transport_t* tls; \
     tr_uv_tcp_transport_t * tt;          \
@@ -391,8 +392,11 @@ void tls__write_done_cb(uv_write_t* w, int status)
 
     tt->is_writing = 0;
 
+    const char *err_str = NULL;
+
     if (status) {
         pc_lib_log(PC_LOG_ERROR, "tcp__write_done_cb - uv_write callback error: %s", uv_strerror(status));
+        err_str = uv_strerror(status);
     }
 
     status = status ? PC_RC_ERROR : PC_RC_OK;
@@ -421,7 +425,14 @@ void tls__write_done_cb(uv_write_t* w, int status)
         }
 
         if (TR_UV_WI_IS_RESP(wi->type)) {
-            pc_trans_resp(tt->client, wi->req_id, status, NULL, 0);
+            if (err_str) {
+                pc_request_error_t err = pc__request_error_uv(err_str);
+                pc_trans_resp(tt->client, wi->req_id, status, NULL, err);
+                pc__request_error_free(err);
+            } else {
+                pc_request_error_t err = {0};
+                pc_trans_resp(tt->client, wi->req_id, status, NULL, err);
+            }
         }
         /* if internal, do nothing here. */
 
@@ -463,7 +474,9 @@ void tls__write_timeout_check_cb(uv_timer_t* t)
             pc_trans_sent(tt->client, wi->seq_num, PC_RC_TIMEOUT);
         } else if (TR_UV_WI_IS_RESP(wi->type)) {
             pc_lib_log(PC_LOG_WARN, "tls__write_timeout_check_cb - request timeout, req id: %u", wi->req_id);
-            pc_trans_resp(tt->client, wi->req_id, PC_RC_TIMEOUT, NULL, 0);
+            pc_request_error_t err = pc__request_error_timeout();
+            pc_trans_resp(tt->client, wi->req_id, PC_RC_TIMEOUT, NULL, err);
+            pc__request_error_free(err);
         }
 
         /* if internal, just drop it. */

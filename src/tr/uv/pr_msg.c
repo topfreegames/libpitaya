@@ -77,7 +77,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     const char* data = buf->base;
     int offset = 0;
     pc_message_flag* flag = (pc_message_flag*) &(data[offset++]);
-    
+
     if (!PC_IS_VALID_TYPE(flag->message_type)) {
         pc_lib_log(PC_LOG_ERROR, "pc_msg_decode_to_raw - unknow message type");
         return NULL;
@@ -90,7 +90,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
         size_t i = 0;
         do {
             if (offset >= len) return length_error();
-            
+
             static const int id_bits_count = 7; // google protobuf varint definition
             id += id_byte->value << (id_bits_count * i++);
             id_byte = (pc_message_id_byte*) &data[offset++];
@@ -109,7 +109,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
         } else {
             size_t route_len;
             if (offset + PC_MSG_ROUTE_LEN_BYTES - 1 >= len || (route_len = data[offset++]) >= len) return length_error();
-            
+
             route.route_str = (char *)pc_lib_malloc(route_len + 1);
             route.route_str[route_len] = '\0';
             strcpy(route.route_str, &data[offset]);
@@ -131,27 +131,22 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     msg->body.len = len - offset;
 
     assert(msg->id != PC_INVALID_REQ_ID);
-    
+
     return msg;
 }
 
 pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
 {
-    const char *route_str = NULL;
-    const char *origin_route = NULL;
-
-    pc_JSON* json_msg = NULL;
-    const char* data = NULL;
-    pc_buf_t body;
-    pc_msg_t msg;
-    pc__msg_raw_t* raw_msg = NULL;
-
-    memset(&msg, 0, sizeof(pc_msg_t));
-    msg.id = PC_INVALID_REQ_ID;
+    pc_msg_t msg = {
+        .id = PC_INVALID_REQ_ID,
+        .error = 0,
+        .route = NULL,
+        .json_msg = NULL,
+    };
 
     assert(buf && buf->base);
 
-    raw_msg = pc_msg_decode_to_raw(buf);
+    pc__msg_raw_t *raw_msg = pc_msg_decode_to_raw(buf);
 
     if (!raw_msg) {
         return msg;
@@ -164,9 +159,9 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
     /* route */
     if (PC_MSG_HAS_ROUTE(raw_msg->type)) {
         /* uncompress route dictionary */
-        route_str = NULL;
+        const char *route_str = NULL;
         if (raw_msg->is_route_compressed) {
-            origin_route = pc__resolve_dictionary(code2route, raw_msg->route.route_code);
+            const char *origin_route = pc__resolve_dictionary(code2route, raw_msg->route.route_code);
             if (!origin_route) {
                 pc_lib_log(PC_LOG_ERROR, "pc_default_msg_decode - fail to uncompress route dictionary: %d",
                         raw_msg->route.route_code);
@@ -194,9 +189,9 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
     }
 
     /* body.base is within msg */
-    body = raw_msg->body;
+    pc_buf_t body = raw_msg->body;
     if (body.len > 0) {
-        json_msg = NULL;
+        pc_JSON* json_msg = NULL;
         if (!msg.route) {
             json_msg = pc_body_json_decode(body.base, 0, body.len, raw_msg->is_gzipped);
         } else {
@@ -211,13 +206,8 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
             msg.id = PC_INVALID_REQ_ID;
             msg.route = NULL;
         } else {
-            data = pc_JSON_PrintUnformatted(json_msg);
-
-            assert(data);
-
-            msg.msg = data;
-            /* FIXME: review */
-            pc_JSON_Delete(json_msg);
+            assert(json_msg->type == pc_JSON_Object);
+            msg.json_msg = json_msg;
         }
     }
     msg.error = raw_msg->error;
@@ -357,31 +347,15 @@ static uint8_t pc__msg_id_length(uint32_t id)
 
 pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, int compress_data)
 {
-    pc_buf_t msg_buf;
-    pc_buf_t body_buf;
-    pc_JSON* json_msg;
-    int route_code = -1;
-    pc_JSON* code = NULL;
-    pc_msg_type type;
+    assert(msg && msg->json_msg && msg->route);
+    assert(msg->json_msg->type == pc_JSON_Object);
 
-    msg_buf.base = NULL;
-    msg_buf.len = -1;
-    body_buf.base = NULL;
-    body_buf.len = -1;
-
-    assert(msg && msg->msg && msg->route);
-
-    json_msg = pc_JSON_ParseWithOpts(msg->msg, 0, 1);
-    if (!json_msg) {
-        pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - the msg is not invalid json");
-        return msg_buf;
-    }
-
-    assert(json_msg);
+    pc_buf_t msg_buf = { .base = NULL, .len = -1 };
+    pc_buf_t body_buf = { .base = NULL, .len = -1 };
 
     //TODO prever encode n json
     // } else {
-        body_buf = pc_body_json_encode(json_msg, compress_data);
+        body_buf = pc_body_json_encode(msg->json_msg, compress_data);
         if(body_buf.len == -1) {
             assert(body_buf.base == NULL);
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with json: %s\n", msg->route);
@@ -393,24 +367,23 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, i
         pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with json: %s\n", msg->route);
     }
 
-    pc_JSON_Delete(json_msg);
-    json_msg = NULL;
-
     if (body_buf.len == -1) {
         return msg_buf;
     }
 
     assert(body_buf.base && body_buf.len != -1);
 
-    type = msg->id == PC_NOTIFY_PUSH_REQ_ID ? PC_MSG_NOTIFY : PC_MSG_REQUEST;
+    pc_msg_type type = msg->id == PC_NOTIFY_PUSH_REQ_ID ? PC_MSG_NOTIFY : PC_MSG_REQUEST;
 
+    int route_code = -1;
+    pc_JSON *code = NULL;
     if (route2code && (code = pc_JSON_GetObjectItem(route2code, msg->route))
             && code->type == pc_JSON_Number) {
         route_code = code->valueint;
     }
 
     int compressed = is_compressed((unsigned char*)body_buf.base, body_buf.len);
-    
+
     if (route_code > 0) {
         msg_buf = pc_msg_encode_code(msg->id, type, route_code, compressed, body_buf);
         if(msg_buf.len == -1) {
