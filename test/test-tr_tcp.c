@@ -35,12 +35,11 @@ teardown(void *data)
 }
 
 static void
-request_cb(const pc_request_t* req, int rc, const char* resp)
+request_cb(const pc_request_t* req, const char* resp)
 {
     bool *called = pc_request_ex_data(req);
     *called = true;
 
-    assert_int(rc, ==, PC_RC_OK);
     assert_not_null(resp);
     assert_ptr_equal(pc_request_client(req), g_client);
     assert_string_equal(pc_request_route(req), REQ_ROUTE);

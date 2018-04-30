@@ -427,11 +427,11 @@ void tls__write_done_cb(uv_write_t* w, int status)
         if (TR_UV_WI_IS_RESP(wi->type)) {
             if (err_str) {
                 pc_request_error_t err = pc__request_error_uv(err_str);
-                pc_trans_resp(tt->client, wi->req_id, status, NULL, err);
+                pc_trans_resp(tt->client, wi->req_id, NULL, err);
                 pc__request_error_free(err);
             } else {
                 pc_request_error_t err = {0};
-                pc_trans_resp(tt->client, wi->req_id, status, NULL, err);
+                pc_trans_resp(tt->client, wi->req_id, NULL, err);
             }
         }
         /* if internal, do nothing here. */
@@ -475,7 +475,7 @@ void tls__write_timeout_check_cb(uv_timer_t* t)
         } else if (TR_UV_WI_IS_RESP(wi->type)) {
             pc_lib_log(PC_LOG_WARN, "tls__write_timeout_check_cb - request timeout, req id: %u", wi->req_id);
             pc_request_error_t err = pc__request_error_timeout();
-            pc_trans_resp(tt->client, wi->req_id, PC_RC_TIMEOUT, NULL, err);
+            pc_trans_resp(tt->client, wi->req_id, NULL, err);
             pc__request_error_free(err);
         }
 

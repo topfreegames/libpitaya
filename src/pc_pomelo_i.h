@@ -100,7 +100,6 @@ typedef struct {
 
         struct {
             int req_id;
-            int rc;
             pc_request_error_t error;
             const char* resp;
         } req;
@@ -144,7 +143,7 @@ struct pc_client_s {
     int is_in_poll;
 };
 
-void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, pc_request_error_t error);
+void pc__trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_request_error_t error);
 void pc__trans_sent(pc_client_t* client, unsigned int req_num, int rc);
 void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, const char* arg2);
 

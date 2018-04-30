@@ -44,6 +44,8 @@ pc__request_error_json(pc_JSON *json)
         .metadata = NULL,
     };
 
+    assert(err.code != NULL);
+
     if (metadata) {
         assert(metadata->type == pc_JSON_Object);
         err.metadata = pc_JSON_PrintUnformatted(msg);

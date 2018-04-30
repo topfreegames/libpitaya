@@ -308,9 +308,9 @@ static void pc__handle_event(pc_client_t* client, pc_event_t* ev)
     assert(PC_EV_IS_RESP(ev->type) || PC_EV_IS_NOTIFY_SENT(ev->type) || PC_EV_IS_NET_EVENT(ev->type));
 
     if (PC_EV_IS_RESP(ev->type)) {
-        pc__trans_resp(client, ev->data.req.req_id, ev->data.req.rc, ev->data.req.resp, ev->data.req.error);
-        pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans resp, req_id: %u, rc: %s",
-                ev->data.req.req_id, pc_client_rc_str(ev->data.req.rc));
+        pc__trans_resp(client, ev->data.req.req_id, ev->data.req.resp, ev->data.req.error);
+        pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans resp, req_id: %u",
+                ev->data.req.req_id);
         pc_lib_free((char* )ev->data.req.resp);
         pc__request_error_free(ev->data.req.error);
         ev->data.req.resp = NULL;

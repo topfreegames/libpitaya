@@ -225,7 +225,7 @@ typedef struct {
     char *metadata;
 } pc_request_error_t;
 
-typedef void (*pc_request_cb_t)(const pc_request_t* req, int rc, const char* resp);
+typedef void (*pc_request_cb_t)(const pc_request_t* req, const char* resp);
 typedef void (*pc_request_error_cb_t)(const pc_request_t* req, pc_request_error_t error);
 
 /**

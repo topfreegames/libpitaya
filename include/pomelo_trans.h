@@ -66,7 +66,7 @@ PC_EXPORT void pc_trans_sent(pc_client_t* client, unsigned int seq_num, int rc);
 /**
  * when a request gets a resp or timeout, transport impl should invoke this function.
  */
-PC_EXPORT void pc_trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, pc_request_error_t error);
+PC_EXPORT void pc_trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_request_error_t error);
 
 
 #ifdef __cplusplus

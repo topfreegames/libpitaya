@@ -44,7 +44,7 @@ static int dummy_send(pc_transport_t* trans, const char* route, unsigned int seq
         pc_trans_sent(d_tr->client, seq_num, PC_RC_OK);
     } else {
         pc_request_error_t error = {0};
-        pc_trans_resp(d_tr->client, req_id, PC_RC_OK, TR_DUMMY_RESP, error);
+        pc_trans_resp(d_tr->client, req_id, TR_DUMMY_RESP, error);
     }
 
     return PC_RC_OK;

@@ -29,7 +29,7 @@ static void tcp__reset_wi(pc_client_t* client, tr_uv_wi_t* wi)
     if (TR_UV_WI_IS_RESP(wi->type)) {
         pc_lib_log(PC_LOG_DEBUG, "tcp__reset_wi - reset request, req_id: %u", wi->req_id);
         pc_request_error_t err = pc__request_error_reset();
-        pc_trans_resp(client, wi->req_id, PC_RC_RESET, NULL, err);
+        pc_trans_resp(client, wi->req_id, NULL, err);
         pc__request_error_free(err);
     } else if (TR_UV_WI_IS_NOTIFY(wi->type)) {
         pc_lib_log(PC_LOG_DEBUG, "tcp__reset_wi - reset notify, seq_num: %u", wi->seq_num);
@@ -484,7 +484,7 @@ void tcp__write_async_cb(uv_async_t* a)
 
             if (TR_UV_WI_IS_RESP(wi->type)) {
                 pc_request_error_t err = pc__request_error_uv(uv_strerror(ret));
-                pc_trans_resp(tt->client, wi->req_id, ret, NULL, err);
+                pc_trans_resp(tt->client, wi->req_id, NULL, err);
                 pc__request_error_free(err);
             }
             /* if internal, do nothing here. */
@@ -558,7 +558,7 @@ void tcp__write_done_cb(uv_write_t* w, int status)
         if (TR_UV_WI_IS_RESP(wi->type)) {
             if (err_str) {
                 pc_request_error_t err = pc__request_error_uv(err_str);
-                pc_trans_resp(tt->client, wi->req_id, status, NULL, err);
+                pc_trans_resp(tt->client, wi->req_id, NULL, err);
                 pc__request_error_free(err);
             }
         }
@@ -598,7 +598,7 @@ int tcp__check_queue_timeout(QUEUE* ql, pc_client_t* client, int cont)
                 } else if (TR_UV_WI_IS_RESP(wi->type)) {
                     pc_lib_log(PC_LOG_WARN, "tcp__check_queue_timeout - request timeout, req id: %u", wi->req_id);
                     pc_request_error_t err = pc__request_error_timeout();
-                    pc_trans_resp(client, wi->req_id, PC_RC_TIMEOUT, NULL, err);
+                    pc_trans_resp(client, wi->req_id, NULL, err);
                     pc__request_error_free(err);
                 }
 
@@ -893,11 +893,11 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
         /* request */
         if (msg.error) {
             pc_request_error_t err = pc__request_error_json(msg.json_msg);
-            pc_trans_resp(tt->client, msg.id, PC_RC_OK, msg_str, err);
+            pc_trans_resp(tt->client, msg.id, msg_str, err);
             pc__request_error_free(err);
         } else {
             pc_request_error_t err = {0};
-            pc_trans_resp(tt->client, msg.id, PC_RC_OK, msg_str, err);
+            pc_trans_resp(tt->client, msg.id, msg_str, err);
         }
 
         /*

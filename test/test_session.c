@@ -43,21 +43,19 @@ event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, cons
 }
 
 static void
-set_session_request_cb(const pc_request_t* req, int rc, const char* resp)
+set_session_request_cb(const pc_request_t* req, const char* resp)
 {
     bool *called = pc_request_ex_data(req);
     *called = true;
-    assert_int(rc, ==, PC_RC_OK);
     assert_string_equal(resp, SUCCESS_RESP);
     assert_not_null(req);
 }
 
 static void
-get_session_request_cb(const pc_request_t* req, int rc, const char* resp)
+get_session_request_cb(const pc_request_t* req, const char* resp)
 {
     session_cb_data_t *scd = pc_request_ex_data(req);
     scd->called = true;
-    assert_int(rc, ==, PC_RC_OK);
     assert_string_equal(resp, scd->data);
     assert_not_null(req);
 }

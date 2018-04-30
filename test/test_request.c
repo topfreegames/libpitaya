@@ -30,7 +30,7 @@ static int g_num_success_cb_called = 0;
 static int g_num_error_cb_called = 0;
 
 static void
-request_cb(const pc_request_t* req, int rc, const char* resp)
+request_cb(const pc_request_t* req, const char* resp)
 {
     g_num_success_cb_called++;
 }
@@ -45,7 +45,7 @@ request_error_cb(const pc_request_t* req, pc_request_error_t error)
     assert_null(error.metadata);
 }
 
-MunitResult
+static MunitResult
 test_valid_route(const MunitParameter params[], void *data)
 {
     Unused(params); Unused(data);
@@ -84,7 +84,7 @@ test_valid_route(const MunitParameter params[], void *data)
     return MUNIT_OK;
 }
 
-MunitResult
+static MunitResult
 test_invalid_route(const MunitParameter params[], void *data)
 {
     Unused(params); Unused(data);
