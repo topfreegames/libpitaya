@@ -29,6 +29,8 @@ teardown(void *data)
 static int EV_ORDER[] = {
     PC_EV_CONNECTED,
     PC_EV_KICKED_BY_SERVER,
+    PC_EV_CONNECTED,
+    PC_EV_KICKED_BY_SERVER,
 };
 
 static void
@@ -61,9 +63,14 @@ test_kick(const MunitParameter params[], void *data)
         assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(3);
+        SLEEP_SECONDS(4);
 
+        assert_int(pc_client_state(g_client), ==, PC_ST_INITED);
 
+        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        SLEEP_SECONDS(4);
+
+        assert_int(pc_client_state(g_client), ==, PC_ST_INITED);
 
         assert_int(num_called, ==, ArrayCount(EV_ORDER));
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
