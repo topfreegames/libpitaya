@@ -220,12 +220,19 @@ PC_EXPORT int pc_client_rm_ev_handler(pc_client_t* client, int id);
  * Request
  */
 
+// TODO: EXPLICAR OS PROBLEMAS NA API...
+typedef struct {
+    char *code;
+    char *msg;
+    char *metadata;
+} pc_request_error_t;
+
 typedef void (*pc_request_cb_t)(const pc_request_t* req, int rc, const char* resp);
 
 /**
  * pc_request_t getters.
  *
- * All the getters should be called in pc_request_cb_t to access read-only 
+ * All the getters should be called in pc_request_cb_t to access read-only
  * properties of the current pc_request_t.
  *
  * User should not hold any references to pc_request_t.
