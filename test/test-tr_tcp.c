@@ -19,7 +19,7 @@ static pc_client_t* g_client = NULL;
 static void *
 setup(const MunitParameter params[], void *data)
 {
-    Unused(data);
+    Unused(data); Unused(params);
     // NOTE: use calloc in order to avoid one of the issues with the api.
     // see `issues.md`.
     g_client = calloc(1, pc_client_size());
@@ -117,6 +117,7 @@ static int EV_ORDER[] = {
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
+    Unused(client); Unused(arg1); Unused(arg2);
     int *num_called = ex_data;
     assert_int(ev_type, ==, EV_ORDER[*num_called]);
     (*num_called)++;
@@ -152,6 +153,7 @@ test_event_callback(const MunitParameter params[], void *data)
 static void
 invalid_ev_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
+    Unused(client); Unused(arg2);
     bool *called = (bool*)ex_data;
     *called = true;
 

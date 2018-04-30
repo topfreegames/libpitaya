@@ -34,7 +34,7 @@ static int EV_ORDER[] = {
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
-    Unused(client);
+    Unused(client); Unused(arg1); Unused(arg2);
     int *num_called = ex_data;
     assert_int(ev_type, ==, EV_ORDER[*num_called]);
     (*num_called)++;
@@ -48,9 +48,9 @@ test_kick(const MunitParameter params[], void *data)
     const int ports[] = {g_kick_mock_server.tcp_port, g_kick_mock_server.tls_port};
     const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
-    assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL));
+    assert_int(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
 
-    for (int i = 0; i < ArrayCount(ports); i++) {
+    for (size_t i = 0; i < ArrayCount(ports); i++) {
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
@@ -62,6 +62,8 @@ test_kick(const MunitParameter params[], void *data)
 
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(3);
+
+
 
         assert_int(num_called, ==, ArrayCount(EV_ORDER));
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);

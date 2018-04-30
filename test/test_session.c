@@ -36,6 +36,7 @@ teardown(void *data)
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
+    Unused(client); Unused(arg1); Unused(arg2);
     bool *connected = ex_data;
     *connected = true;
     assert_int(ev_type, ==, PC_EV_CONNECTED);
@@ -120,7 +121,7 @@ test_persistence(const MunitParameter params[], void *data)
     do_test_session_persistence(&config, g_test_server.tcp_port);
     // Test with TLS
     config.transport_name = PC_TR_NAME_UV_TLS;
-    assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL));
+    assert_int(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
     do_test_session_persistence(&config, g_test_server.tls_port);
 
     return MUNIT_OK;

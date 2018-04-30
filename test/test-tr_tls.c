@@ -15,10 +15,6 @@
 
 static pc_client_t* g_client = NULL;
 
-static bool g_event_cb_called = false;
-static bool g_request_cb_called = false;
-static bool g_notify_cb_called = false;
-
 static void *
 setup(const MunitParameter params[], void *data)
 {
@@ -46,6 +42,7 @@ static int EV_ORDER[] = {
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
+    Unused(client); Unused(arg1); Unused(arg2);
     int *num_called = ex_data;
     assert_int(ev_type, ==, EV_ORDER[*num_called]);
     (*num_called)++;
@@ -96,7 +93,7 @@ test_successful_handshake(const MunitParameter params[], void *state)
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
     // Set CA file so that the handshake is successful.
-    assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL));
+    assert_int(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
 
     assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tls_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
@@ -157,7 +154,7 @@ test_no_client_certificate(const MunitParameter params[], void *state)
     // Without setting a CA file, the handshake should fail.
     test_invalid_handshake();
     // Setting an unexistent CA file should fail the function and also fail the handshake.
-    assert_false(tr_uv_tls_set_ca_file("./this/ca/does/not/exist.crt", NULL));
+    assert_int(tr_uv_tls_set_ca_file("./this/ca/does/not/exist.crt", NULL), ==, PC_RC_ERROR);
     test_invalid_handshake();
 
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
@@ -173,7 +170,7 @@ test_wrong_client_certificate(const MunitParameter params[], void *state)
     assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
 
     // Setting the WRONG CA file should not fail the function but make the handshake fail.
-    assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca_incorrect.crt", NULL));
+    assert_int(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca_incorrect.crt", NULL), ==, PC_RC_OK);
     test_invalid_handshake();
 
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);

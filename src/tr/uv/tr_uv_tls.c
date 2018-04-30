@@ -3,6 +3,7 @@
  * MIT Licensed.
  */
 
+#include <pomelo.h>
 #include <assert.h>
 
 #include <pc_lib.h>
@@ -34,17 +35,16 @@ pc_transport_plugin_t* pc_tr_uv_tls_trans_plugin()
     return (pc_transport_plugin_t* )&instance;
 }
 
-bool tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path)
+int tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path)
 {
     if (instance.ctx) {
         int ret = SSL_CTX_load_verify_locations(instance.ctx, ca_file, ca_path);
         if (!ret) {
             pc_lib_log(PC_LOG_WARN, "tr_uv_tls_set_ca_file - load verify locations error, cafile: %s, capath: %s", ca_file, ca_path);
-            return false;
+            return PC_RC_ERROR;
         }
-        return true;
+        return PC_RC_OK;
     } else {
-        return false;
+        return PC_RC_ERROR;
     }
 }
-

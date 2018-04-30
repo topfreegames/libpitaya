@@ -65,12 +65,4 @@ static test_server_t g_test_server = {3251, 3252};
     0 /* disable_compression */             \
 }
 
-static void
-quiet_log(int level, const char *msg, ...)
-{
-    Unused(level); Unused(msg);
-    // Use an empty log to avoid messing up the output of the tests.
-    // TODO: maybe print only logs of a certain level?
-}
-
 #endif // TEST_COMMON_H

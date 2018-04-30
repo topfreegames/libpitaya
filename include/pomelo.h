@@ -286,7 +286,7 @@ PC_EXPORT const char* pc_client_rc_str(int rc);
  * Returns `true` in case of success otherwise `false`. For more information, see
  * https://www.openssl.org/docs/man1.0.2/ssl/SSL_CTX_load_verify_locations.html
  */
-bool tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
+int tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
 
 #endif /* uv_tls */
 

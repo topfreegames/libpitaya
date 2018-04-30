@@ -16,6 +16,14 @@ const MunitSuite null_suite = {
     NULL, NULL, NULL, 0, MUNIT_SUITE_OPTION_NONE
 };
 
+static void
+quiet_log(int level, const char *msg, ...)
+{
+    Unused(level); Unused(msg);
+    // Use an empty log to avoid messing up the output of the tests.
+    // TODO: maybe print only logs of a certain level?
+}
+
 static MunitSuite *
 make_suites()
 {

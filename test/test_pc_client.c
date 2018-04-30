@@ -60,6 +60,7 @@ test_polling(const MunitParameter params[], void *data)
 static MunitResult
 test_pc_client_ex_data(const MunitParameter params[], void *data)
 {
+    Unused(params); Unused(data);
 #define RANDOM_PTR (void*)0xdeadbeef
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     assert_int(pc_client_init(g_client, RANDOM_PTR, &config), ==, PC_RC_OK);
@@ -73,6 +74,7 @@ test_pc_client_ex_data(const MunitParameter params[], void *data)
 static MunitResult
 test_pc_client_config(const MunitParameter params[], void *data)
 {
+    Unused(params); Unused(data);
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
     assert_int(pc_client_state(g_client), ==, PC_ST_INITED);
@@ -85,6 +87,7 @@ test_pc_client_config(const MunitParameter params[], void *data)
 static MunitResult
 test_pc_client_conn_quality(const MunitParameter params[], void *data)
 {
+    Unused(params); Unused(data);
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     pc_client_init(g_client, NULL, &config);
 
@@ -105,6 +108,7 @@ test_pc_client_conn_quality(const MunitParameter params[], void *data)
 static MunitResult
 test_pc_client_trans_data(const MunitParameter params[], void *data)
 {
+    Unused(params); Unused(data);
     // TODO
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
