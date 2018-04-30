@@ -12,3 +12,6 @@ Assembly-CSharp.csproj.CoreCompileInputs.cache
 server-exe
 mock-out.log
 *-out.log
+.clang_complete
+.dir-locals.el
+tr_uv_tcp_aux.c.autosave
