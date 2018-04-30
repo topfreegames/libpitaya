@@ -18,8 +18,6 @@
 
     'target_defaults': {
       'conditions': [
-      ],    # conditions
-      'conditions': [
         ['OS == "win"', {
           'msvs_settings': {
             'VCCLCompilerTool': {
@@ -57,10 +55,10 @@
           'product_dir': 'output',
         }],
         ['build_type=="Debug"', {
-          'cflags': ['-g', '-O0']
+          'cflags': ['-g', '-O0', '-Wall', '-Wextra', '-pedantic']
         }],
         ['build_type=="Release"', {
-          'cflags': ['-g', '-O3']
+          'cflags': ['-g', '-O3', '-Wall', '-Wextra', '-pedantic']
         }],
         [ 'no_uv_support == "false"', {
           'conditions' : [
@@ -140,7 +138,7 @@
             ],
             'link_settings': {
                'libraries': [
-                 '-lz', 
+                 '-lz',
                ],
             },
             'conditions': [
