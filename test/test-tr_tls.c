@@ -15,25 +15,6 @@
 
 static pc_client_t* g_client = NULL;
 
-static void *
-setup(const MunitParameter params[], void *data)
-{
-    Unused(data); Unused(params);
-    // NOTE: use calloc in order to avoid one of the issues with the api.
-    // see `issues.md`.
-    g_client = calloc(1, pc_client_size());
-    assert_not_null(g_client);
-    return NULL;
-}
-
-static void
-teardown(void *data)
-{
-    Unused(data);
-    free(g_client);
-    g_client = NULL;
-}
-
 static int EV_ORDER[] = {
     PC_EV_CONNECTED,
     PC_EV_DISCONNECT,
@@ -86,7 +67,9 @@ test_successful_handshake(const MunitParameter params[], void *state)
     bool req_cb_called = false;
     bool noti_cb_called = false;
 
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
 
     int handler_id = pc_client_add_ev_handler(g_client, event_cb, &num_ev_cb_called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
@@ -148,7 +131,10 @@ test_no_client_certificate(const MunitParameter params[], void *state)
     Unused(state); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TLS;
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
 
     // Without setting a CA file, the handshake should fail.
     test_invalid_handshake();
@@ -166,7 +152,10 @@ test_wrong_client_certificate(const MunitParameter params[], void *state)
     Unused(state); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TLS;
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
 
     // Setting the WRONG CA file should not fail the function but make the handshake fail.
     assert_int(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca_incorrect.crt", NULL), ==, PC_RC_OK);
@@ -177,9 +166,9 @@ test_wrong_client_certificate(const MunitParameter params[], void *state)
 }
 
 static MunitTest tests[] = {
-    {"/no_client_certificate", test_no_client_certificate, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/wrong_client_certificate", test_wrong_client_certificate, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/successful_handshake", test_successful_handshake, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/no_client_certificate", test_no_client_certificate, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/wrong_client_certificate", test_wrong_client_certificate, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/successful_handshake", test_successful_handshake, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

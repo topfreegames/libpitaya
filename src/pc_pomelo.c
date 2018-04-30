@@ -17,7 +17,7 @@
 #include "pc_trans_repo.h"
 #include "pc_request_error.h"
 
-static int pc__init_magic_num = 0x65521abc;
+/* static int pc__init_magic_num = 0x65521abc; */
 
 static pc_client_config_t pc__default_config = PC_CLIENT_CONFIG_DEFAULT;
 
@@ -26,109 +26,104 @@ size_t pc_client_size()
     return sizeof(pc_client_t);
 }
 
-int pc_client_init(pc_client_t* client, void* ex_data, const pc_client_config_t* config)
+pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* config)
 {
-    int i;
-    pc_transport_plugin_t* tp;
-    pc_transport_t* trans;
-
-    if (!client) {
-        pc_lib_log(PC_LOG_ERROR, "pc_client_init - client is null");
-        return PC_RC_INVALID_ARG;
-    }
-
-    /* error report that using uninitialised value by valgrind here can be suppressed */
-    if (client->magic_num == pc__init_magic_num) {
-        pc_lib_log(PC_LOG_INFO, "pc_client_init - client has already inited");
-        return PC_RC_OK;
-    }
+    pc_client_init_result_t res = {
+        .client = pc_lib_malloc(pc_client_size()),
+        .rc = PC_RC_ERROR,
+    };
 
     if (!config) {
-        client->config = pc__default_config;
+        res.client->config = pc__default_config;
     } else {
-        memcpy(&client->config, config, sizeof(pc_client_config_t));
+        memcpy(&res.client->config, config, sizeof(pc_client_config_t));
     }
 
-    tp = pc__get_transport_plugin(client->config.transport_name);
+    pc_transport_plugin_t *tp = pc__get_transport_plugin(res.client->config.transport_name);
 
     if (!tp) {
-        client->magic_num = 0;
         pc_lib_log(PC_LOG_ERROR, "pc_client_init - no registered transport plugin found, transport plugin: %d", config->transport_name);
-        return PC_RC_NO_TRANS;
+        pc_lib_free(res.client);
+        res.client = NULL;
+        res.rc = PC_RC_NO_TRANS;
+        return res;
     }
 
     assert(tp->transport_create);
     assert(tp->transport_release);
 
-    trans = tp->transport_create(tp);
+    pc_transport_t *trans = tp->transport_create(tp);
     if (!trans) {
-        client->magic_num = 0;
         pc_lib_log(PC_LOG_ERROR, "pc_client_init - create transport error");
-        return PC_RC_ERROR;
+        pc_lib_free(res.client);
+        res.client = NULL;
+        res.rc = PC_RC_ERROR;
+        return res;
     }
 
-    client->trans = trans;
+    res.client->trans = trans;
 
-    assert(client->trans->init);
+    assert(res.client->trans->init);
 
-    if (client->trans->init(client->trans, client)) {
-        client->magic_num = 0;
+    if (res.client->trans->init(res.client->trans, res.client)) {
         pc_lib_log(PC_LOG_ERROR, "pc_client_init - init transport error");
         tp->transport_release(tp, trans);
-        return PC_RC_ERROR;
+        pc_lib_free(res.client);
+        res.client = NULL;
+        res.rc = PC_RC_ERROR;
+        return res;
     }
 
-    pc_mutex_init(&client->state_mutex);
+    pc_mutex_init(&res.client->state_mutex);
 
-    client->ex_data = ex_data;
+    res.client->ex_data = ex_data;
 
-    pc_mutex_init(&client->handler_mutex);
-    QUEUE_INIT(&client->ev_handlers);
+    pc_mutex_init(&res.client->handler_mutex);
+    QUEUE_INIT(&res.client->ev_handlers);
 
-    pc_mutex_init(&client->req_mutex);
-    pc_mutex_init(&client->notify_mutex);
+    pc_mutex_init(&res.client->req_mutex);
+    pc_mutex_init(&res.client->notify_mutex);
 
-    QUEUE_INIT(&client->req_queue);
-    QUEUE_INIT(&client->notify_queue);
+    QUEUE_INIT(&res.client->req_queue);
+    QUEUE_INIT(&res.client->notify_queue);
 
-    client->seq_num = 0;
-    client->req_id_seq = 1;
+    res.client->seq_num = 0;
+    res.client->req_id_seq = 1;
 
-    memset(&client->requests[0], 0, sizeof(pc_request_t) * PC_PRE_ALLOC_REQUEST_SLOT_COUNT);
-    memset(&client->notifies[0], 0, sizeof(pc_notify_t) * PC_PRE_ALLOC_NOTIFY_SLOT_COUNT);
+    memset(&res.client->requests[0], 0, sizeof(pc_request_t) * PC_PRE_ALLOC_REQUEST_SLOT_COUNT);
+    memset(&res.client->notifies[0], 0, sizeof(pc_notify_t) * PC_PRE_ALLOC_NOTIFY_SLOT_COUNT);
 
-    for (i = 0; i < PC_PRE_ALLOC_REQUEST_SLOT_COUNT; ++i) {
-        QUEUE_INIT(&client->requests[i].base.queue);
-        client->requests[i].base.client = client;
-        client->requests[i].base.type = PC_REQ_TYPE_REQUEST | PC_PRE_ALLOC_ST_IDLE | PC_PRE_ALLOC;
+    for (int i = 0; i < PC_PRE_ALLOC_REQUEST_SLOT_COUNT; ++i) {
+        QUEUE_INIT(&res.client->requests[i].base.queue);
+        res.client->requests[i].base.client = res.client;
+        res.client->requests[i].base.type = PC_REQ_TYPE_REQUEST | PC_PRE_ALLOC_ST_IDLE | PC_PRE_ALLOC;
     }
 
-    for (i = 0; i < PC_PRE_ALLOC_NOTIFY_SLOT_COUNT; ++i) {
-        QUEUE_INIT(&client->notifies[i].base.queue);
-        client->notifies[i].base.client = client;
-        client->notifies[i].base.type = PC_REQ_TYPE_NOTIFY | PC_PRE_ALLOC_ST_IDLE | PC_PRE_ALLOC;
+    for (int i = 0; i < PC_PRE_ALLOC_NOTIFY_SLOT_COUNT; ++i) {
+        QUEUE_INIT(&res.client->notifies[i].base.queue);
+        res.client->notifies[i].base.client = res.client;
+        res.client->notifies[i].base.type = PC_REQ_TYPE_NOTIFY | PC_PRE_ALLOC_ST_IDLE | PC_PRE_ALLOC;
     }
 
-    pc_mutex_init(&client->event_mutex);
-    if (client->config.enable_polling) {
+    pc_mutex_init(&res.client->event_mutex);
+    if (res.client->config.enable_polling) {
 
-        QUEUE_INIT(&client->pending_ev_queue);
+        QUEUE_INIT(&res.client->pending_ev_queue);
 
-        memset(&client->pending_events[0], 0, sizeof(pc_event_t) * PC_PRE_ALLOC_EVENT_SLOT_COUNT);
+        memset(&res.client->pending_events[0], 0, sizeof(pc_event_t) * PC_PRE_ALLOC_EVENT_SLOT_COUNT);
 
-        for (i = 0; i < PC_PRE_ALLOC_EVENT_SLOT_COUNT; ++i) {
-            QUEUE_INIT(&client->pending_events[i].queue);
-            client->pending_events[i].type = PC_PRE_ALLOC_ST_IDLE | PC_PRE_ALLOC;
+        for (int i = 0; i < PC_PRE_ALLOC_EVENT_SLOT_COUNT; ++i) {
+            QUEUE_INIT(&res.client->pending_events[i].queue);
+            res.client->pending_events[i].type = PC_PRE_ALLOC_ST_IDLE | PC_PRE_ALLOC;
         }
     }
 
-    client->is_in_poll = 0;
+    res.client->is_in_poll = 0;
+    res.client->state = PC_ST_INITED;
+    res.rc = PC_RC_OK;
 
-    client->magic_num = pc__init_magic_num;
     pc_lib_log(PC_LOG_DEBUG, "pc_client_init - init ok");
-    client->state = PC_ST_INITED;
-
-    return PC_RC_OK;
+    return res;
 }
 
 int pc_client_connect(pc_client_t* client, const char* host, int port, const char* handshake_opts)
@@ -147,7 +142,6 @@ int pc_client_connect(pc_client_t* client, const char* host, int port, const cha
 
     state = pc_client_state(client);
     switch(state) {
-    case PC_ST_NOT_INITED:
     case PC_ST_DISCONNECTING:
         pc_lib_log(PC_LOG_ERROR, "pc_client_connect - invalid state, state: %s", pc_client_state_str(state));
         return PC_RC_INVALID_STATE;
@@ -195,7 +189,6 @@ int pc_client_disconnect(pc_client_t* client)
 
     state = pc_client_state(client);
     switch(state) {
-        case PC_ST_NOT_INITED:
         case PC_ST_INITED:
             pc_lib_log(PC_LOG_ERROR, "pc_client_disconnect - invalid state, state: %s",
                     pc_client_state_str(state));
@@ -238,11 +231,6 @@ int pc_client_cleanup(pc_client_t* client)
     if (!client) {
         pc_lib_log(PC_LOG_ERROR, "pc_client_cleanup - client is null");
         return PC_RC_INVALID_ARG;
-    }
-
-    if (client->magic_num != pc__init_magic_num) {
-        pc_lib_log(PC_LOG_INFO, "pc_client_cleanup - client has not been inited");
-        return PC_RC_OK;
     }
 
     assert(client->trans && client->trans->cleanup);
@@ -296,9 +284,6 @@ int pc_client_cleanup(pc_client_t* client)
 
     client->req_id_seq = 1;
     client->seq_num = 0;
-
-    client->magic_num = 0;
-    client->state = PC_ST_NOT_INITED;
 
     return PC_RC_OK;
 }
@@ -467,10 +452,6 @@ int pc_client_state(pc_client_t* client)
     if (!client) {
         pc_lib_log(PC_LOG_DEBUG, "pc_client_state - client is null");
         return PC_ST_UNKNOWN;
-    }
-
-    if (client->magic_num != pc__init_magic_num) {
-        return PC_ST_NOT_INITED;
     }
 
     pc_mutex_lock(&client->state_mutex);

@@ -55,17 +55,16 @@ extern "C" {
 typedef struct pc_client_s pc_client_t;
 typedef struct pc_request_s pc_request_t;
 typedef struct pc_notify_s pc_notify_t;
-    
+
 /**
  * client state
  */
-#define PC_ST_NOT_INITED 0
-#define PC_ST_INITED 1
-#define PC_ST_CONNECTING 2
-#define PC_ST_CONNECTED 3
-#define PC_ST_DISCONNECTING 4
-#define PC_ST_UNKNOWN 5
-#define PC_ST_COUNT 6
+#define PC_ST_INITED 0
+#define PC_ST_CONNECTING 1
+#define PC_ST_CONNECTED 2
+#define PC_ST_DISCONNECTING 3
+#define PC_ST_UNKNOWN 4
+#define PC_ST_COUNT 5
 
 
 /**
@@ -163,8 +162,13 @@ PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void
 
 PC_EXPORT void pc_lib_cleanup();
 
+typedef struct {
+    pc_client_t *client;
+    int rc;
+} pc_client_init_result_t;
+
 PC_EXPORT size_t pc_client_size();
-PC_EXPORT int pc_client_init(pc_client_t* client, void* ex_data, const pc_client_config_t* config);
+PC_EXPORT pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* config);
 PC_EXPORT int pc_client_connect(pc_client_t* client, const char* host, int port, const char* handshake_opts);
 PC_EXPORT int pc_client_disconnect(pc_client_t* client);
 PC_EXPORT int pc_client_cleanup(pc_client_t* client);

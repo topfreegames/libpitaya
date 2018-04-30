@@ -7,25 +7,6 @@
 
 static pc_client_t *g_client = NULL;
 
-static void *
-setup(const MunitParameter params[], void *data)
-{
-    Unused(data); Unused(params);
-    // NOTE: use calloc in order to avoid one of the issues with the api.
-    // see `issues.md`.
-    g_client = calloc(1, pc_client_size());
-    assert_not_null(g_client);
-    return NULL;
-}
-
-static void
-teardown(void *data)
-{
-    Unused(data);
-    free(g_client);
-    g_client = NULL;
-}
-
 static char *RESPONSES_DISABLED[] = {
     "{\"isCompressed\":false}",
     "{\"isCompressed\":false}",
@@ -67,7 +48,10 @@ test_disabled_compression(const MunitParameter params[], void *data)
         config.transport_name = transports[i];
         config.disable_compression = true;
 
-        assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
@@ -103,7 +87,10 @@ test_enabled_compression(const MunitParameter params[], void *data)
         pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
         config.transport_name = transports[i];
 
-        assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
@@ -127,8 +114,8 @@ test_enabled_compression(const MunitParameter params[], void *data)
 }
 
 static MunitTest tests[] = {
-    {"/enabled", test_enabled_compression, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/disabled", test_disabled_compression, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/enabled", test_enabled_compression, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/disabled", test_disabled_compression, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

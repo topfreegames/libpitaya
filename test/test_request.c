@@ -7,25 +7,6 @@
 
 static pc_client_t *g_client = NULL;
 
-static void *
-setup(const MunitParameter params[], void *data)
-{
-    Unused(data); Unused(params);
-    // NOTE: use calloc in order to avoid one of the issues with the api.
-    // see `issues.md`.
-    g_client = calloc(1, pc_client_size());
-    assert_not_null(g_client);
-    return NULL;
-}
-
-static void
-teardown(void *data)
-{
-    Unused(data);
-    free(g_client);
-    g_client = NULL;
-}
-
 static int g_num_success_cb_called = 0;
 static int g_num_error_cb_called = 0;
 static int g_num_timeout_error_cb_called = 0;
@@ -70,7 +51,10 @@ test_invalid_state(const MunitParameter params[], void *data)
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
-        assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
         assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
                                            request_cb, request_error_cb), ==, PC_RC_INVALID_STATE);
 
@@ -113,7 +97,9 @@ test_timeout(const MunitParameter params[], void *data)
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
-        assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
 
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
@@ -154,7 +140,9 @@ test_valid_route(const MunitParameter params[], void *data)
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
-        assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
 
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
@@ -195,7 +183,9 @@ test_invalid_route(const MunitParameter params[], void *data)
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
-        assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
 
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
@@ -222,10 +212,10 @@ test_invalid_route(const MunitParameter params[], void *data)
 }
 
 static MunitTest tests[] = {
-    {"/invalid_route", test_invalid_route, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/valid_route", test_valid_route, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/timeout", test_timeout, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/invalid_state", test_invalid_state, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/invalid_route", test_invalid_route, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/valid_route", test_valid_route, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/timeout", test_timeout, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/invalid_state", test_invalid_state, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

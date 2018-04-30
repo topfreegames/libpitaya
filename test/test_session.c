@@ -14,25 +14,6 @@ typedef struct {
     char *data;
 } session_cb_data_t;
 
-static void *
-setup(const MunitParameter params[], void *data)
-{
-    Unused(data); Unused(params);
-    // NOTE: use calloc in order to avoid one of the issues with the api.
-    // see `issues.md`.
-    g_client = calloc(1, pc_client_size());
-    assert_not_null(g_client);
-    return NULL;
-}
-
-static void
-teardown(void *data)
-{
-    Unused(data);
-    free(g_client);
-    g_client = NULL;
-}
-
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
@@ -63,7 +44,9 @@ get_session_request_cb(const pc_request_t* req, const char* resp)
 void
 do_test_session_persistence(pc_client_config_t *config, int port)
 {
-    assert_int(pc_client_init(g_client, NULL, config), ==, PC_RC_OK);
+    pc_client_init_result_t res = pc_client_init(NULL, config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
 
     bool connected = false;
     int handler_id = pc_client_add_ev_handler(g_client, event_cb, &connected, NULL);
@@ -126,7 +109,7 @@ test_persistence(const MunitParameter params[], void *data)
 }
 
 static MunitTest tests[] = {
-    {"/persistence", test_persistence, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/persistence", test_persistence, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

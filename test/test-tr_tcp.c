@@ -16,24 +16,6 @@
 
 static pc_client_t* g_client = NULL;
 
-static void *
-setup(const MunitParameter params[], void *data)
-{
-    Unused(data); Unused(params);
-    // NOTE: use calloc in order to avoid one of the issues with the api.
-    // see `issues.md`.
-    g_client = calloc(1, pc_client_size());
-    return NULL;
-}
-
-static void
-teardown(void *data)
-{
-    Unused(data);
-    free(g_client);
-    g_client = NULL;
-}
-
 static void
 request_cb(const pc_request_t* req, const char* resp)
 {
@@ -70,7 +52,10 @@ test_notify_callback(const MunitParameter params[], void *data)
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     config.transport_name = PC_TR_NAME_UV_TCP;
 
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
     assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
 
     SLEEP_SECONDS(1);
@@ -94,7 +79,10 @@ test_request_callback(const MunitParameter params[], void *data)
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     config.transport_name = PC_TR_NAME_UV_TCP;
 
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
     assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
 
     SLEEP_SECONDS(1);
@@ -132,7 +120,10 @@ test_event_callback(const MunitParameter params[], void *data)
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     config.transport_name = PC_TR_NAME_UV_TCP;
 
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
     int handler_id = pc_client_add_ev_handler(g_client, event_cb, &num_called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
@@ -169,10 +160,10 @@ test_connect_errors(const MunitParameter params[], void *data)
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     config.transport_name = PC_TR_NAME_UV_TCP;
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_INVALID_STATE);
-
     // Initializing the client
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
 
     bool cb_called = false;
     const int handler_id = pc_client_add_ev_handler(g_client, invalid_ev_cb, &cb_called, NULL);
@@ -205,21 +196,23 @@ test_invalid_disconnect(const MunitParameter params[], void *data)
 {
     Unused(data); Unused(params);
     assert_int(pc_client_disconnect(NULL), ==, PC_RC_INVALID_ARG);
-    assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
 
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
-    assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
 
     return MUNIT_OK;
 }
 
 static MunitTest tests[] = {
-    {"/invalid_disconnect", test_invalid_disconnect, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/event_cb", test_event_callback, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/notify_cb", test_notify_callback, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/request_cb", test_request_callback, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/connect_errors", test_connect_errors, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/invalid_disconnect", test_invalid_disconnect, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/event_cb", test_event_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/notify_cb", test_notify_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/request_cb", test_request_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/connect_errors", test_connect_errors, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

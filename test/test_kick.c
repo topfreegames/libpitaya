@@ -7,25 +7,6 @@
 
 static pc_client_t *g_client = NULL;
 
-static void *
-setup(const MunitParameter params[], void *data)
-{
-    Unused(data); Unused(params);
-    // NOTE: use calloc in order to avoid one of the issues with the api.
-    // see `issues.md`.
-    g_client = calloc(1, pc_client_size());
-    assert_not_null(g_client);
-    return NULL;
-}
-
-static void
-teardown(void *data)
-{
-    Unused(data);
-    free(g_client);
-    g_client = NULL;
-}
-
 static int EV_ORDER[] = {
     PC_EV_CONNECTED,
     PC_EV_KICKED_BY_SERVER,
@@ -56,7 +37,9 @@ test_kick(const MunitParameter params[], void *data)
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
-        assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
 
         int num_called = 0;
         int handler_id = pc_client_add_ev_handler(g_client, event_cb, &num_called, NULL);
@@ -82,7 +65,7 @@ test_kick(const MunitParameter params[], void *data)
 }
 
 static MunitTest tests[] = {
-    {"", test_kick, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
+    {"", test_kick, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

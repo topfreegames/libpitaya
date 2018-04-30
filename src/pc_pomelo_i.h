@@ -113,8 +113,6 @@ typedef struct {
 } pc_event_t;
 
 struct pc_client_s {
-    int magic_num;
-
     /* as the state will be updated by multi threads */
     pc_mutex_t state_mutex;
     int state;
