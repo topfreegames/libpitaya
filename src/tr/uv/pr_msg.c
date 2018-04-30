@@ -362,7 +362,6 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, i
     pc_JSON* json_msg;
     int route_code = -1;
     pc_JSON* code = NULL;
-    pc_JSON* pb_def = NULL;
     pc_msg_type type;
 
     msg_buf.base = NULL;

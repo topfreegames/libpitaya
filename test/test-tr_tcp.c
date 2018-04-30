@@ -158,7 +158,9 @@ invalid_ev_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1,
     *called = true;
 
     assert(ev_type == PC_EV_CONNECT_ERROR || ev_type == PC_EV_CONNECT_FAILED);
-    assert(strcmp("Connect Error", arg1) == 0 || strcmp("Reconn Disabled", arg1) == 0);
+    bool is_connect_error = strcmp("Connect Error", arg1) == 0;
+    bool is_reconn_disabled = strcmp("Reconn Disabled", arg1) == 0;
+    assert(is_connect_error || is_reconn_disabled);
 }
 
 static MunitResult

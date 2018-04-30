@@ -31,7 +31,8 @@ pc_buf_t pc_body_json_encode(const pc_JSON* msg, int compress_data)
         const size_t res_len = strlen(res);
 
         int compress_err = pr_compress((unsigned char**)&buf.base, (size_t*)&buf.len, (unsigned char*)res, res_len);
-        if (compress_err || buf.len >= res_len) {
+        assert(buf.len >= 0);
+        if (compress_err || (size_t)buf.len >= res_len) {
             if (!compress_err) {
                 pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - compressed is larger (%d > %d)", buf.len, res_len);
             }
