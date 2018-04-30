@@ -334,19 +334,17 @@ void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, cons
 
 void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error)
 {
-    QUEUE* q;
-    pc_request_t* req;
-    pc_request_t* target;
+    QUEUE* q = NULL;
 
     /* invoke callback immediately */
-    target = NULL;
+    pc_request_t *target = NULL;
     pc_mutex_lock(&client->req_mutex);
     QUEUE_FOREACH(q, &client->req_queue) {
-        req = (pc_request_t* )QUEUE_DATA(q, pc_common_req_t, queue);
+        pc_request_t *req = (pc_request_t* )QUEUE_DATA(q, pc_common_req_t, queue);
         if (req->req_id == req_id) {
 
-            pc_lib_log(PC_LOG_INFO, "pc__trans_resp - fire resp event, req_id: %u, rc: %s",
-                    req_id, pc_client_rc_str(rc));
+            pc_lib_log(PC_LOG_INFO, "pc__trans_resp - fire resp event, req_id: %u, rc: %s, error: %d",
+                       req_id, pc_client_rc_str(rc), error);
 
             target = req;
             QUEUE_REMOVE(q);
@@ -362,7 +360,7 @@ void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char
         } else {
             target->cb(target, rc, resp);
         }
-            
+
         pc_lib_free((char*)target->base.msg);
         pc_lib_free((char*)target->base.route);
 

@@ -2,7 +2,7 @@
 #include <pomelo.h>
 #include "test_common.h"
 
-#define NUM_SUITES 7
+#define NUM_SUITES 8
 
 extern const MunitSuite pc_client_suite;
 extern const MunitSuite tcp_suite;
@@ -11,6 +11,7 @@ extern const MunitSuite session_suite;
 extern const MunitSuite reconnection_suite;
 extern const MunitSuite compression_suite;
 extern const MunitSuite kick_suite;
+extern const MunitSuite request_suite;
 
 const MunitSuite null_suite = {
     NULL, NULL, NULL, 0, MUNIT_SUITE_OPTION_NONE
@@ -36,6 +37,7 @@ make_suites()
     suites_array[i++] = reconnection_suite;
     suites_array[i++] = compression_suite;
     suites_array[i++] = kick_suite;
+    suites_array[i++] = request_suite;
     // IMPORTANT: always has to end with a null suite
     suites_array[i++] = null_suite;
     return suites_array;
@@ -54,7 +56,7 @@ int main(int argc, char **argv)
 
     // Run this function only one time, otherwise things break.
     pc_lib_init(quiet_log, NULL, NULL, NULL, NULL);
-//    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
+   /* pc_lib_init(NULL, NULL, NULL, NULL, NULL); */
 
     int ret = munit_suite_main(&main_suite, NULL, argc, argv);
 

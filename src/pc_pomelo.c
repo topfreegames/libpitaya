@@ -517,18 +517,13 @@ void* pc_client_trans_data(pc_client_t* client)
 int pc_request_with_timeout(pc_client_t* client, const char* route, const char* msg, void* ex_data,
         int timeout, pc_request_cb_t cb, pc_request_cb_t error_cb)
 {
-    pc_request_t* req;
-    int i;
-    int ret;
-    int state;
-
     if (!client || !route || !msg || !cb) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - invalid args");
         return PC_RC_INVALID_ARG;
     }
 
-    state = pc_client_state(client);
-    if(state != PC_ST_CONNECTED && state != PC_ST_CONNECTING) {
+    int state = pc_client_state(client);
+    if (state != PC_ST_CONNECTED && state != PC_ST_CONNECTING) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - invalid state, state: %s", pc_client_state_str(state));
         return PC_RC_INVALID_STATE;
     }
@@ -542,8 +537,8 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
 
     pc_mutex_lock(&client->req_mutex);
 
-    req = NULL;
-    for (i = 0; i < PC_PRE_ALLOC_REQUEST_SLOT_COUNT; ++i) {
+    pc_request_t* req = NULL;
+    for (int i = 0; i < PC_PRE_ALLOC_REQUEST_SLOT_COUNT; ++i) {
         if (PC_PRE_ALLOC_IS_IDLE(client->requests[i].base.type)) {
             req = &client->requests[i];
 
@@ -585,7 +580,7 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
 
     pc_lib_log(PC_LOG_INFO, "pc_request_with_timeout - add request to queue, req id: %u", req->req_id);
 
-    ret = client->trans->send(client->trans, req->base.route, req->base.seq_num, req->base.msg, req->req_id, req->base.timeout);
+    int ret = client->trans->send(client->trans, req->base.route, req->base.seq_num, req->base.msg, req->req_id, req->base.timeout);
 
     if (ret != PC_RC_OK) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - send to transport error,"

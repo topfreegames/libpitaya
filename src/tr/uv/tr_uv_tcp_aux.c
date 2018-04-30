@@ -507,8 +507,6 @@ void tcp__write_async_cb(uv_async_t* a)
 
 void tcp__write_done_cb(uv_write_t* w, int status)
 {
-    QUEUE* q;
-    tr_uv_wi_t* wi;
     GET_TT(w);
 
     assert(tt->is_writing);
@@ -522,15 +520,14 @@ void tcp__write_done_cb(uv_write_t* w, int status)
 
     status = status == 0 ? PC_RC_OK : PC_RC_ERROR;
 
-
     pc_mutex_lock(&tt->wq_mutex);
 
-    while(!QUEUE_EMPTY(&tt->writing_queue)) {
-        q = QUEUE_HEAD(&tt->writing_queue);
+    while (!QUEUE_EMPTY(&tt->writing_queue)) {
+        QUEUE *q = QUEUE_HEAD(&tt->writing_queue);
         QUEUE_REMOVE(q);
         QUEUE_INIT(q);
 
-        wi = (tr_uv_wi_t* )QUEUE_DATA(q, tr_uv_wi_t, queue);
+        tr_uv_wi_t *wi = (tr_uv_wi_t* )QUEUE_DATA(q, tr_uv_wi_t, queue);
 
         if (!status && TR_UV_WI_IS_RESP(wi->type)) {
 
@@ -539,7 +536,7 @@ void tcp__write_done_cb(uv_write_t* w, int status)
 
             QUEUE_INSERT_TAIL(&tt->resp_pending_queue, q);
             continue;
-        };
+        }
 
         pc_lib_free(wi->buf.base);
         wi->buf.base = NULL;
@@ -550,7 +547,7 @@ void tcp__write_done_cb(uv_write_t* w, int status)
         }
 
         if (TR_UV_WI_IS_RESP(wi->type)) {
-            pc_trans_resp(tt->client, wi->req_id, status, NULL, 0);
+            pc_trans_resp(tt->client, wi->req_id, status, NULL, status);
         }
         /* if internal, do nothing here. */
 
@@ -845,16 +842,15 @@ void tcp__alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf)
 
 void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t len)
 {
-    pc_msg_t msg;
-    uv_buf_t buf;
     QUEUE* q;
     tr_uv_wi_t* wi = NULL;
     tr_uv_tcp_transport_plugin_t* plugin = (tr_uv_tcp_transport_plugin_t* )tt->base.plugin((pc_transport_t*)tt);
 
+    uv_buf_t buf;
     buf.base = (char* )data;
     buf.len = len;
 
-    msg = plugin->pr_msg_decoder(tt, &buf);
+    pc_msg_t msg = plugin->pr_msg_decoder(tt, &buf);
 
     if (msg.id == PC_INVALID_REQ_ID || !msg.msg) {
         pc_lib_log(PC_LOG_ERROR, "tcp__on_data_recieved - decode error, will reconn");
@@ -1082,9 +1078,8 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
             need_sync = 1;
         }
     } else {
-        pc_JSON* route2code = pc_JSON_DetachItemFromObject(sys, "routeToCode");
-        pc_JSON* code2route = pc_JSON_DetachItemFromObject(sys, "codeToRoute");
-
+        /* pc_JSON* route2code = pc_JSON_DetachItemFromObject(sys, "routeToCode"); */
+        /* pc_JSON* code2route = pc_JSON_DetachItemFromObject(sys, "codeToRoute"); */
         assert(tt->route_to_code && tt->code_to_route);
     }
     pc_JSON_Delete(res);
