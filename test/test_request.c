@@ -62,20 +62,22 @@ test_valid_route(const MunitParameter params[], void *data)
         assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
 
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(2);
+        SLEEP_SECONDS(1);
 
         assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
                                            request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(2);
+        SLEEP_SECONDS(1);
 
         assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
                                            request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(2);
+        SLEEP_SECONDS(1);
 
         assert_int(g_num_error_cb_called, ==, 0);
         assert_int(g_num_success_cb_called, ==, 2);
+        g_num_error_cb_called = 0;
+        g_num_success_cb_called = 0;
 
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
@@ -101,15 +103,15 @@ test_invalid_route(const MunitParameter params[], void *data)
         assert_int(pc_client_init(g_client, NULL, &config), ==, PC_RC_OK);
 
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(2);
+        SLEEP_SECONDS(1);
 
         assert_int(pc_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(2);
+        SLEEP_SECONDS(1);
 
         assert_int(pc_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(2);
+        SLEEP_SECONDS(1);
 
         assert_int(g_num_error_cb_called, ==, 1);
         assert_int(g_num_success_cb_called, ==, 0);
@@ -126,7 +128,7 @@ test_invalid_route(const MunitParameter params[], void *data)
 
 static MunitTest tests[] = {
     {"/invalid_route", test_invalid_route, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/valid_route", test_invalid_route, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/valid_route", test_valid_route, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 
