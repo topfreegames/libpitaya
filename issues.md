@@ -28,3 +28,6 @@ It is not that obvious how one selects the build type. A solution that we found 
   }
 }
 ```
+
+# Checking leaks
+Consider using `valgrind` to possibly check for memory leaks.
