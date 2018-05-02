@@ -18,7 +18,7 @@ request_cb(const pc_request_t* req, const char* resp)
 }
 
 static void
-timeout_error_cb(const pc_request_t* req, pc_request_error_t error)
+timeout_error_cb(const pc_request_t* req, pc_error_t error)
 {
     g_num_timeout_error_cb_called++;
 
@@ -28,7 +28,7 @@ timeout_error_cb(const pc_request_t* req, pc_request_error_t error)
 }
 
 static void
-request_error_cb(const pc_request_t* req, pc_request_error_t error)
+request_error_cb(const pc_request_t* req, pc_error_t error)
 {
     g_num_error_cb_called++;
 

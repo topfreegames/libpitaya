@@ -44,16 +44,10 @@ request_cb(const pc_request_t* req, const char* resp)
 }
 
 static void
-notify_cb(const pc_notify_t* noti, int rc)
+notify_cb(const pc_notify_t* noti, pc_error_t err)
 {
     bool *called = pc_notify_ex_data(noti);
     *called = true;
-
-    assert_int(rc, ==, PC_RC_OK);
-    assert_ptr_equal(pc_notify_client(noti), g_client);
-    assert_string_equal(pc_notify_route(noti), NOTI_ROUTE);
-    assert_string_equal(pc_notify_msg(noti), NOTI_MSG);
-    assert_int(pc_notify_timeout(noti), ==, NOTI_TIMEOUT);
 }
 
 static MunitResult
@@ -83,7 +77,7 @@ test_successful_handshake(const MunitParameter params[], void *state)
     assert_int(pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, &noti_cb_called, NOTI_TIMEOUT, notify_cb), ==, PC_RC_OK);
     SLEEP_SECONDS(2);
 
-    assert_true(noti_cb_called);
+    assert_false(noti_cb_called);
     assert_true(req_cb_called);
 
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);

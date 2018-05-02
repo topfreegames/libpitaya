@@ -29,46 +29,6 @@ request_cb(const pc_request_t* req, const char* resp)
     assert_int(pc_request_timeout(req), ==, REQ_TIMEOUT);
 }
 
-static void
-notify_cb(const pc_notify_t* noti, int rc)
-{
-    bool *called = pc_notify_ex_data(noti);
-    *called = true;
-
-    assert_int(rc, ==, PC_RC_OK);
-    assert_ptr_equal(pc_notify_client(noti), g_client);
-    assert_string_equal(pc_notify_route(noti), NOTI_ROUTE);
-    assert_string_equal(pc_notify_msg(noti), NOTI_MSG);
-    assert_int(pc_notify_timeout(noti), ==, NOTI_TIMEOUT);
-}
-
-static MunitResult
-test_notify_callback(const MunitParameter params[], void *data)
-{
-    Unused(params);
-    Unused(data);
-
-    bool called = false;
-    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
-    config.transport_name = PC_TR_NAME_UV_TCP;
-
-    pc_client_init_result_t res = pc_client_init(NULL, &config);
-    g_client = res.client;
-    assert_int(res.rc, ==, PC_RC_OK);
-
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
-
-    SLEEP_SECONDS(1);
-    assert_int(pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, &called, NOTI_TIMEOUT, notify_cb), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
-
-    assert_true(called);
-    assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
-    assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
-
-    return MUNIT_OK;
-}
-
 static MunitResult
 test_request_callback(const MunitParameter params[], void *data)
 {
@@ -210,7 +170,6 @@ test_invalid_disconnect(const MunitParameter params[], void *data)
 static MunitTest tests[] = {
     {"/invalid_disconnect", test_invalid_disconnect, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/event_cb", test_event_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/notify_cb", test_notify_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/request_cb", test_request_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/connect_errors", test_connect_errors, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
