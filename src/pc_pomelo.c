@@ -285,6 +285,7 @@ int pc_client_cleanup(pc_client_t* client)
     client->req_id_seq = 1;
     client->seq_num = 0;
 
+    pc_lib_free(client);
     return PC_RC_OK;
 }
 
