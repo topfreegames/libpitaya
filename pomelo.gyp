@@ -178,6 +178,7 @@
           './test/test_kick.c',
           './test/test_session.c',
           './test/test_request.c',
+          './test/test_notify.c',
           './deps/munit/munit.c',
         ],
       },

@@ -15,6 +15,12 @@ MOCK_COMPRESSION_SERVER_LOG_FILE=mock-compression-server-out.log
 MOCK_KICK_SERVER=mock-kick-server.js
 MOCK_KICK_SERVER_LOG_FILE=mock-kick-server-out.log
 
+MOCK_TIMEOUT_SERVER=mock-timeout-server.js
+MOCK_TIMEOUT_SERVER_LOG_FILE=mock-timeout-server-out.log
+
+MOCK_DESTROY_SOCKET_SERVER=mock-destroy-socket-server.js
+MOCK_DESTROY_SOCKET_SERVER_LOG_FILE=mock-destroy-socket-server-out.log
+
 BUILD_DIR=build
 OUTPUT_DIR=$BUILD_DIR/output
 
@@ -50,6 +56,8 @@ pushd $MOCK_SERVER_DIR > /dev/null
 node $MOCK_DISCONNECT_SERVER &> $MOCK_DISCONNECT_SERVER_LOG_FILE &
 node $MOCK_COMPRESSION_SERVER &> $MOCK_COMPRESSION_SERVER_LOG_FILE &
 node $MOCK_KICK_SERVER &> $MOCK_KICK_SERVER_LOG_FILE &
+node $MOCK_TIMEOUT_SERVER &> $MOCK_TIMEOUT_SERVER_LOG_FILE &
+node $MOCK_DESTROY_SOCKET_SERVER &> $MOCK_DESTROY_SOCKET_SERVER_LOG_FILE &
 popd > /dev/null
 
 sleep 0.5
