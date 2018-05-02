@@ -15,7 +15,7 @@
 #include "pc_lib.h"
 #include "pc_pomelo_i.h"
 #include "pc_trans_repo.h"
-#include "pc_request_error.h"
+#include "pc_error.h"
 
 /* static int pc__init_magic_num = 0x65521abc; */
 
@@ -297,13 +297,13 @@ static void pc__handle_event(pc_client_t* client, pc_event_t* ev)
         pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans resp, req_id: %u",
                 ev->data.req.req_id);
         pc_lib_free((char* )ev->data.req.resp);
-        pc__request_error_free(ev->data.req.error);
+        pc__error_free(ev->data.req.error);
         ev->data.req.resp = NULL;
 
     } else if (PC_EV_IS_NOTIFY_SENT(ev->type)) {
-        pc__trans_sent(client, ev->data.notify.seq_num, ev->data.notify.rc);
+        pc__trans_sent(client, ev->data.notify.seq_num, ev->data.notify.error);
         pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans sent, seq_num: %u, rc: %s",
-                ev->data.notify.seq_num, pc_client_rc_str(ev->data.notify.rc));
+                ev->data.notify.seq_num, ev->data.notify.error.code);
     } else {
         pc__trans_fire_event(client, ev->data.ev.ev_type, ev->data.ev.arg1, ev->data.ev.arg2);
         pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans event: %s, arg1: %s",
@@ -623,14 +623,14 @@ void* pc_request_ex_data(const pc_request_t* req)
 }
 
 int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* msg, void* ex_data,
-       int timeout, pc_notify_cb_t cb)
+       int timeout, pc_notify_error_cb_t cb)
 {
     pc_notify_t* notify;
     int i;
     int ret;
     int state;
 
-    if (!client || !route || !msg || !cb) {
+    if (!client || !route || !msg) {
         pc_lib_log(PC_LOG_ERROR, "pc_notify_with_timeout - invalid args");
         return PC_RC_INVALID_ARG;
     }

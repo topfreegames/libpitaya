@@ -221,16 +221,19 @@ PC_EXPORT int pc_client_add_ev_handler(pc_client_t* client, pc_event_cb_t cb,
 PC_EXPORT int pc_client_rm_ev_handler(pc_client_t* client, int id);
 
 /**
- * Request
+ * Error
  */
 typedef struct {
     char *code;
     char *msg;
     char *metadata;
-} pc_request_error_t;
+} pc_error_t;
 
+/**
+ * Request
+ */
 typedef void (*pc_request_cb_t)(const pc_request_t* req, const char* resp);
-typedef void (*pc_request_error_cb_t)(const pc_request_t* req, pc_request_error_t error);
+typedef void (*pc_request_error_cb_t)(const pc_request_t* req, pc_error_t error);
 
 /**
  * pc_request_t getters.
@@ -256,7 +259,7 @@ PC_EXPORT int pc_request_with_timeout(pc_client_t* client, const char* route,
  * Notify
  */
 
-typedef void (*pc_notify_cb_t)(const pc_notify_t* req, int rc);
+typedef void (*pc_notify_error_cb_t)(const pc_notify_t* req, pc_error_t error);
 
 /**
  * pc_notify_t getters.
@@ -276,7 +279,7 @@ PC_EXPORT void* pc_notify_ex_data(const pc_notify_t* notify);
  * Initiate a notify.
  */
 PC_EXPORT int pc_notify_with_timeout(pc_client_t* client, const char* route,
-        const char* msg, void* ex_data, int timeout, pc_notify_cb_t cb);
+        const char* msg, void* ex_data, int timeout, pc_notify_error_cb_t cb);
 
 /**
  * Utilities

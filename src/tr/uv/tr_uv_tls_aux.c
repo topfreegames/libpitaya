@@ -14,7 +14,7 @@
 
 #include "tr_uv_tcp_aux.h"
 #include "tr_uv_tls_aux.h"
-#include "pc_request_error.h"
+#include "pc_error.h"
 
 #define GET_TLS(x) tr_uv_tls_transport_t* tls; \
     tr_uv_tcp_transport_t * tt;          \
@@ -421,16 +421,23 @@ void tls__write_done_cb(uv_write_t* w, int status)
         wi->buf.len = 0;
 
         if (TR_UV_WI_IS_NOTIFY(wi->type)) {
-            pc_trans_sent(tt->client, wi->seq_num, status);
+            if (err_str) {
+                pc_error_t err = pc__error_uv(err_str);
+                pc_trans_sent(tt->client, wi->seq_num, err);
+                pc__error_free(err);
+            } else {
+                pc_error_t err = {0};
+                pc_trans_sent(tt->client, wi->seq_num, err);
+            }
         }
 
         if (TR_UV_WI_IS_RESP(wi->type)) {
             if (err_str) {
-                pc_request_error_t err = pc__request_error_uv(err_str);
+                pc_error_t err = pc__error_uv(err_str);
                 pc_trans_resp(tt->client, wi->req_id, NULL, err);
-                pc__request_error_free(err);
+                pc__error_free(err);
             } else {
-                pc_request_error_t err = {0};
+                pc_error_t err = {0};
                 pc_trans_resp(tt->client, wi->req_id, NULL, err);
             }
         }
@@ -471,12 +478,14 @@ void tls__write_timeout_check_cb(uv_timer_t* t)
     if (wi && wi->timeout != PC_WITHOUT_TIMEOUT && ct > wi->ts + wi->timeout) {
         if (TR_UV_WI_IS_NOTIFY(wi->type)) {
             pc_lib_log(PC_LOG_WARN, "tls__write_timeout_check_cb - notify timeout, seq num: %u", wi->seq_num);
-            pc_trans_sent(tt->client, wi->seq_num, PC_RC_TIMEOUT);
+            pc_error_t err = pc__error_timeout();
+            pc_trans_sent(tt->client, wi->seq_num, err);
+            pc__error_free(err);
         } else if (TR_UV_WI_IS_RESP(wi->type)) {
             pc_lib_log(PC_LOG_WARN, "tls__write_timeout_check_cb - request timeout, req id: %u", wi->req_id);
-            pc_request_error_t err = pc__request_error_timeout();
+            pc_error_t err = pc__error_timeout();
             pc_trans_resp(tt->client, wi->req_id, NULL, err);
-            pc__request_error_free(err);
+            pc__error_free(err);
         }
 
         /* if internal, just drop it. */

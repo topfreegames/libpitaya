@@ -1,16 +1,16 @@
-#ifndef PC_REQUEST_ERROR_H
-#define PC_REQUEST_ERROR_H
+#ifndef PC_ERROR_H
+#define PC_ERROR_H
 
 #include <assert.h>
 #include <pomelo.h>
 #include "pc_lib.h"
 #include "pc_JSON.h"
 
-static pc_request_error_t
-pc__request_error_uv(const char *uv_str)
+static pc_error_t
+pc__error_uv(const char *uv_str)
 {
     assert(uv_str);
-    pc_request_error_t err = {
+    pc_error_t err = {
         .code = (char*)pc_lib_strdup(uv_str),
         .msg = NULL,
         .metadata = NULL,
@@ -18,27 +18,27 @@ pc__request_error_uv(const char *uv_str)
     return err;
 }
 
-static pc_request_error_t
-pc__request_error_json(pc_JSON *json)
+static pc_error_t
+pc__error_json(pc_JSON *json)
 {
     assert(json->type == pc_JSON_Object);
 
     pc_JSON *code = pc_JSON_GetObjectItem(json, "Code");
     if (!code) {
-        pc_lib_log(PC_LOG_ERROR, "pc__request_error_json - invalid json 'no Code'");
-        return (pc_request_error_t){ .code = NULL, .msg = NULL };
+        pc_lib_log(PC_LOG_ERROR, "pc__error_json - invalid json 'no Code'");
+        return (pc_error_t){ .code = NULL, .msg = NULL };
     }
     pc_JSON *msg = pc_JSON_GetObjectItem(json, "Msg");
     if (!msg) {
-        pc_lib_log(PC_LOG_ERROR, "pc__request_error_json - invalid json 'no Msg'");
-        return (pc_request_error_t){ .code = NULL, .msg = NULL };
+        pc_lib_log(PC_LOG_ERROR, "pc__error_json - invalid json 'no Msg'");
+        return (pc_error_t){ .code = NULL, .msg = NULL };
     }
     pc_JSON *metadata = pc_JSON_GetObjectItem(json, "Metadata");
 
     assert(code->type == pc_JSON_String);
     assert(msg->type == pc_JSON_String);
 
-    pc_request_error_t err = {
+    pc_error_t err = {
         .code = (char*)pc_lib_strdup(code->valuestring),
         .msg = (char*)pc_lib_strdup(msg->valuestring),
         .metadata = NULL,
@@ -54,10 +54,10 @@ pc__request_error_json(pc_JSON *json)
     return err;
 }
 
-static pc_request_error_t
-pc__request_error_timeout()
+static pc_error_t
+pc__error_timeout()
 {
-    pc_request_error_t err = {
+    pc_error_t err = {
         .code = (char*)pc_lib_strdup("PC_RC_TIMEOUT"),
         .msg = NULL,
         .metadata = NULL,
@@ -65,10 +65,10 @@ pc__request_error_timeout()
     return err;
 }
 
-static pc_request_error_t
-pc__request_error_reset()
+static pc_error_t
+pc__error_reset()
 {
-    pc_request_error_t err = {
+    pc_error_t err = {
         .code = (char*)pc_lib_strdup("PC_RC_RESET"),
         .msg = NULL,
         .metadata = NULL,
@@ -76,10 +76,10 @@ pc__request_error_reset()
     return err;
 }
 
-static pc_request_error_t
-pc__request_error_dup(const pc_request_error_t *err)
+static pc_error_t
+pc__error_dup(const pc_error_t *err)
 {
-    pc_request_error_t new_err = {
+    pc_error_t new_err = {
         .code = err->code ? (char*)pc_lib_strdup(err->code) : NULL,
         .msg = err->msg ? (char*)pc_lib_strdup(err->msg) : NULL,
         .metadata = err->metadata ? (char*)pc_lib_strdup(err->metadata) : NULL,
@@ -88,11 +88,11 @@ pc__request_error_dup(const pc_request_error_t *err)
 }
 
 static inline void
-pc__request_error_free(pc_request_error_t err)
+pc__error_free(pc_error_t err)
 {
     pc_lib_free(err.code);
     pc_lib_free(err.msg);
     pc_lib_free(err.metadata);
 }
 
-#endif // PC_REQUEST_ERROR_H
+#endif // PC_ERROR_H

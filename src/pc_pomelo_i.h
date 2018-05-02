@@ -85,7 +85,7 @@ struct pc_request_s {
 struct pc_notify_s {
     pc_common_req_t base;
 
-    pc_notify_cb_t cb;
+    pc_notify_error_cb_t cb;
 };
 
 typedef struct {
@@ -95,12 +95,12 @@ typedef struct {
     union {
         struct {
             int seq_num;
-            int rc;
+            pc_error_t error;
         } notify;
 
         struct {
             int req_id;
-            pc_request_error_t error;
+            pc_error_t error;
             const char* resp;
         } req;
 
@@ -141,8 +141,8 @@ struct pc_client_s {
     int is_in_poll;
 };
 
-void pc__trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_request_error_t error);
-void pc__trans_sent(pc_client_t* client, unsigned int req_num, int rc);
+void pc__trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_error_t error);
+void pc__trans_sent(pc_client_t* client, unsigned int req_num, pc_error_t error);
 void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, const char* arg2);
 
 #endif /* PC_POMELO_I_H */

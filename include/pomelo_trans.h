@@ -61,12 +61,12 @@ PC_EXPORT void pc_trans_fire_event(pc_client_t* client, int ev_type, const char*
 /**
  * when a notify is sent or timeout, transport impl should invoke this function.
  */
-PC_EXPORT void pc_trans_sent(pc_client_t* client, unsigned int seq_num, int rc);
+PC_EXPORT void pc_trans_sent(pc_client_t* client, unsigned int seq_num, pc_error_t error);
 
 /**
  * when a request gets a resp or timeout, transport impl should invoke this function.
  */
-PC_EXPORT void pc_trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_request_error_t error);
+PC_EXPORT void pc_trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_error_t error);
 
 
 #ifdef __cplusplus
