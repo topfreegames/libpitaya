@@ -112,7 +112,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
             
             route.route_str = (char *)pc_lib_malloc(route_len + 1);
             route.route_str[route_len] = '\0';
-            strcpy(route.route_str, &data[offset]);
+            strncpy(route.route_str, &data[offset], route_len);
             offset += route_len;
         }
     }
