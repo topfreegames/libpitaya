@@ -10,7 +10,7 @@ setup-node:
 
 setup-gyp:
 	@git clone https://chromium.googlesource.com/external/gyp.git ${TRAVIS_BUILD_DIR}/gyp
-	@cd ${TRAVIS_BUILD_DIR}/gyp && python setup.py install
+	@cd ${TRAVIS_BUILD_DIR}/gyp && sudo python setup.py install
 
 setup-ci: setup-gyp setup-node setup-go
 	@gyp --depth=. pomelo.gyp -f make --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duse_xcode=false
