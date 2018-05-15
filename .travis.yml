@@ -1,23 +1,5 @@
 language: c
 compiler: clang
-script: make build && make test
-
-matrix:
-    include:
-        - os: linux
-          env: LLVM_VERSION=3.9.0
-          compiler: clang
-
-        - os: osx
-          osx_image: xcode9
-
-install:
-	- git clone https://chromium.googlesource.com/external/gyp.git /gyp
-	- cd /gyp && python setup.py install
-
-before_script:
-    - git config --global user.name "Travis bot"
-    - git config --global user.email "<>"
-    - cd ${TRAVIS_BUILD}
-    - (mkdir build && gyp --depth=. pomelo.gyp -f make --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duse_xcode=false)
+install: make setup-ci
+script: make test
 
