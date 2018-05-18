@@ -14,7 +14,7 @@
 typedef struct tr_uv_tcp_transport_s tr_uv_tcp_transport_t;
 
 typedef struct {
-    unsigned int id;
+    uint32_t id;
     int error;
     const char* route;
     const char* msg;
@@ -38,11 +38,6 @@ typedef struct {
     char error:1;
     char unused:2;
 } pc_message_flag;
-
-typedef struct {
-    char value:7;
-    char continues:1;
-} pc_message_id_byte;
 
 pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, int compress_data);
 pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf);
