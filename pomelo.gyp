@@ -179,6 +179,7 @@
           './test/test_session.c',
           './test/test_request.c',
           './test/test_notify.c',
+          './test/test_stress.c',
           './deps/munit/munit.c',
         ],
       },

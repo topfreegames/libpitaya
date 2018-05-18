@@ -12,16 +12,6 @@ const HEARTBEAT_INTERVAL = 6;
 let heartbeatInterval;
 let clientDisconnected = false;
 
-function readMessageType(buf) {
-    let flag = buf[0];
-    let type = (flag >> 1) & 0x7;
-
-    console.log();
-    console.log('readMessageType flag ', flag);
-    console.log('readMessageType ', type);
-    console.log();
-}
-
 function processPacket(packet, clientSocket) {
     console.log('processing packet');
 
@@ -53,6 +43,7 @@ function processPacket(packet, clientSocket) {
         }
 
         const respPacket = pkt.encode(pkt.PacketType.Data, encodedRespMsg);
+        console.log('Sending packet to client...');
         clientSocket.write(respPacket);
         break;
 
