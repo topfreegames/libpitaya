@@ -85,17 +85,16 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
 
     uint32_t id = PC_NOTIFY_PUSH_REQ_ID;
     if (PC_MSG_HAS_ID(flag->message_type)) {
-        pc_message_id_byte* id_byte = (pc_message_id_byte*)&data[offset++];
         id = 0;
-        size_t i = 0;
-        do {
-            if (offset >= len) return length_error();
-
-            static const int id_bits_count = 7; // google protobuf varint definition
-            id += id_byte->value << (id_bits_count * i++);
-            id_byte = (pc_message_id_byte*) &data[offset++];
-        } while (id_byte->continues);
-        --offset;
+        for (int i = offset; i < len; ++i) {
+            uint8_t byte = data[i];
+            uint8_t value = byte & 0x7F;
+            id += value << (7*(i-offset));
+            if (byte < 128) { // most significant bit not set.
+                offset = i+1;
+                break;
+            }
+        }
     }
 
     // route
