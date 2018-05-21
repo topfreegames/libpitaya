@@ -1,0 +1,61 @@
+image: Visual Studio 2015
+
+build:
+  verbosity: detailed
+
+configuration: Release
+
+platform: x64
+
+artifacts:
+  - path: build\out\Release_x64\output\*.dll
+    name: Dlls
+
+  - path: build\out\Release_x64\output\*.lib
+    name: Libs
+
+environment:
+  nodejs_version: "Current"
+
+  #on_finish:
+  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+install:
+  #- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+  ############################################################################
+  # Install Ninja
+  ############################################################################
+  - choco install ninja
+  #- choco install nasm
+
+  ############################################################################
+  # Install GYP
+  ############################################################################
+  - mkdir C:\projects\deps
+  - cd C:\projects\deps
+  - git clone https://chromium.googlesource.com/external/gyp
+  - cd gyp
+  - python setup.py install
+
+before_build:
+  - cd C:\projects\libpitaya
+  - gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_windows=true
+
+build_script:
+  - cd build\out\Release_x64
+  - ninja
+
+after_build:
+  - dir output
+
+deploy:
+  description: 'Naice Release'
+  provider: GitHub
+  draft: true
+  auth_token:
+    secure: "zZylescCEij0QU44MySw8xIQgBjmRJfD/p/42ddQQoxLoFzC4TP+kkZm3ywsrKo6"
+  artifact: /.*\.dll|.*\.lib/
+  on:
+    appveyor_repo_tag: true
+
