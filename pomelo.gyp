@@ -128,7 +128,7 @@
               '_CRT_NONSTDC_NO_DEPRECATE',
             ]
           }],
-          ['build_for_mac == "true" or build_for_ios == "true"', {
+          ['build_for_mac == "true" or build_for_ios == "true" or build_for_linux == "teue"' , {
             'type': 'static_library',
             'defines': ['BUILDING_PC_SHARED=1'],
           }, {
