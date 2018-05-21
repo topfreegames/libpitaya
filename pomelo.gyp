@@ -1,8 +1,13 @@
 {
   'variables': {
     'uv_library%': "static_library",
+      'build_for_linux%': "false",
+      'build_for_mac%': "false",
+      'build_for_ios%': "false",
+      'build_for_windows%': "false",
+
       'pomelo_library%': "static_library",
-      'target_arch%': "ia32",
+      'build_for_ios%': "false",
       'use_sys_openssl%': "true",
       'library%': "static_library",
       'use_sys_uv%': "false",
@@ -14,11 +19,10 @@
       'build_cspomelo%': "false",
       'build_type%': "Release",
       'use_xcode%': "true",
+      'target_arch%': "ia32",
   },
 
     'target_defaults': {
-      'conditions': [
-      ],    # conditions
       'conditions': [
         ['OS == "win"', {
           'msvs_settings': {
@@ -57,10 +61,10 @@
           'product_dir': 'output',
         }],
         ['build_type=="Debug"', {
-          'cflags': ['-g', '-O0']
+          'cflags': ['-g', '-O0', '-Wall', '-Wextra', '-pedantic']
         }],
         ['build_type=="Release"', {
-          'cflags': ['-g', '-O3']
+          'cflags': ['-g', '-O3', '-Wall', '-Wextra', '-pedantic']
         }],
         [ 'no_uv_support == "false"', {
           'conditions' : [
@@ -102,8 +106,7 @@
 
     'targets': [
       {
-        'target_name': 'libpomelo2',
-        'type': '<(pomelo_library)',
+        'target_name': 'libpitaya',
         'include_dirs': [
           './include',
           './src',
@@ -119,14 +122,18 @@
         'conditions': [
           ['OS != "win"', {
             'defines': ['_GNU_SOURCE'],
+            'cflags': ['-fPIC'],
           }, {
             'defines': [
               '_CRT_SECURE_NO_WARNINGS',
               '_CRT_NONSTDC_NO_DEPRECATE',
             ]
           }],
-          ['pomelo_library=="shared_library"', {
+          ['build_for_mac == "true" or build_for_ios == "true"', {
+            'type': 'static_library',
             'defines': ['BUILDING_PC_SHARED=1'],
+          }, {
+            'type': 'shared_library',
           }],
           ['no_uv_support == "false"', {
             'sources': [
@@ -140,7 +147,7 @@
             ],
             'link_settings': {
                'libraries': [
-                 '-lz', 
+                 '-lz',
                ],
             },
             'conditions': [
@@ -163,7 +170,7 @@
         'target_name': 'tests',
         'type': 'executable',
         'dependencies': [
-          'libpomelo2',
+          'libpitaya',
         ],
         'include_dirs': [
           './include/',
@@ -176,7 +183,11 @@
           './test/test-tr_tls.c',
           './test/test_pc_client.c',
           './test/test_reconnection.c',
+          './test/test_compression.c',
+          './test/test_kick.c',
           './test/test_session.c',
+          './test/test_request.c',
+          './test/test_notify.c',
           './deps/munit/munit.c',
         ],
       },
@@ -187,7 +198,7 @@
           'target_name': 'pypomelo',
           'type': 'shared_library',
           'dependencies': [
-            'libpomelo2',
+            'libpitaya',
           ],
           'include_dirs': [
             './include/',
@@ -203,7 +214,7 @@
           'target_name': 'jpomelo',
           'type': 'shared_library',
           'dependencies': [
-            'libpomelo2',
+            'libpitaya',
           ],
           'include_dirs': [
             './include/',
@@ -214,20 +225,51 @@
         }],
       }],
       ['build_cspomelo == "true"', {
-        'targets':[ {
-          'target_name': 'cspomelo',
-          'type': 'shared_library',
-          'product_extension': 'bundle',
-          'dependencies': [
-            'libpomelo2',
-          ],
-          'include_dirs': [
-            './include/',
-          ],
-          'sources': [
-            './cs/contrib/cspomelo.c',
-          ],
-        },],
-      }],
-    ],
+        'conditions': [
+          ['build_for_linux == "true" or build_for_mac == "true" or build_for_windows == "true"', {
+            'targets':[ {
+              'target_name': 'pitaya_unity',
+              'type': 'shared_library',
+              'dependencies': [
+                'libpitaya',
+              ],
+              'conditions': [
+                ['OS!="win"', {
+                  'cflags': ['-fPIC'],
+                }],
+                ['build_for_mac == "true"', {
+                  'product_extension': 'bundle',
+                }],
+              ],
+              'include_dirs': [
+                './include/',
+              ],
+              'sources': [
+                './cs/contrib/cspomelo.c',
+              ],
+            }],
+          }],
+          ['build_for_ios == "true"', {
+            'targets':[ {
+              'target_name': 'pitaya_unity_ios',
+              'type': 'static_library',
+              'dependencies': [
+                'libpitaya',
+              ],
+              'conditions': [
+                ['OS!="win"', {
+                  'cflags': ['-fPIC'],
+                }],
+              ],
+              'include_dirs': [
+                './include/',
+              ],
+              'sources': [
+                './cs/contrib/cspomelo.c',
+              ],
+            }],
+          }],
+        ]
+    }],
+  ],
 }
