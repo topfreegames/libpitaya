@@ -22,7 +22,7 @@ MOCK_DESTROY_SOCKET_SERVER=mock-destroy-socket-server.js
 MOCK_DESTROY_SOCKET_SERVER_LOG_FILE=mock-destroy-socket-server-out.log
 
 BUILD_DIR=build
-OUTPUT_DIR=$BUILD_DIR/output
+OUTPUT_DIR=$BUILD_DIR/out/Release_x64
 
 TESTS_EXE=tests
 
@@ -41,8 +41,8 @@ if [[ ! -d $BUILD_DIR ]]; then
     exit
 fi
 
-if [[ ! -f "$BUILD_DIR/Makefile" ]]; then
-    echo "-->  Makefile does not exist in the build directory, please create it."
+if [[ ! -f "$BUILD_DIR/out/Release_x64/build.ninja" ]]; then
+    echo "-->  build.ninja does not exist in the build directory, please create it."
     exit
 fi
 
@@ -63,8 +63,8 @@ popd > /dev/null
 sleep 0.5
 
 echo   "-->  Making project..."
-pushd $BUILD_DIR > /dev/null
-make > /dev/null
+pushd $BUILD_DIR/out/Release_x64 > /dev/null
+ninja > /dev/null
 popd > /dev/null
 
 pushd $OUTPUT_DIR > /dev/null
