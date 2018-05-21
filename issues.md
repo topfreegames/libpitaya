@@ -6,6 +6,10 @@ Currently, the api does not make the distinction between the two kind of errors.
 - Currently, calling `pc_lib_init` `pc_lib_cleanup` and after `pc_lib_init` crashes the client. It
   seems to be something related to the SSL library. This bug is currently not high priority, since `pc_lib_init` should be called only once.
 
+# Limitations
+Currently, sending around 100 requests one after another, there is a good chance that not all of them will return. This is probably an issue with the size of the internal queue
+used inside a pc_client_t struct.
+
 # Solving things with GYP
 ## Specifying build types
 It is not that obvious how one selects the build type. A solution that we found was to define a variable `build_type` and use it for branching on the specific build.
