@@ -23,7 +23,7 @@ test-deps: setup-node setup-go
 	@-(cd test/server && go get)
 
 build:
-	cd build/out/Release_x64 && ninja
+	cd build/out/Default && ninja
 
 test: build test-deps
 	./run-tests.sh
