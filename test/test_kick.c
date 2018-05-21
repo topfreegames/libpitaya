@@ -18,7 +18,7 @@ static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    int *num_called = ex_data;
+    int *num_called = (int*)ex_data;
     assert_int(ev_type, ==, EV_ORDER[*num_called]);
     (*num_called)++;
 }
@@ -31,7 +31,7 @@ test_kick(const MunitParameter params[], void *data)
     const int ports[] = {g_kick_mock_server.tcp_port, g_kick_mock_server.tls_port};
     const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
-    assert_int(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
+    assert_int(tr_uv_tls_set_ca_file("../../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
 
     for (size_t i = 0; i < ArrayCount(ports); i++) {
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;

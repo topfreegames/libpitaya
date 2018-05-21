@@ -30,7 +30,7 @@ quiet_log(int level, const char *msg, ...)
 static MunitSuite *
 make_suites()
 {
-    MunitSuite *suites_array = calloc(NUM_SUITES+1, sizeof(MunitSuite));
+    MunitSuite *suites_array = (MunitSuite*)calloc(NUM_SUITES+1, sizeof(MunitSuite));
     size_t i = 0;
     suites_array[i++] = pc_client_suite;
     suites_array[i++] = tcp_suite;

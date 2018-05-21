@@ -1,8 +1,13 @@
 {
   'variables': {
     'uv_library%': "static_library",
+      'build_for_linux%': "false",
+      'build_for_mac%': "false",
+      'build_for_ios%': "false",
+      'build_for_windows%': "false",
+
       'pomelo_library%': "static_library",
-      'target_arch%': "ia32",
+      'build_for_ios%': "false",
       'use_sys_openssl%': "true",
       'library%': "static_library",
       'use_sys_uv%': "false",
@@ -13,26 +18,35 @@
       'build_jpomelo%': "false",
       'build_cspomelo%': "false",
       'build_type%': "Release",
-      'use_xcode%': "true",
+      'use_xcode%': "false",
   },
 
     'target_defaults': {
+      'default_configuration': 'Release_x64',
+      'configurations': {
+        'Release_x64': {
+          'msvs_configuration_platform': 'x64',
+        },
+      },
+      'dependencies': [
+        './deps/zlib/zlib.gyp:zlib',
+      ],
       'conditions': [
         ['OS == "win"', {
           'msvs_settings': {
             'VCCLCompilerTool': {
-              'AdditionalOptions': [ '/TP' ],
-            }
+              #'AdditionalOptions': [ '/TP' ],
+            },
           },
-          'defines': {
-              '_WIN32',
-              'WIN32',
-              '_CRT_NONSTDC_NO_DEPRECATE',
-              '_WINDOWS',
-              '_WINDLL',
-              'UNICODE',
-              '_UNICODE',
-          },
+          'defines': [
+            '_WIN32',
+            'WIN32',
+            '_CRT_NONSTDC_NO_DEPRECATE',
+            '_WINDOWS',
+            '_WINDLL',
+            'UNICODE',
+            '_UNICODE',
+          ],
           'link_settings': {
             'libraries': [
               '-ladvapi32.lib',
@@ -49,9 +63,7 @@
             '_GNU_SOURCE'
           ]
         }],   # OS == "win"
-        ['use_xcode == "true"', {
-          'xcode_settings': {'OTHER_LDFLAGS': ['-lz']},
-        }, {
+        ['use_xcode == "false"', {
           'product_dir': 'output',
         }],
         ['build_type=="Debug"', {
@@ -84,12 +96,27 @@
                 './deps/openssl/openssl/include',
               ]
             }, {
-              'link_settings': {
-                'libraries': [
-                  '-lssl',
-                  '-lcrypto',
-                ]
-              }
+              'conditions': [
+                [ 'OS=="win"', {
+                  'libraries': [
+                    'C:/OpenSSL-Win64/lib/libeay32.lib',
+                    'C:/OpenSSL-Win64/lib/ssleay32.lib',
+                  ],
+                  'include_dirs': [
+                    'C:/OpenSSL-Win64/include',
+                  ],
+                }, {
+                  'include_dirs': [
+                    './deps/openssl/openssl/include',
+                  ],
+                  'link_settings': {
+                    'libraries': [
+                      '-lssl',
+                      '-lcrypto',
+                    ],
+                  },
+                }],
+              ],
             }], # use_sys_openssl
           ],
         }],  # no tls support
@@ -100,8 +127,7 @@
 
     'targets': [
       {
-        'target_name': 'libpomelo2',
-        'type': '<(pomelo_library)',
+        'target_name': 'pitaya',
         'include_dirs': [
           './include',
           './src',
@@ -114,16 +140,23 @@
           './src/pc_JSON.c',
           './src/tr/dummy/tr_dummy.c'
         ],
+        'dependencies': [
+          './deps/zlib/zlib.gyp:zlib',
+        ],
         'conditions': [
           ['OS != "win"', {
             'defines': ['_GNU_SOURCE'],
+            'cflags': ['-fPIC'],
           }, {
             'defines': [
               '_CRT_SECURE_NO_WARNINGS',
               '_CRT_NONSTDC_NO_DEPRECATE',
             ]
           }],
-          ['pomelo_library=="shared_library"', {
+          ['build_for_mac == "true" or build_for_ios == "true"', {
+            'type': 'static_library',
+          }, {
+            'type': 'shared_library',
             'defines': ['BUILDING_PC_SHARED=1'],
           }],
           ['no_uv_support == "false"', {
@@ -136,11 +169,6 @@
               './src/tr/uv/tr_uv_tcp_i.c',
               './src/tr/uv/tr_uv_tcp_aux.c',
             ],
-            'link_settings': {
-               'libraries': [
-                 '-lz',
-               ],
-            },
             'conditions': [
               ['no_tls_support == "false"', {
                 'sources': [
@@ -161,7 +189,7 @@
         'target_name': 'tests',
         'type': 'executable',
         'dependencies': [
-          'libpomelo2',
+          'pitaya',
         ],
         'include_dirs': [
           './include/',
@@ -190,7 +218,7 @@
           'target_name': 'pypomelo',
           'type': 'shared_library',
           'dependencies': [
-            'libpomelo2',
+            'pitaya',
           ],
           'include_dirs': [
             './include/',
@@ -206,7 +234,7 @@
           'target_name': 'jpomelo',
           'type': 'shared_library',
           'dependencies': [
-            'libpomelo2',
+            'pitaya',
           ],
           'include_dirs': [
             './include/',
@@ -217,20 +245,51 @@
         }],
       }],
       ['build_cspomelo == "true"', {
-        'targets':[ {
-          'target_name': 'cspomelo',
-          'type': 'shared_library',
-          'product_extension': 'bundle',
-          'dependencies': [
-            'libpomelo2',
-          ],
-          'include_dirs': [
-            './include/',
-          ],
-          'sources': [
-            './cs/contrib/cspomelo.c',
-          ],
-        },],
-      }],
-    ],
+        'conditions': [
+          ['build_for_linux == "true" or build_for_mac == "true" or build_for_windows == "true"', {
+            'targets':[ {
+              'target_name': 'pitaya_unity',
+              'type': 'shared_library',
+              'dependencies': [
+                'pitaya',
+              ],
+              'conditions': [
+                ['OS!="win"', {
+                  'cflags': ['-fPIC'],
+                }],
+                ['build_for_mac == "true"', {
+                  'product_extension': 'bundle',
+                }],
+              ],
+              'include_dirs': [
+                './include/',
+              ],
+              'sources': [
+                './cs/contrib/cspomelo.c',
+              ],
+            }],
+          }],
+          ['build_for_ios == "true"', {
+            'targets':[ {
+              'target_name': 'pitaya_unity_ios',
+              'type': 'static_library',
+              'dependencies': [
+                'pitaya',
+              ],
+              'conditions': [
+                ['OS!="win"', {
+                  'cflags': ['-fPIC'],
+                }],
+              ],
+              'include_dirs': [
+                './include/',
+              ],
+              'sources': [
+                './cs/contrib/cspomelo.c',
+              ],
+            }],
+          }],
+        ]
+    }],
+  ],
 }

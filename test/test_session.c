@@ -18,7 +18,7 @@ static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    bool *connected = ex_data;
+    bool *connected = (bool*)ex_data;
     *connected = true;
     assert_int(ev_type, ==, PC_EV_CONNECTED);
 }
@@ -26,7 +26,7 @@ event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, cons
 static void
 set_session_request_cb(const pc_request_t* req, const char* resp)
 {
-    bool *called = pc_request_ex_data(req);
+    bool *called = (bool*)pc_request_ex_data(req);
     *called = true;
     assert_string_equal(resp, SUCCESS_RESP);
     assert_not_null(req);
@@ -35,7 +35,7 @@ set_session_request_cb(const pc_request_t* req, const char* resp)
 static void
 get_session_request_cb(const pc_request_t* req, const char* resp)
 {
-    session_cb_data_t *scd = pc_request_ex_data(req);
+    session_cb_data_t *scd = (session_cb_data_t*)pc_request_ex_data(req);
     scd->called = true;
     assert_string_equal(resp, scd->data);
     assert_not_null(req);
@@ -102,7 +102,7 @@ test_persistence(const MunitParameter params[], void *data)
     do_test_session_persistence(&config, g_test_server.tcp_port);
     // Test with TLS
     config.transport_name = PC_TR_NAME_UV_TLS;
-    assert_int(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
+    assert_int(tr_uv_tls_set_ca_file("../../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
     do_test_session_persistence(&config, g_test_server.tls_port);
 
     return MUNIT_OK;

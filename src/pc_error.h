@@ -10,11 +10,10 @@ static pc_error_t
 pc__error_uv(const char *uv_str)
 {
     assert(uv_str);
-    pc_error_t err = {
-        .code = (char*)pc_lib_strdup(uv_str),
-        .msg = NULL,
-        .metadata = NULL,
-    };
+    pc_error_t err = {0};
+    err.code = (char*)pc_lib_strdup(uv_str);
+    err.msg = NULL;
+    err.metadata = NULL;
     return err;
 }
 
@@ -26,23 +25,24 @@ pc__error_json(pc_JSON *json)
     pc_JSON *code = pc_JSON_GetObjectItem(json, "Code");
     if (!code) {
         pc_lib_log(PC_LOG_ERROR, "pc__error_json - invalid json 'no Code'");
-        return (pc_error_t){ .code = NULL, .msg = NULL };
+        pc_error_t err = {0};
+        return err;
     }
     pc_JSON *msg = pc_JSON_GetObjectItem(json, "Msg");
     if (!msg) {
         pc_lib_log(PC_LOG_ERROR, "pc__error_json - invalid json 'no Msg'");
-        return (pc_error_t){ .code = NULL, .msg = NULL };
+        pc_error_t err = {0};
+        return err;
     }
     pc_JSON *metadata = pc_JSON_GetObjectItem(json, "Metadata");
 
     assert(code->type == pc_JSON_String);
     assert(msg->type == pc_JSON_String);
 
-    pc_error_t err = {
-        .code = (char*)pc_lib_strdup(code->valuestring),
-        .msg = (char*)pc_lib_strdup(msg->valuestring),
-        .metadata = NULL,
-    };
+    pc_error_t err = {0};
+    err.code = (char*)pc_lib_strdup(code->valuestring);
+    err.msg = (char*)pc_lib_strdup(msg->valuestring);
+    err.metadata = NULL;
 
     assert(err.code != NULL);
 
@@ -57,33 +57,30 @@ pc__error_json(pc_JSON *json)
 static pc_error_t
 pc__error_timeout()
 {
-    pc_error_t err = {
-        .code = (char*)pc_lib_strdup("PC_RC_TIMEOUT"),
-        .msg = NULL,
-        .metadata = NULL,
-    };
+    pc_error_t err = {0};
+    err.code = (char*)pc_lib_strdup("PC_RC_TIMEOUT");
+    err.msg = NULL;
+    err.metadata = NULL;
     return err;
 }
 
 static pc_error_t
 pc__error_reset()
 {
-    pc_error_t err = {
-        .code = (char*)pc_lib_strdup("PC_RC_RESET"),
-        .msg = NULL,
-        .metadata = NULL,
-    };
+    pc_error_t err = {0};
+    err.code = (char*)pc_lib_strdup("PC_RC_RESET");
+    err.msg = NULL;
+    err.metadata = NULL;
     return err;
 }
 
 static pc_error_t
 pc__error_dup(const pc_error_t *err)
 {
-    pc_error_t new_err = {
-        .code = err->code ? (char*)pc_lib_strdup(err->code) : NULL,
-        .msg = err->msg ? (char*)pc_lib_strdup(err->msg) : NULL,
-        .metadata = err->metadata ? (char*)pc_lib_strdup(err->metadata) : NULL,
-    };
+    pc_error_t new_err = {0};
+    new_err.code = err->code ? (char*)pc_lib_strdup(err->code) : NULL;
+    new_err.msg = err->msg ? (char*)pc_lib_strdup(err->msg) : NULL;
+    new_err.metadata = err->metadata ? (char*)pc_lib_strdup(err->metadata) : NULL;
     return new_err;
 }
 

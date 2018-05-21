@@ -19,7 +19,7 @@ static pc_client_t* g_client = NULL;
 static void
 request_cb(const pc_request_t* req, const char* resp)
 {
-    bool *called = pc_request_ex_data(req);
+    bool *called = (bool*)pc_request_ex_data(req);
     *called = true;
 
     assert_not_null(resp);
@@ -65,7 +65,7 @@ static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    int *num_called = ex_data;
+    int *num_called = (int*)ex_data;
     assert_int(ev_type, ==, EV_ORDER[*num_called]);
     (*num_called)++;
 }

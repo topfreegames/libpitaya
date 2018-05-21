@@ -28,10 +28,9 @@ size_t pc_client_size()
 
 pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* config)
 {
-    pc_client_init_result_t res = {
-        .client = pc_lib_malloc(pc_client_size()),
-        .rc = PC_RC_ERROR,
-    };
+    pc_client_init_result_t res = {0};
+    res.client = (pc_client_t*)pc_lib_malloc(pc_client_size());
+    res.rc = PC_RC_ERROR;
 
     if (!config) {
         res.client->config = pc__default_config;

@@ -18,7 +18,7 @@ static void
 reconnect_success_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    int *num_calls = ex_data;
+    int *num_calls = (int*)ex_data;
     assert_int(SUCCESS_RECONNECT_EV_ORDER[*num_calls], ==, ev_type);
     (*num_calls)++;
 }
@@ -31,7 +31,7 @@ test_success(const MunitParameter params[], void *data)
     int ports[] = {g_disconnect_mock_server.tcp_port, g_disconnect_mock_server.tls_port};
     int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
-    assert_int(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
+    assert_int(tr_uv_tls_set_ca_file("../../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
 
     for (size_t i = 0; i < ArrayCount(ports); i++) {
         pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
@@ -70,7 +70,7 @@ static void
 reconnect_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    int *num_called = ex_data;
+    int *num_called = (int*)ex_data;
     assert_int(ev_type, ==, RECONNECT_MAX_RETRY_EV_ORDER[*num_called]);
     (*num_called)++;
 }
