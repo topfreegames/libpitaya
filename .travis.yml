@@ -3,6 +3,8 @@ compiler: clang
 
 # go:
 # - 1.9.2
+services:
+    - docker
 
 matrix:
   include:
@@ -63,12 +65,12 @@ matrix:
           tags: true
 
 script:
+  - make build
+  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo cp build/out/Release_x64/libpitaya.so /usr/local/lib fi
   - make test
 
 after_script:
-  - cd build/out/Release_x64/output
-  - ls
-  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo cp libpitaya.so /usr/local/lib fi
+  - ls build/out/Release_x64/output
 
 before_deploy:
 - git config --local user.name "Travis Bot"
