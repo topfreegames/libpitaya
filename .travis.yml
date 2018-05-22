@@ -13,15 +13,9 @@ matrix:
       dist: trusty
       addons:
         apt:
-          sources:
-            - ubuntu-toolchain-r-test
           update: true
           packages:
             - ninja-build
-            - g++-7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++7"
-
       sudo: required
       install: make install-gyp
       before_script: make gyp-linux

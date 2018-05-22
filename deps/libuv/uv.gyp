@@ -197,6 +197,9 @@
             ],
           },
           'conditions': [
+	    ['OS != "win"', {
+              'cflags': ['-fPIC'],
+	    }],
             ['uv_library=="shared_library"', {
               'conditions': [
                 ['OS=="zos"', {
