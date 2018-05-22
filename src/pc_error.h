@@ -22,19 +22,19 @@ pc__error_json(pc_JSON *json)
 {
     assert(json->type == pc_JSON_Object);
 
-    pc_JSON *code = pc_JSON_GetObjectItem(json, "Code");
+    pc_JSON *code = pc_JSON_GetObjectItem(json, "code");
     if (!code) {
         pc_lib_log(PC_LOG_ERROR, "pc__error_json - invalid json 'no Code'");
         pc_error_t err = {0};
         return err;
     }
-    pc_JSON *msg = pc_JSON_GetObjectItem(json, "Msg");
+    pc_JSON *msg = pc_JSON_GetObjectItem(json, "msg");
     if (!msg) {
         pc_lib_log(PC_LOG_ERROR, "pc__error_json - invalid json 'no Msg'");
         pc_error_t err = {0};
         return err;
     }
-    pc_JSON *metadata = pc_JSON_GetObjectItem(json, "Metadata");
+    pc_JSON *metadata = pc_JSON_GetObjectItem(json, "metadata");
 
     assert(code->type == pc_JSON_String);
     assert(msg->type == pc_JSON_String);
