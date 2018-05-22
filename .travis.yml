@@ -66,7 +66,9 @@ script:
   - make test
 
 after_script:
-  - ls build/out/Release_x64/output
+  - cd build/out/Release_x64/output
+  - ls
+  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo cp libpitaya.so /usr/local/lib fi
 
 before_deploy:
 - git config --local user.name "Travis Bot"
