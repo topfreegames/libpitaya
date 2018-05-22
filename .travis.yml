@@ -10,6 +10,7 @@ matrix:
     # LINUX
     # -----------------------
     - os: linux
+      go: 1.10.x
       dist: trusty
       addons:
         apt:
@@ -37,6 +38,7 @@ matrix:
     # MAC
     # -----------------------
     - os: osx
+      go: 1.10.x
       osx_image: xcode9
       sudo: required
       install:
@@ -61,7 +63,7 @@ matrix:
           tags: true
 
 script:
-  - make build
+  - make test
 
 after_script:
   - ls build/out/Release_x64/output

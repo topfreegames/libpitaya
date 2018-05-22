@@ -23,6 +23,8 @@ gyp-android:
 .PHONY: build
 
 test-deps: setup-node setup-go
+	@docker run -p 4222:4222 -d --name nats-main nats
+	@docker run -d -p 2379:2379 -p 2380:2380 appcelerator/etcd
 	@-(cd test/server && go get)
 
 build:
