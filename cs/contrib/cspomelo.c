@@ -63,7 +63,9 @@ void android_log(int level, const char* msg, ...)
     }
 }
 
-#elif defined(__UNITYEDITOR__)
+#endif
+
+#if defined(__UNITYEDITOR__)
 
 static FILE* f = NULL;
 void unity_log(int level, const char* msg, ...)

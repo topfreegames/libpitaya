@@ -18,7 +18,7 @@ gyp-ios-mac:
 	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_mac=true -Dbuild_for_ios=true -Duv_library=static_library -Dtarget_arch=x64
 
 gyp-android:
-	@gyp --depth=. -Dtarget_arch=arm -Dpomelo_library=static_library pomelo.gyp -f ninja-linux --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_linux=true -Duv_library=static_library -DOS=android -Duse_sys_zlib=true
+	@gyp --depth=. -Dtarget_arch=arm -Dpomelo_library=static_library pomelo.gyp -f ninja-linux --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_linux=true -Duv_library=static_library -DOS=android -Duse_sys_zlib=true -Dbuild_cspomelo=true
 
 .PHONY: build
 

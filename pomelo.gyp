@@ -23,8 +23,10 @@
       'conditions': [
         ['OS == "android"', {
           'pitaya_target%': "pitaya_android",
+          'pitaya_unity_target%': "pitaya_unity_android",
         }, {
           'pitaya_target%': "pitaya",
+          'pitaya_unity_target%': "pitaya_unity",
         }]
       ],
   },
@@ -77,15 +79,18 @@
         ['build_type=="Release"', {
           'cflags': ['-g', '-O3', '-Wall', '-Wextra', '-pedantic']
         }],
-	['use_sys_zlib == "true"', {
-	  'link_settings': {
-	    'libraries': ['-lz'],
-	  },
-	}, {
+        ['OS == "android"', {
+          'defines': ['__ANDROID__'],
+        }],
+	    ['use_sys_zlib == "true"', {
+	      'link_settings': {
+	        'libraries': ['-lz'],
+	      },
+	    }, {
           'dependencies': [
-	    './deps/zlib/zlib.gyp:zlib',
+	        './deps/zlib/zlib.gyp:zlib',
           ],
-	}],
+	    }],
         [ 'no_uv_support == "false"', {
           'conditions' : [
             ['use_sys_uv == "false"', {
@@ -273,7 +278,7 @@
         'conditions': [
           ['build_for_linux == "true" or build_for_mac == "true" or build_for_windows == "true"', {
             'targets':[ {
-              'target_name': 'pitaya_unity',
+              'target_name': '<(pitaya_unity_target)',
               'type': 'shared_library',
               'dependencies': [
                 '<(pitaya_target)',
