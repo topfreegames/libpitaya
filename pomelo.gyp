@@ -165,7 +165,11 @@
             ]
           }],
           ['OS == "android"', {
-            'cflags': ['-fPIE'],
+            'cflags': [
+              '-fPIE',
+              '-march=armv7-a',
+              '-mthumb',
+            ],
 	     'link_settings': {
 	       'libraries': ['-pie'],
 	     },
@@ -202,34 +206,38 @@
           ], # no uv support
         ],
       },
-      {
-        'target_name': 'tests',
-        'type': 'executable',
-        'dependencies': [
-          '<(pitaya_target)',
-        ],
-        'include_dirs': [
-          './include/',
-          '/usr/local/include',
-          './deps/munit'
-        ],
-        'sources': [
-          './test/main.c',
-          './test/test-tr_tcp.c',
-          './test/test-tr_tls.c',
-          './test/test_pc_client.c',
-          './test/test_reconnection.c',
-          './test/test_compression.c',
-          './test/test_kick.c',
-          './test/test_session.c',
-          './test/test_request.c',
-          './test/test_notify.c',
-          './test/test_stress.c',
-          './deps/munit/munit.c',
-        ],
-      },
     ],
     'conditions': [
+      ['OS != "android"', {
+        'targets': [
+          {
+            'target_name': 'tests',
+            'type': 'executable',
+            'dependencies': [
+              '<(pitaya_target)',
+            ],
+            'include_dirs': [
+              './include/',
+              '/usr/local/include',
+              './deps/munit'
+            ],
+            'sources': [
+              './test/main.c',
+              './test/test-tr_tcp.c',
+              './test/test-tr_tls.c',
+              './test/test_pc_client.c',
+              './test/test_reconnection.c',
+              './test/test_compression.c',
+              './test/test_kick.c',
+              './test/test_session.c',
+              './test/test_request.c',
+              './test/test_notify.c',
+              './test/test_stress.c',
+              './deps/munit/munit.c',
+            ],
+          },
+        ],
+      }],
       ['build_pypomelo == "true"', {
         'targets':[ {
           'target_name': 'pypomelo',

@@ -21,6 +21,7 @@ matrix:
         - cd ~
         - curl https://dl.google.com/android/repository/android-ndk-r17-linux-x86_64.zip -o android-ndk-17.zip
         - unzip -qo android-ndk-17.zip
+        - cd $TRAVIS_BUILD_DIR
         - make install-gyp
       before_script: 
         - ./android-compile.sh ~/android-ndk-r17
