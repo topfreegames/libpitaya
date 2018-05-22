@@ -158,10 +158,9 @@
           }],
           ['OS == "android"', {
             'cflags': ['-fPIE'],
-          }, {
-	    'link_settings': {
-	      'libraries': ['-pie'],
-	    },
+	     'link_settings': {
+	       'libraries': ['-pie'],
+	     },
           }],
           ['build_for_mac == "true" or build_for_ios == "true"', {
             'type': 'static_library',
