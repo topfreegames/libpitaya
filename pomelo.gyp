@@ -1,6 +1,6 @@
 {
   'variables': {
-    'uv_library%': "static_library",
+      'uv_library%': "static_library",
       'build_for_linux%': "false",
       'build_for_mac%': "false",
       'build_for_ios%': "false",
@@ -76,10 +76,10 @@
           'conditions' : [
             ['use_sys_uv == "false"', {
               'dependencies': [
-                './deps/uv/uv.gyp:libuv',
+                './deps/libuv/uv.gyp:libuv',
               ],
               'include_dirs': [
-                './deps/uv/include',
+                './deps/libuv/include',
               ]
             }, {
               'link_settings': {

@@ -12,10 +12,10 @@ install-gyp:
 	@cd ~/gyp && sudo python setup.py install
 
 gyp-linux:
-	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duse_xcode=false -Dbuild_cspomelo=true -Dbuild_for_linux=true
+	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duse_xcode=false -Dbuild_cspomelo=true -Dbuild_for_linux=true -Duv_library=static_library
 
 gyp-ios-mac:
-	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duse_xcode=false -Dbuild_cspomelo=true -Dbuild_for_mac=true -Dbuild_for_ios=true
+	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duse_xcode=false -Dbuild_cspomelo=true -Dbuild_for_mac=true -Dbuild_for_ios=true -Duv_library=static_library
 
 .PHONY: build
 
