@@ -64,7 +64,7 @@ script:
   - make build
 
 after_script:
-  - ls build/out/Default/output
+  - ls build/out/Release_x64/output
 
 before_deploy:
 - git config --local user.name "Travis Bot"
