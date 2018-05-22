@@ -35,6 +35,9 @@
 #define NOTI_EX ((void*)0x33)
 #define NOTI_TIMEOUT 30
 
+#define CRT "../../../../test/server/fixtures/ca.crt"
+#define INCORRECT_CRT "../../../../test/server/fixtures/ca_incorrect.crt"
+
 typedef struct {
     int tcp_port;
     int tls_port;

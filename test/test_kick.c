@@ -31,7 +31,7 @@ test_kick(const MunitParameter params[], void *data)
     const int ports[] = {g_kick_mock_server.tcp_port, g_kick_mock_server.tls_port};
     const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
-    assert_int(tr_uv_tls_set_ca_file("../../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
     for (size_t i = 0; i < ArrayCount(ports); i++) {
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;

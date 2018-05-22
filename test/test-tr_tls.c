@@ -69,7 +69,7 @@ test_successful_handshake(const MunitParameter params[], void *state)
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
     // Set CA file so that the handshake is successful.
-    assert_int(tr_uv_tls_set_ca_file("../../../test/server/fixtures/ca.crt", NULL), ==, PC_RC_OK);
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
     assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tls_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
@@ -152,7 +152,7 @@ test_wrong_client_certificate(const MunitParameter params[], void *state)
     assert_int(res.rc, ==, PC_RC_OK);
 
     // Setting the WRONG CA file should not fail the function but make the handshake fail.
-    assert_int(tr_uv_tls_set_ca_file("../../../test/server/fixtures/ca_incorrect.crt", NULL), ==, PC_RC_OK);
+    assert_int(tr_uv_tls_set_ca_file(INCORRECT_CRT, NULL), ==, PC_RC_OK);
     test_invalid_handshake();
 
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
