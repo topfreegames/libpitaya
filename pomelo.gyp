@@ -19,6 +19,14 @@
       'build_cspomelo%': "false",
       'build_type%': "Release",
       'use_xcode%': "false",
+
+      'conditions': [
+        ['OS == "android"', {
+          'pitaya_target%': "pitaya_android",
+        }, {
+          'pitaya_target%': "pitaya",
+        }]
+      ],
   },
 
     'target_defaults': {
@@ -133,7 +141,7 @@
 
     'targets': [
       {
-        'target_name': 'pitaya',
+        'target_name': '<(pitaya_target)',
         'include_dirs': [
           './include',
           './src',
@@ -198,7 +206,7 @@
         'target_name': 'tests',
         'type': 'executable',
         'dependencies': [
-          'pitaya',
+          '<(pitaya_target)',
         ],
         'include_dirs': [
           './include/',
@@ -227,7 +235,7 @@
           'target_name': 'pypomelo',
           'type': 'shared_library',
           'dependencies': [
-            'pitaya',
+            '<(pitaya_target)',
           ],
           'include_dirs': [
             './include/',
@@ -243,7 +251,7 @@
           'target_name': 'jpomelo',
           'type': 'shared_library',
           'dependencies': [
-            'pitaya',
+            '<(pitaya_target)',
           ],
           'include_dirs': [
             './include/',
@@ -260,7 +268,7 @@
               'target_name': 'pitaya_unity',
               'type': 'shared_library',
               'dependencies': [
-                'pitaya',
+                '<(pitaya_target)',
               ],
               'conditions': [
                 ['OS!="win"', {
@@ -283,7 +291,7 @@
               'target_name': 'pitaya_unity_ios',
               'type': 'static_library',
               'dependencies': [
-                'pitaya',
+                '<(pitaya_target)',
               ],
               'conditions': [
                 ['OS!="win"', {

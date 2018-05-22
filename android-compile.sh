@@ -11,7 +11,7 @@ if [ ! -e $ANDROID_TOOLCHAIN_DIR ]; then
   $1/build/tools/make_standalone_toolchain.py \
       --arch arm \
       --install-dir $ANDROID_TOOLCHAIN_DIR \
-      --api 28
+      --api 14
 fi
 
 target_host=arm-linux-androideabi
