@@ -1,8 +1,3 @@
-setup-go:
-	@sudo rm -rf ~/.gimme
-	@gimme 1.10.2
-	@echo Go installed version $(shell go version)
-
 setup-node:
 	@curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
 	@. ~/.nvm/nvm.sh && nvm install 10.0.0
@@ -22,7 +17,7 @@ gyp-android:
 
 .PHONY: build
 
-test-deps: setup-node setup-go
+test-deps: setup-node
 	@docker run -p 4222:4222 -d --name nats-main nats
 	@docker run -d -p 2379:2379 -p 2380:2380 appcelerator/etcd
 	@-(cd test/server && go get)
