@@ -16,3 +16,4 @@ mock-out.log
 .dir-locals.el
 tr_uv_tcp_aux.c.autosave
 android-toolchain
+out.log
