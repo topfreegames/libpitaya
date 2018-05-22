@@ -40,7 +40,7 @@ install:
 
 before_build:
   - cd C:\projects\libpitaya
-  - gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_windows=true
+  - gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_windows=true -Duv_library=static_library
 
 build_script:
   - cd build\out\Release_x64
