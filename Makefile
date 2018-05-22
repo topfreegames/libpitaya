@@ -12,10 +12,13 @@ install-gyp:
 	@cd ~/gyp && sudo python setup.py install
 
 gyp-linux:
-	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duse_xcode=false -Dbuild_cspomelo=true -Dbuild_for_linux=true -Duv_library=static_library
+	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_linux=true -Duv_library=static_library -Dtarget_arch=x64
 
 gyp-ios-mac:
-	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duse_xcode=false -Dbuild_cspomelo=true -Dbuild_for_mac=true -Dbuild_for_ios=true -Duv_library=static_library
+	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_mac=true -Dbuild_for_ios=true -Duv_library=static_library -Dtarget_arch=x64
+
+gyp-android:
+	@gyp --depth=. -Dtarget_arch=arm -Dpomelo_library=static_library pomelo.gyp -f ninja-linux --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_linux=true -Duv_library=static_library -DOS=android -Duse_sys_zlib=true
 
 .PHONY: build
 

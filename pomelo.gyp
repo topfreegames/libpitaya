@@ -11,6 +11,7 @@
       'use_sys_openssl%': "true",
       'library%': "static_library",
       'use_sys_uv%': "false",
+      'use_sys_zlib%': "false",
       'no_tls_support%': "false",
       'no_uv_support%': "false",
       'build_pypomelo%': "false",
@@ -28,9 +29,6 @@
           'msvs_configuration_platform': 'x64',
         },
       },
-      'dependencies': [
-        './deps/zlib/zlib.gyp:zlib',
-      ],
       'conditions': [
         ['OS == "win"', {
           'msvs_settings': {
@@ -72,6 +70,15 @@
         ['build_type=="Release"', {
           'cflags': ['-g', '-O3', '-Wall', '-Wextra', '-pedantic']
         }],
+	['use_sys_zlib == "true"', {
+	  'link_settings': {
+	    'libraries': ['-lz'],
+	  },
+	}, {
+          'dependencies': [
+	    './deps/zlib/zlib.gyp:zlib',
+          ],
+	}],
         [ 'no_uv_support == "false"', {
           'conditions' : [
             ['use_sys_uv == "false"', {
@@ -140,9 +147,6 @@
           './src/pc_JSON.c',
           './src/tr/dummy/tr_dummy.c'
         ],
-        'dependencies': [
-          './deps/zlib/zlib.gyp:zlib',
-        ],
         'conditions': [
           ['OS != "win"', {
             'defines': ['_GNU_SOURCE'],
@@ -152,6 +156,13 @@
               '_CRT_SECURE_NO_WARNINGS',
               '_CRT_NONSTDC_NO_DEPRECATE',
             ]
+          }],
+          ['OS == "android"', {
+            'cflags': ['-fPIE'],
+          }, {
+	    'link_settings': {
+	      'libraries': ['-pie'],
+	    },
           }],
           ['build_for_mac == "true" or build_for_ios == "true"', {
             'type': 'static_library',
