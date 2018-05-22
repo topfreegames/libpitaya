@@ -66,7 +66,7 @@ matrix:
 
 script:
   - make build
-  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo cp build/out/Release_x64/libpitaya.so /usr/local/lib fi
+  - if [[ $"TRAVIS_OS_NAME" == "linux" ]]; then sudo cp build/out/Release_x64/libpitaya.so /usr/local/lib; fi
   - make test
 
 after_script:
