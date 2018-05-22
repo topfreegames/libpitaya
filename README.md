@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://travis-ci.com/topfreegames/libpitaya"><img src="https://travis-ci.com/libpitaya.svg?branch=master" alt="Build Status"></img></a>
+  <a href="https://ci.appveyor.com/project/golang/dep"><img src="https://ci.appveyor.com/api/projects/status/326391ofs0q26s0d/branch/master?svg=true&passingText=Windows" alt="Windows Build Status"></a>
+  <a href="https://goreportcard.com/report/github.com/golang/dep"><img src="https://goreportcard.com/badge/github.com/golang/dep" /></a>
+</p>
+
 Attention
 =========
 
