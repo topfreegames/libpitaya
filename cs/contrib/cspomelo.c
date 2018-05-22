@@ -127,7 +127,7 @@ CS_POMELO_EXPORT void native_log(const char* msg)
 }
 
 typedef void (*request_handler)(const char* err, const char* resp);
-typedef void (*request_callback)(unsigned int cbid, int rc, const char* resp);
+typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, int rc, const char* resp);
 
 typedef struct {
     char* (* read) ();
@@ -169,19 +169,21 @@ static int local_storage_cb(pc_local_storage_op_t op, char* data, size_t* len, v
 static void default_request_cb(const pc_request_t* req, int rc, const char* resp)
 {
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
+    pc_client_t* client = pc_request_client(req);
     assert(rp);
     request_cb_t r = *rp;
     free(rp);
-    r.cb(r.cbid, rc, resp);
+    r.cb(client, r.cbid, rc, resp);
 }
 
 static void default_error_cb(const pc_request_t* req, int rc, const char* resp)
 {
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
+    pc_client_t* client = pc_request_client(req);
     assert(rp);
     request_cb_t r = *rp;
     free(rp);
-    r.cb(r.cbid, rc, resp);
+    r.cb(client, r.cbid, rc, resp);
 }
 
 CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* ca_path)
