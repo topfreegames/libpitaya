@@ -11,6 +11,17 @@ matrix:
     # -----------------------
     - os: linux
       dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          update: true
+          packages:
+            - ninja-build
+            - g++-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++7"
+
       sudo: required
       install: make install-gyp
       before_script: make gyp-linux
@@ -60,12 +71,6 @@ script:
 
 after_script:
   - ls build/out/Default/output
-
-addons:
-  apt:
-    update: true
-    packages:
-      - ninja-build
 
 before_deploy:
 - git config --local user.name "Travis Bot"

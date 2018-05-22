@@ -7,7 +7,6 @@
       'build_for_windows%': "false",
 
       'pomelo_library%': "static_library",
-      'build_for_ios%': "false",
       'use_sys_openssl%': "true",
       'library%': "static_library",
       'use_sys_uv%': "false",
