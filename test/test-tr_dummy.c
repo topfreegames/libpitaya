@@ -26,9 +26,8 @@ static pc_client_t* client;
 #define NOTI_EX ((void*)0x33)
 #define NOTI_TIMEOUT 30
 
-void request_cb(const pc_request_t* req, int rc, const char* resp)
+void request_cb(const pc_request_t* req, const char* resp)
 {
-    PC_TEST_ASSERT(rc == PC_RC_OK);
     PC_TEST_ASSERT(resp);
     PC_TEST_ASSERT(!strcmp(resp, TR_DUMMY_RESP));
 

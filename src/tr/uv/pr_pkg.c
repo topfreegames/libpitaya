@@ -42,7 +42,7 @@ void pc_pkg_parser_reset(pc_pkg_parser_t *parser)
     parser->pkg_offset = 0;
     parser->pkg_size = 0;
     parser->state = PC_PKG_HEAD;
-};
+}
 
 void pc_pkg_parser_feed(pc_pkg_parser_t *parser, const char *data, size_t nread)
 {

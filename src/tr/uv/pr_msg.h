@@ -17,7 +17,7 @@ typedef struct {
     uint32_t id;
     int error;
     const char* route;
-    const char* msg;
+    pc_JSON   *json_msg;
 } pc_msg_t;
 
 uv_buf_t pr_default_msg_encoder(tr_uv_tcp_transport_t* tt, const pc_msg_t* msg);

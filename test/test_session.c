@@ -14,49 +14,29 @@ typedef struct {
     char *data;
 } session_cb_data_t;
 
-static void *
-setup(const MunitParameter params[], void *data)
-{
-    Unused(data); Unused(params);
-    // NOTE: use calloc in order to avoid one of the issues with the api.
-    // see `issues.md`.
-    g_client = calloc(1, pc_client_size());
-    assert_not_null(g_client);
-    return NULL;
-}
-
-static void
-teardown(void *data)
-{
-    Unused(data);
-    free(g_client);
-    g_client = NULL;
-}
-
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
-    bool *connected = ex_data;
+    Unused(client); Unused(arg1); Unused(arg2);
+    bool *connected = (bool*)ex_data;
     *connected = true;
     assert_int(ev_type, ==, PC_EV_CONNECTED);
 }
 
 static void
-set_session_request_cb(const pc_request_t* req, int rc, const char* resp)
+set_session_request_cb(const pc_request_t* req, const char* resp)
 {
-    bool *called = pc_request_ex_data(req);
+    bool *called = (bool*)pc_request_ex_data(req);
     *called = true;
-    assert_int(rc, ==, PC_RC_OK);
     assert_string_equal(resp, SUCCESS_RESP);
     assert_not_null(req);
 }
 
 static void
-get_session_request_cb(const pc_request_t* req, int rc, const char* resp)
+get_session_request_cb(const pc_request_t* req, const char* resp)
 {
-    session_cb_data_t *scd = pc_request_ex_data(req);
+    session_cb_data_t *scd = (session_cb_data_t*)pc_request_ex_data(req);
     scd->called = true;
-    assert_int(rc, ==, PC_RC_OK);
     assert_string_equal(resp, scd->data);
     assert_not_null(req);
 }
@@ -64,7 +44,9 @@ get_session_request_cb(const pc_request_t* req, int rc, const char* resp)
 void
 do_test_session_persistence(pc_client_config_t *config, int port)
 {
-    assert_int(pc_client_init(g_client, NULL, config), ==, PC_RC_OK);
+    pc_client_init_result_t res = pc_client_init(NULL, config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
 
     bool connected = false;
     int handler_id = pc_client_add_ev_handler(g_client, event_cb, &connected, NULL);
@@ -117,17 +99,17 @@ test_persistence(const MunitParameter params[], void *data)
     Unused(data); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     // Test with TCP
-    do_test_session_persistence(&config, TCP_PORT);
+    do_test_session_persistence(&config, g_test_server.tcp_port);
     // Test with TLS
     config.transport_name = PC_TR_NAME_UV_TLS;
-    assert_true(tr_uv_tls_set_ca_file("../../test/server/fixtures/ca.crt", NULL));
-    do_test_session_persistence(&config, TLS_PORT);
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
+    do_test_session_persistence(&config, g_test_server.tls_port);
 
     return MUNIT_OK;
 }
 
 static MunitTest tests[] = {
-    {"/persistence", test_persistence, setup, teardown, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/persistence", test_persistence, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

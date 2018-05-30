@@ -1,0 +1,224 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <pomelo.h>
+#include <stdbool.h>
+
+#include "test_common.h"
+
+static pc_client_t *g_client = NULL;
+
+static int g_num_success_cb_called = 0;
+static int g_num_error_cb_called = 0;
+static int g_num_timeout_error_cb_called = 0;
+
+static void
+request_cb(const pc_request_t* req, const char* resp)
+{
+    g_num_success_cb_called++;
+}
+
+static void
+timeout_error_cb(const pc_request_t* req, pc_error_t error)
+{
+    g_num_timeout_error_cb_called++;
+
+    assert_string_equal(error.code, "PC_RC_TIMEOUT");
+    assert_null(error.msg);
+    assert_null(error.metadata);
+}
+
+static void
+request_error_cb(const pc_request_t* req, pc_error_t error)
+{
+    g_num_error_cb_called++;
+
+    assert_string_equal(error.code, "PIT-404");
+    assert_string_equal(error.msg, "pitaya/handler: connector.invalid.route not found");
+    assert_null(error.metadata);
+}
+
+static MunitResult
+test_invalid_state(const MunitParameter params[], void *data)
+{
+    Unused(params); Unused(data);
+
+    const int ports[] = {g_test_server.tcp_port, g_test_server.tls_port};
+    const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
+
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
+
+    for (size_t i = 0; i < ArrayCount(ports); i++) {
+        pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+        config.transport_name = transports[i];
+
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
+        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+                                           request_cb, request_error_cb), ==, PC_RC_INVALID_STATE);
+
+        SLEEP_SECONDS(1);
+
+        assert_int(g_num_error_cb_called, ==, 0);
+        assert_int(g_num_success_cb_called, ==, 0);
+
+        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        SLEEP_SECONDS(1);
+        assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+
+        SLEEP_SECONDS(1);
+
+        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+                                           request_cb, request_error_cb), ==, PC_RC_INVALID_STATE);
+
+        SLEEP_SECONDS(1);
+
+        assert_int(g_num_error_cb_called, ==, 0);
+        assert_int(g_num_success_cb_called, ==, 0);
+
+        assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+    }
+
+    return MUNIT_OK;
+}
+
+static MunitResult
+test_timeout(const MunitParameter params[], void *data)
+{
+    Unused(params); Unused(data);
+
+    const int ports[] = {g_timeout_mock_server.tcp_port, g_timeout_mock_server.tls_port};
+    const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
+
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
+
+    for (size_t i = 0; i < ArrayCount(ports); i++) {
+        pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+        config.transport_name = transports[i];
+
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
+        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        SLEEP_SECONDS(1);
+
+        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+                                           request_cb, timeout_error_cb), ==, PC_RC_OK);
+
+        SLEEP_SECONDS(2);
+
+        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+                                           request_cb, NULL), ==, PC_RC_OK);
+
+        SLEEP_SECONDS(2);
+
+        assert_int(g_num_timeout_error_cb_called, ==, 1);
+        assert_int(g_num_success_cb_called, ==, 0);
+        g_num_timeout_error_cb_called = 0;
+        g_num_success_cb_called = 0;
+
+        assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+    }
+
+    return MUNIT_OK;
+}
+
+static MunitResult
+test_valid_route(const MunitParameter params[], void *data)
+{
+    Unused(params); Unused(data);
+
+    const int ports[] = {g_test_server.tcp_port, g_test_server.tls_port};
+    const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
+
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
+
+    for (size_t i = 0; i < ArrayCount(ports); i++) {
+        pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+        config.transport_name = transports[i];
+
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
+        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        SLEEP_SECONDS(1);
+
+        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+                                           request_cb, request_error_cb), ==, PC_RC_OK);
+
+        SLEEP_SECONDS(1);
+
+        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+                                           request_cb, request_error_cb), ==, PC_RC_OK);
+
+        SLEEP_SECONDS(1);
+
+        assert_int(g_num_error_cb_called, ==, 0);
+        assert_int(g_num_success_cb_called, ==, 2);
+        g_num_error_cb_called = 0;
+        g_num_success_cb_called = 0;
+
+        assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+    }
+
+    return MUNIT_OK;
+}
+
+static MunitResult
+test_invalid_route(const MunitParameter params[], void *data)
+{
+    Unused(params); Unused(data);
+
+    const int ports[] = {g_test_server.tcp_port, g_test_server.tls_port};
+    const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
+
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
+
+    for (size_t i = 0; i < ArrayCount(ports); i++) {
+        pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+        config.transport_name = transports[i];
+
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
+        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        SLEEP_SECONDS(1);
+
+        assert_int(pc_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
+
+        SLEEP_SECONDS(1);
+
+        assert_int(pc_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
+
+        SLEEP_SECONDS(1);
+
+        assert_int(g_num_error_cb_called, ==, 1);
+        assert_int(g_num_success_cb_called, ==, 0);
+
+        g_num_error_cb_called = 0;
+        g_num_success_cb_called = 0;
+
+        assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+    }
+
+    return MUNIT_OK;
+}
+
+static MunitTest tests[] = {
+    {"/invalid_route", test_invalid_route, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/valid_route", test_valid_route, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/timeout", test_timeout, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/invalid_state", test_invalid_state, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+};
+
+const MunitSuite request_suite = {
+    "/request", tests, NULL, 1, MUNIT_SUITE_OPTION_NONE
+};

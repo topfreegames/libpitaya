@@ -323,8 +323,14 @@ int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_nu
 
     assert(trans && route && msg && req_id != PC_INVALID_REQ_ID);
 
+    pc_JSON *json_msg = pc_JSON_ParseWithOpts(msg, 0, 1);
+    if (!json_msg) {
+        pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - the msg is not invalid json");
+        return PC_RC_INVALID_JSON;
+    }
+
     m.id = req_id;
-    m.msg = msg;
+    m.json_msg = json_msg;
     m.route = route;
 
     buf = ((tr_uv_tcp_transport_plugin_t*)tr_uv_tcp_plugin((pc_transport_t*)tt))->pr_msg_encoder(tt, &m);

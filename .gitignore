@@ -12,3 +12,9 @@ Assembly-CSharp.csproj.CoreCompileInputs.cache
 server-exe
 mock-out.log
 Assembly-CSharp.csprojResolveAssemblyReference.cache
+*-out.log
+.clang_complete
+.dir-locals.el
+tr_uv_tcp_aux.c.autosave
+android-toolchain
+out.log

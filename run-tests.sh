@@ -4,12 +4,25 @@ SERVER_DIR=test/server
 SERVER_EXE=server-exe
 SERVER_LOG_FILE=out.log
 
-MOCK_SERVER=mock-disconnect-server.js
 MOCK_SERVER_DIR=test/mock-servers
-MOCK_SERVER_LOG_FILE=mock-disconnect-server-out.log
+
+MOCK_DISCONNECT_SERVER=mock-disconnect-server.js
+MOCK_DISCONNECT_SERVER_LOG_FILE=mock-disconnect-server-out.log
+
+MOCK_COMPRESSION_SERVER=mock-compression-server.js
+MOCK_COMPRESSION_SERVER_LOG_FILE=mock-compression-server-out.log
+
+MOCK_KICK_SERVER=mock-kick-server.js
+MOCK_KICK_SERVER_LOG_FILE=mock-kick-server-out.log
+
+MOCK_TIMEOUT_SERVER=mock-timeout-server.js
+MOCK_TIMEOUT_SERVER_LOG_FILE=mock-timeout-server-out.log
+
+MOCK_DESTROY_SOCKET_SERVER=mock-destroy-socket-server.js
+MOCK_DESTROY_SOCKET_SERVER_LOG_FILE=mock-destroy-socket-server-out.log
 
 BUILD_DIR=build
-OUTPUT_DIR=$BUILD_DIR/output
+OUTPUT_DIR=$BUILD_DIR/out/Release_x64/output
 
 TESTS_EXE=tests
 
@@ -28,8 +41,8 @@ if [[ ! -d $BUILD_DIR ]]; then
     exit
 fi
 
-if [[ ! -f "$BUILD_DIR/Makefile" ]]; then
-    echo "-->  Makefile does not exist in the build directory, please create it."
+if [[ ! -f "$BUILD_DIR/out/Release_x64/build.ninja" ]]; then
+    echo "-->  build.ninja does not exist in the build directory, please create it."
     exit
 fi
 
@@ -38,16 +51,20 @@ pushd $SERVER_DIR > /dev/null
 ./$SERVER_EXE &> $SERVER_LOG_FILE &
 popd > /dev/null
 
-echo   "-->  Starting mock server..."
+echo   "-->  Starting mock servers..."
 pushd $MOCK_SERVER_DIR > /dev/null
-node $MOCK_SERVER &> $MOCK_SERVER_LOG_FILE &
+node $MOCK_DISCONNECT_SERVER &> $MOCK_DISCONNECT_SERVER_LOG_FILE &
+node $MOCK_COMPRESSION_SERVER &> $MOCK_COMPRESSION_SERVER_LOG_FILE &
+node $MOCK_KICK_SERVER &> $MOCK_KICK_SERVER_LOG_FILE &
+node $MOCK_TIMEOUT_SERVER &> $MOCK_TIMEOUT_SERVER_LOG_FILE &
+node $MOCK_DESTROY_SOCKET_SERVER &> $MOCK_DESTROY_SOCKET_SERVER_LOG_FILE &
 popd > /dev/null
 
 sleep 0.5
 
 echo   "-->  Making project..."
-pushd $BUILD_DIR > /dev/null
-make > /dev/null
+pushd $BUILD_DIR/out/Release_x64 > /dev/null
+ninja > /dev/null
 popd > /dev/null
 
 pushd $OUTPUT_DIR > /dev/null

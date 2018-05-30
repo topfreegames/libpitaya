@@ -7,10 +7,48 @@ compiler: clang
 matrix:
   include:
     # -----------------------
+    # LINUX (building for android)
+    # -----------------------
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          update: true
+          packages:
+            - ninja-build
+      sudo: required
+      install: 
+        - cd ~
+        - curl https://dl.google.com/android/repository/android-ndk-r17-linux-x86_64.zip -o android-ndk-17.zip
+        - unzip -qo android-ndk-17.zip
+        - cd $TRAVIS_BUILD_DIR
+        - make install-gyp
+      before_script: 
+        - ./android-compile.sh ~/android-ndk-r17
+      deploy:
+        provider: releases
+        draft: true
+        skip_cleanup: true
+        target_commitish: $TRAVIS_COMMIT
+        tag_name: $TRAVIS_TAG
+        api_key:
+          secure: K7JbFSr7j5TSzbaFRrizO9MFQbYccfhldmMbgA5u23NROE5xKP4DcAfA1qDYjhz+ur/X8l4dogOTZn5AAgR/NMdELnPiU/6fyGJlzXa8lheYUoei5pUTlJCRX+YIKUalHc4rVFlhiS7NnVE4iZwK2xlgKyfImntAWrk4hgjaSoJB6x67I7pJVJM9aA+pDusoqR1G62PP99oPw29TEr9ttOTc/d0rgQFkjPs2v7vDttlPRqsfXdLXVDD/hz/nWB3AQ4Y3jMLPfrc17PWWixVnkzAPnB3Eoz3D4DQrXxYnMzM6Cis0haCVayEpu5ZoVwVBWNldtYui/qd/14xU/NBMFIn7ClB3WpzbfsLzBaa+pbNtr/CjPgRyBNP70D+cb3h2TDpvwCUvecImaC1RdNJSkqtqWYmryPcZMuDXQns91NRVLLXwnsTmw/CyXsdLP4/KMHgr/kERsb3Pde92L///mvcl/lDI/p/a8IZHRm9IDedqlG5aG2YEJUMoTXqCW7c9Ntpp9/bognLICff3twjkbDuHY9h2G+NA/dP3az52R3vA2I74BgcUDUINVUvGzScJc6nrhifHZugcR8mr8od8wPvIZReFzFv+ND0aquqtZRVb5kUl4RZkwwFfJ4vWB/bLVSxwT80k/83tKjEdC6L5rMO3QdE5thTEwa3rF0Bc35s=
+        file_glob: true
+        file: build/out/Release_x64/output/*android.so
+        on:
+          repo: topfreegames/libpitaya
+          tags: true
+
+    # -----------------------
     # LINUX
     # -----------------------
     - os: linux
       dist: trusty
+      addons:
+        apt:
+          update: true
+          packages:
+            - ninja-build
       sudo: required
       install: make install-gyp
       before_script: make gyp-linux
@@ -20,11 +58,10 @@ matrix:
         skip_cleanup: true
         target_commitish: $TRAVIS_COMMIT
         tag_name: $TRAVIS_TAG
-        name: $TRAVIS_TAG
         api_key:
           secure: K7JbFSr7j5TSzbaFRrizO9MFQbYccfhldmMbgA5u23NROE5xKP4DcAfA1qDYjhz+ur/X8l4dogOTZn5AAgR/NMdELnPiU/6fyGJlzXa8lheYUoei5pUTlJCRX+YIKUalHc4rVFlhiS7NnVE4iZwK2xlgKyfImntAWrk4hgjaSoJB6x67I7pJVJM9aA+pDusoqR1G62PP99oPw29TEr9ttOTc/d0rgQFkjPs2v7vDttlPRqsfXdLXVDD/hz/nWB3AQ4Y3jMLPfrc17PWWixVnkzAPnB3Eoz3D4DQrXxYnMzM6Cis0haCVayEpu5ZoVwVBWNldtYui/qd/14xU/NBMFIn7ClB3WpzbfsLzBaa+pbNtr/CjPgRyBNP70D+cb3h2TDpvwCUvecImaC1RdNJSkqtqWYmryPcZMuDXQns91NRVLLXwnsTmw/CyXsdLP4/KMHgr/kERsb3Pde92L///mvcl/lDI/p/a8IZHRm9IDedqlG5aG2YEJUMoTXqCW7c9Ntpp9/bognLICff3twjkbDuHY9h2G+NA/dP3az52R3vA2I74BgcUDUINVUvGzScJc6nrhifHZugcR8mr8od8wPvIZReFzFv+ND0aquqtZRVb5kUl4RZkwwFfJ4vWB/bLVSxwT80k/83tKjEdC6L5rMO3QdE5thTEwa3rF0Bc35s=
         file_glob: true
-        file: build/out/Default/output/*.so
+        file: build/out/Release_x64/output/*.so
         on:
           repo: topfreegames/libpitaya
           tags: true
@@ -46,13 +83,12 @@ matrix:
         skip_cleanup: true
         target_commitish: $TRAVIS_COMMIT
         tag_name: $TRAVIS_TAG
-        name: $TRAVIS_TAG
         api_key:
           secure: K7JbFSr7j5TSzbaFRrizO9MFQbYccfhldmMbgA5u23NROE5xKP4DcAfA1qDYjhz+ur/X8l4dogOTZn5AAgR/NMdELnPiU/6fyGJlzXa8lheYUoei5pUTlJCRX+YIKUalHc4rVFlhiS7NnVE4iZwK2xlgKyfImntAWrk4hgjaSoJB6x67I7pJVJM9aA+pDusoqR1G62PP99oPw29TEr9ttOTc/d0rgQFkjPs2v7vDttlPRqsfXdLXVDD/hz/nWB3AQ4Y3jMLPfrc17PWWixVnkzAPnB3Eoz3D4DQrXxYnMzM6Cis0haCVayEpu5ZoVwVBWNldtYui/qd/14xU/NBMFIn7ClB3WpzbfsLzBaa+pbNtr/CjPgRyBNP70D+cb3h2TDpvwCUvecImaC1RdNJSkqtqWYmryPcZMuDXQns91NRVLLXwnsTmw/CyXsdLP4/KMHgr/kERsb3Pde92L///mvcl/lDI/p/a8IZHRm9IDedqlG5aG2YEJUMoTXqCW7c9Ntpp9/bognLICff3twjkbDuHY9h2G+NA/dP3az52R3vA2I74BgcUDUINVUvGzScJc6nrhifHZugcR8mr8od8wPvIZReFzFv+ND0aquqtZRVb5kUl4RZkwwFfJ4vWB/bLVSxwT80k/83tKjEdC6L5rMO3QdE5thTEwa3rF0Bc35s=
         file_glob: true
         file:
-          - build/out/Default/output/*.a
-          - build/out/Default/output/*.bundle
+          - build/out/Release_x64/output/*.a
+          - build/out/Release_x64/output/*.bundle
         on:
           repo: topfreegames/libpitaya
           tags: true
@@ -61,14 +97,8 @@ script:
   - make build
 
 after_script:
-  - ls build/out/Default/output
-
-addons:
-  apt:
-    update: true
-    packages:
-      - ninja-build
+  - ls build/out/Release_x64/output
 
 before_deploy:
-- git config --local user.name "Travis Bot"
-- git config --local user.email "<>"
+  - git config user.name "Travis Bot"
+  - git config user.email "<>"

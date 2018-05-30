@@ -4,31 +4,20 @@ const fs = require('fs');
 const pkt = require('./packet.js');
 
 const HOST = '127.0.0.1';
-
 const TCP_PORT = 4000;
 const TLS_PORT = TCP_PORT+1;
+const HEARTBEAT_INTERVAL = 2;
 
-let handshakeResponseData;
-let heartbeatResponseData;
 let heartbeatInterval;
 let clientDisconnected = false;
-
-function sendHeartbeat(socket) {
-    console.log('sending heartbeat');
-    socket.write(heartbeatResponseData);
-}
 
 function processPacket(packet, clientSocket) {
     console.log('processing packet');
 
     switch (packet.type) {
     case pkt.PacketType.Handshake:
-        console.log('Sending handshake response... ', handshakeResponseData[0],
-                    ' len: ', handshakeResponseData.length);
-        clientSocket.write(handshakeResponseData);
+        pkt.sendHandshakeResponse(clientSocket);
         break;
-        // a.SetStatus(constants.StatusHandshake)
-        // logger.Log.Debugf("Session handshake Id=%d, Remote=%s", a.Session.ID(), a.RemoteAddr())
 
     case pkt.PacketType.HandshakeAck:
         console.log('RECEIVED HANDSHAKE ACK');
@@ -36,61 +25,16 @@ function processPacket(packet, clientSocket) {
         if (clientDisconnected && !heartbeatInterval) {
             heartbeatInterval = setInterval(() => {
                 if (clientSocket && !clientSocket.destroyed) {
-                    sendHeartbeat(clientSocket);
+                    pkt.sendHeartbeat(clientSocket);
                 }
             }, 2000);
         }
         break;
 
-    case pkt.PacketType.Data:
-        console.log('DATA PACKAGE BOI');
-        // if a.GetStatus() < constants.StatusWorking {
-            // return fmt.Errorf("receive data on socket which is not yet ACK, session will be closed immediately, remote=%s",
-                                // a.RemoteAddr().String())
-        // }
-
-        // TODO: decode message
-        // msg, err := message.Decode(p.Data)
-        // if err != nil {
-        //     return err
-        // }
-        // TODO: process message
-        // h.processMessage(a, msg)
-        break;
-
-    case pkt.PacketType.Heartbeat:
-        // expected
-        break;
+    case pkt.PacketType.Data: /* Ignore */ break;
+    case pkt.PacketType.Heartbeat: /* expected */ break;
     }
-
-    // TODO: Return an error here
-    // a.SetLastAt()
-    // return nil
 }
-
-(function encodeHanshakeResponse() {
-    // Hardcoded handshake data
-    const hData = {
-        'code': 200,
-        'sys': {
-            'heartbeat': 2, // 2 seconds,
-            'dict': {
-		            'connector.getsessiondata': 1,
-		            'connector.setsessiondata': 2,
-		            'room.room.getsessiondata': 3,
-		            'onMessage':                4,
-		            'onMembers':                5,
-            }
-        }
-    };
-    const data = JSON.stringify(hData);
-    console.log(data);
-
-    handshakeResponseData = pkt.encode(pkt.PacketType.Handshake, Buffer.from(data));
-    heartbeatResponseData = pkt.encode(pkt.PacketType.Heartbeat);
-
-    console.log('Handshake response data: ', handshakeResponseData);
-})();
 
 function processBuffer(buffer, socket) {
     console.log(`Received ${buffer.length} bytes of data`);
@@ -117,7 +61,6 @@ const tcpServer = net.createServer((socket) => {
         console.log('Client disconnected :(');
     });
 });
-
 
 const tlsOptions = {
     key: fs.readFileSync('../server/fixtures/server/client-ssl.localhost.key'),
@@ -146,3 +89,5 @@ tcpServer.listen(TCP_PORT, HOST, () => {
 tlsServer.listen(TLS_PORT, HOST, () => {
     console.log(`TLS server on ${HOST}:${TLS_PORT}`);
 });
+
+pkt.encodeHanshakeAndHeartbeatResponse(HEARTBEAT_INTERVAL);

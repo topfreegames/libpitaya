@@ -10,7 +10,7 @@
 
 #include "pc_lib.h"
 #include "pc_pomelo_i.h"
-
+#include "pc_error.h"
 
 static void pc__trans_queue_event(pc_client_t* client, int ev_type, const char* arg1, const char* arg2);
 
@@ -185,8 +185,8 @@ void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, co
     pc_mutex_unlock(&client->handler_mutex);
 }
 
-static void pc__trans_queue_sent(pc_client_t* client, unsigned int seq_num, int rc);
-void pc_trans_sent(pc_client_t* client, unsigned int seq_num, int rc)
+static void pc__trans_queue_sent(pc_client_t* client, unsigned int seq_num, pc_error_t error);
+void pc_trans_sent(pc_client_t* client, unsigned int seq_num, pc_error_t error)
 {
     if (!client) {
         pc_lib_log(PC_LOG_ERROR, "pc_trans_sent - client is null");
@@ -194,13 +194,13 @@ void pc_trans_sent(pc_client_t* client, unsigned int seq_num, int rc)
     }
 
     if (client->config.enable_polling) {
-        pc__trans_queue_sent(client, seq_num, rc);
+        pc__trans_queue_sent(client, seq_num, error);
     } else {
-        pc__trans_sent(client, seq_num, rc);
+        pc__trans_sent(client, seq_num, error);
     }
 }
 
-void pc__trans_queue_sent(pc_client_t* client, unsigned int seq_num, int rc)
+void pc__trans_queue_sent(pc_client_t* client, unsigned int seq_num, pc_error_t error)
 {
     pc_event_t* ev;
     int i;
@@ -208,7 +208,7 @@ void pc__trans_queue_sent(pc_client_t* client, unsigned int seq_num, int rc)
     pc_mutex_lock(&client->event_mutex);
 
     pc_lib_log(PC_LOG_INFO, "pc__trans_queue_sent - add pending sent event, seq_num: %u, rc: %s",
-            seq_num, pc_client_rc_str(rc));
+            seq_num, error.code);
 
     ev = NULL;
     for (i = 0; i < PC_PRE_ALLOC_EVENT_SLOT_COUNT; ++i) {
@@ -229,14 +229,14 @@ void pc__trans_queue_sent(pc_client_t* client, unsigned int seq_num, int rc)
 
     PC_EV_SET_NOTIFY_SENT(ev->type);
     ev->data.notify.seq_num = seq_num;
-    ev->data.notify.rc = rc;
+    ev->data.notify.error = error;
 
     QUEUE_INSERT_TAIL(&client->pending_ev_queue, &ev->queue);
 
     pc_mutex_unlock(&client->event_mutex);
 }
 
-void pc__trans_sent(pc_client_t* client, unsigned int seq_num, int rc)
+void pc__trans_sent(pc_client_t* client, unsigned int seq_num, pc_error_t error)
 {
     QUEUE* q;
     pc_notify_t* notify;
@@ -249,8 +249,7 @@ void pc__trans_sent(pc_client_t* client, unsigned int seq_num, int rc)
         notify = (pc_notify_t* )QUEUE_DATA(q, pc_common_req_t, queue);
         if (notify->base.seq_num == seq_num) {
 
-            pc_lib_log(PC_LOG_INFO, "pc__trans_sent - fire sent event, seq_num: %u, rc: %s",
-                    seq_num, pc_client_rc_str(rc));
+            pc_lib_log(PC_LOG_INFO, "pc__trans_sent - fire sent event, seq_num: %u", seq_num);
 
             target = notify;
             QUEUE_REMOVE(q);
@@ -261,7 +260,10 @@ void pc__trans_sent(pc_client_t* client, unsigned int seq_num, int rc)
     pc_mutex_unlock(&client->notify_mutex);
 
     if (target) {
-        target->cb(target, rc);
+        // Do not call the callback if there is not error.
+        if (target->cb && error.code) {
+            target->cb(target, error);
+        }
         pc_lib_free((char*)target->base.msg);
         pc_lib_free((char*)target->base.route);
 
@@ -284,9 +286,10 @@ void pc__trans_sent(pc_client_t* client, unsigned int seq_num, int rc)
     }
 }
 
-static void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error);
+static void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id,
+                                 const char* resp, pc_error_t error);
 
-void pc_trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error)
+void pc_trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_error_t error)
 {
     if (!client) {
         pc_lib_log(PC_LOG_ERROR, "pc_trans_resp - client is null");
@@ -294,23 +297,20 @@ void pc_trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char*
     }
 
     if (client->config.enable_polling) {
-        pc__trans_queue_resp(client, req_id, rc, resp, error);
+        pc__trans_queue_resp(client, req_id, resp, error);
     } else {
-        pc__trans_resp(client, req_id, rc, resp, error);
+        pc__trans_resp(client, req_id, resp, error);
     }
 }
 
-void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error)
+void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_error_t error)
 {
-    pc_event_t* ev;
-    int i;
-
     pc_mutex_lock(&client->event_mutex);
 
-    pc_lib_log(PC_LOG_INFO, "pc__trans_queue_resp - add pending resp event, req_id: %u, rc: %s",
-            req_id, pc_client_rc_str(rc));
-    ev = NULL;
-    for (i = 0; i < PC_PRE_ALLOC_EVENT_SLOT_COUNT; ++i) {
+    pc_lib_log(PC_LOG_INFO, "pc__trans_queue_resp - add pending resp event, req_id: %u", req_id);
+
+    pc_event_t *ev = NULL;
+    for (int i = 0; i < PC_PRE_ALLOC_EVENT_SLOT_COUNT; ++i) {
         if (PC_PRE_ALLOC_IS_IDLE(client->pending_events[i].type)) {
             ev = &client->pending_events[i];
             PC_PRE_ALLOC_SET_BUSY(ev->type);
@@ -329,29 +329,27 @@ void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id, int rc, cons
 
     QUEUE_INIT(&ev->queue);
     ev->data.req.req_id = req_id;
-    ev->data.req.rc = rc;
     ev->data.req.resp = pc_lib_strdup(resp);
+    ev->data.req.error = pc__error_dup(&error);
 
     QUEUE_INSERT_TAIL(&client->pending_ev_queue, &ev->queue);
 
     pc_mutex_unlock(&client->event_mutex);
 }
 
-void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char* resp, int error)
+void pc__trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_error_t error)
 {
-    QUEUE* q;
-    pc_request_t* req;
-    pc_request_t* target;
+    QUEUE* q = NULL;
 
     /* invoke callback immediately */
-    target = NULL;
+    pc_request_t *target = NULL;
     pc_mutex_lock(&client->req_mutex);
     QUEUE_FOREACH(q, &client->req_queue) {
-        req = (pc_request_t* )QUEUE_DATA(q, pc_common_req_t, queue);
+        pc_request_t *req = (pc_request_t* )QUEUE_DATA(q, pc_common_req_t, queue);
         if (req->req_id == req_id) {
 
-            pc_lib_log(PC_LOG_INFO, "pc__trans_resp - fire resp event, req_id: %u, rc: %s",
-                    req_id, pc_client_rc_str(rc));
+            pc_lib_log(PC_LOG_INFO, "pc__trans_resp - fire resp event, req_id: %u, error: %s",
+                       req_id, error.code);
 
             target = req;
             QUEUE_REMOVE(q);
@@ -362,12 +360,12 @@ void pc__trans_resp(pc_client_t* client, unsigned int req_id, int rc, const char
     pc_mutex_unlock(&client->req_mutex);
 
     if (target) {
-        if (error && target->error_cb) {
-            target->error_cb(target, rc, resp);
-        } else {
-            target->cb(target, rc, resp);
+        if (error.code && target->error_cb) {
+            target->error_cb(target, error);
+        } else if (!error.code) {
+            target->cb(target, resp);
         }
-            
+
         pc_lib_free((char*)target->base.msg);
         pc_lib_free((char*)target->base.route);
 

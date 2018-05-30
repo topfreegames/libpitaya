@@ -39,11 +39,11 @@
 - (IBAction)onConnectBt:(id)sender {
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TCP;
-    pc_client_t* client = (pc_client_t*)malloc(pc_client_size());
     
+    pc_client_init_result_t result = pc_client_init(NULL, &config);
+    
+    pc_client_t* client = result.client;
     [self.clients addObject:[NSValue valueWithBytes:&client objCType:@encode(pc_client_t*)]];
-    
-    pc_client_init(client, NULL, &config);
     client->config.reconn_delay = 10;
     pc_client_add_ev_handler(client, event_cb, NULL, NULL);
     NSArray<NSString*>* address = [[_serverAddressTF text] componentsSeparatedByString:@":"];
@@ -60,7 +60,7 @@ static void event_cb(pc_client_t* client, int ev_type, void* ex_data, const char
            arg1 ? arg1 : "", arg2 ? arg2 : "");
 }
 
-static void request_cb(const pc_request_t* req, int rc, const char* resp)
+static void request_cb(const pc_request_t* req, const char* resp)
 {
     printf("test get resp %s \n", resp);
     printf("test get request msg %s \n", req->base.msg);
@@ -89,7 +89,7 @@ static void request_cb(const pc_request_t* req, int rc, const char* resp)
     for(NSValue *value in self.clients){
         pc_client_t* client;
         [value getValue:&client];
-        pc_request_with_timeout(client, [@"metagame.playerHandler.authenticate" cString], [@"{}" cString], NULL, 10, request_cb, NULL);
+        pc_request_with_timeout(client, [@"connector.getsessiondata" cString], [@"{}" cString], NULL, 10, request_cb, NULL);
     }
 }
 

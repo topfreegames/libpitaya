@@ -35,51 +35,39 @@
 #define NOTI_EX ((void*)0x33)
 #define NOTI_TIMEOUT 30
 
-#define MOCK_TCP_PORT 4000
-#define MOCK_TLS_PORT MOCK_TCP_PORT+1
+#define CRT "../../../../test/server/fixtures/ca.crt"
+#define INCORRECT_CRT "../../../../test/server/fixtures/ca_incorrect.crt"
+
+typedef struct {
+    int tcp_port;
+    int tls_port;
+} test_server_t;
+
+static test_server_t g_disconnect_mock_server = {4000, 4001};
+static test_server_t g_compression_mock_server = {4100, 4101};
+static test_server_t g_kick_mock_server = {4200, 4201};
+static test_server_t g_timeout_mock_server = {4300, 4301};
+static test_server_t g_destroy_socket_mock_server = {4400, 4401};
+static test_server_t g_test_server = {3251, 3252};
 
 #define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #define EV_HANDLER_EX ((void*)0x44)
 #define SERVER_PUSH "onPush"
 
-#define TCP_PORT 3251
-#define TLS_PORT (TCP_PORT+1)
-
-#define PC_CLIENT_CONFIG_TEST                         \
-{                                                     \
-    30, /* conn_timeout */                            \
-    false, /* enable_reconn */                            \
-    0, /* reconn_max_retry */           \
-    0, /* reconn_delay */                             \
-    0, /* reconn_delay_max */                        \
-    0, /* reconn_exp_backoff */                       \
-    0, /* enable_polling */                           \
-    NULL, /* local_storage_cb */                      \
-    NULL, /* ls_ex_data */                               \
-    PC_TR_NAME_UV_TCP /* transport_name */            \
-}
-
-static void
-quiet_log(int level, const char *msg, ...)
-{
-    // Use an empty log to avoid messing up the output of the tests.
-    // TODO: maybe print only logs of a certain level?
-}
-
-static int
-setup_pc_lib(void **state)
-{
-    pc_lib_init(quiet_log, NULL, NULL, NULL, NULL);
-//    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
-    return 0;
-}
-
-static int
-teardown_pc_lib(void **state)
-{
-    pc_lib_cleanup();
-    return 0;
+#define PC_CLIENT_CONFIG_TEST                    \
+{                                               \
+    30, /* conn_timeout */                      \
+    false, /* enable_reconn */                  \
+    0, /* reconn_max_retry */ \
+    0, /* reconn_delay */                   \
+    0, /* reconn_delay_max */              \
+    0, /* reconn_exp_backoff */             \
+    0, /* enable_polling */                 \
+    NULL, /* local_storage_cb */            \
+    NULL, /* ls_ex_data */                  \
+    PC_TR_NAME_UV_TCP, /* transport_name */ \
+    0 /* disable_compression */             \
 }
 
 #endif // TEST_COMMON_H

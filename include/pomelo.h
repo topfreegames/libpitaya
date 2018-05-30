@@ -55,17 +55,16 @@ extern "C" {
 typedef struct pc_client_s pc_client_t;
 typedef struct pc_request_s pc_request_t;
 typedef struct pc_notify_s pc_notify_t;
-    
+
 /**
  * client state
  */
-#define PC_ST_NOT_INITED 0
-#define PC_ST_INITED 1
-#define PC_ST_CONNECTING 2
-#define PC_ST_CONNECTED 3
-#define PC_ST_DISCONNECTING 4
-#define PC_ST_UNKNOWN 5
-#define PC_ST_COUNT 6
+#define PC_ST_INITED 0
+#define PC_ST_CONNECTING 1
+#define PC_ST_CONNECTED 2
+#define PC_ST_DISCONNECTING 3
+#define PC_ST_UNKNOWN 4
+#define PC_ST_COUNT 5
 
 
 /**
@@ -163,8 +162,13 @@ PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void
 
 PC_EXPORT void pc_lib_cleanup();
 
+typedef struct {
+    pc_client_t *client;
+    int rc;
+} pc_client_init_result_t;
+
 PC_EXPORT size_t pc_client_size();
-PC_EXPORT int pc_client_init(pc_client_t* client, void* ex_data, const pc_client_config_t* config);
+PC_EXPORT pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* config);
 PC_EXPORT int pc_client_connect(pc_client_t* client, const char* host, int port, const char* handshake_opts);
 PC_EXPORT int pc_client_disconnect(pc_client_t* client);
 PC_EXPORT int pc_client_cleanup(pc_client_t* client);
@@ -217,15 +221,24 @@ PC_EXPORT int pc_client_add_ev_handler(pc_client_t* client, pc_event_cb_t cb,
 PC_EXPORT int pc_client_rm_ev_handler(pc_client_t* client, int id);
 
 /**
+ * Error
+ */
+typedef struct {
+    char *code;
+    char *msg;
+    char *metadata;
+} pc_error_t;
+
+/**
  * Request
  */
-
-typedef void (*pc_request_cb_t)(const pc_request_t* req, int rc, const char* resp);
+typedef void (*pc_request_cb_t)(const pc_request_t* req, const char* resp);
+typedef void (*pc_request_error_cb_t)(const pc_request_t* req, pc_error_t error);
 
 /**
  * pc_request_t getters.
  *
- * All the getters should be called in pc_request_cb_t to access read-only 
+ * All the getters should be called in pc_request_cb_t to access read-only
  * properties of the current pc_request_t.
  *
  * User should not hold any references to pc_request_t.
@@ -240,13 +253,13 @@ PC_EXPORT void* pc_request_ex_data(const pc_request_t* req);
  * Initiate a request.
  */
 PC_EXPORT int pc_request_with_timeout(pc_client_t* client, const char* route,
-        const char* msg, void* ex_data, int timeout, pc_request_cb_t cb, pc_request_cb_t error_cb);
+        const char* msg, void* ex_data, int timeout, pc_request_cb_t cb, pc_request_error_cb_t error_cb);
 
 /**
  * Notify
  */
 
-typedef void (*pc_notify_cb_t)(const pc_notify_t* req, int rc);
+typedef void (*pc_notify_error_cb_t)(const pc_notify_t* req, pc_error_t error);
 
 /**
  * pc_notify_t getters.
@@ -266,7 +279,7 @@ PC_EXPORT void* pc_notify_ex_data(const pc_notify_t* notify);
  * Initiate a notify.
  */
 PC_EXPORT int pc_notify_with_timeout(pc_client_t* client, const char* route,
-        const char* msg, void* ex_data, int timeout, pc_notify_cb_t cb);
+        const char* msg, void* ex_data, int timeout, pc_notify_error_cb_t cb);
 
 /**
  * Utilities
@@ -283,10 +296,10 @@ PC_EXPORT const char* pc_client_rc_str(int rc);
 
 /**
  * Sets the certificates that the client trust in order to verify the server for TLS communication.
- * Returns `true` in case of success otherwise `false`. For more information, see
+ * Returns `PC_RC_OK` in case of success otherwise `PC_RC_ERROR`. For more information, see
  * https://www.openssl.org/docs/man1.0.2/ssl/SSL_CTX_load_verify_locations.html
  */
-bool tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
+PC_EXPORT int tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
 
 #endif /* uv_tls */
 
