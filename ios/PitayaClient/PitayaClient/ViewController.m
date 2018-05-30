@@ -67,6 +67,11 @@ static void request_cb(const pc_request_t* req, const char* resp)
     [[NSNotificationCenter defaultCenter] postNotificationName:@"gotResponse" object:NULL userInfo:@{@"message": [NSString stringWithCString:resp]}];
 }
 
+static void error_cb(const pc_request_t* req, pc_error_t error)
+{
+    NSLog(@"Error %@ %@", [NSString stringWithCString:error.code] , [NSString stringWithCString:error.msg]);
+}
+
 - (void)gotResponse:(NSNotification *) notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -89,7 +94,7 @@ static void request_cb(const pc_request_t* req, const char* resp)
     for(NSValue *value in self.clients){
         pc_client_t* client;
         [value getValue:&client];
-        pc_request_with_timeout(client, [@"connector.getsessiondata" cString], [@"{}" cString], NULL, 10, request_cb, NULL);
+        pc_request_with_timeout(client, [@"connector.getsessiondata" cString], [@"{}" cString], NULL, 10, request_cb, error_cb);
     }
 }
 
