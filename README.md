@@ -24,10 +24,31 @@ python setup.py install
 ```
 #### Generate native IDE project files by [gyp](https://gyp.gsrc.io/)
 
-    $ gyp --depth=. pomelo.gyp --generator-output=build [options]
+    $ make gyp-generic
+
+You can also run the gyp command by yourself. See the makefile for more information.
 
 options:
 
+- -Duv_library=[static_library | shared_library], `static_library` by default
+
+select the library type for libuv
+
+- -Dbuild_for_ios=[true | false], `false` by default
+
+building for ios or not
+
+- -Dpitaya_shared=[true | false], `false` by default
+
+if building pitaya as a shared library
+
+- -Duse_sys_openssl=[true | false], `false` by default
+
+if should use the system openssl
+
+- -Dbuild_pitaya_unity=[true | false], `false` by default
+
+if building the wrapper library for unity
 
 - -Dno_tls_support=[true | false], `false` by default
 
@@ -45,14 +66,6 @@ disable uv support, it also disable tls support as tls implementation is based o
 
 use system pre-install libuv, similar to `use_sys_openssl`, if enable, the pre-install libuv version should be 0.11.x
 
-- -Duse_sys_jansson=[true | false], `false` by default
-
-use system pre-install jansson.
-
-- -Dpomelo_library=[static_library | shared_library], `static_library` by default
-
-static library or shared library for libpomelo2
-
 - -Dbuild_pypomelo=[true | false], `false` by default.
 - -Dpython_header=<include path>, `/usr/include/python2.7` by default.
 
@@ -62,9 +75,8 @@ These two options is used to configure compilation for pypomelo.
 
 configure jpomelo compilation for java
 
-- -Dbuild_cspomelo=[true|false], `false` by default.
-
-configure cspomelo compilation for c#
+### Build your project
+`make build` if your project was generated in a standard way with ninja, otherwise the command may vary.
 
 Tests
 =====

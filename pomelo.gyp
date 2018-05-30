@@ -1,13 +1,14 @@
 {
   'variables': {
       'uv_library%': "static_library",
-      'build_for_linux%': "false",
-      'build_for_mac%': "false",
+      # 'build_for_linux%': "false",
+      # 'build_for_mac%': "false",
       'build_for_ios%': "false",
-      'build_for_windows%': "false",
+      # 'build_for_windows%': "false",
+      'pitaya_shared%': "false",
 
-      'pomelo_library%': "static_library",
-      'use_sys_openssl%': "true",
+      #'pomelo_library%': "static_library",
+      'use_sys_openssl%': "false",
       'library%': "static_library",
       'use_sys_uv%': "false",
       'use_sys_zlib%': "false",
@@ -16,17 +17,17 @@
       'build_pypomelo%': "false",
       'python_header%': "/usr/include/python2.7",
       'build_jpomelo%': "false",
-      'build_cspomelo%': "false",
+      'build_pitaya_unity%': "false",
       'build_type%': "Release",
       'use_xcode%': "false",
 
       'conditions': [
         ['OS == "android"', {
-          'pitaya_target%': "pitaya_android",
-          'pitaya_unity_target%': "pitaya_unity_android",
+          'pitaya_target_name%': "pitaya_android",
+          'pitaya_unity_target_name%': "pitaya_unity_android",
         }, {
-          'pitaya_target%': "pitaya",
-          'pitaya_unity_target%': "pitaya_unity",
+          'pitaya_target_name%': "pitaya",
+          'pitaya_unity_target_name%': "pitaya_unity",
         }]
       ],
   },
@@ -82,15 +83,15 @@
         ['OS == "android"', {
           'defines': ['__ANDROID__'],
         }],
-	    ['use_sys_zlib == "true"', {
-	      'link_settings': {
-	        'libraries': ['-lz'],
-	      },
-	    }, {
+        ['use_sys_zlib == "true"', {
+          'link_settings': {
+            'libraries': ['-lz'],
+          },
+        }, {
           'dependencies': [
-	        './deps/zlib/zlib.gyp:zlib',
+            './deps/zlib/zlib.gyp:zlib',
           ],
-	    }],
+        }],
         [ 'no_uv_support == "false"', {
           'conditions' : [
             ['use_sys_uv == "false"', {
@@ -105,48 +106,48 @@
                 'libraries': ['-luv']
               }
             }], # use_sys_uv
-        ['no_tls_support == "false"', {
-          'conditions': [
-            ['use_sys_openssl == "false"', {
-              'dependencies': [
-                './deps/openssl/openssl.gyp:openssl',
-              ],
-              'include_dirs': [
-                './deps/openssl/openssl/include',
-              ]
-            }, {
+            ['no_tls_support == "false"', {
               'conditions': [
-                [ 'OS=="win"', {
-                  'libraries': [
-                    'C:/OpenSSL-Win64/lib/libeay32.lib',
-                    'C:/OpenSSL-Win64/lib/ssleay32.lib',
+                ['use_sys_openssl == "false"', {
+                  'dependencies': [
+                    './deps/openssl/openssl.gyp:openssl',
                   ],
-                  'include_dirs': [
-                    'C:/OpenSSL-Win64/include',
-                  ],
-                }, {
                   'include_dirs': [
                     './deps/openssl/openssl/include',
+                  ]
+                }, {
+                  'conditions': [
+                    [ 'OS=="win"', {
+                      'libraries': [
+                        'C:/OpenSSL-Win64/lib/libeay32.lib',
+                        'C:/OpenSSL-Win64/lib/ssleay32.lib',
+                      ],
+                      'include_dirs': [
+                        'C:/OpenSSL-Win64/include',
+                      ],
+                    }, {
+                      'include_dirs': [
+                        './deps/openssl/openssl/include',
+                      ],
+                      'link_settings': {
+                        'libraries': [
+                          '-lssl',
+                          '-lcrypto',
+                        ],
+                      },
+                    }],
                   ],
-                  'link_settings': {
-                    'libraries': [
-                      '-lssl',
-                      '-lcrypto',
-                    ],
-                  },
-                }],
+                }], # use_sys_openssl
               ],
-            }], # use_sys_openssl
-          ],
-        }],  # no tls support
-        ]
-      }], # no uv support
+            }],  # no tls support
+          ]
+        }], # no uv support
       ],
     },
 
     'targets': [
       {
-        'target_name': '<(pitaya_target)',
+        'target_name': '<(pitaya_target_name)',
         'include_dirs': [
           './include',
           './src',
@@ -175,11 +176,11 @@
               '-march=armv7-a',
               '-mthumb',
             ],
-	     'link_settings': {
-	       'libraries': ['-pie'],
-	     },
+            'link_settings': {
+              'libraries': ['-pie'],
+            },
           }],
-          ['build_for_mac == "true" or build_for_ios == "true"', {
+          ['pitaya_shared == "false"', {
             'type': 'static_library',
           }, {
             'type': 'shared_library',
@@ -201,10 +202,10 @@
                   './src/tr/uv/tr_uv_tls.c',
                   './src/tr/uv/tr_uv_tls_i.c',
                   './src/tr/uv/tr_uv_tls_aux.c',
-                ]}, {
-                  'defines': ['PC_NO_UV_TLS_TRANS']
-                }
-              ], # no tls support
+                ]
+              }, {
+                'defines': ['PC_NO_UV_TLS_TRANS']
+              }], # no tls support
             ]}, {
               'defines': ['PC_NO_UV_TCP_TRANS']
             }
@@ -219,7 +220,7 @@
             'target_name': 'tests',
             'type': 'executable',
             'dependencies': [
-              '<(pitaya_target)',
+              '<(pitaya_target_name)',
             ],
             'include_dirs': [
               './include/',
@@ -248,7 +249,7 @@
           'target_name': 'pypomelo',
           'type': 'shared_library',
           'dependencies': [
-            '<(pitaya_target)',
+            '<(pitaya_target_name)',
           ],
           'include_dirs': [
             './include/',
@@ -264,7 +265,7 @@
           'target_name': 'jpomelo',
           'type': 'shared_library',
           'dependencies': [
-            '<(pitaya_target)',
+            '<(pitaya_target_name)',
           ],
           'include_dirs': [
             './include/',
@@ -274,37 +275,35 @@
           ],
         }],
       }],
-      ['build_cspomelo == "true"', {
-        'conditions': [
-          ['build_for_linux == "true" or build_for_mac == "true" or build_for_windows == "true"', {
-            'targets':[ {
-              'target_name': '<(pitaya_unity_target)',
-              'type': 'shared_library',
-              'dependencies': [
-                '<(pitaya_target)',
-              ],
-              'conditions': [
-                ['OS!="win"', {
-                  'cflags': ['-fPIC'],
-                }],
-                ['build_for_mac == "true"', {
-                  'product_extension': 'bundle',
-                }],
-              ],
-              'include_dirs': [
-                './include/',
-              ],
-              'sources': [
-                './cs/contrib/cspomelo.c',
-              ],
+      ['build_pitaya_unity == "true"', {
+        'targets':[{
+          'target_name': '<(pitaya_unity_target_name)',
+          'type': 'shared_library',
+          'dependencies': [
+            '<(pitaya_target_name)',
+          ],
+          'conditions': [
+            ['OS!="win"', {
+              'cflags': ['-fPIC'],
             }],
-          }],
+            ['OS == "mac"', {
+              'product_extension': 'bundle',
+            }],
+          ],
+          'include_dirs': [
+            './include/',
+          ],
+          'sources': [
+            './cs/contrib/cspomelo.c',
+          ],
+        }],
+        'conditions': [
           ['build_for_ios == "true"', {
-            'targets':[ {
+            'targets':[{
               'target_name': 'pitaya_unity_ios',
               'type': 'static_library',
               'dependencies': [
-                '<(pitaya_target)',
+                '<(pitaya_target_name)',
               ],
               'conditions': [
                 ['OS!="win"', {
