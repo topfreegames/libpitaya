@@ -13,11 +13,9 @@
 			buildPhases = (
 			);
 			dependencies = (
-				5FC0A805E45499A4279844A5 /* PBXTargetDependency */,
-				2E11C05E845BE2BE2D93952D /* PBXTargetDependency */,
-				053978E7F888580A26DD1043 /* PBXTargetDependency */,
-				3A7DE16EBD13819CF6152E6B /* PBXTargetDependency */,
-				F6320CB8E9F00B47C9744CB5 /* PBXTargetDependency */,
+				420AEC40ADC3E6CA8DA39C8E /* PBXTargetDependency */,
+				93CE62CB19C8FD583016AB28 /* PBXTargetDependency */,
+				AE78CDFFBD50C2DC06A7658A /* PBXTargetDependency */,
 			);
 			name = All;
 			productName = All;
@@ -25,127 +23,117 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		0266A1628835DC8FB6AE8B13 /* libopenssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10DC97970611A9A5438E1F67 /* libopenssl.a */; };
-		112750CBCCEF0309AD8E399F /* pc_pomelo.c in Sources */ = {isa = PBXBuildFile; fileRef = D431CB24B7674046796C32BC /* pc_pomelo.c */; };
-		1AA0F7BC6C02D4A15981E162 /* pr_pkg.c in Sources */ = {isa = PBXBuildFile; fileRef = 0CF2789E0EDBC6B7F90765B7 /* pr_pkg.c */; };
-		1CFB26CC29693083D6C0A954 /* -lz in Frameworks */ = {isa = PBXBuildFile; fileRef = 093CD76A99A4777E18A36432 /* -lz */; };
-		261A3C3EDE7C7C45CB949868 /* pr_msg_json.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2E06465E2F68AA0271B6 /* pr_msg_json.c */; };
-		2DE6C5B7CFADA00DACA09B09 /* pc_trans.c in Sources */ = {isa = PBXBuildFile; fileRef = EA98E9833D3892875EC73031 /* pc_trans.c */; };
-		300A2C49FBA454F01B3B1260 /* tr_uv_tcp_i.c in Sources */ = {isa = PBXBuildFile; fileRef = EE29283DE5BBE2DFBCBABA55 /* tr_uv_tcp_i.c */; };
-		4009D93514EC94BF22801159 /* libpomelo2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62F0DEA8E45833ABE17C7E9B /* libpomelo2.a */; };
-		44A1E53F76D163DEAE899EED /* -lm in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3D9D957938AAB4ECC2C2AD /* -lm */; };
-		45E07AF088B7E00838F46C83 /* pc_trans_repo.c in Sources */ = {isa = PBXBuildFile; fileRef = A0053F518F8F7D270B0412C4 /* pc_trans_repo.c */; };
-		4CCF9A69CEB84D9818A408AD /* tr_uv_tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 99A17CF0FD07388D32D98CF3 /* tr_uv_tls.c */; };
-		4FAA3AB4E48230EA5E12972F /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED6ADD425B0036DEE678188C /* libuv.a */; };
-		56AD66AEBDC8F7BBEF81A86C /* -lm in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3D9D957938AAB4ECC2C2AD /* -lm */; };
-		74F79705EFF4D3A80A4C2B6E /* pc_JSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 76B65CED397920478E0273C0 /* pc_JSON.c */; };
-		771F7AD0614D645D2180B673 /* -lcmocka in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A79260156929195321B5850 /* -lcmocka */; };
-		7A32157A77E8489F9575BAB6 /* tr_uv_tls_aux.c in Sources */ = {isa = PBXBuildFile; fileRef = D72DE8C81F064C236B4C78B9 /* tr_uv_tls_aux.c */; };
-		80F9480AB9F1B2BD22F777DA /* -lz in Frameworks */ = {isa = PBXBuildFile; fileRef = 093CD76A99A4777E18A36432 /* -lz */; };
-		821EF6AA4FA9937392A87F43 /* pr_gzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE5F93353B338C5BEF3CB9F /* pr_gzip.c */; };
-		852318045AC08FFB55B6C46F /* tr_uv_tls_i.c in Sources */ = {isa = PBXBuildFile; fileRef = B94C84D2881FA8FB586B958A /* tr_uv_tls_i.c */; };
-		8F7BB514C222F9B221622CCA /* pc_lib.c in Sources */ = {isa = PBXBuildFile; fileRef = D21C3122B6C6B268B046AEF7 /* pc_lib.c */; };
-		9679507E535C821EA5B42C02 /* pr_msg.c in Sources */ = {isa = PBXBuildFile; fileRef = EE190493AADBB17FF4BDFAF1 /* pr_msg.c */; };
-		99CD6C41A416CE82491F4638 /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED6ADD425B0036DEE678188C /* libuv.a */; };
-		9AF42E10A974E96697B01D47 /* tr_uv_tcp_aux.c in Sources */ = {isa = PBXBuildFile; fileRef = 3019116ACA04B0193690BC32 /* tr_uv_tcp_aux.c */; };
-		9B4F1269680418633C35486A /* -lcmocka in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A79260156929195321B5850 /* -lcmocka */; };
-		A78430FDF28E96039EF29866 /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED6ADD425B0036DEE678188C /* libuv.a */; };
-		B934F5340BC0F1D50AB75E4D /* libpomelo2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62F0DEA8E45833ABE17C7E9B /* libpomelo2.a */; };
-		BB2AF6A244E7928A1DD08096 /* -lz in Frameworks */ = {isa = PBXBuildFile; fileRef = 093CD76A99A4777E18A36432 /* -lz */; };
-		C688BD96D169156393E8C867 /* test-tr_tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = 74251F2188A6E561B93FB3D6 /* test-tr_tcp.c */; };
-		D0420BAA0272656E69ECFE99 /* tr_dummy.c in Sources */ = {isa = PBXBuildFile; fileRef = 1B5FA4BFCCD305A28C0B9049 /* tr_dummy.c */; };
-		DE2C4D385D8E6F7222F16989 /* tr_uv_tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = A6C50EA22A74B59BC9D6176B /* tr_uv_tcp.c */; };
-		DEDB7520521ABD9801C9294A /* libopenssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10DC97970611A9A5438E1F67 /* libopenssl.a */; };
-		E00D1382C4CE83367C38DF3F /* libpomelo2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62F0DEA8E45833ABE17C7E9B /* libpomelo2.a */; };
-		E0884B94094C6911F3306425 /* libopenssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10DC97970611A9A5438E1F67 /* libopenssl.a */; };
-		E153E0FDBCD8955DC2E5DD6D /* -lm in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3D9D957938AAB4ECC2C2AD /* -lm */; };
-		E16CCA1BEABB4ECC1DEDC30D /* -lm in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3D9D957938AAB4ECC2C2AD /* -lm */; };
-		F170ADACDF856A07E9901614 /* test-tr_dummy.c in Sources */ = {isa = PBXBuildFile; fileRef = DCA161FECB262D431968B6DB /* test-tr_dummy.c */; };
-		F239D58BE2268D1AA0EB24E8 /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED6ADD425B0036DEE678188C /* libuv.a */; };
-		F2A3AA25632BD159B1A178B1 /* libpomelo2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62F0DEA8E45833ABE17C7E9B /* libpomelo2.a */; };
-		F5C37E8916C1FC7065EDCDD5 /* cspomelo.c in Sources */ = {isa = PBXBuildFile; fileRef = 92240B52CAD0DCB74BFBE8D8 /* cspomelo.c */; };
-		F5C719BF21DB553E7F970265 /* -lz in Frameworks */ = {isa = PBXBuildFile; fileRef = 093CD76A99A4777E18A36432 /* -lz */; };
-		FA160611A4AF318C3476CF7C /* libopenssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10DC97970611A9A5438E1F67 /* libopenssl.a */; };
-		FD6B139939CDA17D29E61BEC /* test-tr_tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 55556D5804B6E2EABD6288DA /* test-tr_tls.c */; };
+		0A04F234234C06CFF0766232 /* test_kick.c in Sources */ = {isa = PBXBuildFile; fileRef = 9108766608100716CA22B863 /* test_kick.c */; };
+		0C5D67A2EBD04D16F8DD7ADC /* pc_pomelo.c in Sources */ = {isa = PBXBuildFile; fileRef = D431CB24B7674046796C32BC /* pc_pomelo.c */; };
+		0E3B40F20FB40F3B7999C32E /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BDFD6793E9DB0C171AA4F62 /* libzlib.a */; };
+		1EF56CDE7594F6518166422D /* pc_trans_repo.c in Sources */ = {isa = PBXBuildFile; fileRef = A0053F518F8F7D270B0412C4 /* pc_trans_repo.c */; };
+		218F812345028D23CECCBC20 /* tr_dummy.c in Sources */ = {isa = PBXBuildFile; fileRef = 1B5FA4BFCCD305A28C0B9049 /* tr_dummy.c */; };
+		269FAE1B997673EDAC8C65D4 /* tr_uv_tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = A6C50EA22A74B59BC9D6176B /* tr_uv_tcp.c */; };
+		3474D85AA88FEFC223DA645F /* pr_pkg.c in Sources */ = {isa = PBXBuildFile; fileRef = 0CF2789E0EDBC6B7F90765B7 /* pr_pkg.c */; };
+		3F17109A79D65D988EFA0951 /* munit.c in Sources */ = {isa = PBXBuildFile; fileRef = 6156655767ADB9D0D493F0E3 /* munit.c */; };
+		48C0593D198EC949B6231B0B /* test_notify.c in Sources */ = {isa = PBXBuildFile; fileRef = 30014FDAA02607DA0B5ADFEA /* test_notify.c */; };
+		4F22F6D6FA5274AFD6D6270A /* libopenssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10DC97970611A9A5438E1F67 /* libopenssl.a */; };
+		5073A7EA1A37E48324FDF797 /* test-tr_tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = 74251F2188A6E561B93FB3D6 /* test-tr_tcp.c */; };
+		59D44BB2D46CDC8FE6B5D006 /* pr_gzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE5F93353B338C5BEF3CB9F /* pr_gzip.c */; };
+		5E86EEFAB227F8B15C5EEB6D /* pr_msg_json.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2E06465E2F68AA0271B6 /* pr_msg_json.c */; };
+		65C3FD1641E942B6D88EFF62 /* pc_trans.c in Sources */ = {isa = PBXBuildFile; fileRef = EA98E9833D3892875EC73031 /* pc_trans.c */; };
+		67ECB708FBC8AE6E523E9E67 /* tr_uv_tcp_aux.c in Sources */ = {isa = PBXBuildFile; fileRef = 3019116ACA04B0193690BC32 /* tr_uv_tcp_aux.c */; };
+		6BA97DA9E7FEE13EB2D08503 /* -lm in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3D9D957938AAB4ECC2C2AD /* -lm */; };
+		6C9F0E499F6631807F0519E3 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BDFD6793E9DB0C171AA4F62 /* libzlib.a */; };
+		75290DD0A26DE802D93701EF /* test_request.c in Sources */ = {isa = PBXBuildFile; fileRef = DEFC87509A90889FFBE76A4A /* test_request.c */; };
+		7C4A580DAA39840FBE6455EC /* pr_msg.c in Sources */ = {isa = PBXBuildFile; fileRef = EE190493AADBB17FF4BDFAF1 /* pr_msg.c */; };
+		817B711635B5C4A832288B55 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D946DEA9BFFD62C2B39C48E /* main.c */; };
+		830509A7C76FBDDDB6A45AF5 /* pc_JSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 76B65CED397920478E0273C0 /* pc_JSON.c */; };
+		86671B488B4E3B1CC56344B1 /* tr_uv_tcp_i.c in Sources */ = {isa = PBXBuildFile; fileRef = EE29283DE5BBE2DFBCBABA55 /* tr_uv_tcp_i.c */; };
+		904C0FD8290E4E7DEC455E10 /* -lm in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3D9D957938AAB4ECC2C2AD /* -lm */; };
+		90CB19DBDF26CD1F71B20900 /* libpitaya.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 798253CDC52C3473D6C7966A /* libpitaya.a */; };
+		92CA46925809166571097D79 /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED6ADD425B0036DEE678188C /* libuv.a */; };
+		9E51B574A261E3E81AE282DC /* test_pc_client.c in Sources */ = {isa = PBXBuildFile; fileRef = F625DFF6EB54892A7C9C08F8 /* test_pc_client.c */; };
+		B2A94B804D3193A643A44668 /* test_session.c in Sources */ = {isa = PBXBuildFile; fileRef = DE3E558FBA7F67A065EC2767 /* test_session.c */; };
+		B30B0D1C41CA605DC2D91BD8 /* cspomelo.c in Sources */ = {isa = PBXBuildFile; fileRef = 92240B52CAD0DCB74BFBE8D8 /* cspomelo.c */; };
+		BB9EEA2CCACCDB7D7FD84369 /* test_reconnection.c in Sources */ = {isa = PBXBuildFile; fileRef = 98C1F2450BCE73666B11571B /* test_reconnection.c */; };
+		CA440914A89D25AED413A40E /* test_compression.c in Sources */ = {isa = PBXBuildFile; fileRef = F5CE3FCACB5C556E2BB589E1 /* test_compression.c */; };
+		D00FA5A759029DC371FD349E /* test_stress.c in Sources */ = {isa = PBXBuildFile; fileRef = 8E58A47EFE470FB388E356AA /* test_stress.c */; };
+		DF6D660B7BCB68AAACDEF8C4 /* libopenssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10DC97970611A9A5438E1F67 /* libopenssl.a */; };
+		E2F4CE74832413090BA073F6 /* tr_uv_tls_i.c in Sources */ = {isa = PBXBuildFile; fileRef = B94C84D2881FA8FB586B958A /* tr_uv_tls_i.c */; };
+		E943C4D65213D51A5E7489A7 /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED6ADD425B0036DEE678188C /* libuv.a */; };
+		ECCE108E271DE2958D0C34EA /* tr_uv_tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 99A17CF0FD07388D32D98CF3 /* tr_uv_tls.c */; };
+		EEE1B24CBBF827205B40D829 /* libpitaya.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 798253CDC52C3473D6C7966A /* libpitaya.a */; };
+		F6FFCBBBF7A3F960A850B799 /* test-tr_tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 55556D5804B6E2EABD6288DA /* test-tr_tls.c */; };
+		FAF324DB234930BDFAD888AA /* tr_uv_tls_aux.c in Sources */ = {isa = PBXBuildFile; fileRef = D72DE8C81F064C236B4C78B9 /* tr_uv_tls_aux.c */; };
+		FE7DA27424D4819CA9BB167E /* pc_lib.c in Sources */ = {isa = PBXBuildFile; fileRef = D21C3122B6C6B268B046AEF7 /* pc_lib.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		02E705CF190EFF3564B0C4E7 /* PBXContainerItemProxy */ = {
+		05A81609B15D81D44720FD86 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */;
+			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9CDDC22BAC5D007CF9D0AE11;
+			remoteInfo = pitaya;
+		};
+		079CB2489118288CBD8D67A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7A07FC53B4A81000D3378BC7 /* uv.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = 178071661CB321BB5A46AC92;
 			remoteInfo = libuv;
 		};
-		038BB0B7A2828A0585BE2181 /* PBXContainerItemProxy */ = {
+		19F422D7FD85EAF0EDD5000D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CF860C12839DB42D74918F38 /* openssl.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = E53F90E6C0DABF34DAEBCE16;
 			remoteInfo = openssl;
 		};
-		220A03CD036CD4F7780401F0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 178071661CB321BB5A46AC92;
-			remoteInfo = libuv;
-		};
-		23B8B08B02C46231F84EB0FC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE993B0056508A5898C66348;
-			remoteInfo = tr_dummy;
-		};
-		349767C1A612A6A1FA26703F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3A43BE8C37C089000CACAC46;
-			remoteInfo = libpomelo2;
-		};
-		3CB160290BE48147078213F5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2481CC6FAF8B3915D30388A4;
-			remoteInfo = cspomelo;
-		};
-		42B8A6D915480A2AB0478139 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3A43BE8C37C089000CACAC46;
-			remoteInfo = libpomelo2;
-		};
-		622752EBB7D0C6F5C11ECE3C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 178071661CB321BB5A46AC92;
-			remoteInfo = libuv;
-		};
-		68DFA1B21A5B66C0036E9953 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 1366FBDA3B41EA03E9CC86CA;
-			remoteInfo = libuv;
-		};
-		76C1A3D03972BFE51EDD6FE0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3A43BE8C37C089000CACAC46;
-			remoteInfo = libpomelo2;
-		};
-		774F8D99B09A407B3A2C97EF /* PBXContainerItemProxy */ = {
+		2EA4364968A59CCFFE25570E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CF860C12839DB42D74918F38 /* openssl.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 5344D032AA9ACA94B2144BC7;
-			remoteInfo = "openssl-cli";
+			proxyType = 1;
+			remoteGlobalIDString = E53F90E6C0DABF34DAEBCE16;
+			remoteInfo = openssl;
+		};
+		38253A3AB50FC0A7681F6B24 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F3992F0E555B18D6A666941;
+			remoteInfo = pitaya_unity;
+		};
+		3EEF891FF19C2BE5E3EAB792 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9CDDC22BAC5D007CF9D0AE11;
+			remoteInfo = pitaya;
+		};
+		483A020D1268DF801F985B61 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96F42E79D13B2C9EF80282B9 /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CFE557433A4D2EFFDC01DBB4;
+			remoteInfo = zlib;
+		};
+		5E70DD8B1FC19B1869732097 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 67DA0152ECBEF498CF1C1BB7;
+			remoteInfo = tests;
+		};
+		679FBE3BE9B3908152D85D25 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7A07FC53B4A81000D3378BC7 /* uv.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 178071661CB321BB5A46AC92;
+			remoteInfo = libuv;
+		};
+		8103516B251ABEC07722A02F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96F42E79D13B2C9EF80282B9 /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CFE557433A4D2EFFDC01DBB4;
+			remoteInfo = zlib;
 		};
 		867BE86FB145A742547E8908 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -154,183 +142,105 @@
 			remoteGlobalIDString = F74C97A4930ACE0A652ECF70;
 			remoteInfo = openssl;
 		};
-		87FA2C2F280520BD2C47B969 /* PBXContainerItemProxy */ = {
+		8A45E649941C9A77DAD60962 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = CF860C12839DB42D74918F38 /* openssl.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = E53F90E6C0DABF34DAEBCE16;
-			remoteInfo = openssl;
-		};
-		9789B91CA6486195FB9FDDC7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C8E2016839800AC8FE11D1A7;
-			remoteInfo = tr_tcp;
-		};
-		A2A3F50F12C494DEB02AB9A1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */;
+			containerPortal = 7A07FC53B4A81000D3378BC7 /* uv.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 0F9AD78A28D4AB83078B4C46;
-			remoteInfo = "run-benchmarks";
-		};
-		A40C635E5BE13E3F1D185CBB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CF860C12839DB42D74918F38 /* openssl.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = E53F90E6C0DABF34DAEBCE16;
-			remoteInfo = openssl;
-		};
-		AA979455464E30C9DF5E593B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3A43BE8C37C089000CACAC46;
-			remoteInfo = libpomelo2;
-		};
-		ACC67237571FA010F00BEBA9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 178071661CB321BB5A46AC92;
+			remoteGlobalIDString = 1366FBDA3B41EA03E9CC86CA;
 			remoteInfo = libuv;
 		};
-		B3E42981455C57B7D07325EB /* PBXContainerItemProxy */ = {
+		950B161C4BB0D5280B2A4016 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = BC097D074417BCE15665BA09;
-			remoteInfo = tr_tls;
+			remoteGlobalIDString = 9CDDC22BAC5D007CF9D0AE11;
+			remoteInfo = pitaya;
 		};
-		B46AF22C4827DF3E34338263 /* PBXContainerItemProxy */ = {
+		D4D204859CA0BD928F28DE2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = CF860C12839DB42D74918F38 /* openssl.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = E53F90E6C0DABF34DAEBCE16;
-			remoteInfo = openssl;
-		};
-		F5CA0415D445134CAFAF7CF2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB04EA159A88EB1C62BF850F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3A43BE8C37C089000CACAC46;
-			remoteInfo = libpomelo2;
-		};
-		FD4787FFAD9D26880E580E3B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */;
+			containerPortal = 96F42E79D13B2C9EF80282B9 /* zlib.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 64757BCA7335FEFCED9A25EC;
-			remoteInfo = "run-tests";
+			remoteGlobalIDString = 71C051910E94E0D5C79129A5;
+			remoteInfo = zlib;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		01FB2E06465E2F68AA0271B6 /* pr_msg_json.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pr_msg_json.c; sourceTree = "<group>"; };
-		093CD76A99A4777E18A36432 /* -lz */ = {isa = PBXFileReference; lastKnownFileType = text; path = "-lz"; sourceTree = "<group>"; };
-		0A79260156929195321B5850 /* -lcmocka */ = {isa = PBXFileReference; lastKnownFileType = text; path = "-lcmocka"; sourceTree = "<group>"; };
 		0CF2789E0EDBC6B7F90765B7 /* pr_pkg.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pr_pkg.c; sourceTree = "<group>"; };
+		171A4BF420C853C5009082CC /* pc_assert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pc_assert.h; sourceTree = "<group>"; };
 		1B5FA4BFCCD305A28C0B9049 /* tr_dummy.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_dummy.c; sourceTree = "<group>"; };
 		1FE5F93353B338C5BEF3CB9F /* pr_gzip.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pr_gzip.c; sourceTree = "<group>"; };
-		2718DEBE295BDD2D518D8D74 /* tr_tcp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tr_tcp; sourceTree = BUILT_PRODUCTS_DIR; };
+		30014FDAA02607DA0B5ADFEA /* test_notify.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_notify.c; sourceTree = "<group>"; };
 		3019116ACA04B0193690BC32 /* tr_uv_tcp_aux.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_uv_tcp_aux.c; sourceTree = "<group>"; };
-		38AFAAA128C914831FA6BC2A /* libcspomelo.bundle */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcspomelo.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		55556D5804B6E2EABD6288DA /* test-tr_tls.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "test-tr_tls.c"; sourceTree = "<group>"; };
-		62F0DEA8E45833ABE17C7E9B /* libpomelo2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpomelo2.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		6156655767ADB9D0D493F0E3 /* munit.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = munit.c; sourceTree = "<group>"; };
 		74251F2188A6E561B93FB3D6 /* test-tr_tcp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "test-tr_tcp.c"; sourceTree = "<group>"; };
-		7657AD9331F073E68AD51565 /* tr_dummy */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tr_dummy; sourceTree = BUILT_PRODUCTS_DIR; };
 		76B65CED397920478E0273C0 /* pc_JSON.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pc_JSON.c; sourceTree = "<group>"; };
-		862287A5488F635D3C2CBA77 /* tr_tls */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tr_tls; sourceTree = BUILT_PRODUCTS_DIR; };
+		798253CDC52C3473D6C7966A /* libpitaya.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpitaya.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A07FC53B4A81000D3378BC7 /* uv.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = uv.xcodeproj; path = deps/libuv/uv.xcodeproj; sourceTree = SOURCE_ROOT; };
+		8D946DEA9BFFD62C2B39C48E /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		8E58A47EFE470FB388E356AA /* test_stress.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_stress.c; sourceTree = "<group>"; };
+		9108766608100716CA22B863 /* test_kick.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_kick.c; sourceTree = "<group>"; };
 		91331A4C5B3CAAFD66B08AF9 /* pomelo.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = pomelo.gyp; sourceTree = "<group>"; };
 		92240B52CAD0DCB74BFBE8D8 /* cspomelo.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cspomelo.c; sourceTree = "<group>"; };
+		96F42E79D13B2C9EF80282B9 /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = deps/zlib/zlib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		98C1F2450BCE73666B11571B /* test_reconnection.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_reconnection.c; sourceTree = "<group>"; };
 		99A17CF0FD07388D32D98CF3 /* tr_uv_tls.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_uv_tls.c; sourceTree = "<group>"; };
 		A0053F518F8F7D270B0412C4 /* pc_trans_repo.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pc_trans_repo.c; sourceTree = "<group>"; };
+		A2A808532D7B2CF260CB19E3 /* libpitaya_unity.bundle */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpitaya_unity.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6C50EA22A74B59BC9D6176B /* tr_uv_tcp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_uv_tcp.c; sourceTree = "<group>"; };
+		ABE15A0EA6CEACFABA70F04E /* tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		B94C84D2881FA8FB586B958A /* tr_uv_tls_i.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_uv_tls_i.c; sourceTree = "<group>"; };
-		C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = uv.xcodeproj; path = deps/uv/uv.xcodeproj; sourceTree = SOURCE_ROOT; };
 		CE3D9D957938AAB4ECC2C2AD /* -lm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "-lm"; sourceTree = "<group>"; };
 		CF860C12839DB42D74918F38 /* openssl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openssl.xcodeproj; path = deps/openssl/openssl.xcodeproj; sourceTree = SOURCE_ROOT; };
 		D21C3122B6C6B268B046AEF7 /* pc_lib.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pc_lib.c; sourceTree = "<group>"; };
 		D431CB24B7674046796C32BC /* pc_pomelo.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pc_pomelo.c; sourceTree = "<group>"; };
 		D72DE8C81F064C236B4C78B9 /* tr_uv_tls_aux.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_uv_tls_aux.c; sourceTree = "<group>"; };
-		DCA161FECB262D431968B6DB /* test-tr_dummy.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "test-tr_dummy.c"; sourceTree = "<group>"; };
+		DE3E558FBA7F67A065EC2767 /* test_session.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_session.c; sourceTree = "<group>"; };
+		DEFC87509A90889FFBE76A4A /* test_request.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_request.c; sourceTree = "<group>"; };
 		EA98E9833D3892875EC73031 /* pc_trans.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pc_trans.c; sourceTree = "<group>"; };
 		EE190493AADBB17FF4BDFAF1 /* pr_msg.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pr_msg.c; sourceTree = "<group>"; };
 		EE29283DE5BBE2DFBCBABA55 /* tr_uv_tcp_i.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_uv_tcp_i.c; sourceTree = "<group>"; };
+		F5CE3FCACB5C556E2BB589E1 /* test_compression.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_compression.c; sourceTree = "<group>"; };
+		F625DFF6EB54892A7C9C08F8 /* test_pc_client.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_pc_client.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0E75073767393FA28718BBB4 /* Frameworks */ = {
+		0132621AC51E043EEAD10FA0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		ADF57A32F0CB0765696BF4E1 /* Frameworks */ = {
+		B0502918AC2CBBD012339E1E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A78430FDF28E96039EF29866 /* libuv.a in Frameworks */,
-				FA160611A4AF318C3476CF7C /* libopenssl.a in Frameworks */,
-				F2A3AA25632BD159B1A178B1 /* libpomelo2.a in Frameworks */,
-				56AD66AEBDC8F7BBEF81A86C /* -lm in Frameworks */,
-				BB2AF6A244E7928A1DD08096 /* -lz in Frameworks */,
+				0E3B40F20FB40F3B7999C32E /* libzlib.a in Frameworks */,
+				E943C4D65213D51A5E7489A7 /* libuv.a in Frameworks */,
+				DF6D660B7BCB68AAACDEF8C4 /* libopenssl.a in Frameworks */,
+				EEE1B24CBBF827205B40D829 /* libpitaya.a in Frameworks */,
+				904C0FD8290E4E7DEC455E10 /* -lm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BD6EA51D33EDEE5D72192838 /* Frameworks */ = {
+		CB86A3228906DA5CEB071947 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F239D58BE2268D1AA0EB24E8 /* libuv.a in Frameworks */,
-				DEDB7520521ABD9801C9294A /* libopenssl.a in Frameworks */,
-				4009D93514EC94BF22801159 /* libpomelo2.a in Frameworks */,
-				E16CCA1BEABB4ECC1DEDC30D /* -lm in Frameworks */,
-				F5C719BF21DB553E7F970265 /* -lz in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EB86453869F5CE75493317BE /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				99CD6C41A416CE82491F4638 /* libuv.a in Frameworks */,
-				0266A1628835DC8FB6AE8B13 /* libopenssl.a in Frameworks */,
-				E00D1382C4CE83367C38DF3F /* libpomelo2.a in Frameworks */,
-				9B4F1269680418633C35486A /* -lcmocka in Frameworks */,
-				44A1E53F76D163DEAE899EED /* -lm in Frameworks */,
-				80F9480AB9F1B2BD22F777DA /* -lz in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F58CC8470A0AA1DD11919E5B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4FAA3AB4E48230EA5E12972F /* libuv.a in Frameworks */,
-				E0884B94094C6911F3306425 /* libopenssl.a in Frameworks */,
-				B934F5340BC0F1D50AB75E4D /* libpomelo2.a in Frameworks */,
-				771F7AD0614D645D2180B673 /* -lcmocka in Frameworks */,
-				E153E0FDBCD8955DC2E5DD6D /* -lm in Frameworks */,
-				1CFB26CC29693083D6C0A954 /* -lz in Frameworks */,
+				6C9F0E499F6631807F0519E3 /* libzlib.a in Frameworks */,
+				92CA46925809166571097D79 /* libuv.a in Frameworks */,
+				4F22F6D6FA5274AFD6D6270A /* libopenssl.a in Frameworks */,
+				90CB19DBDF26CD1F71B20900 /* libpitaya.a in Frameworks */,
+				6BA97DA9E7FEE13EB2D08503 /* -lm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13B09F15052865729FE565A6 /* Source */ = {
-			isa = PBXGroup;
-			children = (
-				B91D9DFB5149B6D01C9FC5A0 /* cs/contrib */,
-				C83DD47A9E18BC8120D41FE7 /* src */,
-				D4212D3134A1587B4B3DF0F8 /* test */,
-			);
-			name = Source;
-			sourceTree = "<group>";
-		};
 		20C2D48560A635DC717A5AE7 /* uv */ = {
 			isa = PBXGroup;
 			children = (
@@ -348,12 +258,39 @@
 			path = uv;
 			sourceTree = "<group>";
 		};
-		65B5C535AA92FBC86107E524 /* Products */ = {
+		26B7031A3ABCADC9F665816E /* Projects */ = {
 			isa = PBXGroup;
 			children = (
-				ED6ADD425B0036DEE678188C /* libuv.a */,
-				E6F3A680B1C537F7FE1D9991 /* run-tests */,
-				260B217613B0ABF65235BBEA /* run-benchmarks */,
+				CF860C12839DB42D74918F38 /* openssl.xcodeproj */,
+				7A07FC53B4A81000D3378BC7 /* uv.xcodeproj */,
+				96F42E79D13B2C9EF80282B9 /* zlib.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		36CD98BD48EE211D3053D308 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5BDFD6793E9DB0C171AA4F62 /* libzlib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		43453ADC6D1351D6E9373FA5 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				B91D9DFB5149B6D01C9FC5A0 /* cs/contrib */,
+				B8280997E3953D9180CC81A8 /* deps/munit */,
+				C83DD47A9E18BC8120D41FE7 /* src */,
+				F38A76363B9EA1C8BECADDE3 /* test */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		9A644308101E3203BA676EDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				10DC97970611A9A5438E1F67 /* libopenssl.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -366,45 +303,42 @@
 			path = dummy;
 			sourceTree = "<group>";
 		};
-		A7F2B6DC40D85964405796AF /* Frameworks */ = {
+		B8280997E3953D9180CC81A8 /* deps/munit */ = {
 			isa = PBXGroup;
 			children = (
-				0A79260156929195321B5850 /* -lcmocka */,
-				CE3D9D957938AAB4ECC2C2AD /* -lm */,
-				093CD76A99A4777E18A36432 /* -lz */,
+				6156655767ADB9D0D493F0E3 /* munit.c */,
 			);
-			name = Frameworks;
+			path = deps/munit;
 			sourceTree = "<group>";
 		};
 		B91D9DFB5149B6D01C9FC5A0 /* cs/contrib */ = {
 			isa = PBXGroup;
 			children = (
 				92240B52CAD0DCB74BFBE8D8 /* cspomelo.c */,
+				171A4BF420C853C5009082CC /* pc_assert.h */,
 			);
 			path = cs/contrib;
-			sourceTree = "<group>";
-		};
-		BABDA1B22E4C9233F1D0F6BD /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				62F0DEA8E45833ABE17C7E9B /* libpomelo2.a */,
-				7657AD9331F073E68AD51565 /* tr_dummy */,
-				862287A5488F635D3C2CBA77 /* tr_tls */,
-				2718DEBE295BDD2D518D8D74 /* tr_tcp */,
-				38AFAAA128C914831FA6BC2A /* libcspomelo.bundle */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		BADFDA9923828CF4A18F9F67 = {
 			isa = PBXGroup;
 			children = (
-				13B09F15052865729FE565A6 /* Source */,
-				DFE01B96301CAD75EBA2FD22 /* Projects */,
-				A7F2B6DC40D85964405796AF /* Frameworks */,
-				BABDA1B22E4C9233F1D0F6BD /* Products */,
+				43453ADC6D1351D6E9373FA5 /* Source */,
+				26B7031A3ABCADC9F665816E /* Projects */,
+				F6A26440FC62333FC8A41E4E /* Frameworks */,
+				BDB767F11682280FB9FEEFE1 /* Products */,
 				C2CD93A73B63EF926207EC38 /* Build */,
 			);
+			sourceTree = "<group>";
+		};
+		BDB767F11682280FB9FEEFE1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				798253CDC52C3473D6C7966A /* libpitaya.a */,
+				ABE15A0EA6CEACFABA70F04E /* tests */,
+				A2A808532D7B2CF260CB19E3 /* libpitaya_unity.bundle */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		C2CD93A73B63EF926207EC38 /* Build */ = {
@@ -428,16 +362,6 @@
 			path = src;
 			sourceTree = "<group>";
 		};
-		D4212D3134A1587B4B3DF0F8 /* test */ = {
-			isa = PBXGroup;
-			children = (
-				DCA161FECB262D431968B6DB /* test-tr_dummy.c */,
-				74251F2188A6E561B93FB3D6 /* test-tr_tcp.c */,
-				55556D5804B6E2EABD6288DA /* test-tr_tls.c */,
-			);
-			path = test;
-			sourceTree = "<group>";
-		};
 		D87BEB213F4626859971D307 /* tr */ = {
 			isa = PBXGroup;
 			children = (
@@ -447,118 +371,98 @@
 			path = tr;
 			sourceTree = "<group>";
 		};
-		DFE01B96301CAD75EBA2FD22 /* Projects */ = {
+		DAC0F305E05DC7D9BF8035A6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CF860C12839DB42D74918F38 /* openssl.xcodeproj */,
-				C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */,
-			);
-			name = Projects;
-			sourceTree = "<group>";
-		};
-		FBC0ED1938CFB6E16055C5BF /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				10DC97970611A9A5438E1F67 /* libopenssl.a */,
-				2F5603DD49311246B13DD227 /* openssl-cli */,
+				ED6ADD425B0036DEE678188C /* libuv.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F38A76363B9EA1C8BECADDE3 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				8D946DEA9BFFD62C2B39C48E /* main.c */,
+				74251F2188A6E561B93FB3D6 /* test-tr_tcp.c */,
+				55556D5804B6E2EABD6288DA /* test-tr_tls.c */,
+				F5CE3FCACB5C556E2BB589E1 /* test_compression.c */,
+				9108766608100716CA22B863 /* test_kick.c */,
+				30014FDAA02607DA0B5ADFEA /* test_notify.c */,
+				F625DFF6EB54892A7C9C08F8 /* test_pc_client.c */,
+				98C1F2450BCE73666B11571B /* test_reconnection.c */,
+				DEFC87509A90889FFBE76A4A /* test_request.c */,
+				DE3E558FBA7F67A065EC2767 /* test_session.c */,
+				8E58A47EFE470FB388E356AA /* test_stress.c */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		F6A26440FC62333FC8A41E4E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CE3D9D957938AAB4ECC2C2AD /* -lm */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2481CC6FAF8B3915D30388A4 /* cspomelo */ = {
+		4F3992F0E555B18D6A666941 /* pitaya_unity */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 64A15173AF675DDA517571EF /* Build configuration list for PBXNativeTarget "cspomelo" */;
+			buildConfigurationList = 1A0462F4E0838204AC6709E9 /* Build configuration list for PBXNativeTarget "pitaya_unity" */;
 			buildPhases = (
-				116C62730DB4B5E00597AF33 /* Sources */,
-				ADF57A32F0CB0765696BF4E1 /* Frameworks */,
+				235DD70104A8C0CC0624B8AC /* Sources */,
+				CB86A3228906DA5CEB071947 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				6F68DAFFCDB9A7309DA964F9 /* PBXTargetDependency */,
-				298500DD0E581B0483EAE1A1 /* PBXTargetDependency */,
-				6EEF50E528450A4F000DFDFC /* PBXTargetDependency */,
+				B907A7055CDA8F215944328B /* PBXTargetDependency */,
+				AF1499085061DC852256E717 /* PBXTargetDependency */,
+				CC302E00DCF1B3016CE025D7 /* PBXTargetDependency */,
+				626CCFB436BE7AFA7AA07B12 /* PBXTargetDependency */,
 			);
-			name = cspomelo;
-			productName = cspomelo;
-			productReference = 38AFAAA128C914831FA6BC2A /* libcspomelo.bundle */;
+			name = pitaya_unity;
+			productName = pitaya_unity;
+			productReference = A2A808532D7B2CF260CB19E3 /* libpitaya_unity.bundle */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		3A43BE8C37C089000CACAC46 /* libpomelo2 */ = {
+		67DA0152ECBEF498CF1C1BB7 /* tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E2EB6722E4C00602EA209B7F /* Build configuration list for PBXNativeTarget "libpomelo2" */;
+			buildConfigurationList = 20916EB71A3511EB6C82AB7D /* Build configuration list for PBXNativeTarget "tests" */;
 			buildPhases = (
-				35B754782463823ACF78701E /* Sources */,
-				0E75073767393FA28718BBB4 /* Frameworks */,
+				FEA08369E89E802A2B71A528 /* Sources */,
+				B0502918AC2CBBD012339E1E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6A78F4DE372EDCDBF9D0605F /* PBXTargetDependency */,
+				A13F924B62931F8A74192712 /* PBXTargetDependency */,
+				0954B73A023DC547FE3ADFD3 /* PBXTargetDependency */,
+				7A84E1147DB3A79775C3FBD7 /* PBXTargetDependency */,
+			);
+			name = tests;
+			productName = tests;
+			productReference = ABE15A0EA6CEACFABA70F04E /* tests */;
+			productType = "com.apple.product-type.tool";
+		};
+		9CDDC22BAC5D007CF9D0AE11 /* pitaya */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 842ADD6E875155BE1347162A /* Build configuration list for PBXNativeTarget "pitaya" */;
+			buildPhases = (
+				56689AED011D70F3267FE496 /* Sources */,
+				0132621AC51E043EEAD10FA0 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = libpomelo2;
-			productName = pomelo2;
-			productReference = 62F0DEA8E45833ABE17C7E9B /* libpomelo2.a */;
+			name = pitaya;
+			productName = pitaya;
+			productReference = 798253CDC52C3473D6C7966A /* libpitaya.a */;
 			productType = "com.apple.product-type.library.static";
-		};
-		BC097D074417BCE15665BA09 /* tr_tls */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DF1ECDB5A42B5004168E87B4 /* Build configuration list for PBXNativeTarget "tr_tls" */;
-			buildPhases = (
-				B7DF3C6F4B75A4E0974E0BAC /* Sources */,
-				F58CC8470A0AA1DD11919E5B /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				6CD7A67BEB2D7FA4A1B84A66 /* PBXTargetDependency */,
-				AF8EE31A15E6B48CCD8612AF /* PBXTargetDependency */,
-				15E0E7B3803A8F13E709E965 /* PBXTargetDependency */,
-			);
-			name = tr_tls;
-			productName = tr_tls;
-			productReference = 862287A5488F635D3C2CBA77 /* tr_tls */;
-			productType = "com.apple.product-type.tool";
-		};
-		C8E2016839800AC8FE11D1A7 /* tr_tcp */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = FB3C0ED6292B37B24ECA429B /* Build configuration list for PBXNativeTarget "tr_tcp" */;
-			buildPhases = (
-				AF4213F5B00D291FFF59BC41 /* Sources */,
-				EB86453869F5CE75493317BE /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				0DA79208F8A15493282BCF3A /* PBXTargetDependency */,
-				BB15A3669454CE0C74CC2733 /* PBXTargetDependency */,
-				8C544C9A791D89320F867F0C /* PBXTargetDependency */,
-			);
-			name = tr_tcp;
-			productName = tr_tcp;
-			productReference = 2718DEBE295BDD2D518D8D74 /* tr_tcp */;
-			productType = "com.apple.product-type.tool";
-		};
-		DE993B0056508A5898C66348 /* tr_dummy */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 28199AEC66C24654E1DF9A40 /* Build configuration list for PBXNativeTarget "tr_dummy" */;
-			buildPhases = (
-				0F7F919166DBEF0A351B758A /* Sources */,
-				BD6EA51D33EDEE5D72192838 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F7CFE359BDBD5C0D386EB8EC /* PBXTargetDependency */,
-				2094323FCF9B6215B851CAF9 /* PBXTargetDependency */,
-				C8B03BE61FC1E1585EF3444B /* PBXTargetDependency */,
-			);
-			name = tr_dummy;
-			productName = tr_dummy;
-			productReference = 7657AD9331F073E68AD51565 /* tr_dummy */;
-			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -570,27 +474,33 @@
 			};
 			buildConfigurationList = 8507625DC7EBB8838C0F9137 /* Build configuration list for PBXProject "pomelo" */;
 			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = BADFDA9923828CF4A18F9F67;
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = FBC0ED1938CFB6E16055C5BF /* Products */;
+					ProductGroup = 9A644308101E3203BA676EDA /* Products */;
 					ProjectRef = CF860C12839DB42D74918F38 /* openssl.xcodeproj */;
 				},
 				{
-					ProductGroup = 65B5C535AA92FBC86107E524 /* Products */;
-					ProjectRef = C5DF9D4D2B037A2E97E054FD /* uv.xcodeproj */;
+					ProductGroup = DAC0F305E05DC7D9BF8035A6 /* Products */;
+					ProjectRef = 7A07FC53B4A81000D3378BC7 /* uv.xcodeproj */;
+				},
+				{
+					ProductGroup = 36CD98BD48EE211D3053D308 /* Products */;
+					ProjectRef = 96F42E79D13B2C9EF80282B9 /* zlib.xcodeproj */;
 				},
 			);
 			projectRoot = "";
 			targets = (
 				6E409A209D642E8BDEE75143 /* All */,
-				3A43BE8C37C089000CACAC46 /* libpomelo2 */,
-				DE993B0056508A5898C66348 /* tr_dummy */,
-				BC097D074417BCE15665BA09 /* tr_tls */,
-				C8E2016839800AC8FE11D1A7 /* tr_tcp */,
-				2481CC6FAF8B3915D30388A4 /* cspomelo */,
+				9CDDC22BAC5D007CF9D0AE11 /* pitaya */,
+				67DA0152ECBEF498CF1C1BB7 /* tests */,
+				4F3992F0E555B18D6A666941 /* pitaya_unity */,
 			);
 		};
 /* End PBXProject section */
@@ -603,207 +513,158 @@
 			remoteRef = 867BE86FB145A742547E8908 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		260B217613B0ABF65235BBEA /* run-benchmarks */ = {
+		5BDFD6793E9DB0C171AA4F62 /* libzlib.a */ = {
 			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = "run-benchmarks";
-			remoteRef = A2A3F50F12C494DEB02AB9A1 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		2F5603DD49311246B13DD227 /* openssl-cli */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = "openssl-cli";
-			remoteRef = 774F8D99B09A407B3A2C97EF /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		E6F3A680B1C537F7FE1D9991 /* run-tests */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = "run-tests";
-			remoteRef = FD4787FFAD9D26880E580E3B /* PBXContainerItemProxy */;
+			fileType = archive.ar;
+			path = libzlib.a;
+			remoteRef = D4D204859CA0BD928F28DE2E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		ED6ADD425B0036DEE678188C /* libuv.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libuv.a;
-			remoteRef = 68DFA1B21A5B66C0036E9953 /* PBXContainerItemProxy */;
+			remoteRef = 8A45E649941C9A77DAD60962 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0F7F919166DBEF0A351B758A /* Sources */ = {
+		235DD70104A8C0CC0624B8AC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F170ADACDF856A07E9901614 /* test-tr_dummy.c in Sources */,
+				B30B0D1C41CA605DC2D91BD8 /* cspomelo.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		116C62730DB4B5E00597AF33 /* Sources */ = {
+		56689AED011D70F3267FE496 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F5C37E8916C1FC7065EDCDD5 /* cspomelo.c in Sources */,
+				0C5D67A2EBD04D16F8DD7ADC /* pc_pomelo.c in Sources */,
+				FE7DA27424D4819CA9BB167E /* pc_lib.c in Sources */,
+				65C3FD1641E942B6D88EFF62 /* pc_trans.c in Sources */,
+				1EF56CDE7594F6518166422D /* pc_trans_repo.c in Sources */,
+				830509A7C76FBDDDB6A45AF5 /* pc_JSON.c in Sources */,
+				218F812345028D23CECCBC20 /* tr_dummy.c in Sources */,
+				59D44BB2D46CDC8FE6B5D006 /* pr_gzip.c in Sources */,
+				7C4A580DAA39840FBE6455EC /* pr_msg.c in Sources */,
+				5E86EEFAB227F8B15C5EEB6D /* pr_msg_json.c in Sources */,
+				3474D85AA88FEFC223DA645F /* pr_pkg.c in Sources */,
+				269FAE1B997673EDAC8C65D4 /* tr_uv_tcp.c in Sources */,
+				86671B488B4E3B1CC56344B1 /* tr_uv_tcp_i.c in Sources */,
+				67ECB708FBC8AE6E523E9E67 /* tr_uv_tcp_aux.c in Sources */,
+				ECCE108E271DE2958D0C34EA /* tr_uv_tls.c in Sources */,
+				E2F4CE74832413090BA073F6 /* tr_uv_tls_i.c in Sources */,
+				FAF324DB234930BDFAD888AA /* tr_uv_tls_aux.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		35B754782463823ACF78701E /* Sources */ = {
+		FEA08369E89E802A2B71A528 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				112750CBCCEF0309AD8E399F /* pc_pomelo.c in Sources */,
-				8F7BB514C222F9B221622CCA /* pc_lib.c in Sources */,
-				2DE6C5B7CFADA00DACA09B09 /* pc_trans.c in Sources */,
-				45E07AF088B7E00838F46C83 /* pc_trans_repo.c in Sources */,
-				74F79705EFF4D3A80A4C2B6E /* pc_JSON.c in Sources */,
-				D0420BAA0272656E69ECFE99 /* tr_dummy.c in Sources */,
-				821EF6AA4FA9937392A87F43 /* pr_gzip.c in Sources */,
-				9679507E535C821EA5B42C02 /* pr_msg.c in Sources */,
-				261A3C3EDE7C7C45CB949868 /* pr_msg_json.c in Sources */,
-				1AA0F7BC6C02D4A15981E162 /* pr_pkg.c in Sources */,
-				DE2C4D385D8E6F7222F16989 /* tr_uv_tcp.c in Sources */,
-				300A2C49FBA454F01B3B1260 /* tr_uv_tcp_i.c in Sources */,
-				9AF42E10A974E96697B01D47 /* tr_uv_tcp_aux.c in Sources */,
-				4CCF9A69CEB84D9818A408AD /* tr_uv_tls.c in Sources */,
-				852318045AC08FFB55B6C46F /* tr_uv_tls_i.c in Sources */,
-				7A32157A77E8489F9575BAB6 /* tr_uv_tls_aux.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AF4213F5B00D291FFF59BC41 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C688BD96D169156393E8C867 /* test-tr_tcp.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B7DF3C6F4B75A4E0974E0BAC /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				FD6B139939CDA17D29E61BEC /* test-tr_tls.c in Sources */,
+				817B711635B5C4A832288B55 /* main.c in Sources */,
+				5073A7EA1A37E48324FDF797 /* test-tr_tcp.c in Sources */,
+				F6FFCBBBF7A3F960A850B799 /* test-tr_tls.c in Sources */,
+				9E51B574A261E3E81AE282DC /* test_pc_client.c in Sources */,
+				BB9EEA2CCACCDB7D7FD84369 /* test_reconnection.c in Sources */,
+				CA440914A89D25AED413A40E /* test_compression.c in Sources */,
+				0A04F234234C06CFF0766232 /* test_kick.c in Sources */,
+				B2A94B804D3193A643A44668 /* test_session.c in Sources */,
+				75290DD0A26DE802D93701EF /* test_request.c in Sources */,
+				48C0593D198EC949B6231B0B /* test_notify.c in Sources */,
+				D00FA5A759029DC371FD349E /* test_stress.c in Sources */,
+				3F17109A79D65D988EFA0951 /* munit.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		053978E7F888580A26DD1043 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = BC097D074417BCE15665BA09 /* tr_tls */;
-			targetProxy = B3E42981455C57B7D07325EB /* PBXContainerItemProxy */;
-		};
-		0DA79208F8A15493282BCF3A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = libuv;
-			targetProxy = ACC67237571FA010F00BEBA9 /* PBXContainerItemProxy */;
-		};
-		15E0E7B3803A8F13E709E965 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 3A43BE8C37C089000CACAC46 /* libpomelo2 */;
-			targetProxy = 349767C1A612A6A1FA26703F /* PBXContainerItemProxy */;
-		};
-		2094323FCF9B6215B851CAF9 /* PBXTargetDependency */ = {
+		0954B73A023DC547FE3ADFD3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = openssl;
-			targetProxy = 87FA2C2F280520BD2C47B969 /* PBXContainerItemProxy */;
+			targetProxy = 19F422D7FD85EAF0EDD5000D /* PBXContainerItemProxy */;
 		};
-		298500DD0E581B0483EAE1A1 /* PBXTargetDependency */ = {
+		420AEC40ADC3E6CA8DA39C8E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = openssl;
-			targetProxy = B46AF22C4827DF3E34338263 /* PBXContainerItemProxy */;
+			target = 9CDDC22BAC5D007CF9D0AE11 /* pitaya */;
+			targetProxy = 3EEF891FF19C2BE5E3EAB792 /* PBXContainerItemProxy */;
 		};
-		2E11C05E845BE2BE2D93952D /* PBXTargetDependency */ = {
+		626CCFB436BE7AFA7AA07B12 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DE993B0056508A5898C66348 /* tr_dummy */;
-			targetProxy = 23B8B08B02C46231F84EB0FC /* PBXContainerItemProxy */;
+			target = 9CDDC22BAC5D007CF9D0AE11 /* pitaya */;
+			targetProxy = 05A81609B15D81D44720FD86 /* PBXContainerItemProxy */;
 		};
-		3A7DE16EBD13819CF6152E6B /* PBXTargetDependency */ = {
+		6A78F4DE372EDCDBF9D0605F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C8E2016839800AC8FE11D1A7 /* tr_tcp */;
-			targetProxy = 9789B91CA6486195FB9FDDC7 /* PBXContainerItemProxy */;
+			name = zlib;
+			targetProxy = 8103516B251ABEC07722A02F /* PBXContainerItemProxy */;
 		};
-		5FC0A805E45499A4279844A5 /* PBXTargetDependency */ = {
+		7A84E1147DB3A79775C3FBD7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 3A43BE8C37C089000CACAC46 /* libpomelo2 */;
-			targetProxy = F5CA0415D445134CAFAF7CF2 /* PBXContainerItemProxy */;
+			target = 9CDDC22BAC5D007CF9D0AE11 /* pitaya */;
+			targetProxy = 950B161C4BB0D5280B2A4016 /* PBXContainerItemProxy */;
 		};
-		6CD7A67BEB2D7FA4A1B84A66 /* PBXTargetDependency */ = {
+		93CE62CB19C8FD583016AB28 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = libuv;
-			targetProxy = 220A03CD036CD4F7780401F0 /* PBXContainerItemProxy */;
+			target = 67DA0152ECBEF498CF1C1BB7 /* tests */;
+			targetProxy = 5E70DD8B1FC19B1869732097 /* PBXContainerItemProxy */;
 		};
-		6EEF50E528450A4F000DFDFC /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 3A43BE8C37C089000CACAC46 /* libpomelo2 */;
-			targetProxy = 76C1A3D03972BFE51EDD6FE0 /* PBXContainerItemProxy */;
-		};
-		6F68DAFFCDB9A7309DA964F9 /* PBXTargetDependency */ = {
+		A13F924B62931F8A74192712 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = libuv;
-			targetProxy = 02E705CF190EFF3564B0C4E7 /* PBXContainerItemProxy */;
+			targetProxy = 079CB2489118288CBD8D67A5 /* PBXContainerItemProxy */;
 		};
-		8C544C9A791D89320F867F0C /* PBXTargetDependency */ = {
+		AE78CDFFBD50C2DC06A7658A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 3A43BE8C37C089000CACAC46 /* libpomelo2 */;
-			targetProxy = 42B8A6D915480A2AB0478139 /* PBXContainerItemProxy */;
+			target = 4F3992F0E555B18D6A666941 /* pitaya_unity */;
+			targetProxy = 38253A3AB50FC0A7681F6B24 /* PBXContainerItemProxy */;
 		};
-		AF8EE31A15E6B48CCD8612AF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = openssl;
-			targetProxy = 038BB0B7A2828A0585BE2181 /* PBXContainerItemProxy */;
-		};
-		BB15A3669454CE0C74CC2733 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = openssl;
-			targetProxy = A40C635E5BE13E3F1D185CBB /* PBXContainerItemProxy */;
-		};
-		C8B03BE61FC1E1585EF3444B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 3A43BE8C37C089000CACAC46 /* libpomelo2 */;
-			targetProxy = AA979455464E30C9DF5E593B /* PBXContainerItemProxy */;
-		};
-		F6320CB8E9F00B47C9744CB5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2481CC6FAF8B3915D30388A4 /* cspomelo */;
-			targetProxy = 3CB160290BE48147078213F5 /* PBXContainerItemProxy */;
-		};
-		F7CFE359BDBD5C0D386EB8EC /* PBXTargetDependency */ = {
+		AF1499085061DC852256E717 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = libuv;
-			targetProxy = 622752EBB7D0C6F5C11ECE3C /* PBXContainerItemProxy */;
+			targetProxy = 679FBE3BE9B3908152D85D25 /* PBXContainerItemProxy */;
+		};
+		B907A7055CDA8F215944328B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib;
+			targetProxy = 483A020D1268DF801F985B61 /* PBXContainerItemProxy */;
+		};
+		CC302E00DCF1B3016CE025D7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = openssl;
+			targetProxy = 2EA4364968A59CCFFE25570E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		2A01718E7446DC52F758F5D2 /* Default */ = {
+		28679713DF4D5F8F2BA537A5 /* Release_x64 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_LARGEFILE_SOURCE,
 					"_FILE_OFFSET_BITS=64",
+					_GNU_SOURCE,
 					"_DARWIN_USE_64_BIT_INODE=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					./deps/uv/include,
+					./deps/libuv/include,
 					./deps/openssl/openssl/include,
-					./include/,
-					/usr/local/include,
-					deps/uv/include,
+					./include,
+					./src,
+					deps/zlib,
+					deps/libuv/include,
 					deps/openssl/openssl/include,
 				);
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = tr_tcp;
+				PRODUCT_NAME = pitaya;
 			};
-			name = Default;
+			name = Release_x64;
 		};
-		5BA213D258BE77421E74DA82 /* Default */ = {
+		47D961B9CE950A0EB786DAC1 /* Release_x64 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXECUTABLE_EXTENSION = bundle;
@@ -811,161 +672,104 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_LARGEFILE_SOURCE,
 					"_FILE_OFFSET_BITS=64",
+					_GNU_SOURCE,
 					"_DARWIN_USE_64_BIT_INODE=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					./deps/uv/include,
+					./deps/libuv/include,
 					./deps/openssl/openssl/include,
 					./include/,
-					deps/uv/include,
+					deps/zlib,
+					deps/libuv/include,
 					deps/openssl/openssl/include,
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = cspomelo;
+				PRODUCT_NAME = pitaya_unity;
 			};
-			name = Default;
+			name = Release_x64;
 		};
-		6FB4CBA9B832FFFFFC491035 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EXECUTABLE_PREFIX = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					_LARGEFILE_SOURCE,
-					"_FILE_OFFSET_BITS=64",
-					"_DARWIN_USE_64_BIT_INODE=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					./deps/uv/include,
-					./deps/openssl/openssl/include,
-					./include/,
-					deps/uv/include,
-					deps/openssl/openssl/include,
-				);
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = tr_dummy;
-			};
-			name = Default;
-		};
-		886E71B80533D78DB23563D0 /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EXECUTABLE_PREFIX = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					_LARGEFILE_SOURCE,
-					"_FILE_OFFSET_BITS=64",
-					"_DARWIN_USE_64_BIT_INODE=1",
-				);
-				HEADER_SEARCH_PATHS = (
-					./deps/uv/include,
-					./deps/openssl/openssl/include,
-					./include/,
-					deps/uv/include,
-					deps/openssl/openssl/include,
-				);
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = tr_tls;
-			};
-			name = Default;
-		};
-		8D50ABF92B7C98E5F2CCA222 /* Default */ = {
+		7F2010A9AD44A92B9BEE6231 /* Release_x64 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = All;
 			};
-			name = Default;
+			name = Release_x64;
 		};
-		8DF114BE4D4C552186187042 /* Default */ = {
+		9F422FE91C29DBAF7C7A1B6A /* Release_x64 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
 				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
 			};
-			name = Default;
+			name = Release_x64;
 		};
-		F77C8E4A983DA2E8CC86A7D4 /* Default */ = {
+		A43026754EB597F32B722E96 /* Release_x64 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_PREFIX = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					_GNU_SOURCE,
 					_LARGEFILE_SOURCE,
 					"_FILE_OFFSET_BITS=64",
+					_GNU_SOURCE,
 					"_DARWIN_USE_64_BIT_INODE=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					./deps/uv/include,
+					./deps/libuv/include,
 					./deps/openssl/openssl/include,
-					./include,
-					./src,
-					deps/uv/include,
+					./include/,
+					/usr/local/include,
+					./deps/munit,
+					deps/zlib,
+					deps/libuv/include,
 					deps/openssl/openssl/include,
 				);
-				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = pomelo2;
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = tests;
 			};
-			name = Default;
+			name = Release_x64;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		28199AEC66C24654E1DF9A40 /* Build configuration list for PBXNativeTarget "tr_dummy" */ = {
+		1A0462F4E0838204AC6709E9 /* Build configuration list for PBXNativeTarget "pitaya_unity" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				6FB4CBA9B832FFFFFC491035 /* Default */,
+				47D961B9CE950A0EB786DAC1 /* Release_x64 */,
 			);
 			defaultConfigurationIsVisible = 1;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = Release_x64;
+		};
+		20916EB71A3511EB6C82AB7D /* Build configuration list for PBXNativeTarget "tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A43026754EB597F32B722E96 /* Release_x64 */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Release_x64;
 		};
 		384AEC9F9DD77EC08BAFA36F /* Build configuration list for PBXAggregateTarget "All" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				8D50ABF92B7C98E5F2CCA222 /* Default */,
+				7F2010A9AD44A92B9BEE6231 /* Release_x64 */,
 			);
 			defaultConfigurationIsVisible = 1;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = Release_x64;
 		};
-		64A15173AF675DDA517571EF /* Build configuration list for PBXNativeTarget "cspomelo" */ = {
+		842ADD6E875155BE1347162A /* Build configuration list for PBXNativeTarget "pitaya" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				5BA213D258BE77421E74DA82 /* Default */,
+				28679713DF4D5F8F2BA537A5 /* Release_x64 */,
 			);
 			defaultConfigurationIsVisible = 1;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = Release_x64;
 		};
 		8507625DC7EBB8838C0F9137 /* Build configuration list for PBXProject "pomelo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				8DF114BE4D4C552186187042 /* Default */,
+				9F422FE91C29DBAF7C7A1B6A /* Release_x64 */,
 			);
 			defaultConfigurationIsVisible = 1;
-			defaultConfigurationName = Default;
-		};
-		DF1ECDB5A42B5004168E87B4 /* Build configuration list for PBXNativeTarget "tr_tls" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				886E71B80533D78DB23563D0 /* Default */,
-			);
-			defaultConfigurationIsVisible = 1;
-			defaultConfigurationName = Default;
-		};
-		E2EB6722E4C00602EA209B7F /* Build configuration list for PBXNativeTarget "libpomelo2" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F77C8E4A983DA2E8CC86A7D4 /* Default */,
-			);
-			defaultConfigurationIsVisible = 1;
-			defaultConfigurationName = Default;
-		};
-		FB3C0ED6292B37B24ECA429B /* Build configuration list for PBXNativeTarget "tr_tcp" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2A01718E7446DC52F758F5D2 /* Default */,
-			);
-			defaultConfigurationIsVisible = 1;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = Release_x64;
 		};
 /* End XCConfigurationList section */
 	};

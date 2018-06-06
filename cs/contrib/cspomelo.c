@@ -3,7 +3,7 @@
  * MIT Licensed.
  */
 
-#include <assert.h>
+#include "pc_assert.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -131,7 +131,9 @@ CS_POMELO_EXPORT void native_log(const char* msg)
 typedef void (*request_handler)(const char* err, const char* resp);
 
 typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
-typedef void (*request_error_callback)(pc_client_t* client, unsigned int cbid, pc_error_t error);
+typedef void (*request_error_callback)(pc_client_t* client, unsigned int cbid, pc_error_t* error);
+
+typedef void (*unity_assert)(const char* e, const char* file, int line);
 
 
 typedef struct {
@@ -145,8 +147,7 @@ typedef struct {
     request_error_callback error_cb;
 } request_cb_t;
 
-static int local_storage_cb(pc_local_storage_op_t op, char* data, size_t* len, void* ex_data)
-{
+static int local_storage_cb(pc_local_storage_op_t op, char* data, size_t* len, void* ex_data) {
     lc_callback_t* lc_cb = (lc_callback_t* )ex_data;
     char* res = NULL;
 
@@ -172,8 +173,7 @@ static int local_storage_cb(pc_local_storage_op_t op, char* data, size_t* len, v
     return -1;
 }
 
-static void default_request_cb(const pc_request_t* req, const char* resp)
-{
+static void default_request_cb(const pc_request_t* req, const char* resp) {
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
     pc_client_t* client = pc_request_client(req);
     assert(rp);
@@ -183,23 +183,26 @@ static void default_request_cb(const pc_request_t* req, const char* resp)
     r.cb(client, r.cbid, resp);
 }
 
-static void default_error_cb(const pc_request_t* req, pc_error_t error)
-{
+static void default_error_cb(const pc_request_t* req, pc_error_t error) {
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
     pc_client_t* client = pc_request_client(req);
     assert(rp);
     request_cb_t r = *rp;
     free(rp);
-    r.error_cb(client, r.cbid, error);
+    r.error_cb(client, r.cbid, &error);
+
 }
 
-CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* ca_path)
-{
+CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* ca_path, unity_assert custom_assert) {
 #if !defined(PC_NO_UV_TLS_TRANS)
     if (ca_file || ca_path) {
         tr_uv_tls_set_ca_file(ca_file, ca_path);
     }
 #endif
+    
+    if(custom_assert != NULL){
+        update_assert(custom_assert);
+    }
 
     pc_lib_set_default_log_level(log_level);
 #if defined(__ANDROID__)
@@ -211,8 +214,7 @@ CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* c
 #endif
 }
 
-CS_POMELO_EXPORT pc_client_t* create(int enable_tls, int enable_poll, int enable_reconnect)
-{
+CS_POMELO_EXPORT pc_client_t* create(int enable_tls, int enable_poll, int enable_reconnect) {
     pc_client_init_result_t res = {0};
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     if (enable_tls) {
@@ -232,27 +234,23 @@ CS_POMELO_EXPORT pc_client_t* create(int enable_tls, int enable_poll, int enable
     return NULL;
 }
 
-CS_POMELO_EXPORT void destroy(pc_client_t* client)
-{
+CS_POMELO_EXPORT void destroy(pc_client_t* client) {
     lc_callback_t* lc_cb;
 
 #if defined(__UNITYEDITOR__)
     fclose(f);
     f = NULL;
 #endif
-
-    if (pc_client_cleanup(client) == PC_RC_OK) {
-        lc_cb = (lc_callback_t*)pc_client_config(client)->ls_ex_data;
-        if (lc_cb) {
-            free(lc_cb);
-        }
-        free(client);
+    
+    lc_cb = (lc_callback_t*)pc_client_config(client)->ls_ex_data;
+    if (lc_cb) {
+        free(lc_cb);
     }
+    pc_client_cleanup(client);
 }
 
 CS_POMELO_EXPORT int request(pc_client_t* client, const char* route, const char* msg,
-                             unsigned int cbid, int timeout, request_callback cb, request_error_callback error_cb)
-{
+                             unsigned int cbid, int timeout, request_callback cb, request_error_callback error_cb) {
     unity_log(PC_LOG_DEBUG, "route: %s msg %s cbid: %d timeout %d ",  route, msg, cbid, timeout);
     request_cb_t* rp = (request_cb_t*)malloc(sizeof(request_cb_t));
     if (!rp) {

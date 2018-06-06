@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '8.0'
 
-  s.source_files = ['src/**/*', 'include/**/*', 'cs/contrib/*.c']
+  s.source_files = ['src/**/*', 'include/**/*', 'cs/contrib/*']
   
   s.dependency 'OpenSSL-Universal', '~> 1.0.2.13'
   s.dependency 'libuv', '~> 1.4.0'
