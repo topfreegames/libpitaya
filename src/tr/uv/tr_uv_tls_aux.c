@@ -7,7 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <assert.h>
+#include "pc_assert.h"
 
 #include <pc_lib.h>
 #include <pc_pomelo_i.h>
@@ -19,9 +19,9 @@
 #define GET_TLS(x) tr_uv_tls_transport_t* tls; \
     tr_uv_tcp_transport_t * tt;          \
     tls = (tr_uv_tls_transport_t* )x->data; \
-    tt = &tls->base; assert(tt && tls)
+    tt = &tls->base; pc_assert(tt && tls)
 
-#define GET_TT tr_uv_tcp_transport_t* tt = &tls->base; assert(tt && tls)
+#define GET_TT tr_uv_tcp_transport_t* tt = &tls->base; pc_assert(tt && tls)
 
 static void tls__read_from_bio(tr_uv_tls_transport_t* tls);
 static int tls__get_error(SSL* tls, int status);
@@ -54,10 +54,10 @@ void tls__reset(tr_uv_tcp_transport_t* tt)
     }
 
     ret = BIO_reset(tls->in);
-    assert(ret == 1);
+    pc_assert(ret == 1);
 
     ret = BIO_reset(tls->out);
-    assert(ret == 1);
+    pc_assert(ret == 1);
 
     /*
      * write should retry remained, insert it to writing queue
@@ -199,7 +199,7 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
 
     if (tls->retry_wb) {
         ret = SSL_write(tls->tls, tls->retry_wb, tls->retry_wb_len);
-        assert(ret == -1 || ret == tls->retry_wb_len);
+        pc_assert(ret == -1 || ret == tls->retry_wb_len);
 
         if (ret == -1) {
             if (tls__get_error(tls->tls, ret)) {
@@ -244,7 +244,7 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
 
             wi = (tr_uv_wi_t* )QUEUE_DATA(q, tr_uv_wi_t, queue);
             ret = SSL_write(tls->tls, wi->buf.base, wi->buf.len);
-            assert(ret == -1 || ret == (int)(wi->buf.len));
+            pc_assert(ret == -1 || ret == (int)(wi->buf.len));
             if (ret == -1) {
                 tls->should_retry = wi;
                 if (tls__get_error(tls->tls, ret)) {
@@ -323,7 +323,7 @@ static int tls__get_error(SSL* ssl, int status)
             pc_lib_log(PC_LOG_WARN, "tls__get_error - tls detect shutdown, reconn");
             return 1;
         default:
-            assert(err == SSL_ERROR_SSL || err == SSL_ERROR_SYSCALL);
+            pc_assert(err == SSL_ERROR_SSL || err == SSL_ERROR_SYSCALL);
             pc_lib_log(PC_LOG_ERROR, "tls__get_error - tls error: %s", ERR_error_string(ERR_get_error(), NULL));
             break;
     }
@@ -346,7 +346,7 @@ static void tls__write_to_tcp(tr_uv_tls_transport_t* tls)
     len = BIO_pending(tls->out);
 
     if (len == 0) {
-        assert(QUEUE_EMPTY(&tls->when_tcp_is_writing_queue));
+        pc_assert(QUEUE_EMPTY(&tls->when_tcp_is_writing_queue));
         uv_async_send(&tt->write_async);
         return ;
     }

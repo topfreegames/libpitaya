@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <assert.h>
+#include "pc_assert.h"
 #include <time.h>
 
 #include <pomelo.h>
@@ -187,7 +187,7 @@ static const char* state_str[] = {
 
 const char* pc_client_state_str(int state)
 {
-    assert(state < PC_ST_COUNT && state >= 0);
+    pc_assert(state < PC_ST_COUNT && state >= 0);
     return state_str[state];
 }
 
@@ -207,7 +207,7 @@ static const char* ev_str[] = {
 
 const char* pc_client_ev_str(int ev_type)
 {
-    assert(ev_type >= 0 && ev_type < PC_EV_COUNT);
+    pc_assert(ev_type >= 0 && ev_type < PC_EV_COUNT);
     return ev_str[ev_type];
 }
 
@@ -229,7 +229,7 @@ static const char* rc_str[] = {
 
 const char* pc_client_rc_str(int rc)
 {
-    assert(rc <= 0 && rc > PC_RC_MIN);
+    pc_assert(rc <= 0 && rc > PC_RC_MIN);
     return rc_str[-rc];
 }
 

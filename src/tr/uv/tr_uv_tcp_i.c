@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
+#include "pc_assert.h"
 #include <time.h>
 
 #include <pc_JSON.h>
@@ -21,7 +21,7 @@
 #include "tr_uv_tcp_i.h"
 #include "tr_uv_tcp_aux.h"
 
-#define GET_TT tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t*)trans; assert(tt)
+#define GET_TT tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t*)trans; pc_assert(tt)
 
 pc_transport_t* tr_uv_tcp_create(pc_transport_plugin_t* plugin)
 {
@@ -86,7 +86,7 @@ static void tr_tcp_on_pkg_handler(pc_pkg_type type, const char* data, size_t len
 {
     tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t* ) ex_data;
 
-    assert(type == PC_PKG_HANDSHAKE || type == PC_PKG_HEARBEAT
+    pc_assert(type == PC_PKG_HANDSHAKE || type == PC_PKG_HEARBEAT
            || type == PC_PKG_DATA || type == PC_PKG_KICK);
 
     switch(type) {
@@ -124,7 +124,7 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
     tr_uv_wi_t* wi;
     GET_TT;
 
-    assert(trans && client);
+    pc_assert(trans && client);
 
     tt->client = client;
     tt->config = pc_client_config(client);
@@ -147,14 +147,14 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
     tt->thread_id = -1;
 
     ret = uv_timer_init(&tt->uv_loop, &tt->conn_timeout);
-    assert(!ret);
+    pc_assert(!ret);
 
     ret = uv_timer_init(&tt->uv_loop, &tt->reconn_delay_timer);
-    assert(!ret);
+    pc_assert(!ret);
 
     tt->conn_async.data = tt;
     ret = uv_async_init(&tt->uv_loop, &tt->conn_async, tcp__conn_async_cb);
-    assert(!ret);
+    pc_assert(!ret);
 
     tt->conn_timeout.data = tt;
     tt->reconn_delay_timer.data = tt;
@@ -162,7 +162,7 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
     tt->reconn_times = 0;
 
     uv_timer_init(&tt->uv_loop, &tt->handshake_timer);
-    assert(!ret);
+    pc_assert(!ret);
 
     tt->handshake_timer.data = tt;
 
@@ -173,7 +173,7 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
     /* onle write wait queue need a mutex. */
     pc_mutex_init(&tt->wq_mutex);
     ret = uv_async_init(&tt->uv_loop, &tt->write_async, tt->write_async_cb);
-    assert(!ret);
+    pc_assert(!ret);
     tt->write_async.data = tt;
 
     QUEUE_INIT(&tt->conn_pending_queue);
@@ -192,23 +192,23 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
     tt->is_connecting = 0;
 
     ret = uv_timer_init(&tt->uv_loop, &tt->check_timeout);
-    assert(!ret);
+    pc_assert(!ret);
 
     tt->check_timeout.data = tt;
 
     tt->disconnect_async.data = tt;
     ret = uv_async_init(&tt->uv_loop, &tt->disconnect_async, tcp__disconnect_async_cb);
-    assert(!ret);
+    pc_assert(!ret);
 
     tt->cleanup_async.data = tt;
     ret = uv_async_init(&tt->uv_loop, &tt->cleanup_async, tt->cleanup_async_cb);
-    assert(!ret);
+    pc_assert(!ret);
 
     ret = uv_timer_init(&tt->uv_loop, &tt->hb_timer);
-    assert(!ret);
+    pc_assert(!ret);
 
     ret = uv_timer_init(&tt->uv_loop, &tt->hb_timeout_timer);
-    assert(!ret);
+    pc_assert(!ret);
 
     tt->hb_timer.data = tt;
     tt->hb_timeout_timer.data = tt;
@@ -232,14 +232,14 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
             char* buf;
             size_t len2;
 
-            assert(len > 0);
+            pc_assert(len > 0);
             buf = (char* )pc_lib_malloc(len);
             memset(buf, 0, len);
 
             ret = tt->config->local_storage_cb(PC_LOCAL_STORAGE_OP_READ, buf,
                     &len2, tt->config->ls_ex_data);
-            assert(!ret);
-            assert(len == len2);
+            pc_assert(!ret);
+            pc_assert(len == len2);
 
             lc = pc_JSON_Parse(buf);
             pc_lib_free(buf);
@@ -280,7 +280,7 @@ int tr_uv_tcp_connect(pc_transport_t* trans, const char* host, int port, const c
     pc_JSON* handshake;
     GET_TT;
 
-    assert(host);
+    pc_assert(host);
 
     if (tt->handshake_opts) {
         pc_JSON_Delete(tt->handshake_opts);
@@ -321,7 +321,7 @@ int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_nu
         return PC_RC_INVALID_STATE;
     }
 
-    assert(trans && route && msg && req_id != PC_INVALID_REQ_ID);
+    pc_assert(trans && route && msg && req_id != PC_INVALID_REQ_ID);
 
     pc_JSON *json_msg = pc_JSON_ParseWithOpts(msg, 0, 1);
     if (!json_msg) {

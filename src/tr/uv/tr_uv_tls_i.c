@@ -3,7 +3,7 @@
  * MIT Licensed.
  */
 
-#include <assert.h>
+#include "pc_assert.h"
 
 #include <pc_lib.h>
 
@@ -54,8 +54,8 @@ static int n;
 
 static void crypto_lock_cb(int mode, int n, const char* file, int line)
 {
-    assert((mode & CRYPTO_LOCK) || (mode & CRYPTO_UNLOCK));
-    assert((mode & CRYPTO_READ) || (mode & CRYPTO_WRITE));
+    pc_assert((mode & CRYPTO_LOCK) || (mode & CRYPTO_UNLOCK));
+    pc_assert((mode & CRYPTO_READ) || (mode & CRYPTO_WRITE));
 
     if (mode & CRYPTO_LOCK) {
         if (mode & CRYPTO_READ)
@@ -143,7 +143,7 @@ int tr_uv_tls_init(pc_transport_t* trans, pc_client_t* client)
     tt = (tr_uv_tcp_transport_t* )trans;
     plugin = (tr_uv_tls_transport_plugin_t*) pc_tr_uv_tls_trans_plugin();
 
-    assert(plugin && tls && tt);
+    pc_assert(plugin && tls && tt);
 
     if (!plugin->ctx) {
         pc_lib_log(PC_LOG_ERROR, "tr_uv_tls_init - the SSL_CTX is null, maybe register tls plugin failed");

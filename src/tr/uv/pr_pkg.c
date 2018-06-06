@@ -4,7 +4,7 @@
  */
 
 #include <string.h>
-#include <assert.h>
+#include "pc_assert.h"
 
 #include <pc_lib.h>
 #include <pomelo.h>
@@ -47,7 +47,7 @@ void pc_pkg_parser_reset(pc_pkg_parser_t *parser)
 void pc_pkg_parser_feed(pc_pkg_parser_t *parser, const char *data, size_t nread)
 {
     size_t offset = 0;
-    assert(parser->state == PC_PKG_HEAD || parser->state == PC_PKG_BODY);
+    pc_assert(parser->state == PC_PKG_HEAD || parser->state == PC_PKG_BODY);
 
     while(offset < nread) {
         if(parser->state == PC_PKG_HEAD)

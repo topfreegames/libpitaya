@@ -3,7 +3,7 @@
  * MIT Licensed.
  */
 
-#include <assert.h>
+#include "pc_assert.h"
 
 #include "pc_trans_repo.h"
 

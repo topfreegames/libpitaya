@@ -10,7 +10,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
-#include <assert.h>
+#include "pc_assert.h"
 #include <time.h>
 
 #include <pc_lib.h>
@@ -22,7 +22,7 @@
 #include "pr_gzip.h"
 #include "pc_error.h"
 
-#define GET_TT(x) tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t* )(x->data); assert(tt)
+#define GET_TT(x) tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t* )(x->data); pc_assert(tt)
 
 static void tcp__reset_wi(pc_client_t* client, tr_uv_wi_t* wi)
 {
@@ -55,7 +55,7 @@ void tcp__reset(tr_uv_tcp_transport_t* tt)
     tr_uv_wi_t* wi;
     QUEUE* q;
 
-    assert(tt);
+    pc_assert(tt);
 
     tt->state = TR_UV_TCP_NOT_CONN;
 
@@ -126,7 +126,7 @@ void tcp__reconn_delay_timer_cb(uv_timer_t* t)
 {
     GET_TT(t);
 
-    assert(t == &tt->reconn_delay_timer);
+    pc_assert(t == &tt->reconn_delay_timer);
     uv_timer_stop(t);
     uv_async_send(&tt->conn_async);
 }
@@ -137,7 +137,7 @@ void tcp__reconn(tr_uv_tcp_transport_t* tt)
     const pc_client_config_t* config;
     int i;
     int factor;
-    assert(tt && tt->reset_fn);
+    pc_assert(tt && tt->reset_fn);
 
     tt->reset_fn(tt);
 
@@ -219,14 +219,14 @@ void tcp__conn_async_cb(uv_async_t* t)
 
     GET_TT(t);
 
-    assert(t == &tt->conn_async);
+    pc_assert(t == &tt->conn_async);
 
     if (tt->is_connecting)
         return;
 
     tt->state = TR_UV_TCP_CONNECTING;
 
-    assert(tt->host && tt->reconn_fn);
+    pc_assert(tt->host && tt->reconn_fn);
 
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_UNSPEC;
@@ -294,8 +294,8 @@ void tcp__conn_timeout_cb(uv_timer_t* t)
 {
     GET_TT(t);
 
-    assert(&tt->conn_timeout == t);
-    assert(tt->is_connecting);
+    pc_assert(&tt->conn_timeout == t);
+    pc_assert(tt->is_connecting);
     uv_timer_stop(t);
     pc_lib_log(PC_LOG_INFO, "tcp__conn_timeout_cb - conn timeout, cancel it");
 
@@ -311,8 +311,8 @@ void tcp__conn_done_cb(uv_connect_t* conn, int status)
 
     GET_TT(conn);
 
-    assert(&tt->conn_req == conn);
-    assert(tt->is_connecting);
+    pc_assert(&tt->conn_req == conn);
+    pc_assert(tt->is_connecting);
 
     tt->is_connecting = 0;
     if (tt->config->conn_timeout != PC_WITHOUT_TIMEOUT) {
@@ -386,7 +386,7 @@ void tcp__write_async_cb(uv_async_t* a)
         return ;
     }
 
-    assert(a == &tt->write_async);
+    pc_assert(a == &tt->write_async);
 
     if (tt->is_writing) {
         return ;
@@ -459,7 +459,7 @@ void tcp__write_async_cb(uv_async_t* a)
         QUEUE_INSERT_TAIL(&tt->writing_queue, q);
     }
 
-    assert(i == buf_cnt);
+    pc_assert(i == buf_cnt);
 
     pc_mutex_unlock(&tt->wq_mutex);
 
@@ -522,8 +522,8 @@ void tcp__write_done_cb(uv_write_t* w, int status)
 {
     GET_TT(w);
 
-    assert(tt->is_writing);
-    assert(w == &tt->write_req);
+    pc_assert(tt->is_writing);
+    pc_assert(w == &tt->write_req);
 
     tt->is_writing = 0;
 
@@ -655,7 +655,7 @@ void tcp__write_check_timeout_cb(uv_timer_t* w)
     int cont;
     GET_TT(w);
 
-    assert(w == &tt->check_timeout);
+    pc_assert(w == &tt->check_timeout);
 
     cont = 0;
 
@@ -685,7 +685,7 @@ void tcp__cleanup_async_cb(uv_async_t* a)
 {
     GET_TT(a);
 
-    assert(a == &tt->cleanup_async);
+    pc_assert(a == &tt->cleanup_async);
 
     tt->reset_fn(tt);
 
@@ -718,7 +718,7 @@ void tcp__disconnect_async_cb(uv_async_t* a)
 {
     GET_TT(a);
 
-    assert(a == &tt->disconnect_async);
+    pc_assert(a == &tt->disconnect_async);
     tt->reset_fn(tt);
     tt->reconn_times = 0;
     pc_trans_fire_event(tt->client, PC_EV_DISCONNECT, NULL, NULL);
@@ -731,13 +731,13 @@ void tcp__send_heartbeat(tr_uv_tcp_transport_t* tt)
     tr_uv_wi_t* wi;
     wi = NULL;
 
-    assert(tt->state == TR_UV_TCP_DONE);
+    pc_assert(tt->state == TR_UV_TCP_DONE);
 
     pc_lib_log(PC_LOG_DEBUG, "tcp__send__heartbeat - send heartbeat");
 
     buf = pc_pkg_encode(PC_PKG_HEARBEAT, NULL, 0);
 
-    assert(buf.len && buf.base);
+    pc_assert(buf.len && buf.base);
 
     pc_mutex_lock(&tt->wq_mutex);
     for (i = 0; i < TR_UV_PRE_ALLOC_WI_SLOT_COUNT; ++i) {
@@ -781,8 +781,8 @@ void tcp__on_heartbeat(tr_uv_tcp_transport_t* tt)
     }
 
     pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - tcp get heartbeat");
-    assert(tt->state == TR_UV_TCP_DONE);
-    assert(uv_is_active((uv_handle_t*)&tt->hb_timeout_timer));
+    pc_assert(tt->state == TR_UV_TCP_DONE);
+    pc_assert(uv_is_active((uv_handle_t*)&tt->hb_timeout_timer));
 
     /*
      * we hacking uv timer to get the heartbeat rtt, rtt in millisec
@@ -814,9 +814,9 @@ void tcp__heartbeat_timer_cb(uv_timer_t* t)
 {
     GET_TT(t);
 
-    assert(t == &tt->hb_timer);
-    assert(tt->is_waiting_hb == 0);
-    assert(tt->state == TR_UV_TCP_DONE);
+    pc_assert(t == &tt->hb_timer);
+    pc_assert(tt->is_waiting_hb == 0);
+    pc_assert(tt->state == TR_UV_TCP_DONE);
 
     tcp__send_heartbeat(tt);
     tt->is_waiting_hb = 1;
@@ -829,8 +829,8 @@ void tcp__heartbeat_timeout_cb(uv_timer_t* t)
 {
     GET_TT(t);
 
-    assert(tt->is_waiting_hb);
-    assert(t == &tt->hb_timeout_timer);
+    pc_assert(tt->is_waiting_hb);
+    pc_assert(t == &tt->hb_timeout_timer);
 
     pc_lib_log(PC_LOG_WARN, "tcp__heartbeat_timeout_cb - will reconn, hb timeout");
     pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "HB Timeout", NULL);
@@ -841,7 +841,7 @@ void tcp__handshake_timer_cb(uv_timer_t* t)
 {
     GET_TT(t);
 
-    assert(t == &tt->handshake_timer);
+    pc_assert(t == &tt->handshake_timer);
 
     pc_lib_log(PC_LOG_ERROR, "tcp__handshake_timer_cb - tcp handshake timeout, will reconn");
     pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "Connect Timeout", NULL);
@@ -900,13 +900,13 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
         return ;
     }
 
-    assert((msg.id == PC_NOTIFY_PUSH_REQ_ID && msg.route)
+    pc_assert((msg.id == PC_NOTIFY_PUSH_REQ_ID && msg.route)
             || (msg.id != PC_NOTIFY_PUSH_REQ_ID && !msg.route));
 
     pc_lib_log(PC_LOG_INFO, "tcp__on_data_recieved - recived data, req_id: %d", msg.id);
 
     char *msg_str = pc_JSON_PrintUnformatted(msg.json_msg);
-    assert(msg_str);
+    pc_assert(msg_str);
 
     if (msg.id != PC_NOTIFY_PUSH_REQ_ID) {
         /* request */
@@ -925,7 +925,7 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
          */
         QUEUE_FOREACH(q, &tt->resp_pending_queue) {
             wi = (tr_uv_wi_t* )QUEUE_DATA(q, tr_uv_wi_t, queue);
-            assert(TR_UV_WI_IS_RESP(wi->type));
+            pc_assert(TR_UV_WI_IS_RESP(wi->type));
 
             if (wi->req_id != msg.id)
                 continue;
@@ -975,9 +975,9 @@ void tcp__send_handshake(tr_uv_tcp_transport_t* tt)
     body = pc_JSON_CreateObject();
     sys = pc_JSON_CreateObject();
 
-    assert(tt->state == TR_UV_TCP_HANDSHAKEING);
+    pc_assert(tt->state == TR_UV_TCP_HANDSHAKEING);
 
-    assert((tt->route_to_code && tt->code_to_route)
+    pc_assert((tt->route_to_code && tt->code_to_route)
             || (!tt->route_to_code && !tt->code_to_route));
 
     pc_JSON_AddItemToObject(sys, "type", pc_JSON_CreateString(pc_lib_platform_type));
@@ -1041,7 +1041,7 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     int i;
     int need_sync = 0;
 
-    assert(tt->state == TR_UV_TCP_HANDSHAKEING);
+    pc_assert(tt->state == TR_UV_TCP_HANDSHAKEING);
 
     tt->reconn_times = 0;
 
@@ -1125,7 +1125,7 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     } else {
         /* pc_JSON* route2code = pc_JSON_DetachItemFromObject(sys, "routeToCode"); */
         /* pc_JSON* code2route = pc_JSON_DetachItemFromObject(sys, "codeToRoute"); */
-        assert(tt->route_to_code && tt->code_to_route);
+        pc_assert(tt->route_to_code && tt->code_to_route);
     }
     pc_JSON_Delete(res);
     res = NULL;
@@ -1184,7 +1184,7 @@ void tcp__send_handshake_ack(tr_uv_tcp_transport_t* tt)
 
     pc_lib_log(PC_LOG_INFO, "tcp__send_handshake_ack - send handshake ack");
 
-    assert(buf.base && buf.len);
+    pc_assert(buf.base && buf.len);
 
     wi = NULL;
     pc_mutex_lock(&tt->wq_mutex);

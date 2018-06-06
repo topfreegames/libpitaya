@@ -3,7 +3,7 @@
  * MIT Licensed.
  */
 
-#include <assert.h>
+#include "pc_assert.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -60,7 +60,7 @@ static PC_INLINE const char *pc__resolve_dictionary(const pc_JSON* code2route, u
     memset(code_str, 0, 16);
     sprintf(code_str, "%u", code);
     tmp = pc_JSON_GetObjectItem(code2route, code_str);
-    assert(tmp && tmp->type == pc_JSON_String);
+    pc_assert(tmp && tmp->type == pc_JSON_String);
     return tmp->valuestring;
 }
 
@@ -129,7 +129,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     msg->body.base = (char* )data + offset;
     msg->body.len = len - offset;
 
-    assert(msg->id != PC_INVALID_REQ_ID);
+    pc_assert(msg->id != PC_INVALID_REQ_ID);
 
     return msg;
 }
@@ -143,7 +143,7 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
         .json_msg = NULL,
     };
 
-    assert(buf && buf->base);
+    pc_assert(buf && buf->base);
 
     pc__msg_raw_t *raw_msg = pc_msg_decode_to_raw(buf);
 
@@ -151,7 +151,7 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
         return msg;
     }
 
-    assert(raw_msg->id != PC_INVALID_REQ_ID);
+    pc_assert(raw_msg->id != PC_INVALID_REQ_ID);
 
     msg.id = raw_msg->id;
 
@@ -205,7 +205,7 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
             msg.id = PC_INVALID_REQ_ID;
             msg.route = NULL;
         } else {
-            assert(json_msg->type == pc_JSON_Object);
+            pc_assert(json_msg->type == pc_JSON_Object);
             msg.json_msg = json_msg;
         }
     }
@@ -346,8 +346,8 @@ static uint8_t pc__msg_id_length(uint32_t id)
 
 pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, int compress_data)
 {
-    assert(msg && msg->json_msg && msg->route);
-    assert(msg->json_msg->type == pc_JSON_Object);
+    pc_assert(msg && msg->json_msg && msg->route);
+    pc_assert(msg->json_msg->type == pc_JSON_Object);
 
     pc_buf_t msg_buf = { .base = NULL, .len = -1 };
     pc_buf_t body_buf = { .base = NULL, .len = -1 };
@@ -356,13 +356,13 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, i
     // } else {
         body_buf = pc_body_json_encode(msg->json_msg, compress_data);
         if(body_buf.len == -1) {
-            assert(body_buf.base == NULL);
+            pc_assert(body_buf.base == NULL);
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with json: %s\n", msg->route);
         }
     //}
 
     if (body_buf.len == -1) {
-        assert(body_buf.base == NULL);
+        pc_assert(body_buf.base == NULL);
         pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with json: %s\n", msg->route);
     }
 
@@ -370,7 +370,7 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, i
         return msg_buf;
     }
 
-    assert(body_buf.base && body_buf.len != -1);
+    pc_assert(body_buf.base && body_buf.len != -1);
 
     pc_msg_type type = msg->id == PC_NOTIFY_PUSH_REQ_ID ? PC_MSG_NOTIFY : PC_MSG_REQUEST;
 
@@ -386,14 +386,14 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, i
     if (route_code > 0) {
         msg_buf = pc_msg_encode_code(msg->id, type, route_code, compressed, body_buf);
         if(msg_buf.len == -1) {
-            assert(msg_buf.base == NULL);
+            pc_assert(msg_buf.base == NULL);
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - failed to encode message with route code: %d\n",
                     route_code);
         }
     } else {
         msg_buf = pc_msg_encode_route(msg->id, type, msg->route, compressed, body_buf);
         if(msg_buf.len == -1) {
-            assert(msg_buf.base == NULL);
+            pc_assert(msg_buf.base == NULL);
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - failed to encode message with route string: %s\n",
                     msg->route);
         }

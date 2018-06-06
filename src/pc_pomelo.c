@@ -3,7 +3,7 @@
  * MIT Licensed.
  */
 
-#include <assert.h>
+#include "pc_assert.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -48,8 +48,8 @@ pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* 
         return res;
     }
 
-    assert(tp->transport_create);
-    assert(tp->transport_release);
+    pc_assert(tp->transport_create);
+    pc_assert(tp->transport_release);
 
     pc_transport_t *trans = tp->transport_create(tp);
     if (!trans) {
@@ -62,7 +62,7 @@ pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* 
 
     res.client->trans = trans;
 
-    assert(res.client->trans->init);
+    pc_assert(res.client->trans->init);
 
     if (res.client->trans->init(res.client->trans, res.client)) {
         pc_lib_log(PC_LOG_ERROR, "pc_client_init - init transport error");
@@ -151,7 +151,7 @@ int pc_client_connect(pc_client_t* client, const char* host, int port, const cha
         return PC_RC_OK;
 
     case PC_ST_INITED:
-        assert(client->trans && client->trans->connect);
+        pc_assert(client->trans && client->trans->connect);
 
         pc_mutex_lock(&client->state_mutex);
         client->state = PC_ST_CONNECTING;
@@ -195,7 +195,7 @@ int pc_client_disconnect(pc_client_t* client)
 
         case PC_ST_CONNECTING:
         case PC_ST_CONNECTED:
-            assert(client->trans && client->trans->disconnect);
+            pc_assert(client->trans && client->trans->disconnect);
 
             pc_mutex_lock(&client->state_mutex);
             client->state = PC_ST_DISCONNECTING;
@@ -232,7 +232,7 @@ int pc_client_cleanup(pc_client_t* client)
         return PC_RC_INVALID_ARG;
     }
 
-    assert(client->trans && client->trans->cleanup);
+    pc_assert(client->trans && client->trans->cleanup);
 
     /*
      * when cleaning transport up, transport should ack all
@@ -254,11 +254,11 @@ int pc_client_cleanup(pc_client_t* client)
     if (client->config.enable_polling) {
         pc_client_poll(client);
 
-        assert(QUEUE_EMPTY(&client->pending_events));
+        pc_assert(QUEUE_EMPTY(&client->pending_events));
     }
 
-    assert(QUEUE_EMPTY(&client->req_queue));
-    assert(QUEUE_EMPTY(&client->notify_queue));
+    pc_assert(QUEUE_EMPTY(&client->req_queue));
+    pc_assert(QUEUE_EMPTY(&client->notify_queue));
 
     while(!QUEUE_EMPTY(&client->ev_handlers)) {
         q = QUEUE_HEAD(&client->ev_handlers);
@@ -290,7 +290,7 @@ int pc_client_cleanup(pc_client_t* client)
 
 static void pc__handle_event(pc_client_t* client, pc_event_t* ev)
 {
-    assert(PC_EV_IS_RESP(ev->type) || PC_EV_IS_NOTIFY_SENT(ev->type) || PC_EV_IS_NET_EVENT(ev->type));
+    pc_assert(PC_EV_IS_RESP(ev->type) || PC_EV_IS_NOTIFY_SENT(ev->type) || PC_EV_IS_NET_EVENT(ev->type));
 
     if (PC_EV_IS_RESP(ev->type)) {
         pc__trans_resp(client, ev->data.req.req_id, ev->data.req.resp, ev->data.req.error);
@@ -356,7 +356,7 @@ int pc_client_poll(pc_client_t* client)
             QUEUE_REMOVE(&ev->queue);
             QUEUE_INIT(&ev->queue);
 
-            assert((PC_IS_PRE_ALLOC(ev->type) && PC_PRE_ALLOC_IS_BUSY(ev->type)) || PC_IS_DYN_ALLOC(ev->type));
+            pc_assert((PC_IS_PRE_ALLOC(ev->type) && PC_PRE_ALLOC_IS_BUSY(ev->type)) || PC_IS_DYN_ALLOC(ev->type));
 
             pc__handle_event(client, ev);
         }
@@ -468,7 +468,7 @@ int pc_client_conn_quality(pc_client_t* client)
         return PC_RC_INVALID_ARG;
     }
 
-    assert(client->trans);
+    pc_assert(client->trans);
 
     if (client->trans->quality) {
         return client->trans->quality(client->trans);
@@ -486,7 +486,7 @@ void* pc_client_trans_data(pc_client_t* client)
         return NULL;
     }
 
-    assert(client->trans);
+    pc_assert(client->trans);
 
     if (client->trans->internal_data) {
         return client->trans->internal_data(client->trans);
@@ -516,7 +516,7 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
         return PC_RC_INVALID_ARG;
     }
 
-    assert(client->trans && client->trans->send);
+    pc_assert(client->trans && client->trans->send);
 
     pc_mutex_lock(&client->req_mutex);
 
@@ -526,8 +526,8 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
             req = &client->requests[i];
 
             PC_PRE_ALLOC_SET_BUSY(req->base.type);
-            assert(!req->base.route && !req->base.msg);
-            assert(PC_IS_PRE_ALLOC(req->base.type));
+            pc_assert(!req->base.route && !req->base.msg);
+            pc_assert(PC_IS_PRE_ALLOC(req->base.type));
             pc_lib_log(PC_LOG_DEBUG, "pc_request_with_timeout - use pre alloc request");
 
             break;
@@ -594,31 +594,31 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
 
 pc_client_t* pc_request_client(const pc_request_t* req)
 {
-    assert(req);
+    pc_assert(req);
     return req->base.client;
 }
 
 const char* pc_request_route(const pc_request_t* req)
 {
-    assert(req);
+    pc_assert(req);
     return req->base.route;
 }
 
 const char* pc_request_msg(const pc_request_t* req)
 {
-    assert(req);
+    pc_assert(req);
     return req->base.msg;
 }
 
 int pc_request_timeout(const pc_request_t* req)
 {
-    assert(req);
+    pc_assert(req);
     return req->base.timeout;
 }
 
 void* pc_request_ex_data(const pc_request_t* req)
 {
-    assert(req);
+    pc_assert(req);
     return req->base.ex_data;
 }
 
@@ -647,7 +647,7 @@ int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* m
     }
 
 
-    assert(client->trans && client->trans->send);
+    pc_assert(client->trans && client->trans->send);
 
     pc_mutex_lock(&client->req_mutex);
 
@@ -659,8 +659,8 @@ int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* m
             PC_PRE_ALLOC_SET_BUSY(notify->base.type);
 
             pc_lib_log(PC_LOG_DEBUG, "pc_notify_with_timeout - use pre alloc notify");
-            assert(!notify->base.route && !notify->base.msg);
-            assert(PC_IS_PRE_ALLOC(notify->base.type));
+            pc_assert(!notify->base.route && !notify->base.msg);
+            pc_assert(PC_IS_PRE_ALLOC(notify->base.type));
 
             break;
         }
@@ -723,30 +723,30 @@ int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* m
 
 pc_client_t* pc_notify_client(const pc_notify_t* notify)
 {
-    assert(notify);
+    pc_assert(notify);
     return notify->base.client;
 }
 
 const char* pc_notify_route(const pc_notify_t* notify)
 {
-    assert(notify);
+    pc_assert(notify);
     return notify->base.route;
 }
 
 const char* pc_notify_msg(const pc_notify_t* notify)
 {
-    assert(notify);
+    pc_assert(notify);
     return notify->base.msg;
 }
 
 int pc_notify_timeout(const pc_notify_t* notify)
 {
-    assert(notify);
+    pc_assert(notify);
     return notify->base.timeout;
 }
 
 void* pc_notify_ex_data(const pc_notify_t* notify)
 {
-    assert(notify);
+    pc_assert(notify);
     return notify->base.ex_data;
 }

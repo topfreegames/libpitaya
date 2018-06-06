@@ -4,7 +4,7 @@
  */
 
 #include <stdlib.h>
-#include <assert.h>
+#include "pc_assert.h"
 
 #include <pc_lib.h>
 
@@ -18,7 +18,7 @@ typedef struct dummy_transport_s {
 static int dummy_init(pc_transport_t* trans, pc_client_t* client)
 {
     dummy_transport_t* d_tr = (dummy_transport_t*) trans;
-    assert(d_tr);
+    pc_assert(d_tr);
 
     d_tr->client = client;
 
@@ -28,7 +28,7 @@ static int dummy_init(pc_transport_t* trans, pc_client_t* client)
 static int dummy_connect(pc_transport_t* trans, const char* host, int port, const char* handshake_opt)
 {
     dummy_transport_t* d_tr = (dummy_transport_t* )trans;
-    assert(d_tr);
+    pc_assert(d_tr);
 
     pc_trans_fire_event(d_tr->client, PC_EV_CONNECTED, NULL, NULL);
 
@@ -38,7 +38,7 @@ static int dummy_connect(pc_transport_t* trans, const char* host, int port, cons
 static int dummy_send(pc_transport_t* trans, const char* route, unsigned int seq_num, const char* msg, unsigned int req_id, int timeout)
 {
     dummy_transport_t* d_tr = (dummy_transport_t* )trans;
-    assert(d_tr);
+    pc_assert(d_tr);
 
     if (req_id == PC_NOTIFY_PUSH_REQ_ID) {
         pc_error_t error = {0};
@@ -54,7 +54,7 @@ static int dummy_send(pc_transport_t* trans, const char* route, unsigned int seq
 static int dummy_disconnect(pc_transport_t* trans)
 {
     dummy_transport_t* d_tr = (dummy_transport_t* )trans;
-    assert(d_tr);
+    pc_assert(d_tr);
 
     pc_trans_fire_event(d_tr->client, PC_EV_DISCONNECT, NULL, NULL);
 

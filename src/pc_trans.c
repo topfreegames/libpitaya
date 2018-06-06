@@ -3,7 +3,7 @@
  * MIT Licensed.
  */
 
-#include <assert.h>
+#include "pc_assert.h"
 #include <string.h>
 
 #include <pomelo_trans.h>
@@ -51,7 +51,7 @@ void pc__trans_queue_event(pc_client_t* client, int ev_type, const char* arg1, c
         }
     }
 
-    assert(client->config.enable_polling);
+    pc_assert(client->config.enable_polling);
 
     pc_lib_log(PC_LOG_INFO, "pc__trans_queue_event - add pending event: %s", pc_client_ev_str(ev_type));
     pc_mutex_lock(&client->event_mutex);
@@ -122,47 +122,47 @@ void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, co
     pc_mutex_lock(&client->state_mutex);
     switch(ev_type) {
         case PC_EV_CONNECTED:
-            assert(client->state == PC_ST_CONNECTING);
+            pc_assert(client->state == PC_ST_CONNECTING);
             client->state = PC_ST_CONNECTED;
             break;
 
         case PC_EV_CONNECT_ERROR:
-            assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_DISCONNECTING);
+            pc_assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_DISCONNECTING);
             client->state = PC_ST_INITED;
             break;
 
         case PC_EV_CONNECT_FAILED:
-            assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_DISCONNECTING);
+            pc_assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_DISCONNECTING);
             client->state = PC_ST_INITED;
             break;
             
         case PC_EV_RECONNECT_FAILED:
-            assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_DISCONNECTING);
+            pc_assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_DISCONNECTING);
             client->state = PC_ST_INITED;
             break;
             
         case PC_EV_DISCONNECT:
-            assert(client->state == PC_ST_DISCONNECTING || client->state == PC_ST_CONNECTED);
+            pc_assert(client->state == PC_ST_DISCONNECTING || client->state == PC_ST_CONNECTED);
             client->state = PC_ST_INITED;
             break;
 
         case PC_EV_KICKED_BY_SERVER:
-            assert(client->state == PC_ST_CONNECTED || client->state == PC_ST_DISCONNECTING);
+            pc_assert(client->state == PC_ST_CONNECTED || client->state == PC_ST_DISCONNECTING);
             client->state = PC_ST_INITED;
             break;
 
         case PC_EV_RECONNECT_STARTED:
-            assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_INITED);
+            pc_assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_INITED);
             client->state = PC_ST_CONNECTING;
             break;
 
         case PC_EV_UNEXPECTED_DISCONNECT:
-            assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_CONNECTED
+            pc_assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_CONNECTED
                    || client->state == PC_ST_DISCONNECTING);
             client->state = PC_ST_INITED;
             break;
         case PC_EV_PROTO_ERROR:
-            assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_CONNECTED
+            pc_assert(client->state == PC_ST_CONNECTING || client->state == PC_ST_CONNECTED
                     || client->state == PC_ST_DISCONNECTING);
             client->state = PC_ST_CONNECTING;
             break;
@@ -180,7 +180,7 @@ void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, co
     pc_mutex_lock(&client->handler_mutex);
     QUEUE_FOREACH(q, &client->ev_handlers) {
         handler = QUEUE_DATA(q, pc_ev_handler_t, queue);
-        assert(handler && handler->cb);
+        pc_assert(handler && handler->cb);
         handler->cb(client, ev_type, handler->ex_data, arg1, arg2);
     }
     pc_mutex_unlock(&client->handler_mutex);
