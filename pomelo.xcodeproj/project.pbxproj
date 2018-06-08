@@ -23,48 +23,46 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		08CC6E3B86380744A643FCB9 /* pr_msg_json.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2E06465E2F68AA0271B6 /* pr_msg_json.c */; };
 		0A04F234234C06CFF0766232 /* test_kick.c in Sources */ = {isa = PBXBuildFile; fileRef = 9108766608100716CA22B863 /* test_kick.c */; };
-		0C5D67A2EBD04D16F8DD7ADC /* pc_pomelo.c in Sources */ = {isa = PBXBuildFile; fileRef = D431CB24B7674046796C32BC /* pc_pomelo.c */; };
+		0C1B8833A3D2455DC9F5A99A /* pc_pomelo.c in Sources */ = {isa = PBXBuildFile; fileRef = D431CB24B7674046796C32BC /* pc_pomelo.c */; };
 		0E3B40F20FB40F3B7999C32E /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BDFD6793E9DB0C171AA4F62 /* libzlib.a */; };
-		171A4BF920C86D59009082CC /* pc_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = 171A4BF520C86C54009082CC /* pc_assert.c */; };
-		171A4BFA20C86D5A009082CC /* pc_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = 171A4BF520C86C54009082CC /* pc_assert.c */; };
-		171A4BFB20C86D5A009082CC /* pc_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = 171A4BF520C86C54009082CC /* pc_assert.c */; };
-		1EF56CDE7594F6518166422D /* pc_trans_repo.c in Sources */ = {isa = PBXBuildFile; fileRef = A0053F518F8F7D270B0412C4 /* pc_trans_repo.c */; };
-		218F812345028D23CECCBC20 /* tr_dummy.c in Sources */ = {isa = PBXBuildFile; fileRef = 1B5FA4BFCCD305A28C0B9049 /* tr_dummy.c */; };
-		269FAE1B997673EDAC8C65D4 /* tr_uv_tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = A6C50EA22A74B59BC9D6176B /* tr_uv_tcp.c */; };
-		3474D85AA88FEFC223DA645F /* pr_pkg.c in Sources */ = {isa = PBXBuildFile; fileRef = 0CF2789E0EDBC6B7F90765B7 /* pr_pkg.c */; };
+		3826AF3042CFFFF639A9761B /* tr_dummy.c in Sources */ = {isa = PBXBuildFile; fileRef = 1B5FA4BFCCD305A28C0B9049 /* tr_dummy.c */; };
+		3F042C53B45FB3A721E40E2E /* tr_uv_tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 99A17CF0FD07388D32D98CF3 /* tr_uv_tls.c */; };
 		3F17109A79D65D988EFA0951 /* munit.c in Sources */ = {isa = PBXBuildFile; fileRef = 6156655767ADB9D0D493F0E3 /* munit.c */; };
+		4364BD8D913928E33D289754 /* pr_msg.c in Sources */ = {isa = PBXBuildFile; fileRef = EE190493AADBB17FF4BDFAF1 /* pr_msg.c */; };
+		44DCA0E62CC5B0CE7DB4519E /* tr_uv_tls_i.c in Sources */ = {isa = PBXBuildFile; fileRef = B94C84D2881FA8FB586B958A /* tr_uv_tls_i.c */; };
 		48C0593D198EC949B6231B0B /* test_notify.c in Sources */ = {isa = PBXBuildFile; fileRef = 30014FDAA02607DA0B5ADFEA /* test_notify.c */; };
 		4F22F6D6FA5274AFD6D6270A /* libopenssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10DC97970611A9A5438E1F67 /* libopenssl.a */; };
 		5073A7EA1A37E48324FDF797 /* test-tr_tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = 74251F2188A6E561B93FB3D6 /* test-tr_tcp.c */; };
-		59D44BB2D46CDC8FE6B5D006 /* pr_gzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE5F93353B338C5BEF3CB9F /* pr_gzip.c */; };
-		5E86EEFAB227F8B15C5EEB6D /* pr_msg_json.c in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2E06465E2F68AA0271B6 /* pr_msg_json.c */; };
-		65C3FD1641E942B6D88EFF62 /* pc_trans.c in Sources */ = {isa = PBXBuildFile; fileRef = EA98E9833D3892875EC73031 /* pc_trans.c */; };
-		67ECB708FBC8AE6E523E9E67 /* tr_uv_tcp_aux.c in Sources */ = {isa = PBXBuildFile; fileRef = 3019116ACA04B0193690BC32 /* tr_uv_tcp_aux.c */; };
+		531CC069911CE13F751CFBCF /* tr_uv_tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = A6C50EA22A74B59BC9D6176B /* tr_uv_tcp.c */; };
 		6BA97DA9E7FEE13EB2D08503 /* -lm in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3D9D957938AAB4ECC2C2AD /* -lm */; };
 		6C9F0E499F6631807F0519E3 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BDFD6793E9DB0C171AA4F62 /* libzlib.a */; };
+		6EBBD6E9422AC9FBBACC3B4D /* pc_lib.c in Sources */ = {isa = PBXBuildFile; fileRef = D21C3122B6C6B268B046AEF7 /* pc_lib.c */; };
+		6F28650AA07FF9D75208F19C /* pr_pkg.c in Sources */ = {isa = PBXBuildFile; fileRef = 0CF2789E0EDBC6B7F90765B7 /* pr_pkg.c */; };
 		75290DD0A26DE802D93701EF /* test_request.c in Sources */ = {isa = PBXBuildFile; fileRef = DEFC87509A90889FFBE76A4A /* test_request.c */; };
-		7C4A580DAA39840FBE6455EC /* pr_msg.c in Sources */ = {isa = PBXBuildFile; fileRef = EE190493AADBB17FF4BDFAF1 /* pr_msg.c */; };
+		779B6149638999190160CF43 /* pr_gzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE5F93353B338C5BEF3CB9F /* pr_gzip.c */; };
+		794FB263137CC2E7F5FDC22E /* tr_uv_tcp_aux.c in Sources */ = {isa = PBXBuildFile; fileRef = 3019116ACA04B0193690BC32 /* tr_uv_tcp_aux.c */; };
 		817B711635B5C4A832288B55 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D946DEA9BFFD62C2B39C48E /* main.c */; };
-		830509A7C76FBDDDB6A45AF5 /* pc_JSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 76B65CED397920478E0273C0 /* pc_JSON.c */; };
-		86671B488B4E3B1CC56344B1 /* tr_uv_tcp_i.c in Sources */ = {isa = PBXBuildFile; fileRef = EE29283DE5BBE2DFBCBABA55 /* tr_uv_tcp_i.c */; };
 		904C0FD8290E4E7DEC455E10 /* -lm in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3D9D957938AAB4ECC2C2AD /* -lm */; };
 		90CB19DBDF26CD1F71B20900 /* libpitaya.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 798253CDC52C3473D6C7966A /* libpitaya.a */; };
 		92CA46925809166571097D79 /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED6ADD425B0036DEE678188C /* libuv.a */; };
 		9E51B574A261E3E81AE282DC /* test_pc_client.c in Sources */ = {isa = PBXBuildFile; fileRef = F625DFF6EB54892A7C9C08F8 /* test_pc_client.c */; };
+		ABED6676F0D6755A1B46B074 /* pc_trans.c in Sources */ = {isa = PBXBuildFile; fileRef = EA98E9833D3892875EC73031 /* pc_trans.c */; };
+		B26828E1F4B3F47580A59262 /* pc_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = C4BE5D8A644645CA1D56DDF6 /* pc_assert.c */; };
 		B2A94B804D3193A643A44668 /* test_session.c in Sources */ = {isa = PBXBuildFile; fileRef = DE3E558FBA7F67A065EC2767 /* test_session.c */; };
 		B30B0D1C41CA605DC2D91BD8 /* cspomelo.c in Sources */ = {isa = PBXBuildFile; fileRef = 92240B52CAD0DCB74BFBE8D8 /* cspomelo.c */; };
 		BB9EEA2CCACCDB7D7FD84369 /* test_reconnection.c in Sources */ = {isa = PBXBuildFile; fileRef = 98C1F2450BCE73666B11571B /* test_reconnection.c */; };
+		C1A99E93F4EF23B8F902A333 /* pc_trans_repo.c in Sources */ = {isa = PBXBuildFile; fileRef = A0053F518F8F7D270B0412C4 /* pc_trans_repo.c */; };
+		C6A12C7578613D9894619591 /* pc_JSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 76B65CED397920478E0273C0 /* pc_JSON.c */; };
 		CA440914A89D25AED413A40E /* test_compression.c in Sources */ = {isa = PBXBuildFile; fileRef = F5CE3FCACB5C556E2BB589E1 /* test_compression.c */; };
 		D00FA5A759029DC371FD349E /* test_stress.c in Sources */ = {isa = PBXBuildFile; fileRef = 8E58A47EFE470FB388E356AA /* test_stress.c */; };
 		DF6D660B7BCB68AAACDEF8C4 /* libopenssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10DC97970611A9A5438E1F67 /* libopenssl.a */; };
-		E2F4CE74832413090BA073F6 /* tr_uv_tls_i.c in Sources */ = {isa = PBXBuildFile; fileRef = B94C84D2881FA8FB586B958A /* tr_uv_tls_i.c */; };
+		E69FABEF87FB890535147317 /* tr_uv_tcp_i.c in Sources */ = {isa = PBXBuildFile; fileRef = EE29283DE5BBE2DFBCBABA55 /* tr_uv_tcp_i.c */; };
 		E943C4D65213D51A5E7489A7 /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED6ADD425B0036DEE678188C /* libuv.a */; };
-		ECCE108E271DE2958D0C34EA /* tr_uv_tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 99A17CF0FD07388D32D98CF3 /* tr_uv_tls.c */; };
 		EEE1B24CBBF827205B40D829 /* libpitaya.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 798253CDC52C3473D6C7966A /* libpitaya.a */; };
+		F34EB5B95A6DEA2807F529DF /* tr_uv_tls_aux.c in Sources */ = {isa = PBXBuildFile; fileRef = D72DE8C81F064C236B4C78B9 /* tr_uv_tls_aux.c */; };
 		F6FFCBBBF7A3F960A850B799 /* test-tr_tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 55556D5804B6E2EABD6288DA /* test-tr_tls.c */; };
-		FAF324DB234930BDFAD888AA /* tr_uv_tls_aux.c in Sources */ = {isa = PBXBuildFile; fileRef = D72DE8C81F064C236B4C78B9 /* tr_uv_tls_aux.c */; };
-		FE7DA27424D4819CA9BB167E /* pc_lib.c in Sources */ = {isa = PBXBuildFile; fileRef = D21C3122B6C6B268B046AEF7 /* pc_lib.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -171,8 +169,6 @@
 /* Begin PBXFileReference section */
 		01FB2E06465E2F68AA0271B6 /* pr_msg_json.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pr_msg_json.c; sourceTree = "<group>"; };
 		0CF2789E0EDBC6B7F90765B7 /* pr_pkg.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pr_pkg.c; sourceTree = "<group>"; };
-		171A4BF420C853C5009082CC /* pc_assert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pc_assert.h; sourceTree = "<group>"; };
-		171A4BF520C86C54009082CC /* pc_assert.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pc_assert.c; sourceTree = "<group>"; };
 		1B5FA4BFCCD305A28C0B9049 /* tr_dummy.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_dummy.c; sourceTree = "<group>"; };
 		1FE5F93353B338C5BEF3CB9F /* pr_gzip.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pr_gzip.c; sourceTree = "<group>"; };
 		30014FDAA02607DA0B5ADFEA /* test_notify.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = test_notify.c; sourceTree = "<group>"; };
@@ -196,6 +192,7 @@
 		A6C50EA22A74B59BC9D6176B /* tr_uv_tcp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_uv_tcp.c; sourceTree = "<group>"; };
 		ABE15A0EA6CEACFABA70F04E /* tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		B94C84D2881FA8FB586B958A /* tr_uv_tls_i.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tr_uv_tls_i.c; sourceTree = "<group>"; };
+		C4BE5D8A644645CA1D56DDF6 /* pc_assert.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pc_assert.c; sourceTree = "<group>"; };
 		CE3D9D957938AAB4ECC2C2AD /* -lm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "-lm"; sourceTree = "<group>"; };
 		CF860C12839DB42D74918F38 /* openssl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openssl.xcodeproj; path = deps/openssl/openssl.xcodeproj; sourceTree = SOURCE_ROOT; };
 		D21C3122B6C6B268B046AEF7 /* pc_lib.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pc_lib.c; sourceTree = "<group>"; };
@@ -285,10 +282,24 @@
 			children = (
 				B91D9DFB5149B6D01C9FC5A0 /* cs/contrib */,
 				B8280997E3953D9180CC81A8 /* deps/munit */,
-				C83DD47A9E18BC8120D41FE7 /* src */,
+				936DD6D0D8801ACD2BCA7628 /* src */,
 				F38A76363B9EA1C8BECADDE3 /* test */,
 			);
 			name = Source;
+			sourceTree = "<group>";
+		};
+		936DD6D0D8801ACD2BCA7628 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D87BEB213F4626859971D307 /* tr */,
+				76B65CED397920478E0273C0 /* pc_JSON.c */,
+				C4BE5D8A644645CA1D56DDF6 /* pc_assert.c */,
+				D21C3122B6C6B268B046AEF7 /* pc_lib.c */,
+				D431CB24B7674046796C32BC /* pc_pomelo.c */,
+				EA98E9833D3892875EC73031 /* pc_trans.c */,
+				A0053F518F8F7D270B0412C4 /* pc_trans_repo.c */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 		9A644308101E3203BA676EDA /* Products */ = {
@@ -319,8 +330,6 @@
 			isa = PBXGroup;
 			children = (
 				92240B52CAD0DCB74BFBE8D8 /* cspomelo.c */,
-				171A4BF420C853C5009082CC /* pc_assert.h */,
-				171A4BF520C86C54009082CC /* pc_assert.c */,
 			);
 			path = cs/contrib;
 			sourceTree = "<group>";
@@ -352,19 +361,6 @@
 				91331A4C5B3CAAFD66B08AF9 /* pomelo.gyp */,
 			);
 			name = Build;
-			sourceTree = "<group>";
-		};
-		C83DD47A9E18BC8120D41FE7 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				D87BEB213F4626859971D307 /* tr */,
-				76B65CED397920478E0273C0 /* pc_JSON.c */,
-				D21C3122B6C6B268B046AEF7 /* pc_lib.c */,
-				D431CB24B7674046796C32BC /* pc_pomelo.c */,
-				EA98E9833D3892875EC73031 /* pc_trans.c */,
-				A0053F518F8F7D270B0412C4 /* pc_trans_repo.c */,
-			);
-			path = src;
 			sourceTree = "<group>";
 		};
 		D87BEB213F4626859971D307 /* tr */ = {
@@ -479,11 +475,7 @@
 			};
 			buildConfigurationList = 8507625DC7EBB8838C0F9137 /* Build configuration list for PBXProject "pomelo" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = en;
 			hasScannedForEncodings = 1;
-			knownRegions = (
-				en,
-			);
 			mainGroup = BADFDA9923828CF4A18F9F67;
 			projectDirPath = "";
 			projectReferences = (
@@ -539,7 +531,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				171A4BFB20C86D5A009082CC /* pc_assert.c in Sources */,
 				B30B0D1C41CA605DC2D91BD8 /* cspomelo.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -548,23 +539,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C5D67A2EBD04D16F8DD7ADC /* pc_pomelo.c in Sources */,
-				FE7DA27424D4819CA9BB167E /* pc_lib.c in Sources */,
-				65C3FD1641E942B6D88EFF62 /* pc_trans.c in Sources */,
-				1EF56CDE7594F6518166422D /* pc_trans_repo.c in Sources */,
-				830509A7C76FBDDDB6A45AF5 /* pc_JSON.c in Sources */,
-				218F812345028D23CECCBC20 /* tr_dummy.c in Sources */,
-				59D44BB2D46CDC8FE6B5D006 /* pr_gzip.c in Sources */,
-				7C4A580DAA39840FBE6455EC /* pr_msg.c in Sources */,
-				171A4BF920C86D59009082CC /* pc_assert.c in Sources */,
-				5E86EEFAB227F8B15C5EEB6D /* pr_msg_json.c in Sources */,
-				3474D85AA88FEFC223DA645F /* pr_pkg.c in Sources */,
-				269FAE1B997673EDAC8C65D4 /* tr_uv_tcp.c in Sources */,
-				86671B488B4E3B1CC56344B1 /* tr_uv_tcp_i.c in Sources */,
-				67ECB708FBC8AE6E523E9E67 /* tr_uv_tcp_aux.c in Sources */,
-				ECCE108E271DE2958D0C34EA /* tr_uv_tls.c in Sources */,
-				E2F4CE74832413090BA073F6 /* tr_uv_tls_i.c in Sources */,
-				FAF324DB234930BDFAD888AA /* tr_uv_tls_aux.c in Sources */,
+				0C1B8833A3D2455DC9F5A99A /* pc_pomelo.c in Sources */,
+				6EBBD6E9422AC9FBBACC3B4D /* pc_lib.c in Sources */,
+				ABED6676F0D6755A1B46B074 /* pc_trans.c in Sources */,
+				B26828E1F4B3F47580A59262 /* pc_assert.c in Sources */,
+				C1A99E93F4EF23B8F902A333 /* pc_trans_repo.c in Sources */,
+				C6A12C7578613D9894619591 /* pc_JSON.c in Sources */,
+				3826AF3042CFFFF639A9761B /* tr_dummy.c in Sources */,
+				779B6149638999190160CF43 /* pr_gzip.c in Sources */,
+				4364BD8D913928E33D289754 /* pr_msg.c in Sources */,
+				08CC6E3B86380744A643FCB9 /* pr_msg_json.c in Sources */,
+				6F28650AA07FF9D75208F19C /* pr_pkg.c in Sources */,
+				531CC069911CE13F751CFBCF /* tr_uv_tcp.c in Sources */,
+				E69FABEF87FB890535147317 /* tr_uv_tcp_i.c in Sources */,
+				794FB263137CC2E7F5FDC22E /* tr_uv_tcp_aux.c in Sources */,
+				3F042C53B45FB3A721E40E2E /* tr_uv_tls.c in Sources */,
+				44DCA0E62CC5B0CE7DB4519E /* tr_uv_tls_i.c in Sources */,
+				F34EB5B95A6DEA2807F529DF /* tr_uv_tls_aux.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,7 +572,6 @@
 				0A04F234234C06CFF0766232 /* test_kick.c in Sources */,
 				B2A94B804D3193A643A44668 /* test_session.c in Sources */,
 				75290DD0A26DE802D93701EF /* test_request.c in Sources */,
-				171A4BFA20C86D5A009082CC /* pc_assert.c in Sources */,
 				48C0593D198EC949B6231B0B /* test_notify.c in Sources */,
 				D00FA5A759029DC371FD349E /* test_stress.c in Sources */,
 				3F17109A79D65D988EFA0951 /* munit.c in Sources */,
@@ -669,6 +659,7 @@
 					deps/openssl/openssl/include,
 				);
 				PRODUCT_NAME = pitaya;
+				TARGET_BUILD_DIR = output;
 			};
 			name = Release_x64;
 		};
@@ -693,6 +684,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = pitaya_unity;
+				TARGET_BUILD_DIR = output;
 			};
 			name = Release_x64;
 		};
@@ -733,6 +725,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = tests;
+				TARGET_BUILD_DIR = output;
 			};
 			name = Release_x64;
 		};

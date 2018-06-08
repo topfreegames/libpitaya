@@ -4,7 +4,7 @@
  */
 
 #include <string.h>
-#include "pc_assert.h"
+#include <pc_assert.h>
 
 #include <pc_lib.h>
 #include <pomelo.h>

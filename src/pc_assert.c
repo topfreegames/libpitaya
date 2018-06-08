@@ -5,7 +5,7 @@
 //  Created by Guthyerrz Maciel on 06/06/18.
 //
 
-#include "pc_assert.h"
+#include <pc_assert.h>
 #include <assert.h>
 
 void (*pc_custom_assert)(const char* e, const char* file, int line) = NULL;

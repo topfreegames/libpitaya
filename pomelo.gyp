@@ -155,6 +155,7 @@
           './src/pc_pomelo.c',
           './src/pc_lib.c',
           './src/pc_trans.c',
+          './src/pc_assert.c',
           './src/pc_trans_repo.c',
           './src/pc_JSON.c',
           './src/tr/dummy/tr_dummy.c'

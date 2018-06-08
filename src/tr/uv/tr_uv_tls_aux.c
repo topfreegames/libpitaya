@@ -7,7 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include "pc_assert.h"
+#include <pc_assert.h>
 
 #include <pc_lib.h>
 #include <pc_pomelo_i.h>
