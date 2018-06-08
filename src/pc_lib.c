@@ -225,7 +225,7 @@ const char* pc_client_rc_str(int rc) {
     return rc_str[-rc];
 }
 
-void pc_lib_get_default_log_level() {
+int pc_lib_get_default_log_level() {
     return pc__default_log_level;
 }
 

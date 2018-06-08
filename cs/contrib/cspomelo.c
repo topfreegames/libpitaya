@@ -37,7 +37,7 @@ void android_log(int level, const char* msg, ...)
     char buf[256];
     va_list va;
 
-    if (level < 0 || level < pc__default_log_level() ) {
+    if (level < 0 || level < pc_lib_get_default_log_level() ) {
         return;
     }
 
@@ -79,7 +79,7 @@ void unity_log(int level, const char* msg, ...)
     va_list va;
     int n;
 
-    if (level < 0 || level < pc__default_log_level() ) {
+    if (level < 0 || level < pc_lib_get_default_log_level() ) {
         return;
     }
 
