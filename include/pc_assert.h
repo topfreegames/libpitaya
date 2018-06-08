@@ -21,8 +21,6 @@ PC_EXPORT void __pc_assert(const char* e, const char* file, int line);
 #define pc_assert(e)  \
 ((void) ((e) ? ((void)0) : __pc_assert (#e, __FILE__, __LINE__)))
 
-PC_EXPORT void (*pc_custom_assert)(const char* e, const char* file, int line);
-
 PC_EXPORT void update_assert(void (*custom_assert)(const char* e, const char* file, int line));
 
 #ifdef __cplusplus
