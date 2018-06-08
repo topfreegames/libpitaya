@@ -45,8 +45,7 @@ static int pc_initiateded = 0;
  *
  * if you customize malloc, please make sure that it never return NULL
  */
-static void* default_malloc(size_t len)
-{
+static void* default_malloc(size_t len) {
     void* d = malloc(len);
 
     /* if oom, just abort */
@@ -56,7 +55,7 @@ static void* default_malloc(size_t len)
     return d;
 }
 
-static void* default_realloc(void* ptr, size_t len){
+static void* default_realloc(void* ptr, size_t len) {
     ptr = realloc(ptr, len);
     
     if (!ptr){
@@ -66,8 +65,7 @@ static void* default_realloc(void* ptr, size_t len){
     return ptr;
 }
 
-static void default_log(int level, const char* msg, ...)
-{
+static void default_log(int level, const char* msg, ...) {
     time_t t = time(NULL);
     char buf[32];
     va_list va;
@@ -102,8 +100,7 @@ static void default_log(int level, const char* msg, ...)
     fflush(stderr   );
 }
 
-void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_alloc)(size_t), void (*pc_free)(void* ), void* (*pc_realloc)(void*, size_t), const char* platform)
-{
+void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_alloc)(size_t), void (*pc_free)(void* ), void* (*pc_realloc)(void*, size_t), const char* platform) {
     if(pc_initiateded == 1){
         return; // init function already called
     }
@@ -136,8 +133,7 @@ void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_all
 #endif
 }
 
-void pc_lib_cleanup()
-{
+void pc_lib_cleanup() {
     return;
 #if !defined(PC_NO_DUMMY_TRANS)
     pc_transport_plugin_deregister(PC_TR_NAME_DUMMY);
@@ -157,8 +153,7 @@ void pc_lib_cleanup()
     pc_lib_free((char*)pc_lib_platform_type);
 }
 
-const char* pc_lib_strdup(const char* str)
-{
+const char* pc_lib_strdup(const char* str) {
     char* buf;
     size_t len;
 
@@ -185,8 +180,7 @@ static const char* state_str[] = {
 };
 
 
-const char* pc_client_state_str(int state)
-{
+const char* pc_client_state_str(int state) {
     pc_assert(state < PC_ST_COUNT && state >= 0);
     return state_str[state];
 }
@@ -205,8 +199,7 @@ static const char* ev_str[] = {
     NULL
 };
 
-const char* pc_client_ev_str(int ev_type)
-{
+const char* pc_client_ev_str(int ev_type) {
     pc_assert(ev_type >= 0 && ev_type < PC_EV_COUNT);
     return ev_str[ev_type];
 }
@@ -227,13 +220,15 @@ static const char* rc_str[] = {
     NULL
 };
 
-const char* pc_client_rc_str(int rc)
-{
+const char* pc_client_rc_str(int rc) {
     pc_assert(rc <= 0 && rc > PC_RC_MIN);
     return rc_str[-rc];
 }
 
-void pc_lib_set_default_log_level(int level)
-{
+void pc_lib_get_default_log_level() {
+    return pc__default_log_level;
+}
+
+void pc_lib_set_default_log_level(int level) {
     pc__default_log_level = level;
 }

@@ -37,7 +37,7 @@ void android_log(int level, const char* msg, ...)
     char buf[256];
     va_list va;
 
-    if (level < 0) {
+    if (level < 0 || level < pc__default_log_level() ) {
         return;
     }
 
@@ -79,7 +79,7 @@ void unity_log(int level, const char* msg, ...)
     va_list va;
     int n;
 
-    if (level < 0) {
+    if (level < 0 || level < pc__default_log_level() ) {
         return;
     }
 
@@ -203,6 +203,7 @@ CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* c
     if(custom_assert != NULL){
         update_assert(custom_assert);
     }
+    
 
     pc_lib_set_default_log_level(log_level);
 #if defined(__ANDROID__)
