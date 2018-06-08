@@ -178,7 +178,7 @@
               '-fPIC',
             ],
 	     'link_settings': {
-	       'libraries': ['-pie'],
+	       'libraries': ['-pie', '-llog'],
 	     },
           }],
           ['build_for_mac == "true" or build_for_ios == "true" or OS == "android"', {
