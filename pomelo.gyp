@@ -175,6 +175,7 @@
               '-fPIE',
               '-march=armv7-a',
               '-mthumb',
+              '-fPIC',
             ],
 	     'link_settings': {
 	       'libraries': ['-pie'],
