@@ -69,7 +69,7 @@ static void request_cb(const pc_request_t* req, const char* resp)
 
 static void error_cb(const pc_request_t* req, pc_error_t error)
 {
-    NSLog(@"Error %@ %@", [NSString stringWithCString:error.code] , [NSString stringWithCString:error.msg]);
+//    NSLog(@"Error %@ %@", [NSString stringWithCString:error.code] , [NSString stringWithCString:error.msg]);
 }
 
 - (void)gotResponse:(NSNotification *) notification
