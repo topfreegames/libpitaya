@@ -154,6 +154,7 @@ PC_EXPORT const char* pc_lib_version_str();
  * Otherwise, this function does nothing.
  */
 PC_EXPORT void pc_lib_set_default_log_level(int level);
+PC_EXPORT int pc_lib_get_default_log_level();
 
 /**
  * pc_lib_init and pc_lib_cleanup both should be invoked only once.

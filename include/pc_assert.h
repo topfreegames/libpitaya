@@ -10,6 +10,12 @@
 
 #include <stddef.h>
 
+#include <pomelo.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 PC_EXPORT void __pc_assert(const char* e, const char* file, int line);
 
 #define pc_assert(e)  \
@@ -19,5 +25,8 @@ PC_EXPORT void (*pc_custom_assert)(const char* e, const char* file, int line);
 
 PC_EXPORT void update_assert(void (*custom_assert)(const char* e, const char* file, int line));
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* pc_assert_h */
