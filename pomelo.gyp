@@ -181,7 +181,7 @@
 	       'libraries': ['-pie', '-llog'],
 	     },
           }],
-          ['build_for_mac == "true" or build_for_ios == "true" or OS == "android"', {
+          ['build_for_mac == "true" or build_for_ios == "true" or build_for_linux == "true"', {
             'type': 'static_library',
           }, {
             'type': 'shared_library',
