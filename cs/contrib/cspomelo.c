@@ -24,7 +24,7 @@
 #endif
 
 #if defined(__ANDROID__)
-
+#undef __UNITYEDITOR__
 #include <android/log.h>
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "cspomelo", __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG ,"cspomelo", __VA_ARGS__)
@@ -243,16 +243,17 @@ CS_POMELO_EXPORT void destroy(pc_client_t* client) {
     f = NULL;
 #endif
     
-    lc_cb = (lc_callback_t*)pc_client_config(client)->ls_ex_data;
-    if (lc_cb) {
-        free(lc_cb);
+    if(client != NULL){
+        lc_cb = (lc_callback_t*)pc_client_config(client)->ls_ex_data;
+        if (lc_cb) {
+            free(lc_cb);
+        }
+        pc_client_cleanup(client);
     }
-    pc_client_cleanup(client);
 }
 
 CS_POMELO_EXPORT int request(pc_client_t* client, const char* route, const char* msg,
                              unsigned int cbid, int timeout, request_callback cb, request_error_callback error_cb) {
-    unity_log(PC_LOG_DEBUG, "route: %s msg %s cbid: %d timeout %d ",  route, msg, cbid, timeout);
     request_cb_t* rp = (request_cb_t*)malloc(sizeof(request_cb_t));
     if (!rp) {
         return PC_RC_TIMEOUT;
