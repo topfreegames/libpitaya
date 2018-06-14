@@ -5,6 +5,8 @@ if [ -z $1 ]; then
   exit 1
 fi
 
+./build-openssl.py --os Android --prefix `pwd`/build/openssl --openssl-dir `pwd`/deps/openssl --ndk-dir $1
+
 export ANDROID_TOOLCHAIN_DIR=$PWD/android-toolchain
 
 if [ ! -e $ANDROID_TOOLCHAIN_DIR ]; then

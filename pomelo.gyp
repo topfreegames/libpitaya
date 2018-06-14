@@ -108,12 +108,13 @@
         ['no_tls_support == "false"', {
           'conditions': [
             ['use_sys_openssl == "false"', {
-              'dependencies': [
-                './deps/openssl/openssl.gyp:openssl',
-              ],
               'include_dirs': [
-                './deps/openssl/openssl/include',
-              ]
+                './build/openssl/include',
+              ],
+              'link_settings': {
+	              'libraries': ['-L<!(pwd)/build/openssl/lib', '-lcrypto', '-lssl'],
+	            }
+
             }, {
               'conditions': [
                 [ 'OS=="win"', {
