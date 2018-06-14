@@ -50,8 +50,15 @@ def make_toolchain(ndk_dir, openssl_temp_dir):
 
 
 def set_envs(ndk_dir, toolchain_dir):
-    ndk_toolchain_basename = '{}/{}'.format(
-        toolchain_dir, 'bin/arm-linux-androideabi')
+    toolchain_path = os.path.join(toolchain_dir, 'bin')
+    ndk_toolchain_basename = os.path.join(
+        toolchain_path, 'arm-linux-androideabi'
+    )
+
+    os.environ['TOOLCHAIN_PATH'] = toolchain_path
+    os.environ['TOOL'] = 'arm-linux-androideabi'
+    os.environ['NDK_TOOLCHAIN_BASENAME'] = os.path.join(
+        os.environ['TOOLCHAIN_PATH'], os.environ['TOOL'])
 
     os.environ['CC'] = ndk_toolchain_basename + '-gcc'
     os.environ['CXX'] = ndk_toolchain_basename + '-g++'
@@ -69,6 +76,11 @@ def set_envs(ndk_dir, toolchain_dir):
     os.environ['CFLAGS'] = ' {} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
         os.environ['ARCH_FLAGS'])
     os.environ['LDFLAGS'] = ' {} '.format(os.environ['ARCH_LINK'])
+    os.environ['CROSS_COMPILE'] = ''
+    os.environ['PATH'] = '{}:{}'.format(toolchain_path, os.environ['PATH'])
+
+    print(os.environ['CC'])
+    print(os.environ['PATH'])
 
 
 def main():
