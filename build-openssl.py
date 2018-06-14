@@ -28,7 +28,8 @@ def parse_args():
 
 def make_openssl_temp_dir(openssl_dir):
     openssl_temp_dir = os.path.join(tempfile.gettempdir(), 'openssl')
-    shutil.rmtree(openssl_temp_dir)
+    if os.path.exists(openssl_temp_dir):
+        shutil.rmtree(openssl_temp_dir)
     shutil.copytree(openssl_dir, openssl_temp_dir)
     assert(os.path.exists(openssl_temp_dir))
     return openssl_temp_dir
