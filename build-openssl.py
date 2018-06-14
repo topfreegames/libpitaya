@@ -30,6 +30,7 @@ def make_openssl_temp_dir(openssl_dir):
     openssl_temp_dir = os.path.join(tempfile.gettempdir(), 'openssl')
     shutil.rmtree(openssl_temp_dir)
     shutil.copytree(openssl_dir, openssl_temp_dir)
+    assert(os.path.exists(openssl_temp_dir))
     return openssl_temp_dir
 
 
@@ -39,20 +40,18 @@ def make_toolchain(ndk_dir, openssl_temp_dir):
         ndk_dir, 'build', 'tools', 'make_standalone_toolchain.py')
     install_dir = os.path.join(openssl_temp_dir, 'android-toolchain')
 
-    subprocess.run(
-        '{} --api 15 --arch arm --install-dir={} --deprecated-headers'.format(
-            toolchain_script, install_dir), shell=True, check=True)
+    cmd = '{} --api 15 --arch arm --install-dir={} --deprecated-headers'.format(
+        toolchain_script, install_dir)
 
-    print('Installed toolchain to ' + install_dir)
-    subprocess.run(
-        'ls {}'.format(install_dir), shell=True, check=True)
+    print('Making toolchain...')
+    subprocess.run(cmd, check=True, shell=True)
 
     return install_dir
 
 
 def set_envs(ndk_dir, toolchain_dir):
     ndk_toolchain_basename = '{}/{}'.format(
-        toolchain_dir, 'arm-linux-androideabi')
+        toolchain_dir, 'bin/arm-linux-androideabi')
 
     os.environ['CC'] = ndk_toolchain_basename + '-gcc'
     os.environ['CXX'] = ndk_toolchain_basename + '-g++'
@@ -88,25 +87,17 @@ def main():
     if args.os == 'Android':
         toolchain_dir = make_toolchain(args.ndk_dir, openssl_temp_dir)
         set_envs(args.ndk_dir, toolchain_dir)
-        process = subprocess.Popen(
-            [
-                'cd ' + openssl_temp_dir,
-                '&&',
-                './Configure android-armv7 --prefix=' + args.prefix,
-            ], bufsize=1, universal_newlines=True, shell=True, stdout=subprocess.PIPE)
 
-        for line in iter(process.stdout.readline, ''):
-            print(line)
+        print('Configuring for android')
+        subprocess.run(
+            'cd {} && ./Configure android-armv7 --prefix={}'.format(
+                openssl_temp_dir, args.prefix),
+            shell=True, check=True)
 
-        process = subprocess.Popen(
-            [
-                'cd ' + openssl_temp_dir,
-                '&&',
-                'make',
-            ], bufsize=1, universal_newlines=True, shell=True, stdout=subprocess.PIPE)
+        print('Building...')
+        subprocess.run('cd {} && make && make install'.format(
+            openssl_temp_dir), shell=True)
 
-        for line in iter(process.stdout.readline, ''):
-            print(line)
     elif args.os == 'Linux':
         print('TODO')
     elif args.os == 'Darwin':
