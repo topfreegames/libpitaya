@@ -23,6 +23,8 @@ def parse_args():
                         help='Where is OpenSSL located.')
     parser.add_argument('--ndk-dir', required=True, dest='ndk_dir',
                         help='Where is OpenSSL located.')
+    parser.add_argument('--force', action='store_true',
+                        help='If binaries already installed to prefix, this flag makes the build overwrite them.')
     return parser.parse_args()
 
 
@@ -95,6 +97,13 @@ def main():
         print('OpenSSL directory does not exist.')
         sys.exit(1)
 
+    if os.path.exists(args.prefix):
+        if args.force:
+            shutil.rmtree(args.prefix)
+        else:
+            print('Prefix path already exist, pass --force to overwrite it.')
+            sys.exit(1)
+
     openssl_temp_dir = make_openssl_temp_dir(args.openssl_dir)
 
     if args.os == 'Android':
@@ -110,7 +119,6 @@ def main():
         print('Building...')
         subprocess.run('cd {} && make && make install'.format(
             openssl_temp_dir), shell=True)
-
     elif args.os == 'Linux':
         print('TODO')
     elif args.os == 'Darwin':
