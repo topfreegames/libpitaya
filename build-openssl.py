@@ -7,6 +7,8 @@ import os
 import subprocess
 import tempfile
 import shutil
+import stat
+import tarfile
 
 THIS_DIR = os.path.realpath(os.path.dirname(__file__))
 
@@ -19,8 +21,8 @@ def parse_args():
         help='which os to build for', default=platform.system())
     parser.add_argument('--prefix', required=True, dest='prefix',
                         help='Where should the binaries be installed to.')
-    parser.add_argument('--openssl-dir', required=True, dest='openssl_dir',
-                        help='Where is OpenSSL located.')
+    parser.add_argument('--openssl-tar', required=True, dest='openssl_tar',
+                        help='Where is the OpenSSL tar file located.')
     parser.add_argument('--ndk-dir', required=True, dest='ndk_dir',
                         help='Where is OpenSSL located.')
     parser.add_argument('--force', action='store_true',
@@ -28,11 +30,29 @@ def parse_args():
     return parser.parse_args()
 
 
-def make_openssl_temp_dir(openssl_dir):
-    openssl_temp_dir = os.path.join(tempfile.gettempdir(), 'openssl')
+def make_openssl_temp_dir(openssl_tar):
+    tempdir = tempfile.gettempdir()
+    openssl_folder_name = os.path.basename(openssl_tar).split('.')[0]
+    openssl_temp_dir = os.path.join(tempdir, openssl_folder_name)
+
     if os.path.exists(openssl_temp_dir):
         shutil.rmtree(openssl_temp_dir)
-    shutil.copytree(openssl_dir, openssl_temp_dir)
+
+    with tarfile.open(openssl_tar, 'r:gz') as tar:
+        tar.extractall(tempdir)
+
+    config_file = os.path.join(openssl_temp_dir, 'config')
+    st = os.stat(config_file)
+    os.chmod(config_file, st.st_mode | stat.S_IEXEC)
+
+    configure_file = os.path.join(openssl_temp_dir, 'Configure')
+    st = os.stat(configure_file)
+    os.chmod(configure_file, st.st_mode | stat.S_IEXEC)
+
+    subprocess.run(
+        'ls {}'.format(openssl_temp_dir),
+        shell=True, check=True)
+
     assert(os.path.exists(openssl_temp_dir))
     return openssl_temp_dir
 
@@ -93,8 +113,8 @@ def main():
         print('NDK directory does not exist.')
         sys.exit(1)
 
-    if not os.path.exists(args.openssl_dir):
-        print('OpenSSL directory does not exist.')
+    if not os.path.exists(args.openssl_tar):
+        print('OpenSSL tar file does not exist.')
         sys.exit(1)
 
     if os.path.exists(args.prefix):
@@ -104,13 +124,14 @@ def main():
             print('Prefix path already exist, pass --force to overwrite it.')
             sys.exit(1)
 
-    openssl_temp_dir = make_openssl_temp_dir(args.openssl_dir)
+    openssl_temp_dir = make_openssl_temp_dir(args.openssl_tar)
 
     if args.os == 'Android':
+        print('Configuring for android')
+
         toolchain_dir = make_toolchain(args.ndk_dir, openssl_temp_dir)
         set_envs(args.ndk_dir, toolchain_dir)
 
-        print('Configuring for android')
         subprocess.run(
             'cd {} && ./Configure android-armv7 --prefix={}'.format(
                 openssl_temp_dir, args.prefix),
@@ -120,9 +141,29 @@ def main():
         subprocess.run('cd {} && make && make install'.format(
             openssl_temp_dir), shell=True)
     elif args.os == 'Linux':
-        print('TODO')
+        print('Configuring for linux')
+
+        os.environ['CROSS_COMPILE'] = ''
+        subprocess.run(
+            'cd {} && ./config --prefix={}'.format(
+                openssl_temp_dir, args.prefix),
+            shell=True, check=True)
+
+        print('Building...')
+        subprocess.run('cd {} && make && make install'.format(
+            openssl_temp_dir), shell=True)
     elif args.os == 'Darwin':
-        print('TODO')
+        print('Configuring for Darwin')
+
+        os.environ['CROSS_COMPILE'] = ''
+        subprocess.run(
+            'cd {} && ./Configure darwin64-x86_64-cc --prefix={}'.format(
+                openssl_temp_dir, args.prefix),
+            shell=True, check=True)
+
+        print('Building...')
+        subprocess.run('cd {} && make && make install'.format(
+            openssl_temp_dir), shell=True)
     elif args.os == 'Windows':
         print('TODO')
 
