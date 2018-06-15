@@ -147,7 +147,7 @@ def mac_build(openssl_temp_dir, prefix):
 def linux_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
     subprocess.call(
-        'cd {} && ./config --prefix={}'.format(
+        'cd {} && ./Configure linux-x86_64 --prefix={}'.format(
             openssl_temp_dir, prefix), shell=True)
 
     build(openssl_temp_dir)
@@ -156,7 +156,7 @@ def linux_build(openssl_temp_dir, prefix):
 def windows_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
     subprocess.call(
-        'cd {} && perl Configure VC-WIN64 --prefix={}'.format(
+        'cd {} && perl Configure VC-WIN64A --prefix={}'.format(
             openssl_temp_dir, prefix), shell=True)
     build(openssl_temp_dir)
 
