@@ -72,7 +72,7 @@ def make_ndk_toolchain(ndk_dir, openssl_temp_dir):
         toolchain_script, install_dir)
 
     print('Making toolchain...')
-    subprocess.run(cmd, check=True, shell=True)
+    subprocess.call(cmd, shell=True)
 
     return install_dir
 
@@ -113,7 +113,7 @@ def set_envs(ndk_dir, toolchain_dir):
 
 def build(openssl_temp_dir):
     print('Building...')
-    subprocess.run('cd {} && make && make install'.format(
+    subprocess.call('cd {} && make && make install'.format(
         openssl_temp_dir), shell=True)
 
 
@@ -128,40 +128,36 @@ def android_build(ndk_dir, openssl_temp_dir, prefix):
     toolchain_dir = make_ndk_toolchain(ndk_dir, openssl_temp_dir)
     set_envs(ndk_dir, toolchain_dir)
 
-    subprocess.run(
+    subprocess.call(
         'cd {} && ./Configure android-armv7 --prefix={}'.format(
-            openssl_temp_dir, prefix),
-        shell=True, check=True)
+            openssl_temp_dir, prefix), shell=True)
 
     build(openssl_temp_dir)
 
 
 def mac_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
-    subprocess.run(
+    subprocess.call(
         'cd {} && ./Configure darwin64-x86_64-cc --prefix={}'.format(
-            openssl_temp_dir, prefix),
-        shell=True, check=True)
+            openssl_temp_dir, prefix), shell=True)
 
     build(openssl_temp_dir)
 
 
 def linux_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
-    subprocess.run(
+    subprocess.call(
         'cd {} && ./config --prefix={}'.format(
-            openssl_temp_dir, prefix),
-        shell=True, check=True)
+            openssl_temp_dir, prefix), shell=True)
 
     build(openssl_temp_dir)
 
 
 def windows_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
-    subprocess.run(
+    subprocess.call(
         'cd {} && perl Configure VC-WIN64 --prefix={}'.format(
-            openssl_temp_dir, prefix),
-        shell=True, check=True)
+            openssl_temp_dir, prefix), shell=True)
     build(openssl_temp_dir)
 
 
