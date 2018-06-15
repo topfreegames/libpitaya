@@ -109,8 +109,8 @@
                         'conditions': [
                             ['use_sys_openssl == "false"', {
                                 'libraries': [
-                                    '-l<!(pwd)/build/openssl/lib/libssl.a',
-                                    '-l<!(pwd)/build/openssl/lib/libcrypto.a'
+                                    '<!(pwd)/build/openssl/lib/libssl.a',
+                                    '<!(pwd)/build/openssl/lib/libcrypto.a'
                                 ],
                                 'include_dirs': [
                                     '<!(pwd)/build/openssl/include',
