@@ -100,11 +100,11 @@ def set_envs(ndk_dir, toolchain_dir):
     os.environ['STRIP'] = ndk_toolchain_basename + '-strip'
     os.environ['ARCH_FLAGS'] = '-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16'
     os.environ['ARCH_LINK'] = '-march=armv7-a -Wl,--fix-cortex-a8'
-    os.environ['CPPFLAGS'] = ' {} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
+    os.environ['CPPFLAGS'] = ' {} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
         os.environ['ARCH_FLAGS'])
-    os.environ['CXXFLAGS'] = ' {} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 -frtti -fexceptions '.format(
+    os.environ['CXXFLAGS'] = ' {} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 -frtti -fexceptions '.format(
         os.environ['ARCH_FLAGS'])
-    os.environ['CFLAGS'] = ' {} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
+    os.environ['CFLAGS'] = ' {} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
         os.environ['ARCH_FLAGS'])
     os.environ['LDFLAGS'] = ' {} '.format(os.environ['ARCH_LINK'])
     os.environ['CROSS_COMPILE'] = ''
