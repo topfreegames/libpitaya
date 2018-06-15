@@ -10,8 +10,6 @@ import shutil
 import stat
 import tarfile
 
-THIS_DIR = os.path.realpath(os.path.dirname(__file__))
-
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -85,10 +83,13 @@ def set_envs(ndk_dir, toolchain_dir):
 
     os.environ['CC'] = ndk_toolchain_basename + '-gcc'
     os.environ['CXX'] = ndk_toolchain_basename + '-g++'
-    os.environ['LINK'] = os.environ['CXX']
     os.environ['LD'] = ndk_toolchain_basename + '-ld'
+    os.environ['LINK'] = os.environ['LD']
     os.environ['AR'] = ndk_toolchain_basename + '-ar'
+    os.environ['AS'] = ndk_toolchain_basename + 'gcc'
+    os.environ['NM'] = ndk_toolchain_basename + '-nm'
     os.environ['RANLIB'] = ndk_toolchain_basename + '-ranlib'
+    os.environ['READELF'] = ndk_toolchain_basename + '-readelf'
     os.environ['STRIP'] = ndk_toolchain_basename + '-strip'
     os.environ['ARCH_FLAGS'] = '-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16'
     os.environ['ARCH_LINK'] = '-march=armv7-a -Wl,--fix-cortex-a8'
@@ -101,9 +102,6 @@ def set_envs(ndk_dir, toolchain_dir):
     os.environ['LDFLAGS'] = ' {} '.format(os.environ['ARCH_LINK'])
     os.environ['CROSS_COMPILE'] = ''
     os.environ['PATH'] = '{}:{}'.format(toolchain_path, os.environ['PATH'])
-
-    print(os.environ['CC'])
-    print(os.environ['PATH'])
 
 
 def main():
@@ -133,7 +131,7 @@ def main():
         set_envs(args.ndk_dir, toolchain_dir)
 
         subprocess.run(
-            'cd {} && ./Configure android-armv7 --prefix={}'.format(
+            'cd {} && ./Configure android-armv7 shared --prefix={}'.format(
                 openssl_temp_dir, args.prefix),
             shell=True, check=True)
 
@@ -165,7 +163,11 @@ def main():
         subprocess.run('cd {} && make && make install'.format(
             openssl_temp_dir), shell=True)
     elif args.os == 'Windows':
-        print('TODO')
+        os.environ['CROSS_COMPILE'] = ''
+        subprocess.run(
+            'cd {} && perl Configure VC-WIN64 --prefix={}'.format(
+                openssl_temp_dir, args.prefix),
+            shell=True, check=True)
 
 
 if __name__ == '__main__':
