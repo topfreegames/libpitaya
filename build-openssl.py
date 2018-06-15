@@ -104,6 +104,12 @@ def set_envs(ndk_dir, toolchain_dir):
     os.environ['PATH'] = '{}:{}'.format(toolchain_path, os.environ['PATH'])
 
 
+def build(openssl_temp_dir):
+    print('Building...')
+    subprocess.run('cd {} && make && make install'.format(
+        openssl_temp_dir), shell=True)
+
+
 def main():
     args = parse_args()
 
@@ -123,6 +129,7 @@ def main():
             sys.exit(1)
 
     openssl_temp_dir = make_openssl_temp_dir(args.openssl_tar)
+    prefix = os.path.abspath(args.prefix)
 
     if args.os == 'Android':
         print('Configuring for android')
@@ -132,42 +139,39 @@ def main():
 
         subprocess.run(
             'cd {} && ./Configure android-armv7 shared --prefix={}'.format(
-                openssl_temp_dir, args.prefix),
+                openssl_temp_dir, prefix),
             shell=True, check=True)
 
-        print('Building...')
-        subprocess.run('cd {} && make && make install'.format(
-            openssl_temp_dir), shell=True)
+        build(openssl_temp_dir)
     elif args.os == 'Linux':
         print('Configuring for linux')
 
         os.environ['CROSS_COMPILE'] = ''
         subprocess.run(
             'cd {} && ./config --prefix={}'.format(
-                openssl_temp_dir, args.prefix),
+                openssl_temp_dir, prefix),
             shell=True, check=True)
 
-        print('Building...')
-        subprocess.run('cd {} && make && make install'.format(
-            openssl_temp_dir), shell=True)
+        build(openssl_temp_dir)
     elif args.os == 'Darwin':
         print('Configuring for Darwin')
 
         os.environ['CROSS_COMPILE'] = ''
         subprocess.run(
             'cd {} && ./Configure darwin64-x86_64-cc --prefix={}'.format(
-                openssl_temp_dir, args.prefix),
+                openssl_temp_dir, prefix),
             shell=True, check=True)
 
-        print('Building...')
-        subprocess.run('cd {} && make && make install'.format(
-            openssl_temp_dir), shell=True)
+        build(openssl_temp_dir)
     elif args.os == 'Windows':
+        print('Configuring for Windows')
+
         os.environ['CROSS_COMPILE'] = ''
         subprocess.run(
             'cd {} && perl Configure VC-WIN64 --prefix={}'.format(
-                openssl_temp_dir, args.prefix),
+                openssl_temp_dir, prefix),
             shell=True, check=True)
+        build(openssl_temp_dir)
 
 
 if __name__ == '__main__':
