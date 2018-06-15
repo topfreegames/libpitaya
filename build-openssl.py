@@ -14,20 +14,31 @@ import tarfile
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Builds the openssl library for multiple platforms')
-    parser.add_argument(
-        '--os', choices=['Windows', 'Linux', 'Darwin', 'Android', 'iOS'], dest='os',
-        help='which os to build for', default=platform.system())
+
     parser.add_argument('--prefix', required=True, dest='prefix',
                         help='Where should the binaries be installed to.')
     parser.add_argument('--openssl-tar', required=True, dest='openssl_tar',
                         help='Where is the OpenSSL tar file located.')
-    parser.add_argument('--ndk-dir', required=True, dest='ndk_dir',
-                        help='Where is OpenSSL located.')
     parser.add_argument('--force', action='store_true',
                         help='If binaries already installed to prefix, this flag makes the build overwrite them.')
+
+    subparsers = parser.add_subparsers(dest='command')
+
+    parser_android = subparsers.add_parser('android', help='Build for android')
+    parser_android.add_argument('--ndk-dir', required=True, dest='ndk_dir',
+                                help='Where is the Android NDK located.')
+
+    parser_android = subparsers.add_parser('mac', help='Build for MacOSX')
+
+    parser_android = subparsers.add_parser('windows', help='Build for Windows')
+
+    parser_android = subparsers.add_parser('linux', help='Build for Linux')
+
     return parser.parse_args()
 
 
+# Make a temporary directory for the openssl project extracted from the tar file
+# and return the path
 def make_openssl_temp_dir(openssl_tar):
     tempdir = tempfile.gettempdir()
     openssl_folder_name = os.path.basename(openssl_tar).split('.')[0]
@@ -47,15 +58,11 @@ def make_openssl_temp_dir(openssl_tar):
     st = os.stat(configure_file)
     os.chmod(configure_file, st.st_mode | stat.S_IEXEC)
 
-    subprocess.run(
-        'ls {}'.format(openssl_temp_dir),
-        shell=True, check=True)
-
     assert(os.path.exists(openssl_temp_dir))
     return openssl_temp_dir
 
 
-def make_toolchain(ndk_dir, openssl_temp_dir):
+def make_ndk_toolchain(ndk_dir, openssl_temp_dir):
     # $NDK/build/tools/make_standalone_toolchain.py - -api 15 - -arch arm - -install-dir =`pwd`/ ../android-toolchain-arm - -deprecated-headers
     toolchain_script = os.path.join(
         ndk_dir, 'build', 'tools', 'make_standalone_toolchain.py')
@@ -110,15 +117,58 @@ def build(openssl_temp_dir):
         openssl_temp_dir), shell=True)
 
 
-def main():
-    args = parse_args()
-    ndk_dir = os.path.expanduser(args.ndk_dir)
-    openssl_tar = os.path.expanduser(args.openssl_tar)
-    prefix = os.path.expanduser(args.prefix)
+def android_build(ndk_dir, openssl_temp_dir, prefix):
+    ndk_dir = os.path.expanduser(ndk_dir)
+    ndk_dir = os.path.abspath(ndk_dir)
 
     if not os.path.exists(ndk_dir):
         print('NDK directory does not exist.')
         sys.exit(1)
+
+    toolchain_dir = make_ndk_toolchain(ndk_dir, openssl_temp_dir)
+    set_envs(ndk_dir, toolchain_dir)
+
+    subprocess.run(
+        'cd {} && ./Configure android-armv7 --prefix={}'.format(
+            openssl_temp_dir, prefix),
+        shell=True, check=True)
+
+    build(openssl_temp_dir)
+
+
+def mac_build(openssl_temp_dir, prefix):
+    os.environ['CROSS_COMPILE'] = ''
+    subprocess.run(
+        'cd {} && ./Configure darwin64-x86_64-cc --prefix={}'.format(
+            openssl_temp_dir, prefix),
+        shell=True, check=True)
+
+    build(openssl_temp_dir)
+
+
+def linux_build(openssl_temp_dir, prefix):
+    os.environ['CROSS_COMPILE'] = ''
+    subprocess.run(
+        'cd {} && ./config --prefix={}'.format(
+            openssl_temp_dir, prefix),
+        shell=True, check=True)
+
+    build(openssl_temp_dir)
+
+
+def windows_build(openssl_temp_dir, prefix):
+    os.environ['CROSS_COMPILE'] = ''
+    subprocess.run(
+        'cd {} && perl Configure VC-WIN64 --prefix={}'.format(
+            openssl_temp_dir, prefix),
+        shell=True, check=True)
+    build(openssl_temp_dir)
+
+
+def main():
+    args = parse_args()
+    openssl_tar = os.path.expanduser(args.openssl_tar)
+    prefix = os.path.expanduser(args.prefix)
 
     if not os.path.exists(openssl_tar):
         print('OpenSSL tar file does not exist.')
@@ -133,49 +183,15 @@ def main():
 
     openssl_temp_dir = make_openssl_temp_dir(openssl_tar)
     prefix = os.path.abspath(prefix)
-    ndk_dir = os.path.abspath(ndk_dir)
 
-    if args.os == 'Android':
-        print('Configuring for android')
-
-        toolchain_dir = make_toolchain(ndk_dir, openssl_temp_dir)
-        set_envs(ndk_dir, toolchain_dir)
-
-        subprocess.run(
-            'cd {} && ./Configure android-armv7 shared --prefix={}'.format(
-                openssl_temp_dir, prefix),
-            shell=True, check=True)
-
-        build(openssl_temp_dir)
-    elif args.os == 'Linux':
-        print('Configuring for linux')
-
-        os.environ['CROSS_COMPILE'] = ''
-        subprocess.run(
-            'cd {} && ./config --prefix={}'.format(
-                openssl_temp_dir, prefix),
-            shell=True, check=True)
-
-        build(openssl_temp_dir)
-    elif args.os == 'Darwin':
-        print('Configuring for Darwin')
-
-        os.environ['CROSS_COMPILE'] = ''
-        subprocess.run(
-            'cd {} && ./Configure darwin64-x86_64-cc --prefix={}'.format(
-                openssl_temp_dir, prefix),
-            shell=True, check=True)
-
-        build(openssl_temp_dir)
-    elif args.os == 'Windows':
-        print('Configuring for Windows')
-
-        os.environ['CROSS_COMPILE'] = ''
-        subprocess.run(
-            'cd {} && perl Configure VC-WIN64 --prefix={}'.format(
-                openssl_temp_dir, prefix),
-            shell=True, check=True)
-        build(openssl_temp_dir)
+    if args.command == 'android':
+        android_build(args.ndk_dir, openssl_temp_dir, prefix)
+    elif args.command == 'linux':
+        linux_build(openssl_temp_dir, prefix)
+    elif args.command == 'mac':
+        mac_build(openssl_temp_dir, prefix)
+    elif args.command == 'Windows':
+        windows_build(openssl_temp_dir, prefix)
 
 
 if __name__ == '__main__':
