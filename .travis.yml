@@ -78,7 +78,7 @@ matrix:
       install:
         - brew update
         - brew install ninja
-        - brew install python@3
+        - brew upgrade python
         - make install-gyp
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz mac
       before_script: make gyp-ios-mac
