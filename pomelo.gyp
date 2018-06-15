@@ -287,6 +287,9 @@
                             '<(pitaya_target)',
                         ],
                         'conditions': [
+                            ['no_tls_support=="true"', {
+                                'defines': ['PC_NO_UV_TLS_TRANS']
+                            }],
                             ['OS!="win"', {
                                 'cflags': ['-fPIC'],
                             }],
