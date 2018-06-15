@@ -112,30 +112,34 @@ def build(openssl_temp_dir):
 
 def main():
     args = parse_args()
+    ndk_dir = os.path.expanduser(args.ndk_dir)
+    openssl_tar = os.path.expanduser(args.openssl_tar)
+    prefix = os.path.expanduser(args.prefix)
 
-    if not os.path.exists(args.ndk_dir):
+    if not os.path.exists(ndk_dir):
         print('NDK directory does not exist.')
         sys.exit(1)
 
-    if not os.path.exists(args.openssl_tar):
+    if not os.path.exists(openssl_tar):
         print('OpenSSL tar file does not exist.')
         sys.exit(1)
 
-    if os.path.exists(args.prefix):
+    if os.path.exists(prefix):
         if args.force:
-            shutil.rmtree(args.prefix)
+            shutil.rmtree(prefix)
         else:
             print('Prefix path already exist, pass --force to overwrite it.')
             sys.exit(1)
 
-    openssl_temp_dir = make_openssl_temp_dir(args.openssl_tar)
-    prefix = os.path.abspath(args.prefix)
+    openssl_temp_dir = make_openssl_temp_dir(openssl_tar)
+    prefix = os.path.abspath(prefix)
+    ndk_dir = os.path.abspath(ndk_dir)
 
     if args.os == 'Android':
         print('Configuring for android')
 
-        toolchain_dir = make_toolchain(args.ndk_dir, openssl_temp_dir)
-        set_envs(args.ndk_dir, toolchain_dir)
+        toolchain_dir = make_toolchain(ndk_dir, openssl_temp_dir)
+        set_envs(ndk_dir, toolchain_dir)
 
         subprocess.run(
             'cd {} && ./Configure android-armv7 shared --prefix={}'.format(
