@@ -293,6 +293,10 @@
                 ['build_for_mac == "true"', {
                   'product_extension': 'bundle',
                 }],
+                ['no_tls_support == "true"', {
+                  'defines': ['PC_NO_UV_TLS_TRANS']
+                }
+              ], # no tls support
               ],
               'include_dirs': [
                 './include/',
