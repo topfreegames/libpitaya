@@ -14,6 +14,7 @@ static int g_num_timeout_error_cb_called = 0;
 static void
 request_cb(const pc_request_t* req, const char* resp)
 {
+    printf("RESP IS: %s\n", resp);
     g_num_success_cb_called++;
 }
 

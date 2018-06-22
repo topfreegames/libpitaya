@@ -20,6 +20,8 @@
 #define SLEEP_SECONDS(x) sleep(x)
 #endif
 
+#define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
+
 #define LOCALHOST "127.0.0.1"
 
 #define REQ_ROUTE "connector.getsessiondata"
@@ -43,14 +45,15 @@ typedef struct {
     int tls_port;
 } test_server_t;
 
+// Mock servers
 static test_server_t g_disconnect_mock_server = {4000, 4001};
 static test_server_t g_compression_mock_server = {4100, 4101};
 static test_server_t g_kick_mock_server = {4200, 4201};
 static test_server_t g_timeout_mock_server = {4300, 4301};
 static test_server_t g_destroy_socket_mock_server = {4400, 4401};
+// Pitaya servers
 static test_server_t g_test_server = {3251, 3252};
-
-#define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
+static test_server_t g_test_protobuf_server = {3351, 3352};
 
 #define EV_HANDLER_EX ((void*)0x44)
 #define SERVER_PUSH "onPush"

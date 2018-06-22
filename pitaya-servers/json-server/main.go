@@ -6,11 +6,11 @@ import (
 
 	"strings"
 
+	"github.com/topfreegames/libpitaya/pitaya-servers/json-server/services"
 	"github.com/topfreegames/pitaya"
 	"github.com/topfreegames/pitaya/acceptor"
 	"github.com/topfreegames/pitaya/cluster"
 	"github.com/topfreegames/pitaya/component"
-	"github.com/topfreegames/pitaya/examples/demo/cluster/services"
 	"github.com/topfreegames/pitaya/route"
 	"github.com/topfreegames/pitaya/serialize/json"
 	"github.com/topfreegames/pitaya/session"
@@ -36,21 +36,22 @@ func configureBackend() {
 func configureFrontend(port int) {
 	ws := acceptor.NewWSAcceptor(fmt.Sprintf(":%d", port))
 	tcp := acceptor.NewTCPAcceptor(fmt.Sprintf(":%d", port+1))
-	tls := acceptor.NewTCPAcceptor(fmt.Sprintf(":%d", port+2), 
-        "./fixtures/server/client-ssl.localhost.crt", "./fixtures/server/client-ssl.localhost.key")
+	tls := acceptor.NewTCPAcceptor(fmt.Sprintf(":%d", port+2),
+		"./fixtures/server/client-ssl.localhost.crt", "./fixtures/server/client-ssl.localhost.key")
 
 	pitaya.Register(&services.Connector{},
 		component.WithName("connector"),
 		component.WithNameFunc(strings.ToLower),
 	)
-	pitaya.RegisterRemote(&services.ConnectorRemote{},
-		component.WithName("connectorremote"),
-		component.WithNameFunc(strings.ToLower),
-	)
+	// pitaya.RegisterRemote(&services.ConnectorRemote{},
+	// 	component.WithName("connectorremote"),
+	// 	component.WithNameFunc(strings.ToLower),
+	// )
 
 	err := pitaya.AddRoute("room", func(
 		session *session.Session,
 		route *route.Route,
+		payload []byte,
 		servers map[string]*cluster.Server,
 	) (*cluster.Server, error) {
 		// will return the first server

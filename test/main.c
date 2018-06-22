@@ -14,6 +14,7 @@ extern const MunitSuite kick_suite;
 extern const MunitSuite request_suite;
 extern const MunitSuite notify_suite;
 extern const MunitSuite stress_suite;
+extern const MunitSuite protobuf_suite;
 
 const MunitSuite null_suite = {
     NULL, NULL, NULL, 0, MUNIT_SUITE_OPTION_NONE
@@ -42,6 +43,7 @@ make_suites()
     suites_array[i++] = request_suite;
     suites_array[i++] = notify_suite;
     suites_array[i++] = stress_suite;
+    suites_array[i++] = protobuf_suite;
     // IMPORTANT: always has to end with a null suite
     suites_array[i++] = null_suite;
     return suites_array;
@@ -59,7 +61,7 @@ int main(int argc, char **argv)
     main_suite.options = MUNIT_SUITE_OPTION_NONE;
 
     // Run this function only one time, otherwise things break.
-#if 1
+#if 0
     pc_lib_init(quiet_log, NULL, NULL, NULL, NULL);
 #else
     pc_lib_init(NULL, NULL, NULL, NULL, NULL);
