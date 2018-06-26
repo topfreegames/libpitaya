@@ -39,13 +39,16 @@
 #define PC_EV_TYPE_NOTIFY_SENT 0x10
 #define PC_EV_TYPE_RESP 0x20
 #define PC_EV_TYPE_NET_EVENT 0x40
+#define PC_EV_TYPE_PUSH 0x80
 #define PC_EV_TYPE_MASK 0xf0
 
 #define PC_EV_IS_NOTIFY_SENT(type) (((type) & PC_EV_TYPE_MASK) == PC_EV_TYPE_NOTIFY_SENT)
-#define PC_EV_IS_RESP(type) (((type) & PC_EV_TYPE_MASK) == PC_EV_TYPE_RESP)
-#define PC_EV_IS_NET_EVENT(type) (((type) & PC_EV_TYPE_MASK) == PC_EV_TYPE_NET_EVENT)
+#define PC_EV_IS_PUSH(type)        (((type) & PC_EV_TYPE_MASK) == PC_EV_TYPE_PUSH)
+#define PC_EV_IS_RESP(type)        (((type) & PC_EV_TYPE_MASK) == PC_EV_TYPE_RESP)
+#define PC_EV_IS_NET_EVENT(type)   (((type) & PC_EV_TYPE_MASK) == PC_EV_TYPE_NET_EVENT)
 
 #define PC_EV_SET_NOTIFY_SENT(type) do { (type) &= ~PC_EV_TYPE_MASK; (type) |= PC_EV_TYPE_NOTIFY_SENT; } while(0)
+#define PC_EV_SET_PUSH(type) do { (type) &= ~PC_EV_TYPE_MASK; (type) |= PC_EV_TYPE_PUSH; } while(0)
 #define PC_EV_SET_RESP(type) do { (type) &= ~PC_EV_TYPE_MASK; (type) |= PC_EV_TYPE_RESP; } while(0)
 #define PC_EV_SET_NET_EVENT(type) do { (type) &= ~PC_EV_TYPE_MASK; (type) |= PC_EV_TYPE_NET_EVENT; } while(0)
 
@@ -60,7 +63,7 @@ typedef struct {
     unsigned int type;
 
     const char* route;
-    const char* msg;
+    pc_buf_t msg_buf;
     unsigned int seq_num;
     int timeout;
     void* ex_data;
@@ -78,7 +81,7 @@ struct pc_request_s {
     pc_common_req_t base;
 
     unsigned int req_id;
-    pc_request_cb_t cb;
+    pc_request_success_cb_t cb;
     pc_request_error_cb_t error_cb;
 };
 
@@ -101,13 +104,18 @@ typedef struct {
         struct {
             int req_id;
             pc_error_t error;
-            const char* resp;
+            pc_buf_t resp;
         } req;
 
         struct {
+            const char *route;
+            pc_buf_t buf;
+        } push;
+
+        struct {
             int ev_type;
-            const char* arg1;
-            const char* arg2;
+            const char *arg1;
+            const char *arg2;
         } ev;
     } data;
 } pc_event_t;
@@ -125,6 +133,8 @@ struct pc_client_s {
     pc_mutex_t handler_mutex;
     QUEUE ev_handlers;
 
+    pc_push_handler_cb_t push_handler;
+
     pc_mutex_t notify_mutex;
     unsigned int seq_num;
     pc_notify_t notifies[PC_PRE_ALLOC_NOTIFY_SLOT_COUNT];
@@ -141,8 +151,9 @@ struct pc_client_s {
     int is_in_poll;
 };
 
-void pc__trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_error_t error);
-void pc__trans_sent(pc_client_t* client, unsigned int req_num, pc_error_t error);
+void pc__trans_resp(pc_client_t *client, unsigned int req_id, const pc_buf_t *resp, const pc_error_t *error);
+void pc__trans_sent(pc_client_t *client, unsigned int req_num, const pc_error_t *error);
+void pc__trans_push(pc_client_t *client, const char *route, const pc_buf_t *buf);
 void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, const char* arg2);
 
 #endif /* PC_POMELO_I_H */

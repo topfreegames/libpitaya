@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,8 +29,8 @@ extern "C" {
 #define PC_REVISION 5
 #define PC_VERSION_SUFFIX "release"
 
-#define PC_T(x) PC__T(x)
-#define PC__T(x) #x
+#define PC_T(x) PC_T2(x)
+#define PC_T2(x) #x
 
 #define PC_VERSION_NUM (PC_MAJOR_VERSION * 10000 + PC_MINOR_VERSION * 100 + PC_REVISION)
 #define PC_VERSION_STR ( PC_T(PC_MAJOR_VERSION) "." PC_T(PC_MINOR_VERSION) \
@@ -50,7 +51,9 @@ extern "C" {
 #define PC_RC_INVALID_STATE -9
 #define PC_RC_NOT_FOUND -10
 #define PC_RC_RESET -11
-#define PC_RC_MIN -12
+#define PC_RC_SERVER_ERROR -12
+#define PC_RC_UV_ERROR -13
+#define PC_RC_MIN -14
 
 typedef struct pc_client_s pc_client_t;
 typedef struct pc_request_s pc_request_t;
@@ -110,6 +113,24 @@ typedef enum {
 typedef int (*pc_local_storage_cb_t)(pc_local_storage_op_t op,
         char* data, size_t* len, void* ex_data);
 
+/**
+ * Binary buffer
+ */
+typedef struct {
+    uint8_t *base;
+    int64_t  len;
+} pc_buf_t;
+
+PC_EXPORT pc_buf_t pc_buf_empty();
+PC_EXPORT pc_buf_t pc_buf_copy(const pc_buf_t *buf);
+PC_EXPORT void pc_buf_free(pc_buf_t *buf);
+PC_EXPORT pc_buf_t pc_buf_from_string(const char *str);
+
+/**
+ * Push
+ */
+typedef void (*pc_push_handler_cb_t)(const char *route, const pc_buf_t *payload);
+
 typedef struct {
     int conn_timeout;
 
@@ -123,6 +144,8 @@ typedef struct {
 
     pc_local_storage_cb_t local_storage_cb;
     void* ls_ex_data;
+
+    pc_push_handler_cb_t push_handler;
 
     int transport_name;
     
@@ -140,6 +163,7 @@ typedef struct {
     0, /* enable_polling */                           \
     NULL, /* local_storage_cb */                      \
     NULL, /* ls_ex_data */                            \
+    NULL, /* push_handler */                          \
     PC_TR_NAME_UV_TCP, /* transport_name */           \
     0 /* disable_compression */                       \
 }
@@ -203,6 +227,7 @@ PC_EXPORT void* pc_client_trans_data(pc_client_t* client);
  */
 typedef void (*pc_event_cb_t)(pc_client_t *client, int ev_type, void* ex_data,
                               const char* arg1, const char* arg2);
+
 #define PC_EV_USER_DEFINED_PUSH 0
 #define PC_EV_CONNECTED 1
 #define PC_EV_CONNECT_ERROR 2
@@ -225,16 +250,19 @@ PC_EXPORT int pc_client_rm_ev_handler(pc_client_t* client, int id);
  * Error
  */
 typedef struct {
-    char *code;
-    char *msg;
-    char *metadata;
+    int code;
+    union {
+        pc_buf_t payload;
+        int uv_code;
+    };
 } pc_error_t;
 
 /**
  * Request
  */
-typedef void (*pc_request_cb_t)(const pc_request_t* req, const char* resp);
-typedef void (*pc_request_error_cb_t)(const pc_request_t* req, pc_error_t error);
+
+typedef void (*pc_request_success_cb_t)(const pc_request_t* req, const pc_buf_t *resp);
+typedef void (*pc_request_error_cb_t)(const pc_request_t* req, const pc_error_t *error);
 
 /**
  * pc_request_t getters.
@@ -253,14 +281,19 @@ PC_EXPORT void* pc_request_ex_data(const pc_request_t* req);
 /**
  * Initiate a request.
  */
-PC_EXPORT int pc_request_with_timeout(pc_client_t* client, const char* route,
-        const char* msg, void* ex_data, int timeout, pc_request_cb_t cb, pc_request_error_cb_t error_cb);
+PC_EXPORT int pc_string_request_with_timeout(pc_client_t* client, const char* route,
+                                             const char *str, void* ex_data, int timeout, 
+                                             pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb);
+
+PC_EXPORT int pc_binary_request_with_timeout(pc_client_t* client, const char* route,
+                                             uint8_t *data, int64_t len, void* ex_data, int timeout,
+                                             pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb);
 
 /**
  * Notify
  */
 
-typedef void (*pc_notify_error_cb_t)(const pc_notify_t* req, pc_error_t error);
+typedef void (*pc_notify_error_cb_t)(const pc_notify_t* req, const pc_error_t *error);
 
 /**
  * pc_notify_t getters.
@@ -272,15 +305,17 @@ typedef void (*pc_notify_error_cb_t)(const pc_notify_t* req, pc_error_t error);
  */
 PC_EXPORT pc_client_t* pc_notify_client(const pc_notify_t* notify);
 PC_EXPORT const char* pc_notify_route(const pc_notify_t* notify);
-PC_EXPORT const char* pc_notify_msg(const pc_notify_t* notify);
+PC_EXPORT const pc_buf_t *pc_notify_msg(const pc_notify_t* notify);
 PC_EXPORT int pc_notify_timeout(const pc_notify_t* notify);
 PC_EXPORT void* pc_notify_ex_data(const pc_notify_t* notify);
 
 /**
  * Initiate a notify.
  */
-PC_EXPORT int pc_notify_with_timeout(pc_client_t* client, const char* route,
-        const char* msg, void* ex_data, int timeout, pc_notify_error_cb_t cb);
+PC_EXPORT int pc_binary_notify_with_timeout(pc_client_t* client, const char* route, uint8_t *data, int64_t len,
+                                            void* ex_data, int timeout, pc_notify_error_cb_t cb);
+PC_EXPORT int pc_string_notify_with_timeout(pc_client_t* client, const char* route, const char *str, 
+                                            void* ex_data, int timeout, pc_notify_error_cb_t cb);
 
 /**
  * Utilities

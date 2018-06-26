@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     main_suite.options = MUNIT_SUITE_OPTION_NONE;
 
     // Run this function only one time, otherwise things break.
-#if 0
+#if 1
     pc_lib_init(quiet_log, NULL, NULL, NULL, NULL);
 #else
     pc_lib_init(NULL, NULL, NULL, NULL, NULL);

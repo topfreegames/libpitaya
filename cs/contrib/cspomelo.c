@@ -128,13 +128,12 @@ CS_POMELO_EXPORT void native_log(const char* msg)
 //    pc_lib_log(PC_LOG_DEBUG, msg);
 }
 
-typedef void (*request_handler)(const char* err, const char* resp);
+//typedef void (*request_handler)(const char* err, const pc_buf_t* resp);
 
-typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
-typedef void (*request_error_callback)(pc_client_t* client, unsigned int cbid, pc_error_t* error);
+typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const pc_buf_t* resp);
+typedef void (*request_error_callback)(pc_client_t* client, unsigned int cbid, const pc_error_t* error);
 
 typedef void (*unity_assert)(const char* e, const char* file, int line);
-
 
 typedef struct {
     char* (* read) ();
@@ -142,9 +141,9 @@ typedef struct {
 } lc_callback_t;
 
 typedef struct {
-    unsigned int cbid;
     request_callback cb;
     request_error_callback error_cb;
+    unsigned int cbid;
 } request_cb_t;
 
 static int local_storage_cb(pc_local_storage_op_t op, char* data, size_t* len, void* ex_data) {
@@ -173,7 +172,7 @@ static int local_storage_cb(pc_local_storage_op_t op, char* data, size_t* len, v
     return -1;
 }
 
-static void default_request_cb(const pc_request_t* req, const char* resp) {
+static void default_request_cb(const pc_request_t* req, const pc_buf_t* resp) {
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
     pc_client_t* client = pc_request_client(req);
     pc_assert(rp);
@@ -183,13 +182,13 @@ static void default_request_cb(const pc_request_t* req, const char* resp) {
     r.cb(client, r.cbid, resp);
 }
 
-static void default_error_cb(const pc_request_t* req, pc_error_t error) {
+static void default_error_cb(const pc_request_t* req, const pc_error_t *error) {
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
     pc_client_t* client = pc_request_client(req);
     pc_assert(rp);
     request_cb_t r = *rp;
     free(rp);
-    r.error_cb(client, r.cbid, &error);
+    r.error_cb(client, r.cbid, error);
 
 }
 
@@ -261,6 +260,6 @@ CS_POMELO_EXPORT int request(pc_client_t* client, const char* route, const char*
     rp->cb = cb;
     rp->error_cb = error_cb;
     rp->cbid= cbid;
-    return pc_request_with_timeout(client, route, msg, rp, timeout, default_request_cb, default_error_cb);
+    return pc_string_request_with_timeout(client, route, msg, rp, timeout, default_request_cb, default_error_cb);
 }
 

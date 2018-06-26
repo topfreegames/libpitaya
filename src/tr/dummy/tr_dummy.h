@@ -10,6 +10,4 @@
 
 pc_transport_plugin_t* pc_tr_dummy_trans_plugin();
 
-#define TR_DUMMY_RESP ("{\"msg\": \"dummy msg\"")
-
 #endif

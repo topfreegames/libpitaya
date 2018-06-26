@@ -74,7 +74,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     int len = buf->len;
     if (len < PC_MSG_FLAG_BYTES) return length_error();
 
-    const char* data = buf->base;
+    const uint8_t* data = buf->base;
     int offset = 0;
     pc_message_flag* flag = (pc_message_flag*) &(data[offset++]);
 
@@ -111,7 +111,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
 
             route.route_str = (char *)pc_lib_malloc(route_len + 1);
             route.route_str[route_len] = '\0';
-            strncpy(route.route_str, &data[offset], route_len);
+            strncpy(route.route_str, (char*)&data[offset], route_len);
             offset += route_len;
         }
     }
@@ -126,7 +126,7 @@ static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
     memcpy(&msg->route, &route, sizeof(route));
 
     // borrow memory from original pc_buf_t
-    msg->body.base = (char* )data + offset;
+    msg->body.base = (uint8_t*)data + offset;
     msg->body.len = len - offset;
 
     pc_assert(msg->id != PC_INVALID_REQ_ID);
@@ -140,7 +140,10 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
         .id = PC_INVALID_REQ_ID,
         .error = 0,
         .route = NULL,
-        .json_msg = NULL,
+        .buf = {
+            .base = NULL,
+            .len = -1,
+        },
     };
 
     pc_assert(buf && buf->base);
@@ -188,29 +191,10 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
     }
 
     /* body.base is within msg */
-    pc_buf_t body = raw_msg->body;
-    if (body.len > 0) {
-        pc_JSON* json_msg = NULL;
-        if (!msg.route) {
-            json_msg = pc_body_json_decode(body.base, 0, body.len, raw_msg->is_gzipped);
-        } else {
-            // TODO prever deconding raw
-            // } else {
-            json_msg = pc_body_json_decode(body.base, 0, body.len, raw_msg->is_gzipped);
-            // }
-        }
-
-        if (!json_msg) {
-            pc_lib_free((char*)msg.route);
-            msg.id = PC_INVALID_REQ_ID;
-            msg.route = NULL;
-        } else {
-            pc_assert(json_msg->type == pc_JSON_Object);
-            msg.json_msg = json_msg;
-        }
-    }
+    msg.buf = raw_msg->body;
     msg.error = raw_msg->error;
 
+    raw_msg->body.base = NULL;
     pc_lib_free(raw_msg);
 
     return msg;
@@ -224,10 +208,10 @@ static pc_buf_t pc_msg_encode_code(uint32_t id, pc_msg_type type,
 
 static uint8_t pc__msg_id_length(uint32_t id);
 static PC_INLINE size_t pc__msg_encode_flag(pc_msg_type type, int compressRoute,
-        int compressed, char *base, size_t offset);
-static PC_INLINE size_t pc__msg_encode_id(uint32_t id, char *base, size_t offset);
+        int compressed, uint8_t *base, size_t offset);
+static PC_INLINE size_t pc__msg_encode_id(uint32_t id, uint8_t *base, size_t offset);
 static PC_INLINE size_t pc__msg_encode_route(const char *route, uint16_t route_len,
-        char *base, size_t offset);
+        uint8_t *base, size_t offset);
 
 pc_buf_t pc_msg_encode_route(uint32_t id, pc_msg_type type,
         const char *route, int compressed, const pc_buf_t msg)
@@ -238,13 +222,13 @@ pc_buf_t pc_msg_encode_route(uint32_t id, pc_msg_type type,
 
     size_t msg_len = PC_MSG_FLAG_BYTES + id_len +
         PC_MSG_ROUTE_LEN_BYTES + route_len + msg.len;
-    char *base = NULL;
+    uint8_t *base = NULL;
     size_t offset = 0;
 
     buf.base = NULL;
     buf.len = -1;
 
-    base = buf.base = (char *)pc_lib_malloc(msg_len);
+    base = buf.base = (uint8_t*)pc_lib_malloc(msg_len);
     buf.len = (int)msg_len;
 
     /* flag */
@@ -266,20 +250,19 @@ pc_buf_t pc_msg_encode_route(uint32_t id, pc_msg_type type,
 }
 
 pc_buf_t pc_msg_encode_code(uint32_t id, pc_msg_type type,
-        int compressed, int route_code, const pc_buf_t body)
+                            int compressed, int route_code, const pc_buf_t body)
 {
-    pc_buf_t buf;
-
     uint8_t id_len = PC_MSG_HAS_ID(type) ? pc__msg_id_length(id) : 0;
     uint16_t route_len = PC_MSG_HAS_ROUTE(type) ? PC_MSG_ROUTE_CODE_BYTES : 0;
-    size_t msg_len = PC_MSG_FLAG_BYTES + id_len + route_len + body.len;
-    char* base = NULL;
+    uint8_t *base = NULL;
     size_t offset = 0;
 
+    pc_buf_t buf;
     buf.base = NULL;
     buf.len = -1;
 
-    base = buf.base = (char *)pc_lib_malloc(msg_len);
+    size_t msg_len = PC_MSG_FLAG_BYTES + id_len + route_len + body.len;
+    base = buf.base = (uint8_t*)pc_lib_malloc(msg_len);
     buf.len = (int)msg_len;
 
     /* flag */
@@ -302,13 +285,13 @@ pc_buf_t pc_msg_encode_code(uint32_t id, pc_msg_type type,
 }
 
 static PC_INLINE size_t pc__msg_encode_flag(pc_msg_type type, int compress_route,
-        int compress, char *base, size_t offset)
+                                            int compress, uint8_t *base, size_t offset)
 {
     base[offset++] = (type << 1) | (compress_route ? 1 : 0) | compress << 4;
     return offset;
 }
 
-static PC_INLINE size_t pc__msg_encode_id(uint32_t id, char *base, size_t offset)
+static PC_INLINE size_t pc__msg_encode_id(uint32_t id, uint8_t *base, size_t offset)
 {
     do{
         uint32_t tmp = id & 0x7f;
@@ -325,7 +308,7 @@ static PC_INLINE size_t pc__msg_encode_id(uint32_t id, char *base, size_t offset
 }
 
 static PC_INLINE size_t pc__msg_encode_route(const char *route, uint16_t route_len,
-        char *base, size_t offset)
+        uint8_t *base, size_t offset)
 {
     base[offset++] = route_len & 0xff;
 
@@ -346,33 +329,29 @@ static uint8_t pc__msg_id_length(uint32_t id)
 
 pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, int compress_data)
 {
-    pc_assert(msg && msg->json_msg && msg->route);
-    pc_assert(msg->json_msg->type == pc_JSON_Object);
+    pc_assert(msg && msg->route);
 
-    pc_buf_t msg_buf = { .base = NULL, .len = -1 };
-    pc_buf_t body_buf = { .base = NULL, .len = -1 };
+    bool was_body_compressed = false;
 
-    //TODO prever encode n json
-    // } else {
-        body_buf = pc_body_json_encode(msg->json_msg, compress_data);
-        if(body_buf.len == -1) {
-            pc_assert(body_buf.base == NULL);
-            pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with json: %s\n", msg->route);
-        }
-    //}
+    pc_buf_t body_buf = (compress_data)
+        ? pc_body_json_encode(msg->buf, &was_body_compressed)
+        : msg->buf;
+
+    pc_lib_log(PC_LOG_DEBUG, "pc_default_msg_encode - BODY BUF LEN %ld\n", body_buf.len);
+
+    pc_buf_t msg_buf;
+    msg_buf.base = NULL;
+    msg_buf.len = -1;
 
     if (body_buf.len == -1) {
         pc_assert(body_buf.base == NULL);
-        pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to encode message with json: %s\n", msg->route);
-    }
-
-    if (body_buf.len == -1) {
+        pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - fail to compress message with json: %s\n", msg->route);
         return msg_buf;
     }
 
     pc_assert(body_buf.base && body_buf.len != -1);
 
-    pc_msg_type type = msg->id == PC_NOTIFY_PUSH_REQ_ID ? PC_MSG_NOTIFY : PC_MSG_REQUEST;
+    pc_msg_type type = (msg->id == PC_NOTIFY_PUSH_REQ_ID) ? PC_MSG_NOTIFY : PC_MSG_REQUEST;
 
     int route_code = -1;
     pc_JSON *code = NULL;
@@ -381,27 +360,22 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, i
         route_code = code->valueint;
     }
 
-    int compressed = is_compressed((unsigned char*)body_buf.base, body_buf.len);
-
+    // TODO: rename this function by adding a prefix
     if (route_code > 0) {
-        msg_buf = pc_msg_encode_code(msg->id, type, route_code, compressed, body_buf);
-        if(msg_buf.len == -1) {
+        msg_buf = pc_msg_encode_code(msg->id, type, route_code, was_body_compressed, body_buf);
+        if (msg_buf.len == -1) {
             pc_assert(msg_buf.base == NULL);
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - failed to encode message with route code: %d\n",
                     route_code);
         }
     } else {
-        msg_buf = pc_msg_encode_route(msg->id, type, msg->route, compressed, body_buf);
-        if(msg_buf.len == -1) {
+        msg_buf = pc_msg_encode_route(msg->id, type, msg->route, was_body_compressed, body_buf);
+        if (msg_buf.len == -1) {
             pc_assert(msg_buf.base == NULL);
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encode - failed to encode message with route string: %s\n",
                     msg->route);
         }
     }
-
-    pc_lib_free(body_buf.base);
-    body_buf.base = NULL;
-    body_buf.len = -1;
 
     return msg_buf;
 }
@@ -413,15 +387,18 @@ uv_buf_t pr_default_msg_encoder(tr_uv_tcp_transport_t* tt, const pc_msg_t* msg)
     uv_buf_t ub;
 
     pb = pc_default_msg_encode(tt->route_to_code, msg, !tt->config->disable_compression);
-    ub.base = pb.base;
+    ub.base = (char*)pb.base;
     ub.len = pb.len;
+
+    pc_lib_log(PC_LOG_DEBUG, "pc_default_msg_encoder - buf encoded with length %d", ub.len);
+
     return ub;
 }
 
 pc_msg_t pr_default_msg_decoder(tr_uv_tcp_transport_t* tt, const uv_buf_t* buf)
 {
     pc_buf_t pb;
-    pb.base = buf->base;
+    pb.base = (uint8_t*)buf->base;
     pb.len = buf->len;
 
     return pc_default_msg_decode(tt->code_to_route, &pb);

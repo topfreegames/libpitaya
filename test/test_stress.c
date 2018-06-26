@@ -10,15 +10,15 @@ static int g_num_success_cb_called = 0;
 static int g_num_error_cb_called = 0;
 
 static void
-request_cb(const pc_request_t* req, const char* resp)
+request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
     ++g_num_success_cb_called;
 }
 
 static void
-request_error_cb(const pc_request_t* req, pc_error_t error)
+request_error_cb(const pc_request_t* req, const pc_error_t *error)
 {
-    printf("Error called: %s\n", error.code);
+    printf("Error called: %s\n", pc_client_rc_str(error->code));
     ++g_num_error_cb_called;
 }
 
@@ -48,8 +48,8 @@ test_multiple_requests(const MunitParameter params[], void *data)
         static const int times_to_send = 10;
         for (int x = 0; x < times_to_send; ++x) {
             for (int y = 0; y < num_requests_at_once; ++y) {
-                pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 2,
-                                        request_cb, request_error_cb);
+                pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 2,
+                                               request_cb, request_error_cb);
             }
             SLEEP_SECONDS(1);
         }

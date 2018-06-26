@@ -53,6 +53,7 @@ const tcpServer = net.createServer((socket) => {
     console.log('======= New TCP Connection ========');
 
     socket.on('data', (buffer) => {
+        clientDisconnected = false;
         processBuffer(buffer, socket);
     });
 
@@ -73,6 +74,7 @@ const tlsServer = tls.createServer(tlsOptions, (socket) => {
     console.log(socket.authorized ? 'Authorized' : 'Unauthorized');
 
     socket.on('data', (buffer) => {
+        clientDisconnected = false;
         processBuffer(buffer, socket);
     });
 

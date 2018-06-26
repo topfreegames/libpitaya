@@ -29,8 +29,8 @@ struct pc_transport_s {
      * req_id == PC_NOTIFY_PUSH_REQ_ID indicates that it is a notify message,
      * otherwise it is a request message
      */
-    int (*send)(pc_transport_t* trans, const char* route, unsigned int seq_num,
-            const char* msg, unsigned int req_id, int timeout);
+    int (*send)(pc_transport_t* trans, const char* route, unsigned int seq_num, 
+                pc_buf_t buf, unsigned int req_id, int timeout);
 
     int (*disconnect)(pc_transport_t* trans);
     int (*cleanup)(pc_transport_t* trans);
@@ -59,14 +59,19 @@ PC_EXPORT int pc_transport_plugin_deregister(int trans_name);
 PC_EXPORT void pc_trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, const char* arg2);
 
 /**
+ * when a push occures, transport impl should invoke this function.
+ */
+PC_EXPORT void pc_trans_fire_push_event(pc_client_t *client, const char *route, const pc_buf_t *buf);
+
+/**
  * when a notify is sent or timeout, transport impl should invoke this function.
  */
-PC_EXPORT void pc_trans_sent(pc_client_t* client, unsigned int seq_num, pc_error_t error);
+PC_EXPORT void pc_trans_sent(pc_client_t* client, unsigned int seq_num, const pc_error_t *error);
 
 /**
  * when a request gets a resp or timeout, transport impl should invoke this function.
  */
-PC_EXPORT void pc_trans_resp(pc_client_t* client, unsigned int req_id, const char* resp, pc_error_t error);
+PC_EXPORT void pc_trans_resp(pc_client_t* client, unsigned int req_id, const pc_buf_t *resp, const pc_error_t *error);
 
 
 #ifdef __cplusplus

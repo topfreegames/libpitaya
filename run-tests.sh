@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER_DIR=test/server
+SERVER_DIR=pitaya-servers
 SERVER_EXE=server-exe
 SERVER_LOG_FILE=out.log
 
@@ -29,9 +29,9 @@ TESTS_EXE=tests
 # NOTE: This script can in the future be extended to work with 
 # different build tools, not only make.
 
-if [[ ! -f $EXECUTABLE ]]; then
+if [[ ! -f "$SERVER_DIR/json-server/$SERVER_EXE" ]]; then
     echo "-->  Creating the server binary to use for testing..."
-    pushd test/server > /dev/null
+    pushd "$SERVER_DIR/json-server" > /dev/null
     go build -o $SERVER_EXE
     popd > /dev/null
 fi
@@ -47,7 +47,7 @@ if [[ ! -f "$BUILD_DIR/out/Release_x64/build.ninja" ]]; then
 fi
 
 echo   "-->  Starting server..."
-pushd $SERVER_DIR > /dev/null
+pushd $SERVER_DIR/json-server > /dev/null
 ./$SERVER_EXE &> $SERVER_LOG_FILE &
 popd > /dev/null
 

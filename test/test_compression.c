@@ -13,10 +13,10 @@ static char *RESPONSES_DISABLED[] = {
 };
 
 static void
-request_cb_disabled(const pc_request_t* req, const char* resp)
+request_cb_disabled(const pc_request_t* req, const pc_buf_t *resp)
 {
     int *num_called = (int*)pc_request_ex_data(req);
-    assert_string_equal(RESPONSES_DISABLED[*num_called], resp);
+    // assert_string_equal(RESPONSES_DISABLED[*num_called], resp);
     (*num_called)++;
 }
 
@@ -26,10 +26,10 @@ static char *RESPONSES_ENABLED[] = {
 };
 
 static void
-request_cb_enabled(const pc_request_t* req, const char* resp)
+request_cb_enabled(const pc_request_t* req, const pc_buf_t *resp)
 {
     int *num_called = (int*)pc_request_ex_data(req);
-    assert_string_equal(RESPONSES_ENABLED[*num_called], resp);
+    // assert_string_equal(RESPONSES_ENABLED[*num_called], resp);
     (*num_called)++;
 }
 
@@ -59,10 +59,10 @@ test_disabled_compression(const MunitParameter params[], void *data)
         const char *big_json = "{\"Data\":{\"name\":\"PEPE\",\"age\":\"veryyyyyyyyyyy old myyyyyyyyyyyyyyyyyyy boiiiiiiiiiiiiiiiiiiiiiiiiiiiiii\"}}";
         const char *empty_json = "{}";
 
-        assert_int(pc_request_with_timeout(g_client, "irrelevant.route", big_json, &num_called, 12, request_cb_disabled, NULL), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "irrelevant.route", big_json, &num_called, 12, request_cb_disabled, NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(2);
 
-        assert_int(pc_request_with_timeout(g_client, "irrelevant.route", empty_json, &num_called, REQ_TIMEOUT, request_cb_disabled, NULL), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "irrelevant.route", empty_json, &num_called, REQ_TIMEOUT, request_cb_disabled, NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(2);
 
         assert_int(num_called, ==, ArrayCount(RESPONSES_DISABLED));
@@ -99,10 +99,10 @@ test_enabled_compression(const MunitParameter params[], void *data)
         const char *big_json = "{\"Data\":{\"name\":\"PEPE\",\"age\":\"veryyyyyyyyyyy old myyyyyyyyyyyyyyyyyyy boiiiiiiiiiiiiiiiiiiiiiiiiiiiiii\"}}";
         const char *empty_json = "{}";
 
-        assert_int(pc_request_with_timeout(g_client, "irrelevant.route", big_json, &num_called, 12, request_cb_enabled, NULL), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "irrelevant.route", big_json, &num_called, 12, request_cb_enabled, NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(2);
 
-        assert_int(pc_request_with_timeout(g_client, "irrelevant.route", empty_json, &num_called, REQ_TIMEOUT, request_cb_enabled, NULL), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "irrelevant.route", empty_json, &num_called, REQ_TIMEOUT, request_cb_enabled, NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(2);
 
         assert_int(num_called, ==, ArrayCount(RESPONSES_ENABLED));

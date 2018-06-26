@@ -142,6 +142,7 @@ function encode(msg) {
 // See ref: https://github.com/topfreegames/pitaya/blob/master/docs/communication_protocol.md
 function decode(buf) {
     if (buf.length < MSG_HEAD_LENGTH) {
+        console.log('ERROR: buffer smaller than the message header');
         return [null, Errors.InvalidMessage];
     }
     let msg = createEmptyMessage();

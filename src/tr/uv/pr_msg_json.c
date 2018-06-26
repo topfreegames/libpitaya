@@ -13,39 +13,35 @@
 
 #include "pr_msg.h"
 
-pc_buf_t pc_body_json_encode(const pc_JSON* msg, int compress_data)
+pc_buf_t pc_body_json_encode(pc_buf_t buf, bool *was_body_compressed)
 {
-    pc_buf_t buf;
-    buf.base = NULL;
-    buf.len = -1;
+    pc_buf_t out_buf;
+    out_buf.base = NULL;
+    out_buf.len = -1;
 
-    pc_assert(msg);
+    pc_assert(buf.base && buf.len > 0);
 
-    char *res = pc_JSON_PrintUnformatted(msg);
-    if (!res) {
-        pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - json encode error");
+    // TODO(leo): maybe move compress_data to outside of the function, because otherwise it is a noop.
+    int compress_err = pr_compress((unsigned char**)&out_buf.base, (size_t*)&out_buf.len, (unsigned char*)buf.base, buf.len);
+
+    if (compress_err) {
+        pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - error compressing data");
+        pc_buf_free(&out_buf); // free the buffers, since it will not be used.
         return buf;
     }
 
-    if (compress_data) {
-        const size_t res_len = strlen(res);
-
-        int compress_err = pr_compress((unsigned char**)&buf.base, (size_t*)&buf.len, (unsigned char*)res, res_len);
-        pc_assert(buf.len >= 0);
-        if (compress_err || (size_t)buf.len >= res_len) {
-            if (!compress_err) {
-                pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - compressed is larger (%d > %d)", buf.len, res_len);
-            }
-
-            buf.base = res;
-            buf.len = (int)strlen(res);
-        }
-    } else {
-        buf.base = res;
-        buf.len = strlen(res);
+    // TODO, NOTE(leo): This check could be more specialized. For example, the compressed buffer is only used if it 
+    // is at least 30% smaller than the original buffer.
+    if (out_buf.len >= buf.len) {
+        pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - compressed is larger (%d > %d)", out_buf.len, buf.len);
+        pc_buf_free(&out_buf); // free the buffers, since it will not be used.
+        if (was_body_compressed) *was_body_compressed = false;
+        return buf;
     }
     
-    return buf;
+    // out_buf is smaller than buf
+    if (was_body_compressed) *was_body_compressed = true;
+    return out_buf;
 }
 
 pc_JSON* pc_body_json_decode(const char *data, size_t offset, size_t len, int gzipped)

@@ -29,7 +29,10 @@ size_t pc_client_size()
 pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* config)
 {
     pc_client_init_result_t res = {0};
+
     res.client = (pc_client_t*)pc_lib_malloc(pc_client_size());
+    memset(res.client, 0, pc_client_size());
+
     res.rc = PC_RC_ERROR;
 
     if (!config) {
@@ -224,8 +227,6 @@ int pc_client_cleanup(pc_client_t* client)
 {
     QUEUE* q;
     int ret;
-    pc_ev_handler_t* handler;
-    pc_transport_plugin_t* plugin;
 
     if (!client) {
         pc_lib_log(PC_LOG_ERROR, "pc_client_cleanup - client is null");
@@ -246,7 +247,7 @@ int pc_client_cleanup(pc_client_t* client)
         return ret;
     }
 
-    plugin = client->trans->plugin(client->trans);
+    pc_transport_plugin_t *plugin = client->trans->plugin(client->trans);
     plugin->transport_release(plugin, client->trans);
 
     client->trans = NULL;
@@ -260,12 +261,12 @@ int pc_client_cleanup(pc_client_t* client)
     pc_assert(QUEUE_EMPTY(&client->req_queue));
     pc_assert(QUEUE_EMPTY(&client->notify_queue));
 
-    while(!QUEUE_EMPTY(&client->ev_handlers)) {
+    while (!QUEUE_EMPTY(&client->ev_handlers)) {
         q = QUEUE_HEAD(&client->ev_handlers);
         QUEUE_REMOVE(q);
         QUEUE_INIT(q);
 
-        handler = QUEUE_DATA(q, pc_ev_handler_t, queue);
+        pc_ev_handler_t *handler = QUEUE_DATA(q, pc_ev_handler_t, queue);
 
         if (handler->destructor) {
             handler->destructor(handler->ex_data);
@@ -285,25 +286,40 @@ int pc_client_cleanup(pc_client_t* client)
     client->seq_num = 0;
 
     pc_lib_free(client);
+
     return PC_RC_OK;
 }
 
 static void pc__handle_event(pc_client_t* client, pc_event_t* ev)
 {
+    pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - ENTERED BOI"); 
+
     pc_assert(PC_EV_IS_RESP(ev->type) || PC_EV_IS_NOTIFY_SENT(ev->type) || PC_EV_IS_NET_EVENT(ev->type));
 
     if (PC_EV_IS_RESP(ev->type)) {
-        pc__trans_resp(client, ev->data.req.req_id, ev->data.req.resp, ev->data.req.error);
+        pc__trans_resp(client, ev->data.req.req_id, &ev->data.req.resp, &ev->data.req.error);
         pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans resp, req_id: %u",
                 ev->data.req.req_id);
-        pc_lib_free((char* )ev->data.req.resp);
-        pc__error_free(ev->data.req.error);
-        ev->data.req.resp = NULL;
+
+        pc__error_free(&ev->data.req.error);
+
+        pc_lib_free((char* )ev->data.req.resp.base);
+        ev->data.req.resp.base = NULL;
+        ev->data.req.resp.len = -1;
 
     } else if (PC_EV_IS_NOTIFY_SENT(ev->type)) {
-        pc__trans_sent(client, ev->data.notify.seq_num, ev->data.notify.error);
+        pc__trans_sent(client, ev->data.notify.seq_num, &ev->data.notify.error);
         pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans sent, seq_num: %u, rc: %s",
                 ev->data.notify.seq_num, ev->data.notify.error.code);
+
+        pc__error_free(&ev->data.notify.error);
+    } else if (PC_EV_IS_PUSH(ev->type)) {
+        pc__trans_push(client, ev->data.push.route, &ev->data.push.buf);
+
+        pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans sent, seq_num: %u, rc: %s",
+                ev->data.notify.seq_num, ev->data.notify.error.code);
+
+        pc_lib_free((char*)ev->data.push.route);
     } else {
         pc__trans_fire_event(client, ev->data.ev.ev_type, ev->data.ev.arg1, ev->data.ev.arg2);
         pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - fire pending trans event: %s, arg1: %s",
@@ -369,7 +385,7 @@ int pc_client_poll(pc_client_t* client)
 }
 
 int pc_client_add_ev_handler(pc_client_t* client, pc_event_cb_t cb,
-        void* ex_data, void (*destructor)(void* ex_data))
+                             void* ex_data, void (*destructor)(void* ex_data))
 {
     pc_ev_handler_t* handler;
     static int handler_id = 0;
@@ -497,10 +513,40 @@ void* pc_client_trans_data(pc_client_t* client)
     return NULL;
 }
 
-int pc_request_with_timeout(pc_client_t* client, const char* route, const char* msg, void* ex_data,
-        int timeout, pc_request_cb_t cb, pc_request_error_cb_t error_cb)
+static int pc__request_with_timeout(pc_client_t* client, const char* route, 
+                                    pc_buf_t msg_buf, void* ex_data, int timeout, 
+                                    pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb);
+
+int pc_string_request_with_timeout(pc_client_t* client, const char* route, 
+                                   const char *str, void* ex_data, int timeout, 
+                                   pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb)
 {
-    if (!client || !route || !msg || !cb) {
+    if (!str) {
+        return PC_RC_INVALID_ARG;
+    }
+    pc_buf_t buf = pc_buf_from_string(str);
+    return pc__request_with_timeout(client, route, buf, ex_data, timeout, success_cb, error_cb);
+}
+
+int pc_binary_request_with_timeout(pc_client_t* client, const char* route, 
+                                   uint8_t *data, int64_t len, void* ex_data, int timeout,
+                                   pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb)
+{
+    if (!data || len <= 0) {
+        return PC_RC_INVALID_ARG;
+    }
+    pc_buf_t buf;
+    buf.len = len;
+    buf.base = pc_lib_malloc((size_t)len);
+    memcpy(buf.base, data, len);
+    return pc__request_with_timeout(client, route, buf, ex_data, timeout, success_cb, error_cb);
+}
+
+static int pc__request_with_timeout(pc_client_t* client, const char* route, 
+                                    pc_buf_t msg_buf, void* ex_data, int timeout, 
+                                    pc_request_success_cb_t cb, pc_request_error_cb_t error_cb)
+{
+    if (!client || !route || !cb) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - invalid args");
         return PC_RC_INVALID_ARG;
     }
@@ -526,7 +572,7 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
             req = &client->requests[i];
 
             PC_PRE_ALLOC_SET_BUSY(req->base.type);
-            pc_assert(!req->base.route && !req->base.msg);
+            pc_assert(!req->base.route && !req->base.msg_buf.base);
             pc_assert(PC_IS_PRE_ALLOC(req->base.type));
             pc_lib_log(PC_LOG_DEBUG, "pc_request_with_timeout - use pre alloc request");
 
@@ -547,7 +593,7 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
     QUEUE_INSERT_TAIL(&client->req_queue, &req->base.queue);
 
     req->base.route = pc_lib_strdup(route);
-    req->base.msg = pc_lib_strdup(msg);
+    req->base.msg_buf = msg_buf;
 
     req->base.seq_num = client->seq_num++;
     req->base.timeout = timeout;
@@ -563,7 +609,9 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
 
     pc_lib_log(PC_LOG_INFO, "pc_request_with_timeout - add request to queue, req id: %u", req->req_id);
 
-    int ret = client->trans->send(client->trans, req->base.route, req->base.seq_num, req->base.msg, req->req_id, req->base.timeout);
+    int ret = client->trans->send(client->trans, req->base.route, req->base.seq_num, req->base.msg_buf, req->req_id, req->base.timeout);
+
+    pc_lib_log(PC_LOG_DEBUG, "pc_request_with_timeout - transport send function CALLED");
 
     if (ret != PC_RC_OK) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - send to transport error,"
@@ -571,10 +619,11 @@ int pc_request_with_timeout(pc_client_t* client, const char* route, const char* 
 
         pc_mutex_lock(&client->req_mutex);
 
-        pc_lib_free((char* )req->base.msg);
+        pc_lib_free((char* )req->base.msg_buf.base);
         pc_lib_free((char* )req->base.route);
 
-        req->base.msg = NULL;
+        req->base.msg_buf.base = NULL;
+        req->base.msg_buf.len = -1;
         req->base.route = NULL;
 
         QUEUE_REMOVE(&req->base.queue);
@@ -607,7 +656,7 @@ const char* pc_request_route(const pc_request_t* req)
 const char* pc_request_msg(const pc_request_t* req)
 {
     pc_assert(req);
-    return req->base.msg;
+    return (const char*)req->base.msg_buf.base;
 }
 
 int pc_request_timeout(const pc_request_t* req)
@@ -622,15 +671,35 @@ void* pc_request_ex_data(const pc_request_t* req)
     return req->base.ex_data;
 }
 
-int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* msg, void* ex_data,
-       int timeout, pc_notify_error_cb_t cb)
+static int pc__notify_with_timeout(pc_client_t* client, const char* route, pc_buf_t msg_buf, void* ex_data,
+                                   int timeout, pc_notify_error_cb_t cb);
+
+int pc_binary_notify_with_timeout(pc_client_t* client, const char* route, uint8_t *data, int64_t len,
+                                  void* ex_data, int timeout, pc_notify_error_cb_t cb)
+{
+    pc_buf_t buf;
+    buf.len = len;
+    buf.base = pc_lib_malloc(len);
+    memcpy(buf.base, data, len);
+    return pc__notify_with_timeout(client, route, buf, ex_data, timeout, cb);
+}
+
+int pc_string_notify_with_timeout(pc_client_t* client, const char* route, const char *str, 
+                                  void* ex_data, int timeout, pc_notify_error_cb_t cb)
+{
+    pc_buf_t buf = pc_buf_from_string(str);
+    return pc__notify_with_timeout(client, route, buf, ex_data, timeout, cb);
+}
+
+static int pc__notify_with_timeout(pc_client_t* client, const char* route, pc_buf_t msg_buf, void* ex_data,
+                                   int timeout, pc_notify_error_cb_t cb)
 {
     pc_notify_t* notify;
     int i;
     int ret;
     int state;
 
-    if (!client || !route || !msg) {
+    if (!client || !route || msg_buf.len == -1) {
         pc_lib_log(PC_LOG_ERROR, "pc_notify_with_timeout - invalid args");
         return PC_RC_INVALID_ARG;
     }
@@ -659,7 +728,7 @@ int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* m
             PC_PRE_ALLOC_SET_BUSY(notify->base.type);
 
             pc_lib_log(PC_LOG_DEBUG, "pc_notify_with_timeout - use pre alloc notify");
-            pc_assert(!notify->base.route && !notify->base.msg);
+            pc_assert(!notify->base.route && !notify->base.msg_buf.base);
             pc_assert(PC_IS_PRE_ALLOC(notify->base.type));
 
             break;
@@ -679,7 +748,7 @@ int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* m
     QUEUE_INSERT_TAIL(&client->notify_queue, &notify->base.queue);
 
     notify->base.route = pc_lib_strdup(route);
-    notify->base.msg = pc_lib_strdup(msg);
+    notify->base.msg_buf = msg_buf;
 
     notify->base.seq_num = client->seq_num++;
 
@@ -693,7 +762,7 @@ int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* m
     pc_lib_log(PC_LOG_INFO, "pc_notify_with_timeout - add notify to queue, seq num: %u", notify->base.seq_num);
 
     ret = client->trans->send(client->trans, notify->base.route, notify->base.seq_num,
-            notify->base.msg, PC_NOTIFY_PUSH_REQ_ID, notify->base.timeout);
+                              notify->base.msg_buf, PC_NOTIFY_PUSH_REQ_ID, notify->base.timeout);
 
     if (ret != PC_RC_OK) {
         pc_lib_log(PC_LOG_ERROR, "pc_notify_with_timeout - send to transport error,"
@@ -701,10 +770,11 @@ int pc_notify_with_timeout(pc_client_t* client, const char* route, const char* m
 
         pc_mutex_lock(&client->req_mutex);
 
-        pc_lib_free((char* )notify->base.msg);
+        pc_lib_free((char* )notify->base.msg_buf.base);
         pc_lib_free((char* )notify->base.route);
 
-        notify->base.msg = NULL;
+        notify->base.msg_buf.base = NULL;
+        notify->base.msg_buf.len = -1;
         notify->base.route = NULL;
 
         QUEUE_REMOVE(&notify->base.queue);
@@ -733,10 +803,10 @@ const char* pc_notify_route(const pc_notify_t* notify)
     return notify->base.route;
 }
 
-const char* pc_notify_msg(const pc_notify_t* notify)
+const pc_buf_t *pc_notify_msg(const pc_notify_t* notify)
 {
     pc_assert(notify);
-    return notify->base.msg;
+    return &notify->base.msg_buf;
 }
 
 int pc_notify_timeout(const pc_notify_t* notify)
@@ -749,4 +819,53 @@ void* pc_notify_ex_data(const pc_notify_t* notify)
 {
     pc_assert(notify);
     return notify->base.ex_data;
+}
+
+pc_buf_t pc_buf_copy(const pc_buf_t *buf)
+{
+    pc_assert(buf->base);
+    pc_assert(buf->len > 0);
+
+    pc_buf_t new_buf;
+    new_buf.base = pc_lib_malloc((size_t)buf->len);
+    new_buf.len = buf->len;
+
+    if (!new_buf.base) {
+        new_buf.len = -1;
+        return new_buf;
+    }
+
+    new_buf.len = buf->len;
+    return new_buf;
+}
+
+void pc_buf_free(pc_buf_t *buf)
+{
+    if (buf->base) {
+        pc_lib_free(buf->base);
+        buf->base = NULL;
+        buf->len = 0;
+    }
+}
+
+pc_buf_t pc_buf_empty()
+{
+    pc_buf_t buf;
+    memset(&buf, 0, sizeof(pc_buf_t));
+    return buf;
+}
+
+pc_buf_t pc_buf_from_string(const char *str)
+{
+    pc_assert(str);
+    size_t str_len = strlen(str);
+    
+    pc_buf_t buf;
+    buf.base = pc_lib_malloc(str_len+1);
+    buf.len = (int64_t)str_len;
+
+    buf.base[buf.len] = '\0';
+    strncpy((char*)buf.base, str, buf.len);
+
+    return buf;
 }

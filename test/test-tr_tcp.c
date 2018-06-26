@@ -17,7 +17,7 @@
 static pc_client_t* g_client = NULL;
 
 static void
-request_cb(const pc_request_t* req, const char* resp)
+request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
     bool *called = (bool*)pc_request_ex_data(req);
     *called = true;
@@ -46,19 +46,20 @@ test_request_callback(const MunitParameter params[], void *data)
     assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
 
     SLEEP_SECONDS(1);
-    assert_int(pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
+    assert_int(pc_string_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
 
     assert_true(called);
+
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+    SLEEP_SECONDS(1);
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 
     return MUNIT_OK;
 }
 
 static int EV_ORDER[] = {
-    PC_EV_CONNECTED,
-    PC_EV_DISCONNECT,
+    PC_EV_CONNECTED, PC_EV_DISCONNECT,
 };
 
 static void

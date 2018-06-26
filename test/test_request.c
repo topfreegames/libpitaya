@@ -12,30 +12,26 @@ static int g_num_error_cb_called = 0;
 static int g_num_timeout_error_cb_called = 0;
 
 static void
-request_cb(const pc_request_t* req, const char* resp)
+request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
-    printf("RESP IS: %s\n", resp);
+    // printf("RESP IS: %s\n", resp);
     g_num_success_cb_called++;
 }
 
 static void
-timeout_error_cb(const pc_request_t* req, pc_error_t error)
+timeout_error_cb(const pc_request_t* req, const pc_error_t *error)
 {
     g_num_timeout_error_cb_called++;
 
-    assert_string_equal(error.code, "PC_RC_TIMEOUT");
-    assert_null(error.msg);
-    assert_null(error.metadata);
+    assert_int(error->code, ==, PC_RC_TIMEOUT);
 }
 
 static void
-request_error_cb(const pc_request_t* req, pc_error_t error)
+request_error_cb(const pc_request_t* req, const pc_error_t *error)
 {
     g_num_error_cb_called++;
 
-    assert_string_equal(error.code, "PIT-404");
-    assert_string_equal(error.msg, "pitaya/handler: connector.invalid.route not found");
-    assert_null(error.metadata);
+    assert_int(error->code, ==, PC_RC_SERVER_ERROR);
 }
 
 static MunitResult
@@ -56,8 +52,8 @@ test_invalid_state(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
-                                           request_cb, request_error_cb), ==, PC_RC_INVALID_STATE);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+                                                  request_cb, request_error_cb), ==, PC_RC_INVALID_STATE);
 
         SLEEP_SECONDS(1);
 
@@ -70,8 +66,8 @@ test_invalid_state(const MunitParameter params[], void *data)
 
         SLEEP_SECONDS(1);
 
-        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
-                                           request_cb, request_error_cb), ==, PC_RC_INVALID_STATE);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+                                                  request_cb, request_error_cb), ==, PC_RC_INVALID_STATE);
 
         SLEEP_SECONDS(1);
 
@@ -105,13 +101,13 @@ test_timeout(const MunitParameter params[], void *data)
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
-        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
-                                           request_cb, timeout_error_cb), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+                                                  request_cb, timeout_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(2);
 
-        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
-                                           request_cb, NULL), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+                                                  request_cb, NULL), ==, PC_RC_OK);
 
         SLEEP_SECONDS(2);
 
@@ -148,13 +144,13 @@ test_valid_route(const MunitParameter params[], void *data)
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
-        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
-                                           request_cb, request_error_cb), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+                                                  request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
-        assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
-                                           request_cb, request_error_cb), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+                                                  request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
@@ -191,11 +187,13 @@ test_invalid_route(const MunitParameter params[], void *data)
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
-        assert_int(pc_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, 
+                                                  REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
-        assert_int(pc_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, 
+                                                  REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 

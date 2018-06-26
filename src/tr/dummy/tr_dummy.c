@@ -35,17 +35,21 @@ static int dummy_connect(pc_transport_t* trans, const char* host, int port, cons
     return PC_RC_OK;
 }
 
-static int dummy_send(pc_transport_t* trans, const char* route, unsigned int seq_num, const char* msg, unsigned int req_id, int timeout)
+static int dummy_send(pc_transport_t* trans, const char* route, unsigned int seq_num, const pc_buf_t *msg_buf, unsigned int req_id, int timeout)
 {
     dummy_transport_t* d_tr = (dummy_transport_t* )trans;
     pc_assert(d_tr);
 
     if (req_id == PC_NOTIFY_PUSH_REQ_ID) {
-        pc_error_t error = {0};
-        pc_trans_sent(d_tr->client, seq_num, error);
+        pc_trans_sent(d_tr->client, seq_num, NULL);
     } else {
-        pc_error_t error = {0};
-        pc_trans_resp(d_tr->client, req_id, TR_DUMMY_RESP, error);
+        pc_buf_t dummy_resp = {0};
+        dummy_resp.base = (uint8_t*)pc_lib_strdup("dummy resp");
+        dummy_resp.len = 10;
+
+        pc_trans_resp(d_tr->client, req_id, &dummy_resp, NULL);
+
+        pc_buf_free(&dummy_resp);
     }
 
     return PC_RC_OK;

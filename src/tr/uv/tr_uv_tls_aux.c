@@ -392,11 +392,8 @@ void tls__write_done_cb(uv_write_t* w, int status)
 
     tt->is_writing = 0;
 
-    const char *err_str = NULL;
-
     if (status) {
         pc_lib_log(PC_LOG_ERROR, "tcp__write_done_cb - uv_write callback error: %s", uv_strerror(status));
-        err_str = uv_strerror(status);
     }
 
     status = status ? PC_RC_ERROR : PC_RC_OK;
@@ -421,24 +418,20 @@ void tls__write_done_cb(uv_write_t* w, int status)
         wi->buf.len = 0;
 
         if (TR_UV_WI_IS_NOTIFY(wi->type)) {
-            if (err_str) {
-                pc_error_t err = pc__error_uv(err_str);
-                pc_trans_sent(tt->client, wi->seq_num, err);
-                pc__error_free(err);
+            if (status) {
+                pc_error_t err = pc__error_uv(status);
+                pc_trans_sent(tt->client, wi->seq_num, &err);
             } else {
-                pc_error_t err = {0};
-                pc_trans_sent(tt->client, wi->seq_num, err);
+                pc_trans_sent(tt->client, wi->seq_num, NULL);
             }
         }
 
         if (TR_UV_WI_IS_RESP(wi->type)) {
-            if (err_str) {
-                pc_error_t err = pc__error_uv(err_str);
-                pc_trans_resp(tt->client, wi->req_id, NULL, err);
-                pc__error_free(err);
+            if (status) {
+                pc_error_t err = pc__error_uv(status);
+                pc_trans_resp(tt->client, wi->req_id, NULL, &err);
             } else {
-                pc_error_t err = {0};
-                pc_trans_resp(tt->client, wi->req_id, NULL, err);
+                pc_trans_resp(tt->client, wi->req_id, NULL, NULL);
             }
         }
         /* if internal, do nothing here. */
@@ -479,13 +472,12 @@ void tls__write_timeout_check_cb(uv_timer_t* t)
         if (TR_UV_WI_IS_NOTIFY(wi->type)) {
             pc_lib_log(PC_LOG_WARN, "tls__write_timeout_check_cb - notify timeout, seq num: %u", wi->seq_num);
             pc_error_t err = pc__error_timeout();
-            pc_trans_sent(tt->client, wi->seq_num, err);
-            pc__error_free(err);
+            pc_trans_sent(tt->client, wi->seq_num, &err);
         } else if (TR_UV_WI_IS_RESP(wi->type)) {
             pc_lib_log(PC_LOG_WARN, "tls__write_timeout_check_cb - request timeout, req id: %u", wi->req_id);
             pc_error_t err = pc__error_timeout();
-            pc_trans_resp(tt->client, wi->req_id, NULL, err);
-            pc__error_free(err);
+            pc_buf_t empty_buf = {0};
+            pc_trans_resp(tt->client, wi->req_id, &empty_buf, &err);
         }
 
         /* if internal, just drop it. */

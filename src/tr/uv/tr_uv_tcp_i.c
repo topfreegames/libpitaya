@@ -308,44 +308,42 @@ int tr_uv_tcp_connect(pc_transport_t* trans, const char* host, int port, const c
     return PC_RC_OK;
 }
 
-int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_num, const char* msg, unsigned int req_id, int timeout)
+int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_num, pc_buf_t buf, unsigned int req_id, int timeout)
 {
+    pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - ENTERED");
+
     int i;
     tr_uv_wi_t* wi;
-    pc_msg_t m;
-    uv_buf_t buf;
-    uv_buf_t pkg_buf;
     GET_TT;
 
     if (tt->state == TR_UV_TCP_NOT_CONN) {
         return PC_RC_INVALID_STATE;
     }
 
-    pc_assert(trans && route && msg && req_id != PC_INVALID_REQ_ID);
+    pc_assert(trans && route && req_id != PC_INVALID_REQ_ID);
 
-    pc_JSON *json_msg = pc_JSON_ParseWithOpts(msg, 0, 1);
-    if (!json_msg) {
-        pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - the msg is not invalid json");
-        return PC_RC_INVALID_JSON;
-    }
-
+    pc_msg_t m;
     m.id = req_id;
-    m.json_msg = json_msg;
+    m.buf = buf;
     m.route = route;
 
-    buf = ((tr_uv_tcp_transport_plugin_t*)tr_uv_tcp_plugin((pc_transport_t*)tt))->pr_msg_encoder(tt, &m);
-    if (buf.len == (unsigned int)-1) {
-        pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - encode msg failed, msg: %s, route: %s", msg, route);
+    uv_buf_t uv_buf = ((tr_uv_tcp_transport_plugin_t*)tr_uv_tcp_plugin((pc_transport_t*)tt))->pr_msg_encoder(tt, &m);
+
+    pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - encoded msg length = %lu", uv_buf.len);
+
+    if (uv_buf.len == (unsigned int)-1) {
+        pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - encode msg failed, route: %s", route);
         return PC_RC_ERROR;
     }
 
-    pkg_buf = pc_pkg_encode(PC_PKG_DATA, buf.base, buf.len);
-    pc_lib_free(buf.base);
+    uv_buf_t pkg_buf = pc_pkg_encode(PC_PKG_DATA, uv_buf.base, uv_buf.len);
 
     if (pkg_buf.len == (unsigned int)-1) {
         pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - encode package failed");
         return PC_RC_ERROR;
     }
+
+    pc_lib_free(uv_buf.base);
 
     wi = NULL;
     pc_mutex_lock(&tt->wq_mutex);

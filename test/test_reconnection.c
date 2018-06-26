@@ -19,6 +19,7 @@ reconnect_success_event_cb(pc_client_t* client, int ev_type, void* ex_data, cons
 {
     Unused(client); Unused(arg1); Unused(arg2);
     int *num_calls = (int*)ex_data;
+
     assert_int(SUCCESS_RECONNECT_EV_ORDER[*num_calls], ==, ev_type);
     (*num_calls)++;
 }
@@ -52,6 +53,8 @@ test_success(const MunitParameter params[], void *data)
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
         assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+
+        SLEEP_SECONDS(1);
     }
 
     return MUNIT_OK;

@@ -29,13 +29,12 @@ static void tcp__reset_wi(pc_client_t* client, tr_uv_wi_t* wi)
     if (TR_UV_WI_IS_RESP(wi->type)) {
         pc_lib_log(PC_LOG_DEBUG, "tcp__reset_wi - reset request, req_id: %u", wi->req_id);
         pc_error_t err = pc__error_reset();
-        pc_trans_resp(client, wi->req_id, NULL, err);
-        pc__error_free(err);
+        pc_buf_t empty_buf = {0};
+        pc_trans_resp(client, wi->req_id, &empty_buf, &err);
     } else if (TR_UV_WI_IS_NOTIFY(wi->type)) {
         pc_lib_log(PC_LOG_DEBUG, "tcp__reset_wi - reset notify, seq_num: %u", wi->seq_num);
         pc_error_t err = pc__error_reset();
-        pc_trans_sent(client, wi->seq_num, err);
-        pc__error_free(err);
+        pc_trans_sent(client, wi->seq_num, &err);
     }
     /* drop internal write item */
 
@@ -485,15 +484,14 @@ void tcp__write_async_cb(uv_async_t* a)
             wi->buf.len = 0;
 
             if (TR_UV_WI_IS_NOTIFY(wi->type)) {
-                pc_error_t err = pc__error_uv(uv_strerror(ret));
-                pc_trans_sent(tt->client, wi->seq_num, err);
-                pc__error_free(err);
+                pc_error_t err = pc__error_uv(ret);
+                pc_trans_sent(tt->client, wi->seq_num, &err);
             }
 
             if (TR_UV_WI_IS_RESP(wi->type)) {
-                pc_error_t err = pc__error_uv(uv_strerror(ret));
-                pc_trans_resp(tt->client, wi->req_id, NULL, err);
-                pc__error_free(err);
+                pc_error_t err = pc__error_uv(ret);
+                pc_buf_t empty_buf = {0};
+                pc_trans_resp(tt->client, wi->req_id, &empty_buf, &err);
             }
             /* if internal, do nothing here. */
 
@@ -531,10 +529,6 @@ void tcp__write_done_cb(uv_write_t* w, int status)
         pc_lib_log(PC_LOG_ERROR, "tcp__write_done_cb - uv_write callback error: %s", uv_strerror(status));
     }
 
-    const char *err_str = NULL;
-    if (status) {
-        err_str = uv_strerror(status);
-    }
     status = status == 0 ? PC_RC_OK : PC_RC_ERROR;
 
     pc_mutex_lock(&tt->wq_mutex);
@@ -560,21 +554,19 @@ void tcp__write_done_cb(uv_write_t* w, int status)
         wi->buf.len = 0;
 
         if (TR_UV_WI_IS_NOTIFY(wi->type)) {
-            if (err_str) {
-                pc_error_t err = pc__error_uv(err_str);
-                pc_trans_sent(tt->client, wi->seq_num, err);
-                pc__error_free(err);
+            if (status) {
+                pc_error_t err = pc__error_uv(status);
+                pc_trans_sent(tt->client, wi->seq_num, &err);
             } else {
-                pc_error_t err = {0};
-                pc_trans_sent(tt->client, wi->seq_num, err);
+                pc_trans_sent(tt->client, wi->seq_num, NULL);
             }
         }
 
         if (TR_UV_WI_IS_RESP(wi->type)) {
-            if (err_str) {
-                pc_error_t err = pc__error_uv(err_str);
-                pc_trans_resp(tt->client, wi->req_id, NULL, err);
-                pc__error_free(err);
+            if (status) {
+                pc_error_t err = pc__error_uv(status);
+                pc_buf_t empty_buf = {0};
+                pc_trans_resp(tt->client, wi->req_id, &empty_buf, &err);
             }
         }
         /* if internal, do nothing here. */
@@ -612,13 +604,12 @@ int tcp__check_queue_timeout(QUEUE* ql, pc_client_t* client, int cont)
                 if (TR_UV_WI_IS_NOTIFY(wi->type)) {
                     pc_lib_log(PC_LOG_WARN, "tcp__check_queue_timeout - notify timeout, seq num: %u", wi->seq_num);
                     pc_error_t err = pc__error_timeout();
-                    pc_trans_sent(client, wi->seq_num, err);
-                    pc__error_free(err);
+                    pc_trans_sent(client, wi->seq_num, &err);
                 } else if (TR_UV_WI_IS_RESP(wi->type)) {
                     pc_lib_log(PC_LOG_WARN, "tcp__check_queue_timeout - request timeout, req id: %u", wi->req_id);
                     pc_error_t err = pc__error_timeout();
-                    pc_trans_resp(client, wi->req_id, NULL, err);
-                    pc__error_free(err);
+                    pc_buf_t empty_buf = {0};
+                    pc_trans_resp(client, wi->req_id, &empty_buf, &err);
                 }
 
                 /* if internal, just drop it. */
@@ -721,6 +712,7 @@ void tcp__disconnect_async_cb(uv_async_t* a)
     pc_assert(a == &tt->disconnect_async);
     tt->reset_fn(tt);
     tt->reconn_times = 0;
+    pc_lib_log(PC_LOG_DEBUG, "tcp__disconnect_async_cb - sending disconnect event");
     pc_trans_fire_event(tt->client, PC_EV_DISCONNECT, NULL, NULL);
 }
 
@@ -881,12 +873,12 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
     tr_uv_tcp_transport_plugin_t* plugin = (tr_uv_tcp_transport_plugin_t* )tt->base.plugin((pc_transport_t*)tt);
 
     uv_buf_t buf;
-    buf.base = (char* )data;
+    buf.base = (uint8_t*)data;
     buf.len = len;
 
     pc_msg_t msg = plugin->pr_msg_decoder(tt, &buf);
 
-    if (msg.id == PC_INVALID_REQ_ID || !msg.json_msg) {
+    if (msg.id == PC_INVALID_REQ_ID || !msg.buf.base) {
         pc_lib_log(PC_LOG_ERROR, "tcp__on_data_recieved - decode error, will reconn");
         pc_trans_fire_event(tt->client, PC_EV_PROTO_ERROR, "Decode Error", NULL);
         tt->reconn_fn(tt);
@@ -905,18 +897,15 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
 
     pc_lib_log(PC_LOG_INFO, "tcp__on_data_recieved - recived data, req_id: %d", msg.id);
 
-    char *msg_str = pc_JSON_PrintUnformatted(msg.json_msg);
-    pc_assert(msg_str);
-
     if (msg.id != PC_NOTIFY_PUSH_REQ_ID) {
         /* request */
         if (msg.error) {
-            pc_error_t err = pc__error_json(msg.json_msg);
-            pc_trans_resp(tt->client, msg.id, msg_str, err);
-            pc__error_free(err);
+            pc_error_t err = pc__error_server(&msg.buf);
+            pc_trans_resp(tt->client, msg.id, &msg.buf, &err);
+            pc__error_free(&err);
         } else {
-            pc_error_t err = {0};
-            pc_trans_resp(tt->client, msg.id, msg_str, err);
+            pc_lib_log(PC_LOG_INFO, "tcp__on_data_recieved - CALLING TRANSRESP");
+            pc_trans_resp(tt->client, msg.id, &msg.buf, NULL);
         }
 
         /*
@@ -947,12 +936,10 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
             break;
         }
     } else {
-        pc_trans_fire_event(tt->client, PC_EV_USER_DEFINED_PUSH, msg.route, msg_str);
+        pc_trans_fire_push_event(tt->client, msg.route, &msg.buf);
     }
 
     pc_lib_free((char *)msg.route);
-    pc_JSON_Delete(msg.json_msg);
-    pc_lib_free(msg_str);
 }
 
 void tcp__on_kick_recieved(tr_uv_tcp_transport_t* tt)

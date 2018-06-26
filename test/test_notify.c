@@ -8,21 +8,21 @@
 static pc_client_t *g_client = NULL;
 
 static void
-request_cb(const pc_request_t* req, const char *resp)
+request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
 }
 
 static void
-request_error_cb(const pc_request_t* req, pc_error_t error)
+request_error_cb(const pc_request_t* req, const pc_error_t *error)
 {
 }
 
 static void
-notify_error_cb(const pc_notify_t* not, pc_error_t error)
+notify_error_cb(const pc_notify_t* not, const pc_error_t *error)
 {
     bool *called = (bool*)pc_notify_ex_data(not);
     *called = true;
-    assert_string_equal(error.code, "PC_RC_RESET");
+    assert_int(error->code, ==, PC_RC_RESET);
 }
 
 static MunitResult
@@ -50,14 +50,14 @@ test_reset(const MunitParameter params[], void *data)
         SLEEP_SECONDS(1);
 
         for (int i = 0; i < 1; i++) {
-            assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
-                                               request_cb, request_error_cb), ==, PC_RC_OK);
+            assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+                                                      request_cb, request_error_cb), ==, PC_RC_OK);
         }
 
-        assert_int(pc_notify_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 1,
-                                          NULL), ==, PC_RC_OK);
-        assert_int(pc_notify_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 1,
-                                          notify_error_cb), ==, PC_RC_OK);
+        assert_int(pc_string_notify_with_timeout(g_client, "connector.getsessiondata", "{}", 
+                                                 &called, 1, NULL), ==, PC_RC_OK);
+        assert_int(pc_string_notify_with_timeout(g_client, "connector.getsessiondata", "{}", 
+                                                 &called, 1, notify_error_cb), ==, PC_RC_OK);
         SLEEP_SECONDS(3);
         assert_true(called);
 
@@ -89,8 +89,8 @@ test_called(const MunitParameter params[], void *data)
         assert_int(res.rc, ==, PC_RC_OK);
 
         bool called = false;
-        assert_int(pc_notify_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
-                                           notify_error_cb), ==, PC_RC_INVALID_STATE);
+        assert_int(pc_string_notify_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+                                                 notify_error_cb), ==, PC_RC_INVALID_STATE);
         SLEEP_SECONDS(1);
         assert_false(called);
 
@@ -99,14 +99,14 @@ test_called(const MunitParameter params[], void *data)
         SLEEP_SECONDS(1);
 
         for (int i = 0; i < 1; i++) {
-            assert_int(pc_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
-                                               request_cb, request_error_cb), ==, PC_RC_OK);
+            assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+                                                      request_cb, request_error_cb), ==, PC_RC_OK);
         }
 
-        assert_int(pc_notify_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 1,
-                                          NULL), ==, PC_RC_OK);
-        assert_int(pc_notify_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 1,
-                                          notify_error_cb), ==, PC_RC_OK);
+        assert_int(pc_string_notify_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 1,
+                                                 NULL), ==, PC_RC_OK);
+        assert_int(pc_string_notify_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 1,
+                                                 notify_error_cb), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
         assert_false(called);
 

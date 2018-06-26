@@ -150,7 +150,7 @@ void tr_uv_tcp_plugin_on_deregister(pc_transport_plugin_t* plugin);
 
 int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client);
 int tr_uv_tcp_connect(pc_transport_t* trans, const char* host, int port, const char* handshake_opts);
-int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_num, const char* msg, unsigned int req_id, int timeout);
+int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_num, pc_buf_t msg_buf, unsigned int req_id, int timeout);
 int tr_uv_tcp_disconnect(pc_transport_t* trans);
 int tr_uv_tcp_cleanup(pc_transport_t* trans);
 void* tr_uv_tcp_internal_data(pc_transport_t* trans);

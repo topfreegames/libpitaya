@@ -13,7 +13,7 @@
 
 #include "test_common.h"
 
-static pc_client_t* g_client = NULL;
+static pc_client_t *g_client = NULL;
 
 static int EV_ORDER[] = {
     PC_EV_CONNECTED,
@@ -30,12 +30,12 @@ event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, cons
 }
 
 static void
-request_cb(const pc_request_t* req, const char* resp)
+request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
     bool *called = (bool*)pc_request_ex_data(req);
     *called = true;
 
-    assert_string_equal(resp, EMPTY_RESP);
+    // assert_string_equal(resp, EMPTY_RESP);
     assert_not_null(resp);
     assert_ptr_equal(pc_request_client(req), g_client);
     assert_string_equal(pc_request_route(req), REQ_ROUTE);
@@ -44,7 +44,7 @@ request_cb(const pc_request_t* req, const char* resp)
 }
 
 static void
-notify_cb(const pc_notify_t* noti, pc_error_t err)
+notify_cb(const pc_notify_t* noti, const pc_error_t *err)
 {
     bool *called = (bool*)pc_notify_ex_data(noti);
     *called = true;
@@ -73,8 +73,8 @@ test_successful_handshake(const MunitParameter params[], void *state)
 
     assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tls_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
-    assert_int(pc_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &req_cb_called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
-    assert_int(pc_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, &noti_cb_called, NOTI_TIMEOUT, notify_cb), ==, PC_RC_OK);
+    assert_int(pc_string_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &req_cb_called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
+    assert_int(pc_string_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, &noti_cb_called, NOTI_TIMEOUT, notify_cb), ==, PC_RC_OK);
     SLEEP_SECONDS(2);
 
     assert_false(noti_cb_called);
