@@ -34,6 +34,7 @@ struct pc_transport_s {
 
     int (*disconnect)(pc_transport_t* trans);
     int (*cleanup)(pc_transport_t* trans);
+    const char *(*serializer)(pc_transport_t *trans);
 
     void* (*internal_data)(pc_transport_t* trans); /* optional */
     int (*quality)(pc_transport_t* trans); /* optional */

@@ -116,6 +116,8 @@ struct tr_uv_tcp_transport_s {
     uv_async_t disconnect_async;
     uv_async_t cleanup_async;
 
+    const char *serializer;
+
     int hb_interval;
     int hb_timeout;
     uv_timer_t hb_timer;
@@ -153,6 +155,7 @@ int tr_uv_tcp_connect(pc_transport_t* trans, const char* host, int port, const c
 int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_num, pc_buf_t msg_buf, unsigned int req_id, int timeout);
 int tr_uv_tcp_disconnect(pc_transport_t* trans);
 int tr_uv_tcp_cleanup(pc_transport_t* trans);
+const char *tr_uv_tcp_serializer(pc_transport_t *trans);
 void* tr_uv_tcp_internal_data(pc_transport_t* trans);
 int tr_uv_tcp_quality(pc_transport_t* trans);
 pc_transport_plugin_t* tr_uv_tcp_plugin(pc_transport_t* trans);

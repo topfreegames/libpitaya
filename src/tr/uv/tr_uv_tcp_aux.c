@@ -1099,6 +1099,17 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
         tt->hb_timeout = tt->hb_interval * PC_HEARTBEAT_TIMEOUT_FACTOR;
     }
 
+    tmp = pc_JSON_GetObjectItem(sys, "serializer");
+    if (!tmp || tmp->type != pc_JSON_String) {
+        pc_lib_log(PC_LOG_ERROR, "tcp__on_handshake_resp - handshake fail, no serializer field in sys");
+        pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Handshake Error (no serializer)", NULL);
+        pc_JSON_Delete(res);
+        tt->reset_fn(tt);
+        return ;
+    } 
+
+    tt->serializer = pc_lib_strdup(tmp->valuestring);
+
     tmp = pc_JSON_GetObjectItem(sys, "useDict");
     if (!tmp || tmp->type == pc_JSON_False) {
         if (tt->route_to_code && tt->code_to_route) {

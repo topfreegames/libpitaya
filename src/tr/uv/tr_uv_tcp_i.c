@@ -35,6 +35,7 @@ pc_transport_t* tr_uv_tcp_create(pc_transport_plugin_t* plugin)
     tt->base.disconnect = tr_uv_tcp_disconnect;
     tt->base.cleanup = tr_uv_tcp_cleanup;
     tt->base.quality = tr_uv_tcp_quality;
+    tt->base.serializer = tr_uv_tcp_serializer;
     tt->reconn_fn = tcp__reconn;
 
     tt->base.init = tr_uv_tcp_init;
@@ -128,6 +129,7 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
 
     tt->client = client;
     tt->config = pc_client_config(client);
+    tt->serializer = NULL;
 
     tt->state = TR_UV_TCP_NOT_CONN;
 
@@ -420,6 +422,8 @@ int tr_uv_tcp_cleanup(pc_transport_t* trans)
         return PC_RC_ERROR;
     }
 
+    pc_lib_free((char*)tt->serializer);
+
     pc_mutex_destroy(&tt->wq_mutex);
     uv_loop_close(&tt->uv_loop);
 
@@ -438,6 +442,13 @@ int tr_uv_tcp_quality(pc_transport_t* trans)
     GET_TT;
 
     return tt->hb_rtt;
+}
+
+const char *tr_uv_tcp_serializer(pc_transport_t *trans)
+{
+    GET_TT;
+
+    return tt->serializer;
 }
 
 pc_transport_plugin_t* tr_uv_tcp_plugin(pc_transport_t* trans)

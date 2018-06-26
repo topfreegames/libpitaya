@@ -98,6 +98,27 @@ test_pc_client_conn_quality(const MunitParameter params[], void *data)
 }
 
 static MunitResult
+test_serializer(const MunitParameter params[], void *data)
+{
+    Unused(params); Unused(data);
+
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
+    assert_null(pc_client_serializer(g_client));
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
+
+    SLEEP_SECONDS(1);
+
+    assert_string_equal(pc_client_serializer(g_client), "json");
+
+    assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+    return MUNIT_OK;
+}
+
+static MunitResult
 test_pc_client_trans_data(const MunitParameter params[], void *data)
 {
     Unused(params); Unused(data);
@@ -118,6 +139,7 @@ static MunitTest tests[] = {
     {"/conn_quality", test_pc_client_conn_quality, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/trans_data", test_pc_client_trans_data, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/polling", test_polling, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/serializer", test_serializer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

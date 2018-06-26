@@ -513,6 +513,17 @@ void* pc_client_trans_data(pc_client_t* client)
     return NULL;
 }
 
+const char *pc_client_serializer(pc_client_t *client)
+{
+    if (!client) {
+        pc_lib_log(PC_LOG_ERROR, "pc_client_trans_data - client is null, invalid arg");
+        return NULL;
+    }
+
+    pc_assert(client->trans);
+    return client->trans->serializer(client->trans);
+}
+
 static int pc__request_with_timeout(pc_client_t* client, const char* route, 
                                     pc_buf_t msg_buf, void* ex_data, int timeout, 
                                     pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb);

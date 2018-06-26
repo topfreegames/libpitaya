@@ -207,6 +207,7 @@ PC_EXPORT const pc_client_config_t* pc_client_config(const pc_client_t* client);
 PC_EXPORT int pc_client_state(pc_client_t* client);
 PC_EXPORT int pc_client_conn_quality(pc_client_t* client);
 PC_EXPORT void* pc_client_trans_data(pc_client_t* client);
+PC_EXPORT const char *pc_client_serializer(pc_client_t *client);
 
 /**
  * Event

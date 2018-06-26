@@ -40,12 +40,13 @@ function encodeHanshakeAndHeartbeatResponse(heartbeatInterval) {
         'sys': {
             'heartbeat': heartbeatInterval,
             'dict': {
-		            'connector.getsessiondata': 1,
-		            'connector.setsessiondata': 2,
-		            'room.room.getsessiondata': 3,
-		            'onMessage':                4,
-		            'onMembers':                5,
-            }
+                'connector.getsessiondata': 1,
+                'connector.setsessiondata': 2,
+                'room.room.getsessiondata': 3,
+                'onMessage':                4,
+                'onMembers':                5,
+            },
+            'serializer': 'json',
         }
     };
     const data = JSON.stringify(hData);
