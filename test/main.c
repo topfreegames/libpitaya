@@ -2,8 +2,12 @@
 #include <pomelo.h>
 #include "test_common.h"
 
-#define NUM_SUITES 10
-
+// HACK(leo): DO NOT EDIT THE LINES BETWEEN SUITES_START AND SUITES_END
+// In order to update the number of suites automatically when a new suite is added,
+// we compute the number of suites based on the number of lines between SUITES_START
+// and SUITES_END. Therefore, adding a blank line between the two delimiters will incorrectly
+// count the number of suites. So do not edit it!
+static const int SUITES_START = __LINE__;
 extern const MunitSuite pc_client_suite;
 extern const MunitSuite tcp_suite;
 extern const MunitSuite tls_suite;
@@ -15,6 +19,7 @@ extern const MunitSuite request_suite;
 extern const MunitSuite notify_suite;
 extern const MunitSuite stress_suite;
 extern const MunitSuite protobuf_suite;
+static const int SUITES_END = __LINE__;
 
 const MunitSuite null_suite = {
     NULL, NULL, NULL, 0, MUNIT_SUITE_OPTION_NONE
@@ -31,6 +36,7 @@ quiet_log(int level, const char *msg, ...)
 static MunitSuite *
 make_suites()
 {
+    const int NUM_SUITES = SUITES_END - SUITES_START - 1;
     MunitSuite *suites_array = (MunitSuite*)calloc(NUM_SUITES+1, sizeof(MunitSuite));
     size_t i = 0;
     suites_array[i++] = pc_client_suite;
