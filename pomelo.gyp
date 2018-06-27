@@ -249,6 +249,7 @@
                         './deps/nanopb-0.3.9.1/pb_common.c',
                         # proto files
                         './test/error.pb.c',
+                        './test/session-data.pb.c',
                     ],
                 },
             ],
