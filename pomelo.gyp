@@ -74,7 +74,7 @@
                 'product_dir': 'output',
             }],
             ['build_type=="Debug"', {
-                'cflags': ['-g', '-O0', '-Wall', '-Wextra', '-pedantic']
+                'cflags': ['-g', '-O0', '-Wall', '-Wextra', '-pedantic', '-fsanitize=address', '-fno-omit-frame-pointer']
             }],
             ['build_type=="Release"', {
                 'cflags': ['-g', '-O3', '-Wall', '-Wextra', '-pedantic']
@@ -227,7 +227,8 @@
                     'include_dirs': [
                         './include/',
                         '/usr/local/include',
-                        './deps/munit'
+                        './deps/munit',
+                        './deps/nanopb-0.3.9.1',
                     ],
                     'sources': [
                         './test/main.c',
@@ -241,7 +242,13 @@
                         './test/test_request.c',
                         './test/test_notify.c',
                         './test/test_stress.c',
+                        './test/test_protobuf.c',
                         './deps/munit/munit.c',
+                        './deps/nanopb-0.3.9.1/pb_decode.c',
+                        './deps/nanopb-0.3.9.1/pb_encode.c',
+                        './deps/nanopb-0.3.9.1/pb_common.c',
+                        # proto files
+                        './test/error.pb.c',
                     ],
                 },
             ],

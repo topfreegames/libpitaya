@@ -34,7 +34,7 @@ typedef struct {
     char unused:2;
 } pc_message_flag;
 
-pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, int compress_data);
+pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, bool compress_data, bool is_json_serializer);
 pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf);
 
 pc_buf_t pc_body_json_encode(pc_buf_t buf, bool *was_body_compressed);

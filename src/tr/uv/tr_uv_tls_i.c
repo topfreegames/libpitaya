@@ -24,6 +24,7 @@ pc_transport_t* tr_uv_tls_create(pc_transport_plugin_t* plugin)
     tls->base.base.disconnect = tr_uv_tcp_disconnect;
     tls->base.base.cleanup = tr_uv_tcp_cleanup;
     tls->base.base.quality = tr_uv_tcp_quality;
+    tls->base.base.serializer = tr_uv_tcp_serializer;
     tls->base.reconn_fn = tcp__reconn;
 
     /* reimplemetating method */

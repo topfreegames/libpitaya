@@ -21,7 +21,6 @@ pc_buf_t pc_body_json_encode(pc_buf_t buf, bool *was_body_compressed)
 
     pc_assert(buf.base && buf.len > 0);
 
-    // TODO(leo): maybe move compress_data to outside of the function, because otherwise it is a noop.
     int compress_err = pr_compress((unsigned char**)&out_buf.base, (size_t*)&out_buf.len, (unsigned char*)buf.base, buf.len);
 
     if (compress_err) {

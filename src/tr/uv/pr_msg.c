@@ -327,13 +327,13 @@ static uint8_t pc__msg_id_length(uint32_t id)
     return len;
 }
 
-pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, int compress_data)
+pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, bool compress_data, bool is_json_serializer)
 {
     pc_assert(msg && msg->route);
 
     bool was_body_compressed = false;
 
-    pc_buf_t body_buf = (compress_data)
+    pc_buf_t body_buf = (is_json_serializer && compress_data)
         ? pc_body_json_encode(msg->buf, &was_body_compressed)
         : msg->buf;
 
@@ -386,7 +386,8 @@ uv_buf_t pr_default_msg_encoder(tr_uv_tcp_transport_t* tt, const pc_msg_t* msg)
     pc_buf_t pb;
     uv_buf_t ub;
 
-    pb = pc_default_msg_encode(tt->route_to_code, msg, !tt->config->disable_compression);
+    bool is_json_serializer = strcmp(tt->serializer, "json") == 0;
+    pb = pc_default_msg_encode(tt->route_to_code, msg, !tt->config->disable_compression, is_json_serializer);
     ub.base = (char*)pb.base;
     ub.len = pb.len;
 

@@ -38,7 +38,7 @@ static pc_error_t
 pc__error_reset()
 {
     pc_error_t err = {0};
-    err.code = PC_RC_TIMEOUT;
+    err.code = PC_RC_RESET;
     err.payload.len = -1;
     return err;
 }

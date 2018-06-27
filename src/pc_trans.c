@@ -367,6 +367,7 @@ static void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id,
 
 void pc_trans_resp(pc_client_t* client, unsigned int req_id, const pc_buf_t *resp, const pc_error_t *error)
 {
+    pc_lib_log(PC_LOG_ERROR, "pc_trans_resp - CALLED");
     if (!client) {
         pc_lib_log(PC_LOG_ERROR, "pc_trans_resp - client is null");
         return ;
@@ -424,7 +425,7 @@ void pc__trans_resp(pc_client_t* client, unsigned int req_id, const pc_buf_t *re
         pc_request_t *req = (pc_request_t* )QUEUE_DATA(q, pc_common_req_t, queue);
         if (req->req_id == req_id) {
             if (error) {
-                pc_lib_log(PC_LOG_INFO, "pc__trans_resp - fire resp event, req_id: %u, error: %s",
+                pc_lib_log(PC_LOG_INFO, "pc__trans_resp - fire resp event, req_id: %u, error: %d",
                        req_id, error->code);
             } else {
                 pc_lib_log(PC_LOG_INFO, "pc__trans_resp - fire resp event, req_id: %u", req_id);

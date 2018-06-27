@@ -340,6 +340,8 @@ int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_nu
 
     uv_buf_t pkg_buf = pc_pkg_encode(PC_PKG_DATA, uv_buf.base, uv_buf.len);
 
+    pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - encoded pkg length = %lu", pkg_buf.len);
+
     if (pkg_buf.len == (unsigned int)-1) {
         pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - encode package failed");
         return PC_RC_ERROR;
@@ -388,7 +390,7 @@ int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_nu
     wi->timeout = timeout;
     wi->ts = time(NULL);
 
-    pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - seq num: %u, req_id: %u", seq_num, req_id);
+    pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - seq num: %u, req_id: %u, length: %lu", seq_num, req_id, wi->buf.len);
     pc_mutex_unlock(&tt->wq_mutex);
 
     if (tt->state == TR_UV_TCP_CONNECTING || tt->state == TR_UV_TCP_HANDSHAKEING || tt->state == TR_UV_TCP_DONE) {

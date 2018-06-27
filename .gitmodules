@@ -1,0 +1,3 @@
+[submodule "test/pitaya-protos"]
+	path = test/pitaya-protos
+	url = https://github.com/topfreegames/pitaya-protos

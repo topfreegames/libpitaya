@@ -30,10 +30,9 @@ pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* 
 {
     pc_client_init_result_t res = {0};
 
+    res.rc = PC_RC_ERROR;
     res.client = (pc_client_t*)pc_lib_malloc(pc_client_size());
     memset(res.client, 0, pc_client_size());
-
-    res.rc = PC_RC_ERROR;
 
     if (!config) {
         res.client->config = pc__default_config;
@@ -225,6 +224,7 @@ int pc_client_disconnect(pc_client_t* client)
 
 int pc_client_cleanup(pc_client_t* client)
 {
+    pc_lib_log(PC_LOG_DEBUG, "pc_client_cleanup - CALLING CLEANUP");
     QUEUE* q;
     int ret;
 
@@ -516,7 +516,7 @@ void* pc_client_trans_data(pc_client_t* client)
 const char *pc_client_serializer(pc_client_t *client)
 {
     if (!client) {
-        pc_lib_log(PC_LOG_ERROR, "pc_client_trans_data - client is null, invalid arg");
+        pc_lib_log(PC_LOG_ERROR, "pc_client_serializer - client is null, invalid arg");
         return NULL;
     }
 
@@ -846,6 +846,8 @@ pc_buf_t pc_buf_copy(const pc_buf_t *buf)
         return new_buf;
     }
 
+    memcpy(new_buf.base, buf->base, buf->len);
+
     new_buf.len = buf->len;
     return new_buf;
 }
@@ -879,4 +881,17 @@ pc_buf_t pc_buf_from_string(const char *str)
     strncpy((char*)buf.base, str, buf.len);
 
     return buf;
+}
+
+pc_buf_t pc_buf_debug_print(const pc_buf_t *buf)
+{
+    printf("[");
+    for (int i = 0; i < buf->len; ++i) {
+        if (i == buf->len-1) {
+            printf("%d", buf->base[i]);
+        } else {
+            printf("%d ", buf->base[i]);
+        }
+    }
+    printf("]\n");
 }

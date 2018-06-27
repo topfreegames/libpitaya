@@ -125,6 +125,7 @@ PC_EXPORT pc_buf_t pc_buf_empty();
 PC_EXPORT pc_buf_t pc_buf_copy(const pc_buf_t *buf);
 PC_EXPORT void pc_buf_free(pc_buf_t *buf);
 PC_EXPORT pc_buf_t pc_buf_from_string(const char *str);
+PC_EXPORT pc_buf_t pc_buf_debug_print(const pc_buf_t *buf);
 
 /**
  * Push
