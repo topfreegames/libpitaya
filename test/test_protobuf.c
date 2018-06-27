@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <pomelo.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <pb_decode.h>
+#include <pb_encode.h>
 
 #include "error.pb.h"
 #include "session-data.pb.h"
+#include "response.pb.h"
 #include "test_common.h"
 
 static pc_client_t *g_client = NULL;
@@ -20,10 +23,13 @@ event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, cons
     Unused(arg1); Unused(arg2); Unused(client); Unused(ev_type);
     // bool *called = (bool*)ex_data;
     // *called = true;
+}
 
-    printf("\nEVENT %s\n", pc_client_ev_str(ev_type));
-    printf("received arg1: %s\n", arg1);
-    printf("received arg2: %s\n", arg2);
+static bool 
+read_varint(pb_istream_t *stream, const pb_field_t *field, void **arg)
+{
+    uint64_t *value = (uint64_t)(*arg);
+    return pb_decode_varint(stream, value);
 }
 
 static bool
@@ -39,6 +45,36 @@ read_string(pb_istream_t *stream, const pb_field_t *field, void **arg)
     
     *arg = buf;
     return true;
+}
+
+static bool
+write_string(pb_ostream_t *stream, const pb_field_t *field, void * const *arg)
+{
+    return pb_encode_tag_for_field(stream, field) && 
+           pb_encode_string(stream, *arg, strlen(*arg));
+}
+
+static void
+encoded_request_cb(const pc_request_t* req, const pc_buf_t *resp)
+{
+    assert_not_null(resp);
+    assert_not_null(resp);
+    assert_int(resp->len, >, 0);
+
+    protos_Response response = protos_Response_init_zero;
+    response.msg.funcs.decode = read_string;
+    response.msg.arg = NULL;
+
+    pb_istream_t stream = pb_istream_from_buffer(resp->base, resp->len);
+
+    assert_true(pb_decode(&stream, protos_Response_fields, &response));
+
+    assert_int(response.code, ==, 200);
+    assert_string_equal((char*)response.msg.arg, "success");
+
+    free(response.msg.arg);
+
+    g_num_success_cb_called++;
 }
 
 static void
@@ -90,18 +126,16 @@ request_error_cb(const pc_request_t* req, const pc_error_t *error)
 }
 
 static MunitResult
-test_successful_request(const MunitParameter params[], void *data)
+test_request_encoding(const MunitParameter params[], void *data)
 {
     Unused(params); Unused(data);
 
     const int ports[] = {g_test_protobuf_server.tcp_port, g_test_protobuf_server.tls_port};
-    // const int ports[] = {g_test_server.tcp_port, g_test_server.tls_port};
     const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
-    // for (size_t i = 0; i < ArrayCount(ports); i++) {
-    for (size_t i = 0; i < 1; i++) {
+    for (size_t i = 0; i < ArrayCount(ports); ++i) {
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
@@ -120,15 +154,24 @@ test_successful_request(const MunitParameter params[], void *data)
 
         assert_string_equal(pc_client_serializer(g_client), "protobuf");
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
+        protos_SessionData session_data = protos_SessionData_init_zero;
+        session_data.data.funcs.encode = write_string;
+        session_data.data.arg = "Joelho";
+
+        uint8_t buf[256];
+        pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
+
+        assert_true(pb_encode(&stream, protos_SessionData_fields, &session_data));
+        assert_int(stream.bytes_written, <=, sizeof(buf));
+        assert_int(pc_binary_request_with_timeout(g_client, "connector.setsessiondata", buf, stream.bytes_written, NULL, 
+                                                  REQ_TIMEOUT, encoded_request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
         assert_int(g_num_error_cb_called, ==, 0);
         assert_int(g_num_success_cb_called, ==, 1);
 
-        // g_num_error_cb_called = 0;
-        // g_num_success_cb_called = 0;
+        g_num_success_cb_called = 0;
 
         // assert_true(ev_cb_called);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
@@ -140,18 +183,16 @@ test_successful_request(const MunitParameter params[], void *data)
 }
 
 static MunitResult
-test_error_request(const MunitParameter params[], void *data)
+test_response_decoding(const MunitParameter params[], void *data)
 {
     Unused(params); Unused(data);
 
     const int ports[] = {g_test_protobuf_server.tcp_port, g_test_protobuf_server.tls_port};
-    // const int ports[] = {g_test_server.tcp_port, g_test_server.tls_port};
     const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
-    // for (size_t i = 0; i < ArrayCount(ports); i++) {
-    for (size_t i = 0; i < 1; i++) {
+    for (size_t i = 0; i < ArrayCount(ports); ++i) {
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
@@ -170,19 +211,63 @@ test_error_request(const MunitParameter params[], void *data)
 
         assert_string_equal(pc_client_serializer(g_client), "protobuf");
 
-        // assert_int(pc_binary_request_with_timeout(g_client, "connector.getsessiondata", NULL, NULL, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 
+                                                  REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
-        // assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{dqwdwqd}", NULL, REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
-        assert_int(pc_string_request_with_timeout(g_client, "connector.route", "{dqwdwqd}", NULL, REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
-        // assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", REQ_MSG, NULL, REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
+        SLEEP_SECONDS(1);
+
+        assert_int(g_num_error_cb_called, ==, 0);
+        assert_int(g_num_success_cb_called, ==, 1);
+
+        g_num_success_cb_called = 0;
+
+        // assert_true(ev_cb_called);
+        assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        pc_client_rm_ev_handler(g_client, handler);
+        assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+    }
+
+    return MUNIT_OK;
+}
+
+static MunitResult
+test_error_decoding(const MunitParameter params[], void *data)
+{
+    Unused(params); Unused(data);
+
+    const int ports[] = {g_test_protobuf_server.tcp_port, g_test_protobuf_server.tls_port};
+    const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
+
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
+
+    for (size_t i = 0; i < ArrayCount(ports); ++i) {
+        pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+        config.transport_name = transports[i];
+
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
+        int handler = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
+
+        SLEEP_SECONDS(1);
+
+        assert_null(pc_client_serializer(g_client));
+
+        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        SLEEP_SECONDS(1);
+
+        assert_string_equal(pc_client_serializer(g_client), "protobuf");
+
+        assert_int(pc_string_request_with_timeout(g_client, "connector.route", "{dqwdwqd}", NULL, 
+                                                  REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
         assert_int(g_num_error_cb_called, ==, 1);
         assert_int(g_num_success_cb_called, ==, 0);
 
-        // g_num_error_cb_called = 0;
-        // g_num_success_cb_called = 0;
+        g_num_error_cb_called = 0;
 
         // assert_true(ev_cb_called);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
@@ -194,8 +279,9 @@ test_error_request(const MunitParameter params[], void *data)
 }
 
 static MunitTest tests[] = {
-    {"/error_request", test_error_request, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
-    {"/successful_request", test_successful_request, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/error_decoding", test_error_decoding, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/response_decoding", test_response_decoding, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/request_encoding", test_request_encoding, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

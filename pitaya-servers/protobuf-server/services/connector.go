@@ -5,7 +5,7 @@ import (
 	//"fmt"
 
 	"github.com/topfreegames/libpitaya/pitaya-servers/protobuf-server/protos"
-	//"github.com/topfreegames/pitaya"
+	"github.com/topfreegames/pitaya"
 	"github.com/topfreegames/pitaya/component"
 )
 
@@ -38,11 +38,13 @@ func (c *Connector) GetSessionData(ctx context.Context) (*protos.SessionData, er
 // SetSessionData sets the session data
 func (c *Connector) SetSessionData(ctx context.Context, data *protos.SessionData) (*protos.Response, error) {
 	println("Got SetSessionData MESSAGE")
-	//s := pitaya.GetSessionFromCtx(ctx)
-	//err := s.SetData(data.Data)
-	//if err != nil {
-	//return nil, pitaya.Error(err, "CN-000", map[string]string{"failed": "set data"})
-	//}
+	s := pitaya.GetSessionFromCtx(ctx)
+	err := s.SetData(map[string]interface{}{
+		"data": data,
+	})
+	if err != nil {
+		return nil, pitaya.Error(err, "CN-000", map[string]string{"failed": "set data"})
+	}
 	return reply(200, "success"), nil
 }
 

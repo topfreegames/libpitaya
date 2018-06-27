@@ -883,7 +883,7 @@ pc_buf_t pc_buf_from_string(const char *str)
     return buf;
 }
 
-pc_buf_t pc_buf_debug_print(const pc_buf_t *buf)
+void pc_buf_debug_print(const pc_buf_t *buf)
 {
     printf("[");
     for (int i = 0; i < buf->len; ++i) {
