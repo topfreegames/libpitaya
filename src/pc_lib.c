@@ -33,7 +33,9 @@ void* (*pc_lib_malloc)(size_t len) = NULL;
 void (*pc_lib_free)(void* data) = NULL;
 void* (*pc_lib_realloc)(void* ptr, size_t len) = NULL;
 
-const char* pc_lib_platform_type = NULL;
+const char *pc_lib_platform_str = NULL;
+const char *pc_lib_client_build_number_str = NULL;
+const char *pc_lib_client_version_str = NULL;
 
 static int pc__default_log_level = 0;
 
@@ -100,7 +102,10 @@ static void default_log(int level, const char* msg, ...) {
     fflush(stderr   );
 }
 
-void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_alloc)(size_t), void (*pc_free)(void* ), void* (*pc_realloc)(void*, size_t), const char* platform) {
+void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), 
+                 void* (*pc_alloc)(size_t), void (*pc_free)(void* ), 
+                 void* (*pc_realloc)(void*, size_t), 
+                 pc_lib_client_info_t client_info) {
     if(pc_initiateded == 1){
         return; // init function already called
     }
@@ -111,7 +116,16 @@ void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_all
     pc_lib_malloc = pc_alloc ? pc_alloc : default_malloc;
     pc_lib_realloc = pc_realloc ? pc_realloc : default_realloc;
     pc_lib_free = pc_free ? pc_free: free;
-    pc_lib_platform_type = platform ? pc_lib_strdup(platform) : pc_lib_strdup("desktop");
+
+    pc_lib_platform_str = client_info.platform 
+        ? pc_lib_strdup(client_info.platform) 
+        : pc_lib_strdup("desktop");
+    pc_lib_client_build_number_str = client_info.build_number
+        ? pc_lib_strdup(client_info.build_number)
+        : pc_lib_strdup("1");
+    pc_lib_client_version_str = client_info.version
+        ? pc_lib_strdup(client_info.version)
+        : pc_lib_strdup("0.1");
 
 #if !defined(PC_NO_DUMMY_TRANS)
     tp = pc_tr_dummy_trans_plugin();
@@ -134,6 +148,10 @@ void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), void* (*pc_all
 }
 
 void pc_lib_cleanup() {
+    pc_lib_free((char*)pc_lib_platform_str);
+    pc_lib_free((char*)pc_lib_client_build_number_str);
+    pc_lib_free((char*)pc_lib_client_version_str);
+
     return;
 #if !defined(PC_NO_DUMMY_TRANS)
     pc_transport_plugin_deregister(PC_TR_NAME_DUMMY);
@@ -150,7 +168,6 @@ void pc_lib_cleanup() {
 #endif
 
 #endif
-    pc_lib_free((char*)pc_lib_platform_type);
 }
 
 const char* pc_lib_strdup(const char* str) {

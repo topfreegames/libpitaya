@@ -967,8 +967,10 @@ void tcp__send_handshake(tr_uv_tcp_transport_t* tt)
     pc_assert((tt->route_to_code && tt->code_to_route)
             || (!tt->route_to_code && !tt->code_to_route));
 
-    pc_JSON_AddItemToObject(sys, "type", pc_JSON_CreateString(pc_lib_platform_type));
-    pc_JSON_AddItemToObject(sys, "version", pc_JSON_CreateString(pc_lib_version_str()));
+    pc_JSON_AddItemToObject(sys, "platform", pc_JSON_CreateString(pc_lib_platform_str));
+    pc_JSON_AddItemToObject(sys, "lib_version", pc_JSON_CreateString(pc_lib_version_str()));
+    pc_JSON_AddItemToObject(sys, "client_build_number", pc_JSON_CreateString(pc_lib_client_build_number_str));
+    pc_JSON_AddItemToObject(sys, "client_version", pc_JSON_CreateString(pc_lib_client_version_str));
 
     pc_JSON_AddItemToObject(body, "sys", sys);
 
@@ -977,6 +979,8 @@ void tcp__send_handshake(tr_uv_tcp_transport_t* tt)
     }
 
     data = pc_JSON_PrintUnformatted(body);
+    pc_lib_log(PC_LOG_DEBUG, "tcp__send_handshake -- sending handshake: %s", data);
+
     buf = pc_pkg_encode(PC_PKG_HANDSHAKE, data, strlen(data));
 
     pc_lib_free(data);

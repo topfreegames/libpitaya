@@ -18,7 +18,10 @@ extern void (*pc_lib_log)(int level, const char* msg, ...);
 extern void* (*pc_lib_malloc)(size_t len);
 extern void* (*pc_lib_realloc)(void* ptr, size_t len);
 extern void (*pc_lib_free)(void* data);
-extern const char* pc_lib_platform_type;
+
+extern const char *pc_lib_platform_str;
+extern const char *pc_lib_client_build_number_str;
+extern const char *pc_lib_client_version_str;
 
 const char* pc_lib_strdup(const char* str);
 

@@ -66,11 +66,16 @@ int main(int argc, char **argv)
     main_suite.iterations = 1;
     main_suite.options = MUNIT_SUITE_OPTION_NONE;
 
+    pc_lib_client_info_t client_info;
+    client_info.platform = "mac";
+    client_info.build_number = "20";
+    client_info.version = "2.1";
+
     // Run this function only one time, otherwise things break.
 #if 1
-    pc_lib_init(quiet_log, NULL, NULL, NULL, NULL);
+    pc_lib_init(quiet_log, NULL, NULL, NULL, client_info);
 #else
-    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
+    pc_lib_init(NULL, NULL, NULL, NULL, client_info);
 #endif
 
     int ret = munit_suite_main(&main_suite, NULL, argc, argv);
