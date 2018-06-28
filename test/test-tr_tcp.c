@@ -22,11 +22,20 @@ request_cb(const pc_request_t* req, const pc_buf_t *resp)
     bool *called = (bool*)pc_request_ex_data(req);
     *called = true;
 
+    char *str = calloc(resp->len+1, 1);
+    assert_not_null(str);
+    memcpy(str, resp->base, resp->len);
+
     assert_not_null(resp);
+    assert_string_equal(
+        str,
+        "{\"sys\":{\"platform\":\"mac\",\"lib_version\":\"0.3.5-release\",\"client_build_number\":\"20\",\"client_version\":\"2.1\"},\"user\":{\"age\":30}}");
     assert_ptr_equal(pc_request_client(req), g_client);
-    assert_string_equal(pc_request_route(req), REQ_ROUTE);
+    assert_string_equal(pc_request_route(req), "connector.gethandshakedata");
     assert_string_equal(pc_request_msg(req), REQ_MSG);
     assert_int(pc_request_timeout(req), ==, REQ_TIMEOUT);
+
+    free(str);
 }
 
 static MunitResult
@@ -43,10 +52,12 @@ test_request_callback(const MunitParameter params[], void *data)
     g_client = res.client;
     assert_int(res.rc, ==, PC_RC_OK);
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
+    const char *handshake_opts = "{\"age\":30}";
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, handshake_opts), ==, PC_RC_OK);
 
     SLEEP_SECONDS(1);
-    assert_int(pc_string_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
+    // assert_int(pc_string_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
+    assert_int(pc_string_request_with_timeout(g_client, "connector.gethandshakedata", REQ_MSG, &called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
 
     assert_true(called);

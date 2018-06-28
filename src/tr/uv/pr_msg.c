@@ -157,6 +157,8 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
     pc_assert(raw_msg->id != PC_INVALID_REQ_ID);
 
     msg.id = raw_msg->id;
+    msg.buf = raw_msg->body;
+    msg.error = raw_msg->error;
 
     /* route */
     if (PC_MSG_HAS_ROUTE(raw_msg->type)) {
@@ -190,11 +192,25 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
         return msg;
     }
 
-    /* body.base is within msg */
-    msg.buf = raw_msg->body;
-    msg.error = raw_msg->error;
+    if (raw_msg->is_gzipped && raw_msg->body.len > 0) {
+        uint8_t *decompressed_data = NULL;
+        size_t decompressed_len;
+        int err = pr_decompress(&decompressed_data, &decompressed_len, 
+                                raw_msg->body.base, raw_msg->body.len);
 
-    raw_msg->body.base = NULL;
+        if (err) {
+            pc_lib_log(PC_LOG_ERROR, "pc_default_msg_decode - gzip inflate error");
+            pc_lib_free(decompressed_data);
+            pc_lib_free(raw_msg);
+            msg.id = PC_INVALID_REQ_ID;
+            return msg;
+        }
+
+        msg.buf.base = decompressed_data;
+        msg.buf.len = decompressed_len;
+        pc_lib_log(PC_LOG_DEBUG, "pc_default_msg_decode decompressed msg: %lu -> %lld bytes", raw_msg->body.len, msg.buf.len);
+    }
+
     pc_lib_free(raw_msg);
 
     return msg;

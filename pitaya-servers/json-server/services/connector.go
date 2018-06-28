@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/topfreegames/pitaya/session"
+
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/topfreegames/pitaya"
 	"github.com/topfreegames/pitaya/component"
@@ -38,6 +40,13 @@ func reply(code int32, msg string) (*Response, error) {
 		Msg:  msg,
 	}
 	return res, nil
+}
+
+// GetHandshakeData gets the handshake data
+func (c *Connector) GetHandshakeData(ctx context.Context) (*session.HandshakeData, error) {
+	println("GETTING HANDSHAKE DATA")
+	session := pitaya.GetSessionFromCtx(ctx)
+	return session.GetHandshakeData(), nil
 }
 
 // GetSessionData gets the session data
