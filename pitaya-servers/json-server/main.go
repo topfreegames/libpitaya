@@ -16,23 +16,6 @@ import (
 	"github.com/topfreegames/pitaya/session"
 )
 
-func configureBackend() {
-	room := services.NewRoom()
-	pitaya.Register(room,
-		component.WithName("room"),
-		component.WithNameFunc(strings.ToLower),
-	)
-
-	pitaya.RegisterRemote(room,
-		component.WithName("room"),
-		component.WithNameFunc(strings.ToLower),
-	)
-
-	// traffic stats
-	pitaya.AfterHandler(room.Stats.Outbound)
-	pitaya.BeforeHandler(room.Stats.Inbound)
-}
-
 func configureFrontend(port int) {
 	ws := acceptor.NewWSAcceptor(fmt.Sprintf(":%d", port))
 	tcp := acceptor.NewTCPAcceptor(fmt.Sprintf(":%d", port+1))
@@ -85,7 +68,6 @@ func configureFrontend(port int) {
 func main() {
 	port := flag.Int("port", 3250, "the port to listen")
 	svType := flag.String("type", "connector", "the server type")
-	isFrontend := flag.Bool("frontend", true, "if server is frontend")
 
 	flag.Parse()
 
@@ -93,12 +75,8 @@ func main() {
 
 	pitaya.SetSerializer(json.NewSerializer())
 
-	if !*isFrontend {
-		configureBackend()
-	} else {
-		configureFrontend(*port)
-	}
+	configureFrontend(*port)
 
-	pitaya.Configure(*isFrontend, *svType, pitaya.Cluster, map[string]string{})
+	pitaya.Configure(true, *svType, pitaya.Cluster, map[string]string{})
 	pitaya.Start()
 }

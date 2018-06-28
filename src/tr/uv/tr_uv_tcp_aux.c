@@ -873,7 +873,7 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
     tr_uv_tcp_transport_plugin_t* plugin = (tr_uv_tcp_transport_plugin_t* )tt->base.plugin((pc_transport_t*)tt);
 
     uv_buf_t buf;
-    buf.base = (uint8_t*)data;
+    buf.base = (char*)data;
     buf.len = len;
 
     pc_msg_t msg = plugin->pr_msg_decoder(tt, &buf);

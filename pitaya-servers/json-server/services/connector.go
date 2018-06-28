@@ -126,3 +126,21 @@ func (c *Connector) SetSessionData(ctx context.Context, data *SessionData) (*Res
 	}
 	return reply(200, "success")
 }
+
+// SendPush sends a push to a user
+func (c *Connector) SendPush(ctx context.Context) (*Response, error) {
+	println("SENDING PUSH MAI BOI")
+	err := pitaya.GetSessionFromCtx(ctx).Push("some.push.route", map[string]interface{}{
+		"key1": 10,
+		"key2": true,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Response{
+		Code: 200,
+		Msg:  "Ok",
+	}, nil
+}

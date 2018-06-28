@@ -19,6 +19,7 @@ extern const MunitSuite request_suite;
 extern const MunitSuite notify_suite;
 extern const MunitSuite stress_suite;
 extern const MunitSuite protobuf_suite;
+extern const MunitSuite push_suite;
 static const int SUITES_END = __LINE__;
 
 const MunitSuite null_suite = {
@@ -50,6 +51,7 @@ make_suites()
     suites_array[i++] = notify_suite;
     suites_array[i++] = stress_suite;
     suites_array[i++] = protobuf_suite;
+    suites_array[i++] = push_suite;
     // IMPORTANT: always has to end with a null suite
     suites_array[i++] = null_suite;
     return suites_array;
@@ -72,7 +74,7 @@ int main(int argc, char **argv)
     client_info.version = "2.1";
 
     // Run this function only one time, otherwise things break.
-#if 1
+#if 0
     pc_lib_init(quiet_log, NULL, NULL, NULL, client_info);
 #else
     pc_lib_init(NULL, NULL, NULL, NULL, client_info);

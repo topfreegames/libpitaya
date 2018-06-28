@@ -238,6 +238,7 @@
                         './test/test_reconnection.c',
                         './test/test_compression.c',
                         './test/test_kick.c',
+                        './test/test_push.c',
                         './test/test_session.c',
                         './test/test_request.c',
                         './test/test_notify.c',

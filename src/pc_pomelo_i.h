@@ -133,8 +133,6 @@ struct pc_client_s {
     pc_mutex_t handler_mutex;
     QUEUE ev_handlers;
 
-    pc_push_handler_cb_t push_handler;
-
     pc_mutex_t notify_mutex;
     unsigned int seq_num;
     pc_notify_t notifies[PC_PRE_ALLOC_NOTIFY_SLOT_COUNT];
