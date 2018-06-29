@@ -252,6 +252,7 @@
                         './test/error.pb.c',
                         './test/session-data.pb.c',
                         './test/response.pb.c',
+                        './test/big-message.pb.c',
                     ],
                 },
             ],

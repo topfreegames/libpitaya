@@ -5,6 +5,7 @@ import os.path as path
 import subprocess
 import signal
 import sys
+import time
 
 THIS_DIR = path.abspath(path.dirname(__file__))
 
@@ -31,6 +32,7 @@ PITAYA_SERVERS = [
 mock_server_processes = []
 pitaya_server_processes = []
 file_descriptors = []
+
 
 def kill_all_servers():
     for p in mock_server_processes: p.terminate()
@@ -121,6 +123,7 @@ def main():
     start_mock_servers()
     ensure_pitaya_servers()
     start_pitaya_servers()
+    time.sleep(1) 
     code = run_tests()
     kill_all_servers()
     close_file_descriptors()
