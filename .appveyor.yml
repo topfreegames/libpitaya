@@ -39,7 +39,7 @@ install:
 
 before_build:
   - cd C:\projects\libpitaya
-  - gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_for_windows=true -Dtarget_arch=x64
+  - gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_for_windows=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-windows
 
 build_script:
   - cd build\out\Release_x64
