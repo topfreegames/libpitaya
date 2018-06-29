@@ -39,7 +39,6 @@ install:
 
 before_build:
   - cd C:\projects\libpitaya
-  - python build-openssl.py --force --prefix build\openssl --openssl-tar deps\openssl-OpenSSL_1_0_1u.tar.gz windows
   - gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_for_windows=true -Dtarget_arch=x64
 
 build_script:

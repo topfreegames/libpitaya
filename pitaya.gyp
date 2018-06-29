@@ -119,7 +119,7 @@
                                 ]
                             }, {
                                 'conditions': [
-                                    ['build_for_windows=="win"', {
+                                    ['build_for_windows=="true"', {
                                         'libraries': [
                                             'C:/OpenSSL-Win64/lib/libeay32.lib',
                                             'C:/OpenSSL-Win64/lib/ssleay32.lib',
