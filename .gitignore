@@ -8,6 +8,7 @@ output/
 *.xcuserdatad
 *.xcuserstate
 Assembly-CSharp.csproj.CoreCompileInputs.cache
+nanopb*.tar.gz
 
 server-exe
 server-exe-out
