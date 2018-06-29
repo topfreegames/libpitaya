@@ -1,8 +1,8 @@
 language: c
 compiler: clang
 
-# go:
-# - 1.9.2
+go:
+- "1.10"
 
 matrix:
   include:
@@ -25,6 +25,7 @@ matrix:
         - make install-gyp
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz android --ndk-dir ~/android-ndk-r15c
       before_script: 
+        - go version
         - ./android-compile.sh ~/android-ndk-r15c
       deploy:
         provider: releases
@@ -54,7 +55,9 @@ matrix:
       install: 
         - make install-gyp
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz linux
-      before_script: make gyp-linux-release
+      before_script: 
+        - go version
+        - make gyp-linux-release
       deploy:
         provider: releases
         draft: true
@@ -64,7 +67,7 @@ matrix:
         api_key:
           secure: K7JbFSr7j5TSzbaFRrizO9MFQbYccfhldmMbgA5u23NROE5xKP4DcAfA1qDYjhz+ur/X8l4dogOTZn5AAgR/NMdELnPiU/6fyGJlzXa8lheYUoei5pUTlJCRX+YIKUalHc4rVFlhiS7NnVE4iZwK2xlgKyfImntAWrk4hgjaSoJB6x67I7pJVJM9aA+pDusoqR1G62PP99oPw29TEr9ttOTc/d0rgQFkjPs2v7vDttlPRqsfXdLXVDD/hz/nWB3AQ4Y3jMLPfrc17PWWixVnkzAPnB3Eoz3D4DQrXxYnMzM6Cis0haCVayEpu5ZoVwVBWNldtYui/qd/14xU/NBMFIn7ClB3WpzbfsLzBaa+pbNtr/CjPgRyBNP70D+cb3h2TDpvwCUvecImaC1RdNJSkqtqWYmryPcZMuDXQns91NRVLLXwnsTmw/CyXsdLP4/KMHgr/kERsb3Pde92L///mvcl/lDI/p/a8IZHRm9IDedqlG5aG2YEJUMoTXqCW7c9Ntpp9/bognLICff3twjkbDuHY9h2G+NA/dP3az52R3vA2I74BgcUDUINVUvGzScJc6nrhifHZugcR8mr8od8wPvIZReFzFv+ND0aquqtZRVb5kUl4RZkwwFfJ4vWB/bLVSxwT80k/83tKjEdC6L5rMO3QdE5thTEwa3rF0Bc35s=
         file_glob: true
-        file: build/out/Release_x64/output/*.so
+        file: build/out/Release_x64/output/*linux.so
         on:
           repo: topfreegames/libpitaya
           tags: true
@@ -81,7 +84,9 @@ matrix:
         - brew upgrade python
         - make install-gyp
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz mac
-      before_script: make gyp-mac-release
+      before_script: 
+        - go version
+        - make gyp-mac-release
       deploy:
         provider: releases
         draft: true
@@ -91,9 +96,7 @@ matrix:
         api_key:
           secure: K7JbFSr7j5TSzbaFRrizO9MFQbYccfhldmMbgA5u23NROE5xKP4DcAfA1qDYjhz+ur/X8l4dogOTZn5AAgR/NMdELnPiU/6fyGJlzXa8lheYUoei5pUTlJCRX+YIKUalHc4rVFlhiS7NnVE4iZwK2xlgKyfImntAWrk4hgjaSoJB6x67I7pJVJM9aA+pDusoqR1G62PP99oPw29TEr9ttOTc/d0rgQFkjPs2v7vDttlPRqsfXdLXVDD/hz/nWB3AQ4Y3jMLPfrc17PWWixVnkzAPnB3Eoz3D4DQrXxYnMzM6Cis0haCVayEpu5ZoVwVBWNldtYui/qd/14xU/NBMFIn7ClB3WpzbfsLzBaa+pbNtr/CjPgRyBNP70D+cb3h2TDpvwCUvecImaC1RdNJSkqtqWYmryPcZMuDXQns91NRVLLXwnsTmw/CyXsdLP4/KMHgr/kERsb3Pde92L///mvcl/lDI/p/a8IZHRm9IDedqlG5aG2YEJUMoTXqCW7c9Ntpp9/bognLICff3twjkbDuHY9h2G+NA/dP3az52R3vA2I74BgcUDUINVUvGzScJc6nrhifHZugcR8mr8od8wPvIZReFzFv+ND0aquqtZRVb5kUl4RZkwwFfJ4vWB/bLVSxwT80k/83tKjEdC6L5rMO3QdE5thTEwa3rF0Bc35s=
         file_glob: true
-        file:
-          - build/out/Release_x64/output/*.a
-          - build/out/Release_x64/output/*.bundle
+        file: build/out/Release_x64/output/*.bundle
         on:
           repo: topfreegames/libpitaya
           tags: true
@@ -110,7 +113,9 @@ matrix:
         - brew upgrade python
         - make install-gyp
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz mac
-      before_script: make gyp-ios
+      before_script: 
+        - go version
+        - make gyp-ios
       deploy:
         provider: releases
         draft: true
@@ -122,7 +127,7 @@ matrix:
         file_glob: true
         file:
           - build/out/Release_x64/output/*.a
-          - build/out/Release_x64/output/*.bundle
+          - build/out/Release_x64/*.a
         on:
           repo: topfreegames/libpitaya
           tags: true
