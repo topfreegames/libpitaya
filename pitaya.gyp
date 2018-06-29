@@ -28,14 +28,19 @@
             'Release_x64': {
                 'msvs_configuration_platform': 'x64',
             },
+            'conditions': [
+                ['build_for_ios == "true"', {
+                    'xcode_settings': {
+                        'SDKROOT': 'iphoneos',
+                        'IPHONEOS_DEPLOYMENT_TARGET': '8.2',
+                        'TARGETED_DEVICE_FAMILY': '1,2',
+                        'CODE_SIGN_IDENTITY': 'iPhone Developer',
+                        'ARCHS': '$(ARCHS_STANDARD_32_64_BIT)',
+                    }, 
+                }],
+            ],
         },
         'conditions': [
-            ['build_for_ios == "true"', {
-                'xcode_settings': {
-                    'SDKROOT': 'iphoneos',
-                    'IPHONEOS_DEPLOYMENT_TARGET': '8.2',
-                }, 
-            }],
             ['build_for_windows == "true"', {
                 'msvs_settings': {
                     'VCCLCompilerTool': {
