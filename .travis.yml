@@ -17,6 +17,12 @@ matrix:
           packages:
             - ninja-build
       sudo: required
+      before_install:
+        - sudo add-apt-repository ppa:gophers/archive
+        - sudo apt-get update
+        - sudo apt-get install golang-1.10-go
+        - ls /usr/lib/go-1.10/bin
+        - /usr/lib/go-1.10/bin/go version
       install: 
         - cd ~
         - curl https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip -o android-ndk-r15c.zip
@@ -52,6 +58,12 @@ matrix:
           packages:
             - ninja-build
       sudo: required
+      before_install:
+        - sudo add-apt-repository ppa:gophers/archive
+        - sudo apt-get update
+        - sudo apt-get install golang-1.10-go
+        - ls /usr/lib/go-1.10/bin
+        - /usr/lib/go-1.10/bin/go version
       install: 
         - make install-gyp
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz linux
