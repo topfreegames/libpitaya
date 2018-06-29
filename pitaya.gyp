@@ -1,10 +1,10 @@
 {
     'variables': {
-        'uv_library%': "static_library",
         'build_for_linux%': "false",
         'build_for_mac%': "false",
-        'build_for_ios%': "false",
         'build_for_windows%': "false",
+        'build_for_ios%': "false",
+        'build_for_android%': "false",
 
         'pomelo_library%': "static_library",
         'use_sys_openssl%': "true",
@@ -16,19 +16,10 @@
         'build_pypomelo%': "false",
         'python_header%': "/usr/include/python2.7",
         'build_jpomelo%': "false",
-        'build_cspomelo%': "false",
         'build_type%': "Release",
         'use_xcode%': "false",
 
-        'conditions': [
-            ['OS == "android"', {
-                'pitaya_target%': "pitaya_android",
-                'pitaya_unity_target%': "pitaya_unity_android",
-            }, {
-                'pitaya_target%': "pitaya",
-                'pitaya_unity_target%': "pitaya_unity",
-            }]
-        ],
+        'pitaya_target%': "pitaya",
     },
 
     'target_defaults': {
@@ -39,7 +30,13 @@
             },
         },
         'conditions': [
-            ['OS == "win"', {
+            ['build_for_ios == "true"', {
+                'xcode_settings': {
+                    'SDKROOT': 'iphoneos',
+                    'IPHONEOS_DEPLOYMENT_TARGET': '8.2',
+                }, 
+            }],
+            ['build_for_windows == "true"', {
                 'msvs_settings': {
                     'VCCLCompilerTool': {
                         # 'AdditionalOptions': [ '/TP' ],
@@ -79,7 +76,7 @@
             ['build_type=="Release"', {
                 'cflags': ['-g', '-O3', '-Wall', '-Wextra', '-pedantic']
             }],
-            ['OS == "android"', {
+            ['build_for_android == "true"', {
                 'defines': ['__ANDROID__'],
             }],
             ['use_sys_zlib == "true"', {
@@ -117,7 +114,7 @@
                                 ]
                             }, {
                                 'conditions': [
-                                    ['OS=="win"', {
+                                    ['build_for_windows=="win"', {
                                         'libraries': [
                                             'C:/OpenSSL-Win64/lib/libeay32.lib',
                                             'C:/OpenSSL-Win64/lib/ssleay32.lib',
@@ -155,6 +152,7 @@
             'sources': [
                 './src/pc_pomelo.c',
                 './src/pc_lib.c',
+                './src/pc_unity.c',
                 './src/pc_trans.c',
                 './src/pc_assert.c',
                 './src/pc_trans_repo.c',
@@ -162,7 +160,16 @@
                 './src/tr/dummy/tr_dummy.c'
             ],
             'conditions': [
-                ['OS != "win"', {
+                ['no_tls_support=="true"', {
+                    'defines': ['PC_NO_UV_TLS_TRANS']
+                }],
+                ['build_for_windows == "false"', {
+                    'cflags': ['-fPIC'],
+                }],
+                ['build_for_mac == "true"', {
+                    'product_extension': 'bundle',
+                }],
+                ['build_for_windows == "false"', {
                     'defines': ['_GNU_SOURCE'],
                     'cflags': ['-fPIC'],
                 }, {
@@ -171,7 +178,7 @@
                         '_CRT_NONSTDC_NO_DEPRECATE',
                     ]
                 }],
-                ['OS == "android"', {
+                ['build_for_android == "true"', {
                     'cflags': [
                         '-fPIE',
                         '-march=armv7-a',
@@ -182,7 +189,7 @@
                         'libraries': ['-pie', '-llog'],
                     },
                 }],
-                ['build_for_mac == "true" or build_for_ios == "true" or build_for_linux == "true"', {
+                ['build_for_ios == "true"', {
                     'type': 'static_library',
                 }, {
                     'type': 'shared_library',
@@ -204,10 +211,10 @@
                                 './src/tr/uv/tr_uv_tls.c',
                                 './src/tr/uv/tr_uv_tls_i.c',
                                 './src/tr/uv/tr_uv_tls_aux.c',
-                            ]}, {
+                            ]
+                        }, {
                             'defines': ['PC_NO_UV_TLS_TRANS']
-                        }
-                        ],  # no tls support
+                        }],
                     ]}, {
                     'defines': ['PC_NO_UV_TCP_TRANS']
                 }
@@ -216,7 +223,7 @@
         },
     ],
     'conditions': [
-        ['OS != "android"', {
+        ['build_for_mac == "true" or build_for_linux == "true" or build_for_windows == "true"', {
             'targets': [
                 {
                     'target_name': 'tests',
@@ -287,56 +294,6 @@
                     './java/com_netease_pomelo_Client.c',
                 ],
             }],
-        }],
-        ['build_cspomelo == "true"', {
-            'conditions': [
-                ['build_for_linux == "true" or build_for_mac == "true" or build_for_windows == "true"', {
-                    'targets': [{
-                        'target_name': '<(pitaya_unity_target)',
-                        'type': 'shared_library',
-                        'dependencies': [
-                            '<(pitaya_target)',
-                        ],
-                        'conditions': [
-                            ['no_tls_support=="true"', {
-                                'defines': ['PC_NO_UV_TLS_TRANS']
-                            }],
-                            ['OS!="win"', {
-                                'cflags': ['-fPIC'],
-                            }],
-                            ['build_for_mac == "true"', {
-                                'product_extension': 'bundle',
-                            }],
-                        ],
-                        'include_dirs': [
-                            './include/',
-                        ],
-                        'sources': [
-                            './cs/contrib/cspomelo.c',
-                        ],
-                    }],
-                }],
-                ['build_for_ios == "true"', {
-                    'targets': [{
-                        'target_name': 'pitaya_unity_ios',
-                        'type': 'static_library',
-                        'dependencies': [
-                            '<(pitaya_target)',
-                        ],
-                        'conditions': [
-                            ['OS!="win"', {
-                                'cflags': ['-fPIC'],
-                            }],
-                        ],
-                        'include_dirs': [
-                            './include/',
-                        ],
-                        'sources': [
-                            './cs/contrib/cspomelo.c',
-                        ],
-                    }],
-                }],
-            ]
         }],
     ],
 }

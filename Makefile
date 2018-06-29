@@ -11,14 +11,23 @@ install-gyp:
 	@git clone https://chromium.googlesource.com/external/gyp.git ~/gyp
 	@cd ~/gyp && sudo python setup.py install
 
-gyp-linux:
-	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_linux=true -Duv_library=static_library -Dtarget_arch=x64
+gyp-linux-release:
+	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_linux=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-linux
 
-gyp-ios-mac:
-	@gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_mac=true -Dbuild_for_ios=true -Duv_library=static_library -Dtarget_arch=x64
+gyp-linux-debug:
+	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Debug -Dbuild_for_linux=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-linux
+
+gyp-mac-debug:
+	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Debug -Dbuild_for_mac=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-mac
+
+gyp-mac-release:
+	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_mac=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-mac
+
+gyp-ios:
+	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_ios=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-ios
 
 gyp-android:
-	@gyp --depth=. -Dbuild_for_linux=true -Dtarget_arch=arm pomelo.gyp -f ninja-linux --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Duv_library=static_library -DOS=android -Duse_sys_zlib=false -Dbuild_cspomelo=true
+	@gyp --depth=. pitaya.gyp -f ninja-linux --generator-output=build -Dbuild_for_android=true -DOS=android -Dbuild_type=Release -Duse_sys_openssl=false -Duse_sys_zlib=false -Dtarget_arch=arm  -Dpitaya_target=pitaya-android
 
 .PHONY: build
 
