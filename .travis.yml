@@ -1,9 +1,6 @@
 language: c
 compiler: clang
 
-go:
-- "1.10"
-
 matrix:
   include:
     # -----------------------
@@ -18,7 +15,7 @@ matrix:
             - ninja-build
       sudo: required
       before_install:
-        - sudo add-apt-repository ppa:gophers/archive
+        - sudo add-apt-repository ppa:gophers/archive -y
         - sudo apt-get update
         - sudo apt-get install golang-1.10-go
         - ls /usr/lib/go-1.10/bin
@@ -59,7 +56,7 @@ matrix:
             - ninja-build
       sudo: required
       before_install:
-        - sudo add-apt-repository ppa:gophers/archive
+        - sudo add-apt-repository ppa:gophers/archive -y
         - sudo apt-get update
         - sudo apt-get install golang-1.10-go
         - ls /usr/lib/go-1.10/bin
