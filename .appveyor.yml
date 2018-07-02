@@ -40,6 +40,7 @@ install:
   ############################################################################
   # Install Go dependencies
   ############################################################################
+  - cd C:\projects\libpitaya
   - cd pitaya-servers\json-server
   - go get
   - cd ..\protobuf-server
