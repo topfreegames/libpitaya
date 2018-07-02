@@ -1,9 +1,8 @@
 image: Visual Studio 2015
 
-clone_folder: C:\gopath\src\github.com\topfreegames\libpitaya
+clone_folder: '%USERPROFILE%\go\src\github.com\topfreegames\libpitaya'
 
 environment:
-  GOPATH: C:\gopath
   nodejs_version: "Current"
 
 build:
@@ -43,22 +42,22 @@ install:
   ############################################################################
   # Install Go dependencies
   ############################################################################
-  - cd C:\gopath\src\github.com\topfreegames
+  - cd %USERPROFILE%\go\src\github.com\topfreegames
   - git clone https://github.com/leohahn/pitaya
-  - cd C:\gopath\src\github.com\topfreegames\libpitaya
+  - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
   - cd pitaya-servers\json-server
   - go get
   - cd ..\protobuf-server
   - go get
 
 before_build:
-  - cd C:\gopath\src\github.com\topfreegames\libpitaya
+  - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
   - gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_for_windows=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-windows
 
 build_script:
   - cd build\out\Release_x64
   - ninja
-  - cd C:\gopath\src\github.com\topfreegames\libpitaya
+  - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
   - python run-tests.py 
 
 after_build:
