@@ -54,28 +54,29 @@ matrix:
             - ninja-build
       sudo: required
       before_install:
-        - export GO_BIN_PATH=/usr/lib/go-1.10/bin
-        - sudo add-apt-repository ppa:gophers/archive -y
-        - sudo apt-get update
-        - sudo apt-get install golang-1.10-go
-        - ls /usr/lib/go-1.10/bin
-        - /usr/lib/go-1.10/bin/go version
         - mkdir -p ~/go/src/github.com/topfreegames
         - mv $TRAVIS_BUILD_DIR/../libpitaya ~/go/src/github.com/topfreegames
         - export TRAVIS_BUILD_DIR=~/go/src/github.com/topfreegames/libpitaya
         - cd $TRAVIS_BUILD_DIR
         - echo $TRAVIS_BUILD_DIR
       install: 
+        - make setup-go-linux
         - make setup-node-linux
         - make install-gyp
-        - (cd ~/go/src/github.com/topfreegames && git clone https://github.com/leohahn/pitaya)
-        - (cd pitaya-servers/json-server && $GO_BIN_PATH get)
-        - (cd pitaya-servers/protobuf-server && $GO_BIN_PATH get)
+
+        - cd ~/go/src/github.com/topfreegames
+        - git clone https://github.com/leohahn/pitaya
+        - cd pitaya
+        - make setup-ci
+
+        - cd ~/go/src/github.com/topfreegames/libpitaya
+        - (cd pitaya-servers/json-server && ~/bin/go/bin/go get)
+        - (cd pitaya-servers/protobuf-server && ~/bin/go/bin/go get)
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz linux
       before_script: 
         - make gyp-linux-release
       script: 
-        - ./run-tests.py --node-path ~/node/bin/node --go-path $GO_BIN_PATH
+        - ./run-tests.py --node-path ~/node/bin/node --go-path ~/bin/go/bin/go
       deploy:
         provider: releases
         draft: true
