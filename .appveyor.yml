@@ -48,7 +48,7 @@ install:
   - go get github.com/mattn/goveralls
   - go get -u github.com/golang/dep/cmd/dep
   - go get -u github.com/wadey/gocovmerge
-  - dep.exe ensure
+  - '%USERPROFILE%\go\bin\dep.exe ensure'
   - docker run -p 4222:4222 -d --name nats-main nats
   - docker run -d -p 2379:2379 -p 2380:2380 appcelerator/etcd
 
