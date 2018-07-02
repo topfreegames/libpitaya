@@ -4,6 +4,7 @@ clone_folder: C:\gopath\src\github.com\topfreegames\libpitaya
 
 environment:
   GOPATH: C:\gopath
+  nodejs_version: "Current"
 
 build:
   verbosity: detailed
@@ -18,9 +19,6 @@ artifacts:
 
   - path: build\out\Release_x64\output\*.lib
     name: Libs
-
-environment:
-  nodejs_version: "Current"
 
   #on_finish:
   #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
