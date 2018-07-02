@@ -3,6 +3,7 @@ compiler: clang
 
 env:
   - GOPATH=~/go
+  - GO_BIN_PATH=/usr/lib/go-1.10/bin
 
 matrix:
   include:
@@ -67,13 +68,14 @@ matrix:
       install: 
         - make setup-node-linux
         - make install-gyp
-        - (cd pitaya-servers/json-server && go get)
-        - (cd pitaya-servers/protobuf-server && go get)
+        - (cd ~/go/src/github.com/topfreegames && git clone https://github.com/leohahn/pitaya)
+        - (cd pitaya-servers/json-server && $GO_BIN_PATH get)
+        - (cd pitaya-servers/protobuf-server && $GO_BIN_PATH get)
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz linux
       before_script: 
         - make gyp-linux-release
       script: 
-        - ./run-tests.py --node-path ~/node/bin/node --go-path /usr/lib/go-1.10/bin/go
+        - ./run-tests.py --node-path ~/node/bin/node --go-path $GO_BIN_PATH
       deploy:
         provider: releases
         draft: true

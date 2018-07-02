@@ -43,6 +43,8 @@ install:
   ############################################################################
   # Install Go dependencies
   ############################################################################
+  - cd C:\gopath\src\github.com\topfreegames
+  - git clone https://github.com/leohahn/pitaya
   - cd C:\gopath\src\github.com\topfreegames\libpitaya
   - cd pitaya-servers\json-server
   - go get
