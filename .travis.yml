@@ -62,9 +62,9 @@ matrix:
         - export TRAVIS_BUILD_DIR=~/go/src/github.com/topfreegames/libpitaya
         - cd $TRAVIS_BUILD_DIR
         - echo $TRAVIS_BUILD_DIR
-        - sudo add-apt-repository ppa:gophers/archive -y
-        - sudo apt-get update
-        - sudo apt-get install golang-1.10-go
+        # - sudo add-apt-repository ppa:gophers/archive -y
+        # - sudo apt-get update
+        # - sudo apt-get install golang-1.10-go
       install: 
         - gimme 1.10
         - make setup-node-linux
@@ -73,14 +73,14 @@ matrix:
         - cd ~/go/src/github.com/topfreegames
         - git clone https://github.com/leohahn/pitaya
         - cd pitaya
-        - /usr/lib/go-1.10/bin/go get github.com/mattn/goveralls
-        - /usr/lib/go-1.10/bin/go get -u github.com/golang/dep/cmd/dep
-        - /usr/lib/go-1.10/bin/go get -u github.com/wadey/gocovmerge
+        - ~/.gimme/versions/go1.10.linux.amd64/bin/go get github.com/mattn/goveralls
+        - ~/.gimme/versions/go1.10.linux.amd64/bin/go get -u github.com/golang/dep/cmd/dep
+        - ~/.gimme/versions/go1.10.linux.amd64/bin/go get -u github.com/wadey/gocovmerge
         - ~/go/bin/dep ensure
 
         - cd ~/go/src/github.com/topfreegames/libpitaya
-        - (cd pitaya-servers/json-server && /usr/lib/go-1.10/bin/go/ get)
-        - (cd pitaya-servers/protobuf-server && /usr/lib/go-1.10/bin/go get)
+        - (cd pitaya-servers/json-server && ~/.gimme/versions/go1.10.linux.amd64/bin/go get)
+        - (cd pitaya-servers/protobuf-server && ~/.gimme/versions/go1.10.linux.amd64/bin/go get)
         - docker run -p 4222:4222 -d --name nats-main nats
         - docker run -d -p 2379:2379 -p 2380:2380 appcelerator/etcd
 
@@ -88,7 +88,7 @@ matrix:
       before_script: 
         - make gyp-linux-release
       script: 
-        - ./run-tests.py --node-path ~/node/bin/node --go-path /usr/lib/go-1.10/bin/go
+        - ./run-tests.py --node-path ~/node/bin/node --go-path ~/.gimme/versions/go1.10.linux.amd64/bin/go
       deploy:
         provider: releases
         draft: true
