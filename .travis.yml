@@ -59,6 +59,8 @@ matrix:
       install: 
         - make setup-node-linux
         - make install-gyp
+        - (cd pitaya-servers/json-server && go get)
+        - (cd pitaya-servers/protobuf-server && go get)
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz linux
       before_script: 
         - make gyp-linux-release

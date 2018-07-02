@@ -11,7 +11,11 @@ import time
 THIS_DIR = path.abspath(path.dirname(__file__))
 
 TESTS_DIR = path.join(THIS_DIR, 'build', 'out', 'Release_x64', 'output')
-TESTS_EXE = 'tests'
+
+if sys.platform == 'win32' or sys.platform == 'cygwin':
+    TESTS_EXE = 'tests.exe'
+else:
+    TESTS_EXE = 'tests'
 
 COMPILE_DIR = path.join(THIS_DIR, 'build', 'out', 'Release_x64')
 
