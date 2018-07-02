@@ -14,12 +14,6 @@ matrix:
           packages:
             - ninja-build
       sudo: required
-      before_install:
-        - sudo add-apt-repository ppa:gophers/archive -y
-        - sudo apt-get update
-        - sudo apt-get install golang-1.10-go
-        - ls /usr/lib/go-1.10/bin
-        - /usr/lib/go-1.10/bin/go version
       install: 
         - cd ~
         - curl https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip -o android-ndk-r15c.zip
@@ -30,6 +24,7 @@ matrix:
       before_script: 
         - go version
         - ./android-compile.sh ~/android-ndk-r15c
+      script: make build
       deploy:
         provider: releases
         draft: true
@@ -62,11 +57,13 @@ matrix:
         - ls /usr/lib/go-1.10/bin
         - /usr/lib/go-1.10/bin/go version
       install: 
+        - make setup-node-linux
         - make install-gyp
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz linux
       before_script: 
-        - go version
         - make gyp-linux-release
+      script: 
+        - ./run-tests.py --node-path ~/node/bin/node --go-path /usr/lib/go-1.10/bin/go
       deploy:
         provider: releases
         draft: true
@@ -92,10 +89,12 @@ matrix:
         - brew install ninja
         - brew upgrade python
         - make install-gyp
+        - make setup-node-mac
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz mac
       before_script: 
         - go version
         - make gyp-mac-release
+      script: make build
       deploy:
         provider: releases
         draft: true
@@ -125,6 +124,7 @@ matrix:
       before_script: 
         - go version
         - make gyp-ios
+      script: make build
       deploy:
         provider: releases
         draft: true
@@ -140,10 +140,6 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
-
-
-script:
-  - make build
 
 after_script:
   - ls build/out/Release_x64/output

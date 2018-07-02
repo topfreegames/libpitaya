@@ -1105,14 +1105,11 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
 
     tmp = pc_JSON_GetObjectItem(sys, "serializer");
     if (!tmp || tmp->type != pc_JSON_String) {
-        pc_lib_log(PC_LOG_ERROR, "tcp__on_handshake_resp - handshake fail, no serializer field in sys");
-        pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Handshake Error (no serializer)", NULL);
-        pc_JSON_Delete(res);
-        tt->reset_fn(tt);
-        return ;
-    } 
-
-    tt->serializer = pc_lib_strdup(tmp->valuestring);
+        pc_lib_log(PC_LOG_WARN, "tcp__on_handshake_resp - invalid serializer field sent by the server, defaulting to 'json'");
+        tt->serializer = pc_lib_strdup("json");
+    } else {
+        tt->serializer = pc_lib_strdup(tmp->valuestring);
+    }
 
     tmp = pc_JSON_GetObjectItem(sys, "useDict");
     if (!tmp || tmp->type == pc_JSON_False) {

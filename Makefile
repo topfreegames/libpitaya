@@ -3,9 +3,13 @@ setup-go:
 	@gimme 1.10.2
 	@echo Go installed version $(shell go version)
 
-setup-node:
-	@curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-	@. ~/.nvm/nvm.sh && nvm install 10.0.0
+setup-node-linux:
+	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz -o ~/node-v8.11.3-linux-x64.tar.xz
+	@cd ~ && tar xf ~/node-v8.11.3-linux-x64.tar.xz && mv ~/node-v8.11.3-linux-x64.tar.xz ~/node
+
+setup-node-mac:
+	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-darwin-x64.tar.xz -o ~/node-v8.11.3-darwin-x64.tar.xz
+	@cd ~ && tar xf ~/node-v8.11.3-darwin-x64.tar.xz
 
 install-gyp:
 	@git clone https://chromium.googlesource.com/external/gyp.git ~/gyp
