@@ -7,6 +7,7 @@ setup-go-linux:
 	@mkdir -p ~/bin
 	@curl https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz -o ~/bin/go1.10.3.linux-amd64.tar.gz
 	@cd ~/bin && tar xf ~/bin/go1.10.3.linux-amd64.tar.gz
+	@echo ~/bin/go/bin/go version
 
 setup-go-mac:
 	@mkdir -p ~/bin

@@ -1,4 +1,4 @@
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 clone_folder: '%USERPROFILE%\go\src\github.com\topfreegames\libpitaya'
 
@@ -51,7 +51,6 @@ install:
   - '%USERPROFILE%\go\bin\dep.exe ensure'
   - docker run -p 4222:4222 -d --name nats-main nats
   - docker run -d -p 2379:2379 -p 2380:2380 appcelerator/etcd
-
 
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
   - cd pitaya-servers\json-server
