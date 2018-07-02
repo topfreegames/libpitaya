@@ -5,7 +5,7 @@ setup-go:
 
 setup-node-linux:
 	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz -o ~/node-v8.11.3-linux-x64.tar.xz
-	@cd ~ && tar xf ~/node-v8.11.3-linux-x64.tar.xz && mv ~/node-v8.11.3-linux-x64.tar.xz ~/node
+	@cd ~ && tar xf ~/node-v8.11.3-linux-x64.tar.xz && mv ~/node-v8.11.3-linux-x64 ~/node
 
 setup-node-mac:
 	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-darwin-x64.tar.xz -o ~/node-v8.11.3-darwin-x64.tar.xz

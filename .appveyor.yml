@@ -44,6 +44,8 @@ before_build:
 build_script:
   - cd build\out\Release_x64
   - ninja
+  - cd C:\projects\libpitaya
+  - python run-tests.py 
 
 after_build:
   - dir output
