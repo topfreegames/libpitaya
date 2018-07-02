@@ -66,8 +66,7 @@ matrix:
         - sudo apt-get update
         - sudo apt-get install golang-1.10-go
       install: 
-        #- make setup-go
-        #- sudo cp ~/bin/go/bin/go /usr/local
+        - gimme 1.10
         - make setup-node-linux
         - make install-gyp
 
