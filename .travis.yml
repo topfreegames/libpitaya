@@ -4,6 +4,9 @@ compiler: clang
 env:
   - GOPATH=~/go
 
+services:
+  - docker
+
 matrix:
   include:
     # -----------------------
@@ -59,28 +62,34 @@ matrix:
         - export TRAVIS_BUILD_DIR=~/go/src/github.com/topfreegames/libpitaya
         - cd $TRAVIS_BUILD_DIR
         - echo $TRAVIS_BUILD_DIR
+        - sudo add-apt-repository ppa:gophers/archive -y
+        - sudo apt-get update
+        - sudo apt-get install golang-1.10-go
       install: 
-        - make setup-go
-        - sudo cp ~/bin/go/bin/go /usr/local
+        #- make setup-go
+        #- sudo cp ~/bin/go/bin/go /usr/local
         - make setup-node-linux
         - make install-gyp
 
         - cd ~/go/src/github.com/topfreegames
         - git clone https://github.com/leohahn/pitaya
         - cd pitaya
-        - /usr/local/go get github.com/mattn/goveralls
-        - /usr/local/go get -u github.com/golang/dep/cmd/dep
-        - /usr/local/go get -u github.com/wadey/gocovmerge
+        - /usr/lib/go-1.10/bin/go get github.com/mattn/goveralls
+        - /usr/lib/go-1.10/bin/go get -u github.com/golang/dep/cmd/dep
+        - /usr/lib/go-1.10/bin/go get -u github.com/wadey/gocovmerge
         - ~/go/bin/dep ensure
 
         - cd ~/go/src/github.com/topfreegames/libpitaya
-        - (cd pitaya-servers/json-server && ~/bin/go/bin/go get)
-        - (cd pitaya-servers/protobuf-server && ~/bin/go/bin/go get)
+        - (cd pitaya-servers/json-server && /usr/lib/go-1.10/bin/go/ get)
+        - (cd pitaya-servers/protobuf-server && /usr/lib/go-1.10/bin/go get)
+        - docker run -p 4222:4222 -d --name nats-main nats
+        - docker run -d -p 2379:2379 -p 2380:2380 appcelerator/etcd
+
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz linux
       before_script: 
         - make gyp-linux-release
       script: 
-        - ./run-tests.py --node-path ~/node/bin/node --go-path ~/bin/go/bin/go
+        - ./run-tests.py --node-path ~/node/bin/node --go-path /usr/lib/go-1.10/bin/go
       deploy:
         provider: releases
         draft: true
