@@ -6,7 +6,7 @@ setup-go:
 setup-go-linux:
 	@mkdir -p ~/bin
 	@curl https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz -o ~/bin/go1.10.3.linux-amd64.tar.gz
-	@cd ~/bin && tar xf ~/go1.10.3.linux-amd64.tar.gz
+	@cd ~/bin && tar xf ~/bin/go1.10.3.linux-amd64.tar.gz
 
 setup-node-linux:
 	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz -o ~/node-v8.11.3-linux-x64.tar.xz
