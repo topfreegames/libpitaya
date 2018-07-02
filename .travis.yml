@@ -1,6 +1,9 @@
 language: c
 compiler: clang
 
+env:
+  - GOPATH=~/go
+
 matrix:
   include:
     # -----------------------
@@ -56,7 +59,6 @@ matrix:
         - sudo apt-get install golang-1.10-go
         - ls /usr/lib/go-1.10/bin
         - /usr/lib/go-1.10/bin/go version
-        - export GOPATH="${TRAVIS_BUILD_DIR}/Gopath/_workspace:$GOPATH"
         - mkdir -p ~/go/src/github.com/topfreegames
         - mv $TRAVIS_BUILD_DIR/../libpitaya ~/go/src/github.com/topfreegames
         - export TRAVIS_BUILD_DIR=~/go/src/github.com/topfreegames/libpitaya
