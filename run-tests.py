@@ -14,8 +14,10 @@ TESTS_DIR = path.join(THIS_DIR, 'build', 'out', 'Release_x64', 'output')
 
 if sys.platform == 'win32' or sys.platform == 'cygwin':
     TESTS_EXE = 'tests.exe'
+    SERVER_EXE = 'server.exe'
 else:
     TESTS_EXE = 'tests'
+    SERVER_EXE = 'server'
 
 COMPILE_DIR = path.join(THIS_DIR, 'build', 'out', 'Release_x64')
 
@@ -30,8 +32,8 @@ MOCK_SERVERS = [
 
 PITAYA_SERVERS_DIR = path.join(THIS_DIR, 'pitaya-servers') 
 PITAYA_SERVERS = [
-    (path.join('json-server', 'server-exe'), path.join('json-server', 'server-exe-out')),
-    (path.join('protobuf-server', 'server-exe'), path.join('protobuf-server', 'server-exe-out')),
+    (path.join('json-server', SERVER_EXE), path.join('json-server', 'server-exe-out')),
+    (path.join('protobuf-server', SERVER_EXE), path.join('protobuf-server', 'server-exe-out')),
 ]
 
 mock_server_processes = []
@@ -43,7 +45,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--node-path', dest='node_path', help='Where is node located')
     parser.add_argument('--go-path', dest='go_path', help='Where is Go located.')
-    return parser.parse_args()
+    return parser.parse_known_args()
 
 
 def kill_all_servers():
@@ -66,11 +68,11 @@ def ensure_pitaya_servers(go_path):
         os.chdir(path.dirname(s))
         if go_path:
             subprocess.call([
-                go_path, 'build', '-o', 'server-exe', 'main.go', 
+                go_path, 'build', '-o', SERVER_EXE, 'main.go', 
             ])
         else:
             subprocess.call([
-                'go', 'build', '-o', 'server-exe', 'main.go', 
+                'go', 'build', '-o', SERVER_EXE, 'main.go', 
             ])
         os.chdir(PITAYA_SERVERS_DIR)
     os.chdir(THIS_DIR)
@@ -87,8 +89,13 @@ def start_pitaya_servers():
         port += 1
 
         fd = open(path.join(PITAYA_SERVERS_DIR, l), 'wb')
-        process = subprocess.Popen(
-            './{}'.format(path.basename(s)), stdout=fd, stderr=fd)
+
+        if sys.platform == 'win32' or sys.platform == 'cygwin':
+            process = subprocess.Popen(
+                '{}'.format(path.basename(s)), stdout=fd, stderr=fd)
+        else:
+            process = subprocess.Popen(
+                './{}'.format(path.basename(s)), stdout=fd, stderr=fd)
         pitaya_server_processes.append(process)
         os.chdir(PITAYA_SERVERS_DIR)
     os.chdir(THIS_DIR)
@@ -143,27 +150,8 @@ def run_tests():
 
 
 def main():
-    args = parse_args()
-
-    remove_indices = []
-
-    try:
-        index = sys.argv.index('--node-path')
-        if index >= 0:
-            remove_indices.append(index)
-            remove_indices.append(index+1)
-    except ValueError:
-        pass
-
-    try:
-        index = sys.argv.index('--go-path')
-        if index >= 0:
-            remove_indices.append(index)
-            remove_indices.append(index+1)
-    except ValueError:
-        pass
-
-    sys.argv = [i for j, i in enumerate(sys.argv) if j not in remove_indices]
+    args, unknown_args = parse_args()
+    sys.argv = unknown_args
 
     if args.node_path and not path.exists(args.node_path):
         print("Node path does not exist.")
