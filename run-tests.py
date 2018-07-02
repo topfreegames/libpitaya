@@ -140,15 +140,21 @@ def main():
 
     remove_indices = []
 
-    index = sys.argv.index('--node-path')
-    if index >= 0:
-        remove_indices.append(index)
-        remove_indices.append(index+1)
+    try:
+        index = sys.argv.index('--node-path')
+        if index >= 0:
+            remove_indices.append(index)
+            remove_indices.append(index+1)
+    except ValueError:
+        pass
 
-    index = sys.argv.index('--go-path')
-    if index >= 0:
-        remove_indices.append(index)
-        remove_indices.append(index+1)
+    try:
+        index = sys.argv.index('--go-path')
+        if index >= 0:
+            remove_indices.append(index)
+            remove_indices.append(index+1)
+    except ValueError:
+        pass
 
     sys.argv = [i for j, i in enumerate(sys.argv) if j not in remove_indices]
 
