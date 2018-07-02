@@ -44,6 +44,15 @@ install:
   ############################################################################
   - cd %USERPROFILE%\go\src\github.com\topfreegames
   - git clone https://github.com/leohahn/pitaya
+  - cd pitaya
+  - go get github.com/mattn/goveralls
+  - go get -u github.com/golang/dep/cmd/dep
+  - go get -u github.com/wadey/gocovmerge
+  - dep ensure
+  - docker run -p 4222:4222 -d --name nats-main nats
+  - docker run -d -p 2379:2379 -p 2380:2380 appcelerator/etcd
+
+
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
   - cd pitaya-servers\json-server
   - go get
