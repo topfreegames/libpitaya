@@ -68,6 +68,10 @@ matrix:
         - git clone https://github.com/leohahn/pitaya
         - cd pitaya
         - make setup-ci
+        - ~/bin/go/bin/go get github.com/mattn/goveralls
+        - ~/bin/go/bin/go get -u github.com/golang/dep/cmd/dep
+        - ~/bin/go/bin/go get -u github.com/wadey/gocovmerge
+        - ~/go/bin/dep ensure
 
         - cd ~/go/src/github.com/topfreegames/libpitaya
         - (cd pitaya-servers/json-server && ~/bin/go/bin/go get)
