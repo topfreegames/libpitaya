@@ -60,7 +60,7 @@ matrix:
         - cd $TRAVIS_BUILD_DIR
         - echo $TRAVIS_BUILD_DIR
       install: 
-        - make setup-go-linux
+        - make setup-go
         - sudo cp ~/bin/go/bin/go /usr/local
         - make setup-node-linux
         - make install-gyp

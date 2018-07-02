@@ -1,6 +1,7 @@
 setup-go:
 	@sudo rm -rf ~/.gimme
 	@gimme 1.10.2
+	@gimme list
 	@echo Go installed version $(shell go version)
 
 setup-go-linux:
