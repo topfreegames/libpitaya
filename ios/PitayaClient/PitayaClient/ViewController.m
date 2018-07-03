@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "pomelo.h"
+#import "pitaya.h"
 #import "pc_pomelo_i.h"
 
 

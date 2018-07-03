@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include <pc_JSON.h>
-#include <pomelo.h>
+#include <pitaya.h>
 #include <pc_lib.h>
 #include "pr_gzip.h"
 

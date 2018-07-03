@@ -118,6 +118,11 @@ def build(openssl_temp_dir):
 
 
 def android_build(ndk_dir, openssl_temp_dir, prefix):
+    print('+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+')
+    print('+ Please note that the android build was only tested with +')
+    print('+       the r15c ndk (higher it does not work             +')
+    print('+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+')
+
     ndk_dir = os.path.expanduser(ndk_dir)
     ndk_dir = os.path.abspath(ndk_dir)
 
@@ -187,7 +192,7 @@ def main():
         linux_build(openssl_temp_dir, prefix)
     elif args.command == 'mac':
         mac_build(openssl_temp_dir, prefix)
-    elif args.command == 'Windows':
+    elif args.command == 'windows':
         windows_build(openssl_temp_dir, prefix)
 
 

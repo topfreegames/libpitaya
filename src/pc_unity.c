@@ -3,13 +3,14 @@
  * MIT Licensed.
  */
 
-#include <pc_assert.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 
-#include <pomelo.h>
+#include "pitaya.h"
+#include "pc_assert.h"
+#include "pitaya_unity.h"
 
 #define __UNITYEDITOR__
 
@@ -32,7 +33,8 @@
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN  ,"cspomelo", __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR ,"cspomelo", __VA_ARGS__)
 
-void android_log(int level, const char* msg, ...)
+static void 
+android_log(int level, const char* msg, ...)
 {
     char buf[256];
     va_list va;
@@ -67,8 +69,10 @@ void android_log(int level, const char* msg, ...)
 
 #if defined(__UNITYEDITOR__)
 
-static FILE* f = NULL;
-void unity_log(int level, const char* msg, ...)
+static FILE *f = NULL;
+
+static void 
+unity_log(int level, const char *msg, ...)
 {
     if (!f) {
         return;
@@ -109,7 +113,8 @@ void unity_log(int level, const char* msg, ...)
 }
 #endif
 
-CS_POMELO_EXPORT int init_log(const char* path)
+int 
+pc_unity_init_log(const char *path)
 {
 #if defined(__UNITYEDITOR__)
     f = fopen(path, "w");
@@ -120,7 +125,8 @@ CS_POMELO_EXPORT int init_log(const char* path)
     return 0;
 }
 
-CS_POMELO_EXPORT void native_log(const char* msg)
+void 
+pc_unity_native_log(const char *msg)
 {
     if (!msg || strlen(msg) == 0) {
         return;
@@ -128,51 +134,20 @@ CS_POMELO_EXPORT void native_log(const char* msg)
 //    pc_lib_log(PC_LOG_DEBUG, msg);
 }
 
-//typedef void (*request_handler)(const char* err, const pc_buf_t* resp);
-
-typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const pc_buf_t* resp);
-typedef void (*request_error_callback)(pc_client_t* client, unsigned int cbid, const pc_error_t* error);
-
-typedef void (*unity_assert)(const char* e, const char* file, int line);
-
 typedef struct {
     char* (* read) ();
     int   (* write)(char* data);
 } lc_callback_t;
 
 typedef struct {
-    request_callback cb;
-    request_error_callback error_cb;
-    unsigned int cbid;
+    pc_unity_request_success_callback_t cb;
+    pc_unity_request_error_callback_t error_cb;
+    uint32_t cbid;
 } request_cb_t;
 
-static int local_storage_cb(pc_local_storage_op_t op, char* data, size_t* len, void* ex_data) {
-    lc_callback_t* lc_cb = (lc_callback_t* )ex_data;
-    char* res = NULL;
-
-    if (op == PC_LOCAL_STORAGE_OP_WRITE) {
-        return lc_cb->write(data);
-    } else {
-        res = lc_cb->read();
-        if (!res) {
-            return -1;
-        }
-
-        *len = strlen(res);
-        if (*len == 0) {
-            return -1;
-        }
-
-        if (data) {
-            strncpy(data, res, *len);
-        }
-        return 0;
-    }
-    // never go to here
-    return -1;
-}
-
-static void default_request_cb(const pc_request_t* req, const pc_buf_t* resp) {
+static void 
+default_request_cb(const pc_request_t *req, const pc_buf_t *resp) 
+{
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
     pc_client_t* client = pc_request_client(req);
     pc_assert(rp);
@@ -182,48 +157,48 @@ static void default_request_cb(const pc_request_t* req, const pc_buf_t* resp) {
     r.cb(client, r.cbid, resp);
 }
 
-static void default_error_cb(const pc_request_t* req, const pc_error_t *error) {
+static void 
+default_error_cb(const pc_request_t *req, const pc_error_t *error) 
+{
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
     pc_client_t* client = pc_request_client(req);
     pc_assert(rp);
     request_cb_t r = *rp;
     free(rp);
     r.error_cb(client, r.cbid, error);
-
 }
 
-CS_POMELO_EXPORT void lib_init(int log_level, const char* ca_file, const char* ca_path, unity_assert custom_assert) {
+void 
+pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, pc_lib_client_info_t info) {
 #if !defined(PC_NO_UV_TLS_TRANS)
     if (ca_file || ca_path) {
         tr_uv_tls_set_ca_file(ca_file, ca_path);
     }
 #endif
     
-    if(custom_assert != NULL){
+    if (custom_assert != NULL) {
         update_assert(custom_assert);
     }
-    
 
     pc_lib_set_default_log_level(log_level);
 #if defined(__ANDROID__)
-    pc_lib_init(android_log, NULL, NULL, NULL, "CSharp Client");
+    pc_lib_init(android_log, NULL, NULL, NULL, info);
 #elif defined(__UNITYEDITOR__)
-    pc_lib_init(unity_log, NULL, NULL, NULL,"CSharp Client");
+    pc_lib_init(unity_log, NULL, NULL, NULL, info);
 #else
-    pc_lib_init(NULL, NULL, NULL, NULL, "CSharp Client");
+    pc_lib_init(NULL, NULL, NULL, NULL, info);
 #endif
 }
 
-CS_POMELO_EXPORT pc_client_t* create(int enable_tls, int enable_poll, int enable_reconnect) {
+pc_client_t * 
+pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect) {
     pc_client_init_result_t res = {0};
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     if (enable_tls) {
         config.transport_name = PC_TR_NAME_UV_TLS;
     }
-    if (enable_poll) {
-        config.enable_polling = 1;
-    }
-    
+
+    config.enable_polling = enable_poll;
     config.enable_reconn = enable_reconnect;
 
     res = pc_client_init(NULL, &config);
@@ -234,7 +209,9 @@ CS_POMELO_EXPORT pc_client_t* create(int enable_tls, int enable_poll, int enable
     return NULL;
 }
 
-CS_POMELO_EXPORT void destroy(pc_client_t* client) {
+void 
+pc_unity_destroy(pc_client_t *client) 
+{
     lc_callback_t* lc_cb;
 
 #if defined(__UNITYEDITOR__)
@@ -242,7 +219,7 @@ CS_POMELO_EXPORT void destroy(pc_client_t* client) {
     f = NULL;
 #endif
     
-    if(client != NULL){
+    if (client) {
         lc_cb = (lc_callback_t*)pc_client_config(client)->ls_ex_data;
         if (lc_cb) {
             free(lc_cb);
@@ -251,8 +228,11 @@ CS_POMELO_EXPORT void destroy(pc_client_t* client) {
     }
 }
 
-CS_POMELO_EXPORT int request(pc_client_t* client, const char* route, const char* msg,
-                             unsigned int cbid, int timeout, request_callback cb, request_error_callback error_cb) {
+int 
+pc_unity_request(pc_client_t* client, const char* route, const char* msg,
+                 uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb, 
+                 pc_unity_request_error_callback_t error_cb) 
+{
     request_cb_t* rp = (request_cb_t*)malloc(sizeof(request_cb_t));
     if (!rp) {
         return PC_RC_TIMEOUT;

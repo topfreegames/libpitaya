@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	//"fmt"
 
 	"github.com/topfreegames/libpitaya/pitaya-servers/protobuf-server/protos"
 	"github.com/topfreegames/pitaya"

@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include <assert.h>
-#include <pomelo.h>
+#include <pitaya.h>
 #include <pomelo_trans.h>
 
 #include "test_common.h"

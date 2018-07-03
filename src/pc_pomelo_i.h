@@ -6,7 +6,7 @@
 #ifndef PC_POMELO_I_H
 #define PC_POMELO_I_H
 
-#include <pomelo.h>
+#include <pitaya.h>
 #include <pomelo_trans.h>
 
 #include "pc_mutex.h"

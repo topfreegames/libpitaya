@@ -11,16 +11,45 @@ const HEARTBEAT_INTERVAL = 6;
 
 let heartbeatInterval;
 let clientDisconnected = false;
+let handshakeTimeout;
+
+function processPacket(packet, clientSocket) {
+    console.log('processing packet');
+
+    switch (packet.type) {
+    case pkt.PacketType.Handshake:
+        handshakeTimeout = setTimeout(() => pkt.sendHandshakeResponse(clientSocket), 5000);
+        break;
+
+    case pkt.PacketType.HandshakeAck:
+    case pkt.PacketType.Data:
+    case pkt.PacketType.Heartbeat:
+    }
+}
+
+function processBuffer(buffer, socket) {
+    console.log(`Received ${buffer.length} bytes of data`);
+    const rawPackets = new pkt.RawPackets(buffer);
+    const packets = rawPackets.decode();
+
+    console.log(`Decoded ${packets.length} packet(s)`);
+
+    for (let p of packets) {
+        processPacket(p, socket);
+    }
+}
 
 const tcpServer = net.createServer((socket) => {
     console.log('======= New TCP Connection ========');
 
     socket.on('data', (buffer) => {
-        setTimeout(() => socket.destroy(), 2000);
+        console.log(`type `, buffer[0]);
+        processBuffer(buffer, socket);
     });
 
     socket.on('end', () => {
         clientDisconnected = true;
+        clearTimeout(handshakeTimeout);
         console.log('Client disconnected :(');
     });
 });
@@ -37,11 +66,13 @@ const tlsServer = tls.createServer(tlsOptions, (socket) => {
     console.log(socket.authorized ? 'Authorized' : 'Unauthorized');
 
     socket.on('data', (buffer) => {
-        setTimeout(() => socket.destroy(), 2000);
+        console.log(`type `, buffer[0]);
+        processBuffer(buffer, socket);
     });
 
     socket.on('end', () => {
         clientDisconnected = true;
+        clearTimeout(handshakeTimeout);
         console.log('Client disconnected :(');
     });
 });

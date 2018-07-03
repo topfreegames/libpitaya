@@ -1,5 +1,6 @@
 {
   'variables': {
+    'uv_library%': 'static_library',
     'conditions': [
       ['OS=="win"', {
         'shared_unix_defines': [ ],

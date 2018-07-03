@@ -8,7 +8,7 @@
 
 #include <Python.h>
 
-#include <pomelo.h>
+#include <pitaya.h>
 
 #ifdef _WIN32
 #define PY_POMELO_EXPORT __declspec(dllexport)

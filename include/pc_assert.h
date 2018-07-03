@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 
-#include <pomelo.h>
+#include <pitaya.h>
 
 #ifdef __cplusplus
 extern "C" {

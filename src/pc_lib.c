@@ -10,7 +10,7 @@
 #include <pc_assert.h>
 #include <time.h>
 
-#include <pomelo.h>
+#include <pitaya.h>
 #include <pomelo_trans.h>
 
 #include "pc_lib.h"
@@ -187,7 +187,6 @@ const char* pc_lib_strdup(const char* str) {
 }
 
 static const char* state_str[] = {
-    "PC_ST_NOT_INITED",
     "PC_ST_INITED",
     "PC_ST_CONNECTING",
     "PC_ST_CONNECTED",
@@ -234,6 +233,8 @@ static const char* rc_str[] = {
     "PC_RC_INVALID_STATE",
     "PC_RC_NOT_FOUND",
     "PC_RC_RESET",
+    "PC_RC_SERVER_ERROR",
+    "PC_RC_UV_ERROR",
     NULL
 };
 

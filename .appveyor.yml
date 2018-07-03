@@ -1,4 +1,9 @@
-image: Visual Studio 2015
+image: Visual Studio 2017
+
+clone_folder: '%USERPROFILE%\go\src\github.com\topfreegames\libpitaya'
+
+environment:
+  nodejs_version: "Current"
 
 build:
   verbosity: detailed
@@ -14,12 +19,6 @@ artifacts:
   - path: build\out\Release_x64\output\*.lib
     name: Libs
 
-environment:
-  nodejs_version: "Current"
-
-  #on_finish:
-  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
 install:
   #- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
@@ -27,7 +26,6 @@ install:
   # Install Ninja
   ############################################################################
   - choco install ninja
-  #- choco install nasm
 
   ############################################################################
   # Install GYP
@@ -39,8 +37,8 @@ install:
   - python setup.py install
 
 before_build:
-  - cd C:\projects\libpitaya
-  - gyp --depth=. pomelo.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_cspomelo=true -Dbuild_for_windows=true -Duv_library=static_library -Dtarget_arch=x64
+  - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
+  - gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_for_windows=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-windows
 
 build_script:
   - cd build\out\Release_x64
@@ -50,7 +48,7 @@ after_build:
   - dir output
 
 deploy:
-  description: 'Naice Release'
+  description: 'Release'
   provider: GitHub
   draft: true
   auth_token:

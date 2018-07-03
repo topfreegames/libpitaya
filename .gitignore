@@ -21,4 +21,5 @@ tr_uv_tcp_aux.c.autosave
 android-toolchain*
 out.log
 *-log
-
+pitaya-servers/json-server/server
+pitaya-servers/protobuf-server/server

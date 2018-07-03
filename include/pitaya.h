@@ -191,7 +191,8 @@ typedef struct {
 } pc_lib_client_info_t;
 
 PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), 
-                           void* (*pc_alloc)(size_t), void (*pc_free)(void* ), 
+                           void* (*pc_alloc)(size_t), 
+                           void (*pc_free)(void* ), 
                            void* (*pc_realloc)(void*, size_t), 
                            pc_lib_client_info_t client_info);
 

@@ -30,17 +30,5 @@ export RANLIB=$NDK_TOOLCHAIN_BASENAME-ranlib
 export READELF=$NDK_TOOLCHAIN_BASENAME-readelf
 export STRIP=$NDK_TOOLCHAIN_BASENAME-strip
 
-    #os.environ['ARCH_FLAGS'] = '-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16'
-    #os.environ['ARCH_LINK'] = '-march=armv7-a -Wl,--fix-cortex-a8'
-    #os.environ['CPPFLAGS'] = ' {} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
-        #os.environ['ARCH_FLAGS'])
-    #os.environ['CXXFLAGS'] = ' {} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 -frtti -fexceptions '.format(
-        #os.environ['ARCH_FLAGS'])
-    #os.environ['CFLAGS'] = ' {} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
-        #os.environ['ARCH_FLAGS'])
-    #os.environ['LDFLAGS'] = ' {} '.format(os.environ['ARCH_LINK'])
-    #os.environ['CROSS_COMPILE'] = ''
-    #os.environ['PATH'] = '{}:{}'.format(toolchain_path, os.environ['PATH'])
-
 make gyp-android
 

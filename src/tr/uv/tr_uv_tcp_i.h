@@ -9,7 +9,7 @@
 #include <uv.h>
 
 #include <pc_JSON.h>
-#include <pomelo.h>
+#include <pitaya.h>
 #include <pomelo_trans.h>
 #include <pc_mutex.h>
 #include <queue.h>
