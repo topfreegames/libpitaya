@@ -84,7 +84,7 @@ matrix:
       script: 
         - make build
         - sudo cp build/out/Release_x64/output/libpitaya-linux.so /usr/lib
-        - ./run-tests.py --node-path ~/node/bin/node --go-path go
+        - ./run-tests.py --node-path ~/node/bin/node --go-path ~/.gimme/versions/go1.10.linux.amd64/bin/go
       deploy:
         provider: releases
         draft: true
