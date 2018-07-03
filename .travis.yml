@@ -28,7 +28,6 @@ matrix:
         - make install-gyp
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz android --ndk-dir ~/android-ndk-r15c
       before_script: 
-        - go version
         - ./android-compile.sh ~/android-ndk-r15c
       script: make build
       deploy:
@@ -105,17 +104,13 @@ matrix:
     - os: osx
       osx_image: xcode9
       sudo: required
-      before_install:
-        - export GO_BIN_PATH=/usr/lib/go-1.10/bin
       install:
         - brew update
         - brew install ninja
         - brew upgrade python
         - make install-gyp
-        - make setup-node-mac
         - ./build-openssl.py --force --prefix build/openssl --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz mac
       before_script: 
-        - go version
         - make gyp-mac-release
       script: make build
       deploy:
@@ -167,5 +162,5 @@ after_script:
   - ls build/out/Release_x64/output
 
 before_deploy:
-  - git config user.name "Travis Bot"
-  - git config user.email "<>"
+  - git config --local user.name "Travis Bot"
+  - git config --local user.email "<>"
