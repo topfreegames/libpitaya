@@ -155,7 +155,7 @@
                 './src',
             ],
             'sources': [
-                './src/pc_pomelo.c',
+                './src/pc_pitaya.c',
                 './src/pc_lib.c',
                 './src/pc_unity.c',
                 './src/pc_trans.c',

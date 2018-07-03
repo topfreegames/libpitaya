@@ -6,7 +6,7 @@
 #ifndef PC_POMELO_TRANS_H
 #define PC_POMELO_TRANS_H
 
-#include <pomelo.h>
+#include <pitaya.h>
 
 #ifdef __cplusplus
 extern "C" {

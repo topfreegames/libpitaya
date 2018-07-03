@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "pomelo.h"
+#include "pitaya.h"
 #include "pitaya_unity.h"
 
 #ifdef _WIN32

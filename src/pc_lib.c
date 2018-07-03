@@ -10,7 +10,7 @@
 #include <pc_assert.h>
 #include <time.h>
 
-#include <pomelo.h>
+#include <pitaya.h>
 #include <pomelo_trans.h>
 
 #include "pc_lib.h"

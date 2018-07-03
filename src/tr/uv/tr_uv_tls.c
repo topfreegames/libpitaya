@@ -3,7 +3,7 @@
  * MIT Licensed.
  */
 
-#include <pomelo.h>
+#include <pitaya.h>
 #include <pc_assert.h>
 
 #include <pc_lib.h>

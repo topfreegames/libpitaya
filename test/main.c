@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <pomelo.h>
+#include <pitaya.h>
 #include "test_common.h"
 
 // HACK(leo): DO NOT EDIT THE LINES BETWEEN SUITES_START AND SUITES_END

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <pomelo.h>
+#include <pitaya.h>
 #include <stdbool.h>
 
 #include "test_common.h"

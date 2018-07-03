@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <pomelo.h>
+#include <pitaya.h>
 #include <pomelo_trans.h>
 
 #include "test_common.h"

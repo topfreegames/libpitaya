@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <pomelo.h>
+#include <pitaya.h>
 #include "test_common.h"
 
 static pc_client_t *g_client = NULL;

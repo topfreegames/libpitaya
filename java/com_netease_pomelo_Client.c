@@ -7,7 +7,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include <pomelo.h>
+#include <pitaya.h>
 
 #include "com_netease_pomelo_Client.h"
 

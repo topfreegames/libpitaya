@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <pomelo.h>
+#include <pitaya.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <pb_decode.h>
@@ -175,7 +175,7 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
         npc_entry_array_t *array = (npc_entry_array_t*)calloc(1, sizeof(npc_entry_array_t));
         array->cap = 2;
         array->len = 0;
-        array->data = (char**)calloc(array->cap, sizeof(protos_BigMessageResponse_NpcsEntry));
+        array->data = (protos_BigMessageResponse_NpcsEntry*)calloc(array->cap, sizeof(protos_BigMessageResponse_NpcsEntry));
         assert_not_null(array);
         assert_not_null(array->data);
         big_message.response.npcs.arg = array;

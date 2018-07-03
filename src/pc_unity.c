@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "pomelo.h"
+#include "pitaya.h"
 #include "pc_assert.h"
 #include "pitaya_unity.h"
 

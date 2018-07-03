@@ -7,7 +7,7 @@
 #include <pc_assert.h>
 
 #include <pc_lib.h>
-#include <pomelo.h>
+#include <pitaya.h>
 
 #include "pr_pkg.h"
 
