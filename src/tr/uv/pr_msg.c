@@ -399,11 +399,16 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, b
 /* for transport plugin */
 uv_buf_t pr_default_msg_encoder(tr_uv_tcp_transport_t* tt, const pc_msg_t* msg)
 {
-    pc_buf_t pb;
-    uv_buf_t ub;
+    bool is_json_serializer = false;
+    
+    if (tt->serializer) {
+        is_json_serializer = strcmp(tt->serializer, "json") == 0;
+    } else {
+        pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encoder - serializer on handshake data is NULL");
+    }
 
-    bool is_json_serializer = strcmp(tt->serializer, "json") == 0;
-    pb = pc_default_msg_encode(tt->route_to_code, msg, !tt->config->disable_compression, is_json_serializer);
+    pc_buf_t pb = pc_default_msg_encode(tt->route_to_code, msg, !tt->config->disable_compression, is_json_serializer);
+    uv_buf_t ub;
     ub.base = (char*)pb.base;
     ub.len = pb.len;
 

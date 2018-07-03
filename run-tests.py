@@ -141,9 +141,9 @@ def ensure_tests_executable():
 def run_tests():
     os.chdir(TESTS_DIR)
     if sys.platform == 'win32' or sys.platform == 'cygwin':
-        args = '{} {}'.format(TESTS_EXE, ' '.join(sys.argv[1:]))
+        args = '{} {}'.format(TESTS_EXE, ' '.join(sys.argv))
     else:
-        args = './{} {}'.format(TESTS_EXE, ' '.join(sys.argv[1:]))
+        args = './{} {}'.format(TESTS_EXE, ' '.join(sys.argv))
     code = subprocess.call(args, shell=True)
     os.chdir(THIS_DIR)
     return code

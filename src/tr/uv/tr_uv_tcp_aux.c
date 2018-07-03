@@ -154,11 +154,15 @@ void tcp__reconn(tr_uv_tcp_transport_t* tt)
     if (tt->reconn_times == 0) {
         // This is the first time the reconnection is being called, therefore send an event informing the user.
         pc_trans_fire_event(tt->client, PC_EV_RECONNECT_STARTED, "Started the reconnection", NULL);
+    } else {
+        pc_mutex_lock(&tt->client->state_mutex);
+        tt->client->state = PC_ST_CONNECTING;
+        pc_mutex_unlock(&tt->client->state_mutex);
     }
 
-    tt->reconn_times ++;
+    tt->reconn_times++;
     if (config->reconn_max_retry != PC_ALWAYS_RETRY && config->reconn_max_retry < tt->reconn_times) {
-        pc_lib_log(PC_LOG_WARN, "tcp__reconn - reconn time exceeded");
+        pc_lib_log(PC_LOG_WARN, "tcp__reconn - reconn times exceeded");
         pc_trans_fire_event(tt->client, PC_EV_RECONNECT_FAILED, "Exceed Max Retry", NULL);
         tt->reconn_times = 0;
         tt->state = TR_UV_TCP_NOT_CONN;
@@ -238,8 +242,9 @@ void tcp__conn_async_cb(uv_async_t* t)
     ret = getaddrinfo(tt->host, NULL, &hints, &ainfo);
 
     if (ret) {
-        pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "DNS Resolve Error", NULL);
+        pc_lib_log(PC_LOG_ERROR, "tcp__conn_async_cb - dns resolve error, state: %s", pc_client_state_str(tt->client->state));
         pc_lib_log(PC_LOG_ERROR, "tcp__conn_async_cb - dns resolve error: %s, will reconn", tt->host);
+        pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "DNS Resolve Error", NULL);
         tt->reconn_fn(tt);
         return ;
     }

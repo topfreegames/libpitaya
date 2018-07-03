@@ -18,6 +18,13 @@ request_error_cb(const pc_request_t* req, const pc_error_t *error)
 }
 
 static void
+event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
+{
+    Unused(client); Unused(arg1); Unused(arg2);
+    // printf("GOT EV: %s\n", pc_client_ev_str(ev_type));
+}
+
+static void
 notify_error_cb(const pc_notify_t* not, const pc_error_t *error)
 {
     bool *called = (bool*)pc_notify_ex_data(not);
@@ -35,8 +42,7 @@ test_reset(const MunitParameter params[], void *data)
 
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
-    /* for (size_t i = 0; i < ArrayCount(ports); i++) { */
-    for (size_t i = 0; i < 1; i++) {
+    for (size_t i = 0; i < ArrayCount(ports); i++) {
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
@@ -44,24 +50,20 @@ test_reset(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        bool called = false;
+        int handler = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
+
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
-        for (int i = 0; i < 1; i++) {
-            assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
-                                                      request_cb, request_error_cb), ==, PC_RC_OK);
-        }
-
-        assert_int(pc_string_notify_with_timeout(g_client, "connector.getsessiondata", "{}", 
-                                                 &called, 1, NULL), ==, PC_RC_OK);
+        bool called = false;
         assert_int(pc_string_notify_with_timeout(g_client, "connector.getsessiondata", "{}", 
                                                  &called, 1, notify_error_cb), ==, PC_RC_OK);
-        SLEEP_SECONDS(3);
-        assert_true(called);
-
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        SLEEP_SECONDS(1);
+
+        assert_true(called);
+        pc_client_rm_ev_handler(g_client, handler);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
     }
 
@@ -74,7 +76,6 @@ test_called(const MunitParameter params[], void *data)
     Unused(params); Unused(data);
 
     const int ports[] = {g_timeout_mock_server.tcp_port, g_timeout_mock_server.tls_port};
-    /* const int ports[] = {g_disconnect_mock_server.tcp_port, g_disconnect_mock_server.tls_port}; */
     const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);

@@ -367,7 +367,6 @@ static void pc__trans_queue_resp(pc_client_t* client, unsigned int req_id,
 
 void pc_trans_resp(pc_client_t* client, unsigned int req_id, const pc_buf_t *resp, const pc_error_t *error)
 {
-    pc_lib_log(PC_LOG_ERROR, "pc_trans_resp - CALLED");
     if (!client) {
         pc_lib_log(PC_LOG_ERROR, "pc_trans_resp - client is null");
         return ;
