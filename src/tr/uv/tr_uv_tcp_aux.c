@@ -973,9 +973,9 @@ void tcp__send_handshake(tr_uv_tcp_transport_t* tt)
             || (!tt->route_to_code && !tt->code_to_route));
 
     pc_JSON_AddItemToObject(sys, "platform", pc_JSON_CreateString(pc_lib_platform_str));
-    pc_JSON_AddItemToObject(sys, "lib_version", pc_JSON_CreateString(pc_lib_version_str()));
-    pc_JSON_AddItemToObject(sys, "client_build_number", pc_JSON_CreateString(pc_lib_client_build_number_str));
-    pc_JSON_AddItemToObject(sys, "client_version", pc_JSON_CreateString(pc_lib_client_version_str));
+    pc_JSON_AddItemToObject(sys, "libVersion", pc_JSON_CreateString(pc_lib_version_str()));
+    pc_JSON_AddItemToObject(sys, "clientBuildNumber", pc_JSON_CreateString(pc_lib_client_build_number_str));
+    pc_JSON_AddItemToObject(sys, "clientVersion", pc_JSON_CreateString(pc_lib_client_version_str));
 
     pc_JSON_AddItemToObject(body, "sys", sys);
 
