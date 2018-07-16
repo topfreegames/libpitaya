@@ -29,7 +29,7 @@ request_cb(const pc_request_t* req, const pc_buf_t *resp)
     assert_not_null(resp);
     assert_string_equal(
         str,
-        "{\"sys\":{\"platform\":\"mac\",\"lib_version\":\"0.3.5-release\",\"client_build_number\":\"20\",\"client_version\":\"2.1\"},\"user\":{\"age\":30}}");
+        "{\"sys\":{\"platform\":\"mac\",\"libVersion\":\"0.3.5-release\",\"clientBuildNumber\":\"20\",\"clientVersion\":\"2.1\"},\"user\":{\"age\":30}}");
     assert_ptr_equal(pc_request_client(req), g_client);
     assert_string_equal(pc_request_route(req), "connector.gethandshakedata");
     assert_string_equal(pc_request_msg(req), REQ_MSG);
