@@ -349,7 +349,7 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, b
 
     bool was_body_compressed = false;
 
-    pc_buf_t body_buf = (compress_data)
+    pc_buf_t body_buf = (compress_data && msg->buf.len > 0)
         ? pc_body_json_encode(msg->buf, &was_body_compressed)
         : msg->buf;
 
@@ -365,7 +365,7 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, b
         return msg_buf;
     }
 
-    pc_assert(body_buf.base && body_buf.len != -1);
+    pc_assert(body_buf.len != -1);
 
     pc_msg_type type = (msg->id == PC_NOTIFY_PUSH_REQ_ID) ? PC_MSG_NOTIFY : PC_MSG_REQUEST;
 
@@ -399,14 +399,6 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, b
 /* for transport plugin */
 uv_buf_t pr_default_msg_encoder(tr_uv_tcp_transport_t* tt, const pc_msg_t* msg)
 {
-    bool is_json_serializer = false;
-    
-    if (tt->serializer) {
-        is_json_serializer = strcmp(tt->serializer, "json") == 0;
-    } else {
-        pc_lib_log(PC_LOG_ERROR, "pc_default_msg_encoder - serializer on handshake data is NULL");
-    }
-
     pc_buf_t pb = pc_default_msg_encode(tt->route_to_code, msg, !tt->config->disable_compression);
     uv_buf_t ub;
     ub.base = (char*)pb.base;

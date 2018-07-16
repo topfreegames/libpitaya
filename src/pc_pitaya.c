@@ -535,6 +535,7 @@ int pc_string_request_with_timeout(pc_client_t* client, const char* route,
     if (!str) {
         return PC_RC_INVALID_ARG;
     }
+
     pc_buf_t buf = pc_buf_from_string(str);
     return pc__request_with_timeout(client, route, buf, ex_data, timeout, success_cb, error_cb);
 }
@@ -872,6 +873,11 @@ pc_buf_t pc_buf_from_string(const char *str)
 {
     pc_assert(str);
     size_t str_len = strlen(str);
+
+    if (str_len == 0) {
+        pc_buf_t buf = {0};
+        return buf;
+    }
     
     pc_buf_t buf;
     buf.base = pc_lib_malloc(str_len+1);
