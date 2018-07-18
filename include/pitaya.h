@@ -262,10 +262,8 @@ PC_EXPORT int pc_client_rm_ev_handler(pc_client_t* client, int id);
  */
 typedef struct {
     int code;
-    union {
-        pc_buf_t payload;
-        int uv_code;
-    };
+    pc_buf_t payload;
+    int uv_code;
 } pc_error_t;
 
 /**
