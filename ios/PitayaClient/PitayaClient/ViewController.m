@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "pitaya.h"
-#import "pc_pomelo_i.h"
+#import "pc_pitaya_i.h"
 
 
 @interface ViewController ()

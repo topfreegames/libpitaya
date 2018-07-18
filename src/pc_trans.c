@@ -9,7 +9,7 @@
 #include <pomelo_trans.h>
 
 #include "pc_lib.h"
-#include "pc_pomelo_i.h"
+#include "pc_pitaya_i.h"
 #include "pc_error.h"
 
 static void pc__trans_queue_event(pc_client_t* client, int ev_type, const char* arg1, const char* arg2);
@@ -252,8 +252,8 @@ void pc__trans_push(pc_client_t *client, const char *route, const pc_buf_t *buf)
     pc_lib_log(PC_LOG_INFO, "pc__trans_push - route: %s", route);
 
     /* invoke handler */
-    if (client->config.push_handler) {
-        client->config.push_handler(route, buf);
+    if (client->push_handler) {
+        client->push_handler(client, route, buf);
     }
 }
 

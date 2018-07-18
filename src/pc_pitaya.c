@@ -13,7 +13,7 @@
 #include <pomelo_trans.h>
 
 #include "pc_lib.h"
-#include "pc_pomelo_i.h"
+#include "pc_pitaya_i.h"
 #include "pc_trans_repo.h"
 #include "pc_error.h"
 
@@ -900,4 +900,9 @@ void pc_buf_debug_print(const pc_buf_t *buf)
         }
     }
     printf("]\n");
+}
+
+void pc_client_set_push_handler(pc_client_t *client, pc_push_handler_cb_t cb)
+{
+    client->push_handler = cb;
 }

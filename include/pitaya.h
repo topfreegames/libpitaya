@@ -130,7 +130,9 @@ PC_EXPORT void pc_buf_debug_print(const pc_buf_t *buf);
 /**
  * Push
  */
-typedef void (*pc_push_handler_cb_t)(const char *route, const pc_buf_t *payload);
+typedef void (*pc_push_handler_cb_t)(pc_client_t *client, const char *route, const pc_buf_t *payload);
+
+void pc_client_set_push_handler(pc_client_t *client, pc_push_handler_cb_t cb);
 
 typedef struct {
     int conn_timeout;
@@ -145,8 +147,6 @@ typedef struct {
 
     pc_local_storage_cb_t local_storage_cb;
     void* ls_ex_data;
-
-    pc_push_handler_cb_t push_handler;
 
     int transport_name;
     
@@ -164,7 +164,6 @@ typedef struct {
     0, /* enable_polling */                           \
     NULL, /* local_storage_cb */                      \
     NULL, /* ls_ex_data */                            \
-    NULL, /* push_handler */                          \
     PC_TR_NAME_UV_TCP, /* transport_name */           \
     0 /* disable_compression */                       \
 }

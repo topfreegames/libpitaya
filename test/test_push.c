@@ -35,7 +35,7 @@ event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, cons
 }
 
 void 
-push_handler(const char *route, const pc_buf_t *payload)
+push_handler(pc_client_t *client, const char *route, const pc_buf_t *payload)
 {
     assert_not_null(payload);
     assert_not_null(payload->base);
@@ -65,12 +65,12 @@ test_success(const MunitParameter params[], void *data)
     for (size_t i = 0; i < ArrayCount(ports); i++) {
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
-        config.push_handler = push_handler;
 
         pc_client_init_result_t res = pc_client_init(NULL, &config);
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
+        pc_client_set_push_handler(g_client, push_handler);
         int handler_id = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
 
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);

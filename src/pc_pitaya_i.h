@@ -3,8 +3,8 @@
  * MIT Licensed.
  */
 
-#ifndef PC_POMELO_I_H
-#define PC_POMELO_I_H
+#ifndef PC_PITAYA_I_H
+#define PC_PITAYA_I_H
 
 #include <pitaya.h>
 #include <pomelo_trans.h>
@@ -138,6 +138,8 @@ struct pc_client_s {
     pc_notify_t notifies[PC_PRE_ALLOC_NOTIFY_SLOT_COUNT];
     QUEUE notify_queue;
 
+    pc_push_handler_cb_t push_handler;
+
     pc_mutex_t req_mutex;
     unsigned int req_id_seq;
     pc_request_t requests[PC_PRE_ALLOC_REQUEST_SLOT_COUNT];
@@ -154,5 +156,5 @@ void pc__trans_sent(pc_client_t *client, unsigned int req_num, const pc_error_t 
 void pc__trans_push(pc_client_t *client, const char *route, const pc_buf_t *buf);
 void pc__trans_fire_event(pc_client_t* client, int ev_type, const char* arg1, const char* arg2);
 
-#endif /* PC_POMELO_I_H */
+#endif /* PC_PITAYA_I_H */
 
