@@ -169,7 +169,7 @@ default_error_cb(const pc_request_t *req, const pc_error_t *error)
 }
 
 void 
-pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, pc_lib_client_info_t info) {
+pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, const char* platform, const char* build_number,const char* version) {
 #if !defined(PC_NO_UV_TLS_TRANS)
     if (ca_file || ca_path) {
         tr_uv_tls_set_ca_file(ca_file, ca_path);
@@ -180,13 +180,18 @@ pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_un
         update_assert(custom_assert);
     }
 
+    pc_lib_client_info_t client_info;
+    client_info.platform = platform;
+    client_info.build_number = build_number;
+    client_info.version = version;
+
     pc_lib_set_default_log_level(log_level);
 #if defined(__ANDROID__)
-    pc_lib_init(android_log, NULL, NULL, NULL, info);
+    pc_lib_init(android_log, NULL, NULL, NULL, client_info);
 #elif defined(__UNITYEDITOR__)
-    pc_lib_init(unity_log, NULL, NULL, NULL, info);
+    pc_lib_init(unity_log, NULL, NULL, NULL, client_info);
 #else
-    pc_lib_init(NULL, NULL, NULL, NULL, info);
+    pc_lib_init(NULL, NULL, NULL, NULL, client_info);
 #endif
 }
 
