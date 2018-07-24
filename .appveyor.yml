@@ -20,17 +20,12 @@ artifacts:
     name: Libs
 
 install:
-  #- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-
-  ############################################################################
-  # Install Ninja
-  ############################################################################
-  - choco install ninja
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 before_build:
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
   - mkdir build && cd build
-  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DPITAYA_LIB_TYPE=SHARED ..
+  - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release -DPITAYA_LIB_TYPE=SHARED ..
 
 build_script:
   - cmake --build .
