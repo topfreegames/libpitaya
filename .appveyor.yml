@@ -13,10 +13,10 @@ configuration: Release
 platform: x64
 
 artifacts:
-  - path: build\*.dll
+  - path: '*.dll'
     name: Dlls
 
-  - path: build\*.lib
+  - path: '*.lib'
     name: Libs
 
 install:
