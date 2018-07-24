@@ -10,7 +10,7 @@ import time
 
 THIS_DIR = path.abspath(path.dirname(__file__))
 
-TESTS_DIR = path.join(THIS_DIR, 'build', 'out', 'Release_x64', 'output')
+TESTS_DIR = path.join(THIS_DIR, 'build')
 
 if sys.platform == 'win32' or sys.platform == 'cygwin':
     TESTS_EXE = 'tests.exe'
@@ -19,7 +19,7 @@ else:
     TESTS_EXE = 'tests'
     SERVER_EXE = 'server'
 
-COMPILE_DIR = path.join(THIS_DIR, 'build', 'out', 'Release_x64')
+COMPILE_DIR = path.join(THIS_DIR, 'build')
 
 MOCK_SERVERS_DIR = path.join(THIS_DIR, 'test', 'mock-servers')
 MOCK_SERVERS = [
@@ -30,7 +30,7 @@ MOCK_SERVERS = [
     ('mock-destroy-socket-server.js', 'mock-destroy-socket-server-log'),
 ]
 
-PITAYA_SERVERS_DIR = path.join(THIS_DIR, 'pitaya-servers') 
+PITAYA_SERVERS_DIR = path.join(THIS_DIR, 'pitaya-servers')
 PITAYA_SERVERS = [
     (path.join('json-server', SERVER_EXE), path.join('json-server', 'server-exe-out')),
     (path.join('protobuf-server', SERVER_EXE), path.join('protobuf-server', 'server-exe-out')),
@@ -68,11 +68,11 @@ def ensure_pitaya_servers(go_path):
         os.chdir(path.dirname(s))
         if go_path:
             subprocess.call([
-                go_path, 'build', '-o', SERVER_EXE, 'main.go', 
+                go_path, 'build', '-o', SERVER_EXE, 'main.go',
             ])
         else:
             subprocess.call([
-                'go', 'build', '-o', SERVER_EXE, 'main.go', 
+                'go', 'build', '-o', SERVER_EXE, 'main.go',
             ])
         os.chdir(PITAYA_SERVERS_DIR)
     os.chdir(THIS_DIR)
@@ -128,7 +128,7 @@ def ensure_tests_executable():
 
     os.chdir(COMPILE_DIR)
     print('Compiling tests executable')
-    ret = subprocess.call('ninja')
+    ret = subprocess.call(['cmake', '--build', '.'])
     os.chdir(THIS_DIR)
 
     if ret != 0:
@@ -168,7 +168,7 @@ def main():
     start_mock_servers(args.node_path)
     ensure_pitaya_servers(args.go_path)
     start_pitaya_servers()
-    time.sleep(1) 
+    time.sleep(1)
     code = run_tests()
     kill_all_servers()
     close_file_descriptors()

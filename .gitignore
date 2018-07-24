@@ -9,6 +9,7 @@ output/
 *.xcuserstate
 Assembly-CSharp.csproj.CoreCompileInputs.cache
 nanopb*.tar.gz
+openssl-build
 
 server-exe
 server-exe-out

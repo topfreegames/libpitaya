@@ -1,6 +1,5 @@
 {
   'variables': {
-    'uv_library%': 'static_library',
     'conditions': [
       ['OS=="win"', {
         'shared_unix_defines': [ ],
@@ -36,16 +35,6 @@
     ],
   },
 
-  'target_defaults': {
-    'default_configuration': 'Release_x64',
-    'configurations': {
-      'Release_x64': {
-        'msvs_configuration_platform': 'x64',
-        },
-    },
-  },
-
-
   'targets': [
     {
       'target_name': 'libuv',
@@ -75,15 +64,16 @@
       'sources': [
         'common.gypi',
         'include/uv.h',
-        'include/tree.h',
-        'include/uv-errno.h',
-        'include/uv-threadpool.h',
-        'include/uv-version.h',
+        'include/uv/tree.h',
+        'include/uv/errno.h',
+        'include/uv/threadpool.h',
+        'include/uv/version.h',
         'src/fs-poll.c',
         'src/heap-inl.h',
         'src/inet.c',
         'src/queue.h',
         'src/threadpool.c',
+        'src/timer.c',
         'src/uv-data-getter-setters.c',
         'src/uv-common.c',
         'src/uv-common.h',
@@ -106,7 +96,7 @@
             '_GNU_SOURCE',
           ],
           'sources': [
-            'include/uv-win.h',
+            'include/uv/win.h',
             'src/win/async.c',
             'src/win/atomicops-inl.h',
             'src/win/core.c',
@@ -134,7 +124,6 @@
             'src/win/stream-inl.h',
             'src/win/tcp.c',
             'src/win/tty.c',
-            'src/win/timer.c',
             'src/win/udp.c',
             'src/win/util.c',
             'src/win/winapi.c',
@@ -155,12 +144,12 @@
           },
         }, { # Not Windows i.e. POSIX
           'sources': [
-            'include/uv-unix.h',
-            'include/uv-linux.h',
-            'include/uv-sunos.h',
-            'include/uv-darwin.h',
-            'include/uv-bsd.h',
-            'include/uv-aix.h',
+            'include/uv/unix.h',
+            'include/uv/linux.h',
+            'include/uv/sunos.h',
+            'include/uv/darwin.h',
+            'include/uv/bsd.h',
+            'include/uv/aix.h',
             'src/unix/async.c',
             'src/unix/atomic-ops.h',
             'src/unix/core.c',
@@ -179,7 +168,6 @@
             'src/unix/stream.c',
             'src/unix/tcp.c',
             'src/unix/thread.c',
-            'src/unix/timer.c',
             'src/unix/tty.c',
             'src/unix/udp.c',
           ],
@@ -198,9 +186,6 @@
             ],
           },
           'conditions': [
-	    ['OS != "win"', {
-              'cflags': ['-fPIC'],
-	    }],
             ['uv_library=="shared_library"', {
               'conditions': [
                 ['OS=="zos"', {
@@ -213,7 +198,7 @@
             ['uv_library=="shared_library" and OS!="mac" and OS!="zos"', {
               # This will cause gyp to set soname
               # Must correspond with UV_VERSION_MAJOR
-              # in include/uv-version.h
+              # in include/uv/version.h
               'product_extension': 'so.1',
             }],
           ],
