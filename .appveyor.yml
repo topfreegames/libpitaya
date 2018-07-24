@@ -13,10 +13,10 @@ configuration: Release
 platform: x64
 
 artifacts:
-  - path: build\out\Release_x64\output\*.dll
+  - path: build\*.dll
     name: Dlls
 
-  - path: build\out\Release_x64\output\*.lib
+  - path: build\*.lib
     name: Libs
 
 install:
@@ -27,25 +27,16 @@ install:
   ############################################################################
   - choco install ninja
 
-  ############################################################################
-  # Install GYP
-  ############################################################################
-  - mkdir C:\projects\deps
-  - cd C:\projects\deps
-  - git clone https://chromium.googlesource.com/external/gyp
-  - cd gyp
-  - python setup.py install
-
 before_build:
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
-  - gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=true -Dbuild_type=Release -Dbuild_for_windows=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-windows
+  - mkdir build && cd build
+  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DPITAYA_LIB_TYPE=SHARED ..
 
 build_script:
-  - cd build\out\Release_x64
-  - ninja
+  - cmake --build .
 
 after_build:
-  - dir output
+  - dir
 
 deploy:
   description: 'Release'
