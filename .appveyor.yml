@@ -28,10 +28,12 @@ before_build:
   - cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release -DPITAYA_LIB_TYPE=SHARED ..
 
 build_script:
-  - cmake --build .
+  - cmake --build . --config Release
 
 after_build:
-  - dir
+  - dir x64
+  - dir Release
+  - dir Debug
 
 deploy:
   description: 'Release'
