@@ -25,6 +25,10 @@ endif()
 set(PITAYA_LIB_TYPE "STATIC" CACHE STRING "The type of the library to build (STATIC | SHARED | MODULE).")
 set(PITAYA_OPENSSL_DIR "${CMAKE_SOURCE_DIR}/deps/openssl" CACHE STRING "Where is OpenSSL built.")
 
+if(UNIX AND NOT APPLE)
+    add_compile_options(-fPIC)
+endif()
+
 #
 # Lib UV
 #
@@ -47,27 +51,22 @@ endif()
 # OpenSSL
 #
 if(WIN32)
-    message("Adding OpenSSL for Windows")
     find_package(OpenSSL REQUIRED)
     include_directories(${OPENSSL_INCLUDE_DIR})
 else()
     if(ANDROID)
-        message("Adding OpenSSL for Android")
         include_directories(${PITAYA_OPENSSL_DIR}/android/include)
         set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libssl.a)
         set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libcrypto.a)
     elseif(IOS)
-        message("Adding OpenSSL for iOS")
         include_directories(${PITAYA_OPENSSL_DIR}/ios/include)
         set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libssl.a)
         set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libcrypto.a)
     elseif(APPLE)
-        message("Adding OpenSSL for MacOSX")
         include_directories(${PITAYA_OPENSSL_DIR}/mac/include)
         set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libssl.a)
         set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libcrypto.a)
     else() # Linux
-        message("Adding OpenSSL for Linux")
         include_directories(${CMAKE_SOURCE_DIR}/openssl-build/include)
         set(SSL_LOCATION ${CMAKE_SOURCE_DIR}/openssl-build/lib/libssl.a)
         set(CRYPTO_LOCATION ${CMAKE_SOURCE_DIR}/openssl-build/lib/libcrypto.a)
