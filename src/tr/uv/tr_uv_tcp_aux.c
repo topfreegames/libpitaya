@@ -328,11 +328,7 @@ void tcp__conn_done_cb(uv_connect_t* conn, int status)
          *
          * it maybe lead to be non-compatiable to uv in future.
          */
-#ifdef _WIN32
-        hs_timeout = (int)(tt->conn_timeout.due - tt->uv_loop.time);
-#else
         hs_timeout = (int)(tt->conn_timeout.timeout - tt->uv_loop.time);
-#endif
         uv_timer_stop(&tt->conn_timeout);
     }
 
