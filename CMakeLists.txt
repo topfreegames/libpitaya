@@ -159,6 +159,10 @@ else()
     target_link_libraries(${PITAYA_TARGET} PRIVATE zlib uv_a ssl crypto)
 endif()
 
+if(UNIX AND NOT APPLE)
+    target_link_libraries(${PITAYA_TARGET} PRIVATE m)
+endif()
+
 #
 # Tests
 #

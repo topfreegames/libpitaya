@@ -160,7 +160,7 @@ matrix:
           tags: true
 
 after_script:
-  - ls build
+  - ls
 
 before_deploy:
   - git config --local user.name "Travis Bot"
