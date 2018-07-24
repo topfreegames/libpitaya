@@ -4,12 +4,14 @@ import argparse
 import sys
 import platform
 import os
-import subprocess
+import subprocess as sp
 import tempfile
 import shutil
 import stat
 import tarfile
 
+def call_shell(cmd):
+    sp.call(cmd, shell=True)
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -72,7 +74,7 @@ def make_ndk_toolchain(ndk_dir, openssl_temp_dir):
         toolchain_script, install_dir)
 
     print('Making toolchain...')
-    subprocess.call(cmd, shell=True)
+    call_shell(cmd)
 
     return install_dir
 
@@ -113,8 +115,8 @@ def set_envs(ndk_dir, toolchain_dir):
 
 def build(openssl_temp_dir):
     print('Building...')
-    subprocess.call('cd {} && make && make install'.format(
-        openssl_temp_dir), shell=True)
+    call_shell('cd {} && make && make install'.format(
+        openssl_temp_dir))
 
 
 def android_build(ndk_dir, openssl_temp_dir, prefix):
@@ -133,18 +135,20 @@ def android_build(ndk_dir, openssl_temp_dir, prefix):
     toolchain_dir = make_ndk_toolchain(ndk_dir, openssl_temp_dir)
     set_envs(ndk_dir, toolchain_dir)
 
-    subprocess.call(
+    call_shell(
         'cd {} && ./Configure android-armv7 --prefix={}'.format(
-            openssl_temp_dir, prefix), shell=True)
+            openssl_temp_dir, prefix))
 
     build(openssl_temp_dir)
 
 
 def mac_build(openssl_temp_dir, prefix):
+    min_osx_version = '10.7'
+    os.environ['CC'] = 'clang -mmacosx-version-min={}'.format(min_osx_version)
     os.environ['CROSS_COMPILE'] = ''
-    subprocess.call(
+    call_shell(
         'cd {} && ./Configure darwin64-x86_64-cc --prefix={}'.format(
-            openssl_temp_dir, prefix), shell=True)
+            openssl_temp_dir, prefix))
 
     build(openssl_temp_dir)
 
@@ -152,18 +156,18 @@ def mac_build(openssl_temp_dir, prefix):
 def linux_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
     os.environ['CC'] = 'clang -fPIC'
-    subprocess.call(
+    call_shell(
         'cd {} && ./Configure linux-x86_64 --prefix={}'.format(
-            openssl_temp_dir, prefix), shell=True)
+            openssl_temp_dir, prefix))
 
     build(openssl_temp_dir)
 
 
 def windows_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
-    subprocess.call(
+    call_shell(
         'cd {} && perl Configure VC-WIN64A --prefix={}'.format(
-            openssl_temp_dir, prefix), shell=True)
+            openssl_temp_dir, prefix))
     build(openssl_temp_dir)
 
 
