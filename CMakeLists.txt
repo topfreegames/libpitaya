@@ -39,8 +39,8 @@ if(ANDROID)
     find_package(ZLIB REQUIRED)
     include_directories(${ZLIB_INCLUDE_DIRS})
 else()
+    include_directories(deps/zlib ${CMAKE_BINARY_DIR}/deps/zlib)
     add_subdirectory(deps/zlib)
-    include_directories(deps/zlib)
 endif()
 
 #

@@ -140,7 +140,8 @@ matrix:
       before_script: 
         - mkdir -p build && cd build
         - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DPITAYA_LIB_TYPE=STATIC ..
-      script: make build
+      script:
+        - cmake --build .
       deploy:
         provider: releases
         draft: true
