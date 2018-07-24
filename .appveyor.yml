@@ -13,10 +13,10 @@ configuration: Release
 platform: x64
 
 artifacts:
-  - path: '*.dll'
+  - path: 'Release\*.dll'
     name: Dlls
 
-  - path: '*.lib'
+  - path: 'Release\*.lib'
     name: Libs
 
 install:
@@ -31,9 +31,7 @@ build_script:
   - cmake --build . --config Release
 
 after_build:
-  - dir x64
   - dir Release
-  - dir Debug
 
 deploy:
   description: 'Release'
