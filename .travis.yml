@@ -22,13 +22,13 @@ matrix:
       sudo: required
       install: 
         - cd ~
-        - curl https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip -o ndk-r17b.zip
-        - unzip -qo ndk-r17b.zip
+        - curl https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip -o android-ndk-r17b.zip
+        - unzip -qo android-ndk-r17b.zip
         - cd $TRAVIS_BUILD_DIR
       before_script: 
         - mkdir -p build
         - cd build
-        - cmake -GNinja -DPITAYA_LIB_TYPE=SHARED -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=~/ndk-r17b/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a ..
+        - cmake -GNinja -DPITAYA_LIB_TYPE=SHARED -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=~/android-ndk-r17b/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a ..
       script:
         - cmake --build .
       deploy:

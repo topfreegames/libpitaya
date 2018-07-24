@@ -136,7 +136,20 @@ set(PITAYA_HEADERS
     src/tr/uv/tr_uv_tls.h
     src/tr/dummy/tr_dummy.h)
 
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+elseif (CMAKE_BUILD_TYPE STREQUAL Release)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    add_definitions(-DNDEBUG)
+else()
+    message(FATAL_ERROR "Unrecognized build type specified.")
+endif()
+
 add_library(${PITAYA_TARGET} ${PITAYA_LIB_TYPE} ${PITAYA_SOURCES} ${PITAYA_HEADERS})
+
+if (PITAYA_LIB_TYPE STREQUAL MODULE)
+    set_target_properties(${PITAYA_TARGET} PROPERTIES SUFFIX ".bundle")
+endif()
 
 if(WIN32)
     target_link_libraries(${PITAYA_TARGET} PUBLIC zlib uv_a OpenSSL::SSL OpenSSL::Crypto)
@@ -150,7 +163,7 @@ endif()
 #
 # Tests
 #
-if(NOT IOS AND NOT ANDROID)
+if(NOT IOS AND NOT ANDROID AND NOT PITAYA_LIB_TYPE STREQUAL "MODULE")
     set(TEST_SOURCES
         test/main.c
         test/test_compression.c
