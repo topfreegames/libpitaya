@@ -166,7 +166,7 @@ endif()
 #
 # Tests
 #
-if(NOT IOS AND NOT ANDROID AND NOT PITAYA_LIB_TYPE STREQUAL "MODULE")
+if(NOT IOS AND NOT ANDROID AND NOT WIN32 AND NOT PITAYA_LIB_TYPE STREQUAL "MODULE")
     set(TEST_SOURCES
         test/main.c
         test/test_compression.c
