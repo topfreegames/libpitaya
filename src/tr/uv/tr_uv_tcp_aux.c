@@ -781,11 +781,7 @@ void tcp__on_heartbeat(tr_uv_tcp_transport_t* tt)
      * we hacking uv timer to get the heartbeat rtt, rtt in millisec
      * int is enough to hold the value
      */
-#ifdef _WIN32
-    start = (int)(tt->hb_timeout_timer.due - tt->hb_timeout * 1000);
-#else
     start = (int)(tt->hb_timeout_timer.timeout - tt->hb_timeout * 1000);
-#endif
 
     rtt = (int)(tt->uv_loop.time - start);
 
