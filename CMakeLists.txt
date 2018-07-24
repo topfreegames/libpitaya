@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(libpitaya)
+project(pitaya)
+set(pitaya_VERSION_MAJOR 0)
+set(pitaya_VERSION_MINOR 3)
+set(pitaya_VERSION_REVISION 5)
+set(pitaya_VERSION_SUFFIX "\"beta\"")
+
+configure_file(
+    "${PROJECT_SOURCE_DIR}/pitaya_config.h.in"
+    "${PROJECT_BINARY_DIR}/pitaya_config.h"
+)
+
+include_directories(${PROJECT_BINARY_DIR})
 
 # Set build to Debug if none is specified
 if(NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")

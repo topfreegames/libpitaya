@@ -24,17 +24,14 @@ extern "C" {
 #  define PC_EXPORT
 #endif
 
-#define PC_MAJOR_VERSION 0
-#define PC_MINOR_VERSION 3 
-#define PC_REVISION 5
-#define PC_VERSION_SUFFIX "release"
+#include "pitaya_config.h"
 
 #define PC_T(x) PC_T2(x)
 #define PC_T2(x) #x
 
-#define PC_VERSION_NUM (PC_MAJOR_VERSION * 10000 + PC_MINOR_VERSION * 100 + PC_REVISION)
-#define PC_VERSION_STR ( PC_T(PC_MAJOR_VERSION) "." PC_T(PC_MINOR_VERSION) \
-        "." PC_T(PC_REVISION) "-" PC_VERSION_SUFFIX )
+#define PC_VERSION_NUM (PC_VERSION_MAJOR * 10000 + PC_VERSION_MINOR * 100 + PC_VERSION_REVISION)
+#define PC_VERSION_STR ( PC_T(PC_VERSION_MAJOR) "." PC_T(PC_VERSION_MINOR) \
+        "." PC_T(PC_VERSION_REVISION) "-" PC_VERSION_SUFFIX )
 
 /**
  * error code
