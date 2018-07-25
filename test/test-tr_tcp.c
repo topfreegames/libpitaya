@@ -27,14 +27,23 @@ request_cb(const pc_request_t* req, const pc_buf_t *resp)
     memcpy(str, resp->base, resp->len);
 
     assert_not_null(resp);
-    assert_string_equal(
-        str,
-        "{\"sys\":{\"platform\":\"mac\",\"libVersion\":\"0.3.5-release\",\"clientBuildNumber\":\"20\",\"clientVersion\":\"2.1\"},\"user\":{\"age\":30}}");
+
+    char *first_part = "{\"sys\":{\"platform\":\"mac\",\"libVersion\":\"";
+    char *last_part = "\",\"clientBuildNumber\":\"20\",\"clientVersion\":\"2.1\"},\"user\":{\"age\":30}}";
+    char *expected_json = calloc(strlen(pc_lib_version_str()) + strlen(first_part) + strlen(last_part) + 1, 1);
+    assert_not_null(expected_json);
+
+    strcat(expected_json, first_part);
+    strcat(expected_json, pc_lib_version_str());
+    strcat(expected_json, last_part);
+
+    assert_string_equal(str, expected_json);
     assert_ptr_equal(pc_request_client(req), g_client);
     assert_string_equal(pc_request_route(req), "connector.gethandshakedata");
     assert_string_equal(pc_request_msg(req), REQ_MSG);
     assert_int(pc_request_timeout(req), ==, REQ_TIMEOUT);
 
+    free(expected_json);
     free(str);
 }
 
