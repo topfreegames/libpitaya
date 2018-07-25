@@ -16,7 +16,7 @@ def parse_args():
     subparsers.required = True
 
     parser_check = subparsers.add_parser('check', help='Check version against the lib')
-    parser_check.add_argument('build_version', help='The version to check against the lib')
+    parser_check.add_argument('--against', help='The version to check against', required=False)
 
     parser_new = subparsers.add_parser('new', help='Build for Windows')
     parser_new.add_argument('version', help='The new version')
@@ -61,16 +61,20 @@ def save_new_version(version):
         f.write('#define PC_VERSION_SUFFIX "{}"'.format(suffix))
 
 
-def check_release(build_version):
+def check_release(against_version):
     curr_version = get_curr_version()
 
+    if against_version == None:
+        print(curr_version)
+        return
+
     try:
-        if StrictVersion(build_version) != StrictVersion(curr_version):
+        if StrictVersion(against_version) != StrictVersion(curr_version):
             print('The build version should be equal to the lib version (build {}, lib {})'
-                .format(build_version, curr_version))
+                .format(against_version, curr_version))
             exit(1)
     except ValueError:
-        print('invalid version string ({} <= {})'.format(new_version, curr_version))
+        print('invalid version string ({} != {})'.format(against_version, curr_version))
         exit(1)
 
 
@@ -101,7 +105,7 @@ def main():
     args = parse_args()
 
     if args.command == 'check':
-        check_release(args.build_version)
+        check_release(args.against)
     elif args.command == 'new':
         new_release(args.version)
 
