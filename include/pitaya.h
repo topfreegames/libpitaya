@@ -24,7 +24,7 @@ extern "C" {
 #  define PC_EXPORT
 #endif
 
-#include "pitaya_config.h"
+#include "pitaya_version.h"
 
 #define PC_T(x) PC_T2(x)
 #define PC_T2(x) #x

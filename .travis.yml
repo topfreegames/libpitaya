@@ -44,6 +44,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
+          condition: $(../release.py check $TRAVIS_TAG) == ""
 
     # -----------------------
     # LINUX
@@ -100,6 +101,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
+          condition: $(../release.py check $TRAVIS_TAG) == ""
 
     # -----------------------
     # MAC
@@ -128,6 +130,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
+          condition: $(../release.py check $TRAVIS_TAG) == ""
 
     # -----------------------
     # MacOS (building for iOS)
@@ -159,6 +162,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
+          condition: $(../release.py check $TRAVIS_TAG) == ""
 
 after_script:
   - ls
