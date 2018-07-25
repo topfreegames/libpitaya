@@ -60,8 +60,6 @@ def save_new_version(version):
         f.write('#define PC_VERSION_REVISION {}\n'.format(revision))
         f.write('#define PC_VERSION_SUFFIX "{}"'.format(suffix))
 
-    print('Done.')
-
 
 def check_release(build_version):
     curr_version = get_curr_version()
