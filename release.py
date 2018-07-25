@@ -98,7 +98,7 @@ def new_release(new_version):
     save_new_version(new_version)
 
     sp.call('git add include/pitaya_version.h', shell=True)
-    sp.call('git commit -m"New release {}"'.format(new_version))
+    sp.call('git commit -m"New release {}"'.format(new_version), shell=True)
     sp.call('git tag {}'.format(new_version), shell=True)
     print('tag {} created, now you can push your changes'.format(new_version))
 
