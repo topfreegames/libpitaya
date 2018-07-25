@@ -44,7 +44,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
-          condition: $(../release.py check $TRAVIS_TAG) == ""
+          condition: $(../release.py check --against "$TRAVIS_TAG") == ""
 
     # -----------------------
     # LINUX
@@ -101,7 +101,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
-          condition: $(../release.py check $TRAVIS_TAG) == ""
+          condition: $(../release.py check --against "$TRAVIS_TAG") == ""
 
     # -----------------------
     # MAC
@@ -112,6 +112,7 @@ matrix:
       install:
         - brew update
         - brew install ninja
+        - brew upgrade python
       before_script: 
         - mkdir -p build && cd build
         - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DPITAYA_LIB_TYPE=MODULE ..
@@ -130,7 +131,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
-          condition: $(../release.py check $TRAVIS_TAG) == ""
+          condition: $(../release.py check --against "$TRAVIS_TAG") == ""
 
     # -----------------------
     # MacOS (building for iOS)
@@ -141,6 +142,7 @@ matrix:
       install:
         - brew update
         - brew install ninja
+        - brew upgrade python
       before_script: 
         - mkdir -p build && cd build
         - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DPITAYA_LIB_TYPE=STATIC ..
@@ -162,7 +164,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
-          condition: $(../release.py check $TRAVIS_TAG) == ""
+          condition: $(../release.py check --against "$TRAVIS_TAG") == ""
 
 after_script:
   - ls

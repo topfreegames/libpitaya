@@ -64,7 +64,7 @@ def save_new_version(version):
 def check_release(against_version):
     curr_version = get_curr_version()
 
-    if against_version == None:
+    if against_version == None or against_version == '':
         print(curr_version)
         return
 
@@ -99,7 +99,7 @@ def new_release(new_version):
 
     sp.call('git tag {}'.format(new_version), shell=True)
     print('tag {} created, now you can push your changes'.format(new_version))
-    
+
 
 def main():
     args = parse_args()
