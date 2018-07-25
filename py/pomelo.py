@@ -3,7 +3,7 @@
 #  MIT Licensed.
 #
 
-import pypomelo
+import pypitaya
 
 class Client:
     PC_LOCAL_STORAGE_OP_READ = 0
@@ -51,23 +51,23 @@ class Client:
     # ca_file and ca_path both can be a string or None
     @staticmethod
     def lib_init(log_level, ca_file, ca_path):
-        pypomelo.lib_init(log_level, ca_file, ca_path)
+        pypitaya.lib_init(log_level, ca_file, ca_path)
 
     @staticmethod
     def lib_cleanup():
-        pypomelo.lib_cleanup()
+        pypitaya.lib_cleanup()
 
     @staticmethod
     def ev_to_str(ev_type):
-        return pypomelo.ev_to_str(ev_type)
+        return pypitaya.ev_to_str(ev_type)
 
     @staticmethod
     def rc_to_str(rc):
-        return pypomelo.rc_to_str(rc)
+        return pypitaya.rc_to_str(rc)
 
     @staticmethod
     def state_to_str(st):
-        return pypomelo.state_to_str(st)
+        return pypitaya.state_to_str(st)
 
     def __init__(self):
         self._internal_data = None
@@ -75,49 +75,49 @@ class Client:
     # use_tls - enable tls, Boolean
     # enable_poll - Boolean
     def init(self, use_tls, enable_poll, lc_callback):
-        self._internal_data = pypomelo.create(use_tls, enable_poll, lc_callback);
+        self._internal_data = pypitaya.create(use_tls, enable_poll, lc_callback);
         return self._internal_data is None
 
     def connect(self, host, port):
-        return pypomelo.connect(self._internal_data, host, port)
+        return pypitaya.connect(self._internal_data, host, port)
 
     def state(self):
-        return pypomelo.state(self._internal_data);
+        return pypitaya.state(self._internal_data);
 
     # handler - function (ev_type, arg1, arg2)
     #               ev_type - int
     #               arg1, arg2 - string or None
     def add_ev_handler(self, handler):
-        return pypomelo.add_ev_handler(self._internal_data, handler)
+        return pypitaya.add_ev_handler(self._internal_data, handler)
 
     # handler - function (ev_type, arg1, arg2)
     #               ev_type - int
     #               arg1, arg2 - string or None
     def rm_ev_handler(self, handler_id):
-        return pypomelo.rm_ev_handler(self._internal_data, handler_id)
+        return pypitaya.rm_ev_handler(self._internal_data, handler_id)
 
     # request_cb - function (rc, resp)
     #                  rc - int
     #                  resp - string or None
     def request(self, route, msg, timeout, req_cb):
-        return pypomelo.request(self._internal_data, route, msg, timeout, req_cb)
+        return pypitaya.request(self._internal_data, route, msg, timeout, req_cb)
 
     # notify_cb - function (rc)
     #                 rc - int
     def notify(self, route, msg, timeout, notify_cb):
-        return pypomelo.notify(self._internal_data, route, msg, timeout, notify_cb)
+        return pypitaya.notify(self._internal_data, route, msg, timeout, notify_cb)
 
     def poll(self):
-        return pypomelo.poll(self._internal_data)
+        return pypitaya.poll(self._internal_data)
 
     def quality(self):
-        return pypomelo.quality(self._internal_data)
+        return pypitaya.quality(self._internal_data)
 
     def disconnect(self):
-        return pypomelo.disconnect(self._internal_data)
+        return pypitaya.disconnect(self._internal_data)
 
     def destroy(self):
-        if pypomelo.destroy(self._internal_data) == Client.PC_RC_OK:
+        if pypitaya.destroy(self._internal_data) == Client.PC_RC_OK:
             self._internal_data = None
             return True
         return False

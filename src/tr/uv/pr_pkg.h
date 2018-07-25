@@ -12,7 +12,7 @@
 #include <uv.h>
 
 /**
- * Pomelo package format:
+ * Pitaya package format:
  * +------+-------------+------------------+
  * | type | body length |       body       |
  * +------+-------------+------------------+
@@ -30,7 +30,7 @@
 #define PC_PKG_MAX_BODY_BYTES (1 << 24)
 
 /**
- * pkg type of pomelo
+ * pkg type of pitaya
  */
 typedef enum {
   PC_PKG_HANDSHAKE = 1,
@@ -41,7 +41,7 @@ typedef enum {
 } pc_pkg_type;
 
 /**
- * State of Pomelo package parser
+ * State of Pitaya package parser
  */
 typedef enum {
     PC_PKG_HEAD = 1,        /* parsing header */
@@ -54,7 +54,7 @@ typedef void (*pc_on_pkg_handler_t)(pc_pkg_type type, const char* data, size_t l
  * package handler for pkg parser
  */
 /**
- * Structure for Pomelo package parser which provided the service to collect
+ * Structure for Pitaya package parser which provided the service to collect
  * the raw data from lower layer (such as tcp) and parse them into Pomleo
  * package.
  */

@@ -3,7 +3,7 @@
 #  MIT Licensed.
 #
 
-import pomelo
+import pitaya
 import time
 import os
 
@@ -11,13 +11,13 @@ def lc_callback(*args):
     if args[0] == Client.PC_LOCAL_STORAGE_OP_WRITE:
         lcstr = args[1]
 
-        with open("pomelo.dat", "w") as f:
+        with open("pitaya.dat", "w") as f:
             f.write(lcstr)
         return 0
 
     else:
-        if os.path.exists("pomelo.dat"):
-            with open("pomelo.dat", "r") as f:
+        if os.path.exists("pitaya.dat"):
+            with open("pitaya.dat", "r") as f:
                return f.read()
         else:
             return None
@@ -34,7 +34,7 @@ def event_callback(ev, arg1, arg2):
     else:
         print 'network event:', Client.ev_to_str(ev), arg1, arg2
 
-Client = pomelo.Client
+Client = pitaya.Client
 
 Client.lib_init(Client.PC_LOG_WARN, None, None)
 

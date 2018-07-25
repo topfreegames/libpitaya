@@ -19,19 +19,19 @@
 #endif
 
 #ifdef _WIN32
-#define CS_POMELO_EXPORT __declspec(dllexport)
+#define CS_PITAYA_EXPORT __declspec(dllexport)
 #else
-#define CS_POMELO_EXPORT
+#define CS_PITAYA_EXPORT
 #endif
 
 #if defined(__ANDROID__)
 #undef __UNITYEDITOR__
 #include <android/log.h>
-#define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "cspomelo", __VA_ARGS__)
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG ,"cspomelo", __VA_ARGS__)
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO  ,"cspomelo", __VA_ARGS__)
-#define LOGW(...) __android_log_print(ANDROID_LOG_WARN  ,"cspomelo", __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR ,"cspomelo", __VA_ARGS__)
+#define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "cspitaya", __VA_ARGS__)
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG ,"cspitaya", __VA_ARGS__)
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO  ,"cspitaya", __VA_ARGS__)
+#define LOGW(...) __android_log_print(ANDROID_LOG_WARN  ,"cspitaya", __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR ,"cspitaya", __VA_ARGS__)
 
 static void 
 android_log(int level, const char* msg, ...)

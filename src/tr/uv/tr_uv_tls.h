@@ -6,7 +6,7 @@
 #ifndef TR_UV_TLS_H
 #define TR_UV_TLS_H
 
-#include <pomelo_trans.h>
+#include <pitaya_trans.h>
 
 pc_transport_plugin_t* pc_tr_uv_tls_trans_plugin();
 

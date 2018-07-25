@@ -10,7 +10,7 @@
 
 #include <assert.h>
 #include <pitaya.h>
-#include <pomelo_trans.h>
+#include <pitaya_trans.h>
 
 #include "test_common.h"
 

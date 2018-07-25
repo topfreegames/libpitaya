@@ -7,7 +7,7 @@
 #define PC_PITAYA_I_H
 
 #include <pitaya.h>
-#include <pomelo_trans.h>
+#include <pitaya_trans.h>
 
 #include "pc_mutex.h"
 #include "queue.h"

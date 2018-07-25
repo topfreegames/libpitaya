@@ -3,8 +3,8 @@
  * MIT Licensed.
  */
 
-#ifndef PC_POMELO_H
-#define PC_POMELO_H
+#ifndef PC_PITAYA_H
+#define PC_PITAYA_H
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -355,4 +355,4 @@ PC_EXPORT int tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
 }
 #endif
 
-#endif /* PC_POMELO_H */
+#endif /* PC_PITAYA_H */

@@ -6,7 +6,7 @@
 #include <pc_assert.h>
 #include <string.h>
 
-#include <pomelo_trans.h>
+#include <pitaya_trans.h>
 
 #include "pc_lib.h"
 #include "pc_pitaya_i.h"

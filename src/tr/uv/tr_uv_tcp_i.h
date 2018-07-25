@@ -10,7 +10,7 @@
 
 #include <pc_JSON.h>
 #include <pitaya.h>
-#include <pomelo_trans.h>
+#include <pitaya_trans.h>
 #include <pc_mutex.h>
 #include <queue.h>
 

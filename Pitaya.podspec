@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'The pod for the pitaya client'
 
   s.description      = <<-DESC
-    The missing pod for libpomelo2 with ssl support!
+    The missing pod for libpitaya with ssl support!
   DESC
 
   s.homepage         = 'https://github.com/topfreegames/libpitaya'

@@ -6,16 +6,16 @@
         'build_for_ios%': "false",
         'build_for_android%': "false",
 
-        'pomelo_library%': "static_library",
+        'pitaya_library%': "static_library",
         'use_sys_openssl%': "true",
         'library%': "static_library",
         'use_sys_uv%': "false",
         'use_sys_zlib%': "false",
         'no_tls_support%': "false",
         'no_uv_support%': "false",
-        'build_pypomelo%': "false",
+        'build_pypitaya%': "false",
         'python_header%': "/usr/include/python2.7",
-        'build_jpomelo%': "false",
+        'build_jpitaya%': "false",
         'build_type%': "Release",
         'use_xcode%': "false",
 
@@ -269,9 +269,9 @@
                 },
             ],
         }],
-        ['build_pypomelo == "true"', {
+        ['build_pypitaya == "true"', {
             'targets': [{
-                'target_name': 'pypomelo',
+                'target_name': 'pypitaya',
                 'type': 'shared_library',
                 'dependencies': [
                     '<(pitaya_target)',
@@ -281,13 +281,13 @@
                     '<(python_header)',
                 ],
                 'sources': [
-                    './py/pypomelo.c',
+                    './py/pypitaya.c',
                 ],
             }],
         }],
-        ['build_jpomelo == "true"', {
+        ['build_jpitaya == "true"', {
             'targets': [{
-                'target_name': 'jpomelo',
+                'target_name': 'jpitaya',
                 'type': 'shared_library',
                 'dependencies': [
                     '<(pitaya_target)',

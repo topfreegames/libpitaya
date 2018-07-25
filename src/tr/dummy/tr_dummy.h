@@ -6,7 +6,7 @@
 #ifndef TR_DUMMY_H
 #define TR_DUMMY_H
 
-#include <pomelo_trans.h>
+#include <pitaya_trans.h>
 
 pc_transport_plugin_t* pc_tr_dummy_trans_plugin();
 

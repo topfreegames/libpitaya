@@ -123,7 +123,7 @@ set(PITAYA_HEADERS
     include/pc_assert.h
     include/pitaya_unity.h
     include/pitaya.h
-    include/pomelo_trans.h
+    include/pitaya_trans.h
     src/tr/uv/pr_gzip.h
     src/tr/uv/pr_msg.h
     src/tr/uv/pr_pkg.h

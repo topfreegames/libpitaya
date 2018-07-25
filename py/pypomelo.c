@@ -11,9 +11,9 @@
 #include <pitaya.h>
 
 #ifdef _WIN32
-#define PY_POMELO_EXPORT __declspec(dllexport)
+#define PY_PITAYA_EXPORT __declspec(dllexport)
 #else
-#define PY_POMELO_EXPORT
+#define PY_PITAYA_EXPORT
 #endif
 
 static void default_destructor(void* ex_data)
@@ -558,7 +558,7 @@ static PyObject* destroy(PyObject* self, PyObject* args)
     return Py_BuildValue("i", ret);
 }
 
-static PyMethodDef pypomelo_meths[] = {
+static PyMethodDef pypitaya_meths[] = {
     {"lib_init", lib_init, METH_VARARGS, "lib init"},
     {"lib_cleanup", lib_cleanup, METH_VARARGS, "lib cleanup"},
     {"ev_to_str", ev_to_str, METH_VARARGS, "convert ev to str"},
@@ -582,13 +582,13 @@ static PyMethodDef pypomelo_meths[] = {
 extern "C" {
 #endif
 
-PY_POMELO_EXPORT void initpypomelo()
+PY_PITAYA_EXPORT void initpypitaya()
 {
     if (!PyEval_ThreadsInitialized()) {
         PyEval_InitThreads();
     }
 
-    Py_InitModule("pypomelo", pypomelo_meths);
+    Py_InitModule("pypitaya", pypitaya_meths);
 }
 
 #ifdef __cplusplus

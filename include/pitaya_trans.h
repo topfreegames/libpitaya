@@ -3,8 +3,8 @@
  * MIT Licensed.
  */
 
-#ifndef PC_POMELO_TRANS_H
-#define PC_POMELO_TRANS_H
+#ifndef PC_PITAYA_TRANS_H
+#define PC_PITAYA_TRANS_H
 
 #include <pitaya.h>
 
@@ -79,4 +79,4 @@ PC_EXPORT void pc_trans_resp(pc_client_t* client, unsigned int req_id, const pc_
 }
 #endif
 
-#endif /* PC_POMELO_TRANS_H */
+#endif /* PC_PITAYA_TRANS_H */
