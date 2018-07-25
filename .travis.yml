@@ -101,7 +101,7 @@ matrix:
         on:
           repo: topfreegames/libpitaya
           tags: true
-          condition: $(../release.py check --against "$TRAVIS_TAG") == ""
+          condition: $(./release.py check --against "$TRAVIS_TAG") == ""
 
     # -----------------------
     # MAC
