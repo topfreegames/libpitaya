@@ -220,7 +220,7 @@ pc_unity_destroy(pc_client_t *client)
     lc_callback_t* lc_cb;
 
 #if defined(__UNITYEDITOR__)
-    fclose(f);
+    if (f) fclose(f);
     f = NULL;
 #endif
     
