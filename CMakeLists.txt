@@ -213,3 +213,7 @@ if(NOT IOS AND NOT ANDROID AND NOT WIN32 AND NOT PITAYA_LIB_TYPE STREQUAL "MODUL
     target_include_directories(tests PUBLIC deps/munit deps/nanopb-0.3.9.1 test)
     target_link_libraries(tests PUBLIC ${PITAYA_TARGET})
 endif()
+
+add_custom_target(create_zip ALL COMMAND
+    ${CMAKE_COMMAND} -E tar "cfv" "${CMAKE_BINARY_DIR}/include.zip" --format=zip
+       "${CMAKE_SOURCE_DIR}/include")
