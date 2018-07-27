@@ -31,4 +31,8 @@ CS_PITAYA_EXPORT int pc_unity_request(pc_client_t *client, const char *route, co
                                       uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb, 
                                       pc_unity_request_error_callback_t error_cb);
 
+CS_PITAYA_EXPORT int pc_unity_binary_request(pc_client_t *client, const char *route, uint8_t *data,
+                                      int64_t len, uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb,
+                                      pc_unity_request_error_callback_t error_cb);
+
 #endif // PITAYA_UNITY_H
