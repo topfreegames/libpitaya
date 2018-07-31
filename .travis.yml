@@ -67,7 +67,6 @@ matrix:
       install: 
         - eval "$(GIMME_GO_VERSION=1.10 gimme)"
         - make setup-node-linux
-        - make install-gyp
 
         - cd ~/go/src/github.com/topfreegames
         - git clone https://github.com/topfreegames/pitaya
@@ -114,7 +113,6 @@ matrix:
       install:
         - brew update
         - brew install ninja
-        - brew upgrade python
       before_script: 
         - mkdir -p build && cd build
         - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DPITAYA_LIB_TYPE=MODULE ..

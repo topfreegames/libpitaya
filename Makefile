@@ -1,3 +1,11 @@
+setup-mac:
+	@brew install ninja
+
+setup-android:
+	@mkdir -p temp 
+	@curl https://dl.google.com/android/repository/android-ndk-r17b-darwin-x86_64.zip -o temp/android-ndk-r17b.zip
+	@unzip -qo temp/android-ndk-r17b.zip -d temp/
+
 setup-go:
 	@sudo rm -rf ~/.gimme
 	@gimme 1.10.2
@@ -23,27 +31,10 @@ setup-node-mac:
 	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-darwin-x64.tar.xz -o ~/node-v8.11.3-darwin-x64.tar.xz
 	@cd ~ && tar xf ~/node-v8.11.3-darwin-x64.tar.xz
 
-install-gyp:
-	@git clone https://chromium.googlesource.com/external/gyp.git ~/gyp
-	@cd ~/gyp && sudo python setup.py install
-
-gyp-linux-release:
-	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_linux=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-linux
-
-gyp-linux-debug:
-	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Debug -Dbuild_for_linux=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-linux
-
-gyp-mac-debug:
-	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Debug -Dbuild_for_mac=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-mac
-
-gyp-mac-release:
-	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_mac=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-mac
-
-gyp-ios:
-	@gyp --depth=. pitaya.gyp -f ninja --generator-output=build -Duse_sys_openssl=false -Dbuild_type=Release -Dbuild_for_ios=true -Dtarget_arch=x64 -Dpitaya_target=pitaya-ios
-
-gyp-android:
-	@gyp --depth=. pitaya.gyp -f ninja-linux --generator-output=build -Dbuild_for_android=true -DOS=android -Dbuild_type=Release -Duse_sys_openssl=false -Duse_sys_zlib=false -Dtarget_arch=arm  -Dpitaya_target=pitaya-android
+build-android:
+	@mkdir -p build
+	@cd build && cmake -GNinja -DPITAYA_LIB_TYPE=SHARED -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../temp/android-ndk-r17b/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a ..
+	@cmake --build ./build
 
 .PHONY: build
 
