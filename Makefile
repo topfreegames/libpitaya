@@ -6,6 +6,11 @@ setup-android:
 	@curl https://dl.google.com/android/repository/android-ndk-r17b-darwin-x86_64.zip -o temp/android-ndk-r17b.zip
 	@unzip -qo temp/android-ndk-r17b.zip -d temp/
 
+setup-android-linux:
+	@mkdir -p temp 
+	@curl https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip -o temp/android-ndk-r17b.zip
+	@unzip -qo temp/android-ndk-r17b.zip -d temp/
+
 setup-go:
 	@sudo rm -rf ~/.gimme
 	@gimme 1.10.2
