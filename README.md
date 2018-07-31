@@ -15,7 +15,7 @@ Libpitaya is a SDK for building clients for projects using pitaya game server fr
 
 ### How to compile 
 
-#### Compile Android
+#### Compiling Android
 
 ##### MAC
 ```bash
@@ -27,8 +27,17 @@ make build-android
 make setup-android-linux
 make build-android
 ```
-
 The android binary will be under `build/libpitaya-android.so`
+
+
+#### Compiling Mac
+
+```bash
+make setup-mac
+make build-mac
+```
+The android binary will be under `build/libpitaya-mac.bundle`
+
 
 Tests
 =====
