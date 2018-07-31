@@ -46,6 +46,11 @@ build-mac:clean-build
 	@cd build && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DPITAYA_LIB_TYPE=MODULE ..
 	@cmake --build ./build
 
+build-ios:clean-build
+	@mkdir -p build
+	@cd build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DPITAYA_LIB_TYPE=STATIC ..
+	@cmake --build ./build
+
 clean-build:
 	@rm -rf build
 

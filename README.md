@@ -27,7 +27,7 @@ make build-android
 make setup-android-linux
 make build-android
 ```
-The android binary will be under `build/libpitaya-android.so`
+The Android binary will be under `build/libpitaya-android.so`
 
 
 #### Compiling Mac
@@ -36,8 +36,16 @@ The android binary will be under `build/libpitaya-android.so`
 make setup-mac
 make build-mac
 ```
-The android binary will be under `build/libpitaya-mac.bundle`
+The Mac binary will be under `build/libpitaya-mac.bundle`
 
+#### Compiling iOS
+
+```bash
+make setup-mac
+make build-ios
+```
+The iOS binary will be under `build/libpitaya-ios.a`
+On iOS this library in conpiled statically wich means you must include in your project the header files `include.zip` and the dependencies `libz.a`,`libuv_a.a`,`libssl.a` and `libcrypto.a`
 
 Tests
 =====
