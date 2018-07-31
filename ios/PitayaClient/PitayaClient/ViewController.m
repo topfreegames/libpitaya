@@ -30,7 +30,12 @@
     [super viewDidLoad];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionEstablished:) name:@"connectionOkNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gotResponse:) name:@"gotResponse" object:nil];
-    pc_lib_init(NULL, NULL, NULL, NULL, NULL);
+    pc_lib_client_info_t client_info;
+    client_info.platform = "iOS";
+    client_info.build_number = "90";
+    client_info.version = "1.0";
+    
+    pc_lib_init(NULL, NULL, NULL, NULL, client_info);
     
     
     self.clients = [NSMutableArray array];
@@ -60,16 +65,15 @@ static void event_cb(pc_client_t* client, int ev_type, void* ex_data, const char
            arg1 ? arg1 : "", arg2 ? arg2 : "");
 }
 
-static void request_cb(const pc_request_t* req, const char* resp)
+static void request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
-    printf("test get resp %s \n", resp);
-    printf("test get request msg %s \n", req->base.msg);
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"gotResponse" object:NULL userInfo:@{@"message": [NSString stringWithCString:resp]}];
+    printf("test get resp %s \n", resp->base);
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"gotResponse" object:NULL userInfo:@{@"message": [NSString stringWithCString:resp->base]}];
 }
 
-static void error_cb(const pc_request_t* req, pc_error_t error)
+static void error_cb(const pc_request_t* req, pc_error_t *error)
 {
-//    NSLog(@"Error %@ %@", [NSString stringWithCString:error.code] , [NSString stringWithCString:error.msg]);
+    NSLog(@"Error %d %@", error->code, [NSString stringWithCString:error->payload.base]);
 }
 
 - (void)gotResponse:(NSNotification *) notification
@@ -94,7 +98,7 @@ static void error_cb(const pc_request_t* req, pc_error_t error)
     for(NSValue *value in self.clients){
         pc_client_t* client;
         [value getValue:&client];
-        pc_request_with_timeout(client, [@"connector.getsessiondata" cString], [@"{}" cString], NULL, 10, request_cb, error_cb);
+        pc_string_request_with_timeout(client, [@"data.redisHandler.get" cString], [@"{\"key\":\"test\"}" cString], NULL, 10, request_cb, error_cb);
     }
 }
 

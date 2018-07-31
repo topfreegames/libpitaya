@@ -8,15 +8,20 @@ PODS:
 DEPENDENCIES:
   - Pitaya (from `../../`)
 
+SPEC REPOS:
+  "git@git.topfreegames.com:libs-frameworks/cocoapods-specs.git":
+    - libuv
+    - OpenSSL-Universal
+
 EXTERNAL SOURCES:
   Pitaya:
-    :path: ../../
+    :path: "../../"
 
 SPEC CHECKSUMS:
   libuv: 8497e469e7918518052d895945a4b17e6dbb088e
   OpenSSL-Universal: 401888162f11c33ebbd46f782d9229da35c61327
-  Pitaya: a6957817d79c56cc773c91804832bede46b9b04a
+  Pitaya: 34a57cfb04c457fa9cca1ac01668778a36a33144
 
-PODFILE CHECKSUM: bb0fd389571ffaf25575f04f6f23a59bb7d6d42f
+PODFILE CHECKSUM: 244e639dbb40a857341541f8ffdf38ea75ca7fa7
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.3

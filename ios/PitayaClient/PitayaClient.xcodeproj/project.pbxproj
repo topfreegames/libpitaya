@@ -19,7 +19,7 @@
 
 /* Begin PBXFileReference section */
 		10658BD7632A9AE5B3DA3470 /* libPods-PitayaClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PitayaClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		172C660E2087E05E0072EEC2 /* Pitaya.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Pitaya.podspec; path = ../../Pitaya.podspec; sourceTree = "<group>"; };
+		172C660E2087E05E0072EEC2 /* Pitaya.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Pitaya.podspec; path = ../../Pitaya.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		174AD62A207BF58400C2D521 /* PitayaClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PitayaClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		174AD62D207BF58400C2D521 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		174AD62E207BF58400C2D521 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -109,8 +109,6 @@
 				174AD626207BF58400C2D521 /* Sources */,
 				174AD627207BF58400C2D521 /* Frameworks */,
 				174AD628207BF58400C2D521 /* Resources */,
-				22073147655A7CC74F2BD02D /* [CP] Embed Pods Frameworks */,
-				B36C8C8EC8F9C8E207541F5B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -169,36 +167,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		22073147655A7CC74F2BD02D /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PitayaClient/Pods-PitayaClient-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B36C8C8EC8F9C8E207541F5B /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PitayaClient/Pods-PitayaClient-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		F25901BFEBA13FBA1C15F643 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -379,12 +347,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3THJCX5EUA;
 				INFOPLIST_FILE = PitayaClient/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.topfreegames.staticlibproject.PitayaClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "30d91c0f-64c3-4c7b-a78e-54a7965a0c68";
+				PROVISIONING_PROFILE_SPECIFIER = "Dev Top Free Games";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
