@@ -34,8 +34,15 @@
     client_info.platform = "iOS";
     client_info.build_number = "90";
     client_info.version = "1.0";
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"ca_root" ofType:@"crt"];
+    
     
     pc_lib_init(NULL, NULL, NULL, NULL, client_info);
+    // Load trusted CAs from default paths.
+    int result = tr_uv_tls_set_ca_file(path.cString, NULL);
+    tr_uv_tls_set_ca_file([[NSBundle mainBundle] pathForResource:@"ca" ofType:@"crt"].cString, NULL);
+    
+
     
     
     self.clients = [NSMutableArray array];
@@ -43,7 +50,8 @@
 
 - (IBAction)onConnectBt:(id)sender {
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
-    config.transport_name = PC_TR_NAME_UV_TCP;
+    config.transport_name = PC_TR_NAME_UV_TLS;
+    config.enable_reconn = false;
     
     pc_client_init_result_t result = pc_client_init(NULL, &config);
     

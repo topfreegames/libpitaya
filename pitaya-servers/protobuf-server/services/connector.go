@@ -121,9 +121,10 @@ func (c *Connector) SetSessionData(ctx context.Context, data *protos.SessionData
 
 // NotifySessionData sets the session data
 func (c *Connector) NotifySessionData(ctx context.Context, data *protos.SessionData) {
-	//s := pitaya.GetSessionFromCtx(ctx)
-	//err := s.SetData(data.Data)
-	//if err != nil {
-	//fmt.Println("got error on notify", err)
-	//}
+	res := &protos.SessionData{
+		Data: "THIS IS THE SESSION DATA",
+	}
+
+	pitaya.GetSessionFromCtx(ctx).Push("some.push.route", res)
+
 }

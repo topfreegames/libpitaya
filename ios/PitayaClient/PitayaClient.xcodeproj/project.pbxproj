@@ -15,6 +15,10 @@
 		174AD637207BF58400C2D521 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 174AD636207BF58400C2D521 /* Assets.xcassets */; };
 		174AD63A207BF58400C2D521 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 174AD638207BF58400C2D521 /* LaunchScreen.storyboard */; };
 		174AD63D207BF58400C2D521 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 174AD63C207BF58400C2D521 /* main.m */; };
+		17AB7C95212F350F008F6B83 /* ca.crt in Resources */ = {isa = PBXBuildFile; fileRef = 17AB7C94212F350F008F6B83 /* ca.crt */; };
+		17AB7C9721304536008F6B83 /* ca_root.crt in Resources */ = {isa = PBXBuildFile; fileRef = 17AB7C9621304535008F6B83 /* ca_root.crt */; };
+		17E39D5C21305EFE0069B807 /* ca2.crt in Resources */ = {isa = PBXBuildFile; fileRef = 17E39D5A21305EFC0069B807 /* ca2.crt */; };
+		17E39D5D21305EFE0069B807 /* ca1.crt in Resources */ = {isa = PBXBuildFile; fileRef = 17E39D5B21305EFD0069B807 /* ca1.crt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +34,10 @@
 		174AD639207BF58400C2D521 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		174AD63B207BF58400C2D521 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		174AD63C207BF58400C2D521 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		17AB7C94212F350F008F6B83 /* ca.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ca.crt; path = ../../../test/server/fixtures/ca.crt; sourceTree = "<group>"; };
+		17AB7C9621304535008F6B83 /* ca_root.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ca_root.crt; sourceTree = "<group>"; };
+		17E39D5A21305EFC0069B807 /* ca2.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ca2.crt; sourceTree = "<group>"; };
+		17E39D5B21305EFD0069B807 /* ca1.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ca1.crt; sourceTree = "<group>"; };
 		349B7CC291DACB82999D58D0 /* Pods-PitayaClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PitayaClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-PitayaClient/Pods-PitayaClient.release.xcconfig"; sourceTree = "<group>"; };
 		3AE52631FEC6F39AACE5D6A9 /* Pods-PitayaClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PitayaClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PitayaClient/Pods-PitayaClient.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -70,7 +78,11 @@
 			children = (
 				174AD62D207BF58400C2D521 /* AppDelegate.h */,
 				174AD62E207BF58400C2D521 /* AppDelegate.m */,
+				17AB7C94212F350F008F6B83 /* ca.crt */,
 				174AD630207BF58400C2D521 /* ViewController.h */,
+				17E39D5B21305EFD0069B807 /* ca1.crt */,
+				17E39D5A21305EFC0069B807 /* ca2.crt */,
+				17AB7C9621304535008F6B83 /* ca_root.crt */,
 				174AD631207BF58400C2D521 /* ViewController.m */,
 				174AD633207BF58400C2D521 /* Main.storyboard */,
 				174AD636207BF58400C2D521 /* Assets.xcassets */,
@@ -157,10 +169,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17E39D5C21305EFE0069B807 /* ca2.crt in Resources */,
+				17AB7C95212F350F008F6B83 /* ca.crt in Resources */,
 				174AD63A207BF58400C2D521 /* LaunchScreen.storyboard in Resources */,
+				17E39D5D21305EFE0069B807 /* ca1.crt in Resources */,
 				174AD637207BF58400C2D521 /* Assets.xcassets in Resources */,
 				172C660F2087E05E0072EEC2 /* Pitaya.podspec in Resources */,
 				174AD635207BF58400C2D521 /* Main.storyboard in Resources */,
+				17AB7C9721304536008F6B83 /* ca_root.crt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
