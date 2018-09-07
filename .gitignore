@@ -10,6 +10,7 @@ output/
 Assembly-CSharp.csproj.CoreCompileInputs.cache
 nanopb*.tar.gz
 openssl-build
+_builds
 
 server-exe
 server-exe-out

@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     client_info.version = "2.1";
 
     // Run this function only one time, otherwise things break.
-#if 1
+#if 0
     pc_lib_init(quiet_log, NULL, NULL, NULL, client_info);
 #else
     pc_lib_init(NULL, NULL, NULL, NULL, client_info);

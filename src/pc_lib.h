@@ -25,4 +25,6 @@ extern const char *pc_lib_client_version_str;
 
 const char* pc_lib_strdup(const char* str);
 
+bool pc_lib_is_key_pinned(uint8_t *key, size_t key_size);
+
 #endif

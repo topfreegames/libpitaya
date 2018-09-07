@@ -212,6 +212,14 @@ if(NOT IOS AND NOT ANDROID AND NOT WIN32 AND NOT PITAYA_LIB_TYPE STREQUAL "MODUL
     add_executable(tests ${TEST_HEADERS} ${TEST_SOURCES})
     target_include_directories(tests PUBLIC deps/munit deps/nanopb-0.3.9.1 test)
     target_link_libraries(tests PUBLIC ${PITAYA_TARGET})
+
+    add_custom_command(
+      TARGET
+        tests POST_BUILD
+      COMMAND
+            ${CMAKE_COMMAND} -E copy_directory
+                                ${CMAKE_SOURCE_DIR}/fixtures
+                                $<TARGET_FILE_DIR:tests>/fixtures)
 endif()
 
 add_custom_target(create_zip ALL COMMAND

@@ -181,9 +181,9 @@ PC_EXPORT int pc_lib_get_default_log_level();
  * pc_lib_init and pc_lib_cleanup both should be invoked only once.
  */
 typedef struct {
-    char *platform;
-    char *build_number;
-    char *version;
+    const char *platform;
+    const char *build_number;
+    const char *version;
 } pc_lib_client_info_t;
 
 PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), 
@@ -191,6 +191,15 @@ PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...),
                            void (*pc_free)(void* ), 
                            void* (*pc_realloc)(void*, size_t), 
                            pc_lib_client_info_t client_info);
+
+/**
+ * Pins a public key globally for all clients.
+ */
+PC_EXPORT void pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size);
+/**
+ * Remote all pinned public keys.
+ */
+PC_EXPORT void pc_lib_clear_pinned_public_keys(void);
 
 PC_EXPORT void pc_lib_cleanup();
 
@@ -246,7 +255,8 @@ typedef void (*pc_event_cb_t)(pc_client_t *client, int ev_type, void* ex_data,
 #define PC_EV_PROTO_ERROR 7
 #define PC_EV_RECONNECT_FAILED 8
 #define PC_EV_RECONNECT_STARTED 9
-#define PC_EV_COUNT 10
+#define PC_EV_UNPINNED_KEY 10
+#define PC_EV_COUNT 11
 
 #define PC_EV_INVALID_HANDLER_ID -1
 

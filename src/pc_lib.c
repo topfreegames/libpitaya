@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <pc_assert.h>
+#include <pc_mutex.h>
 #include <time.h>
 
 #include <pitaya.h>
@@ -28,6 +29,8 @@
 
 #endif /* tcp */
 
+#define PC_MAX_PINNED_KEYS 10
+
 void (*pc_lib_log)(int level, const char* msg, ...) = NULL;
 void* (*pc_lib_malloc)(size_t len) = NULL;
 void (*pc_lib_free)(void* data) = NULL;
@@ -39,7 +42,19 @@ const char *pc_lib_client_version_str = NULL;
 
 static int pc__default_log_level = 0;
 
+// TODO: Should this array really be dynamic?
+// If there was a small upper bound, a static array could be used,
+// avoid the need for dynamic memory allocation.
+typedef struct {
+    uint8_t *key;
+    size_t size;
+} pc_pinned_key_t;
+
+static pc_pinned_key_t pc__pinned_keys[PC_MAX_PINNED_KEYS];
+static pc_mutex_t pc__pinned_keys_mutex;
+
 static int pc_initiateded = 0;
+
 
 /**
  * default malloc never return NULL
@@ -106,10 +121,14 @@ void pc_lib_init(void (*pc_log)(int level, const char* msg, ...),
                  void* (*pc_alloc)(size_t), void (*pc_free)(void* ), 
                  void* (*pc_realloc)(void*, size_t), 
                  pc_lib_client_info_t client_info) {
-    if(pc_initiateded == 1){
+    if(pc_initiateded == 1) {
         return; // init function already called
     }
     pc_initiateded = 1;
+
+    pc_mutex_init(&pc__pinned_keys_mutex);
+    pc_lib_clear_pinned_public_keys();
+
     pc_transport_plugin_t* tp;
 
     pc_lib_log = pc_log ? pc_log : default_log;
@@ -152,7 +171,13 @@ void pc_lib_cleanup() {
     pc_lib_free((char*)pc_lib_client_build_number_str);
     pc_lib_free((char*)pc_lib_client_version_str);
 
-    return;
+    pc_lib_log(PC_LOG_INFO, "pc_lib_cleanup - free pinned public keys array");
+
+    // Clear pinned keys
+    pc_lib_clear_pinned_public_keys();
+    pc_mutex_destroy(&pc__pinned_keys_mutex);
+
+    return; // TODO: Should this return be here?
 #if !defined(PC_NO_DUMMY_TRANS)
     pc_transport_plugin_deregister(PC_TR_NAME_DUMMY);
     pc_lib_log(PC_LOG_INFO, "pc_lib_cleanup - deregister dummy plugin");
@@ -179,7 +204,7 @@ const char* pc_lib_strdup(const char* str) {
 
     len = strlen(str);
 
-    buf = (char* )pc_lib_malloc(len + 1);
+    buf = (char*)pc_lib_malloc(len + 1);
     strcpy(buf, str);
     buf[len] = '\0';
 
@@ -212,6 +237,7 @@ static const char* ev_str[] = {
     "PC_EV_PROTO_ERROR",
     "PC_EV_RECONNECT_FAILED",
     "PC_EV_RECONNECT_STARTED",
+    "PC_EV_UNPINNED_KEY",
     NULL
 };
 
@@ -249,4 +275,65 @@ int pc_lib_get_default_log_level() {
 
 void pc_lib_set_default_log_level(int level) {
     pc__default_log_level = level;
+}
+
+// ---------------------------------
+// Pinned keys
+// ---------------------------------
+
+bool pc_lib_is_key_pinned(uint8_t *key, size_t key_size)
+{
+    bool result = false;
+    pc_mutex_lock(&pc__pinned_keys_mutex);
+    for (size_t i = 0; i < PC_MAX_PINNED_KEYS; ++i) {
+        pc_pinned_key_t curr_key = pc__pinned_keys[i];
+        if (curr_key.size == key_size) {
+            if (memcmp(key, curr_key.key, key_size) == 0) {
+                result = true;
+                goto out;
+            }
+        }
+    }
+out:
+    pc_mutex_unlock(&pc__pinned_keys_mutex);
+    return result;
+}
+
+void pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size)
+{
+    pc_assert(public_key);
+    if (!public_key || size == 0) {
+        pc_lib_log(PC_LOG_ERROR, "The public_key should not be a NULL pointer");
+        return;
+    }
+
+    bool found = false;
+    for (size_t i = 0; i < PC_MAX_PINNED_KEYS; ++i) {
+        if (pc__pinned_keys[i].key == NULL) {
+            pc__pinned_keys[i].key = public_key;
+            pc__pinned_keys[i].size = size;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        pc_lib_free(public_key);
+        pc_lib_log(PC_LOG_ERROR, "Maximum amount of pinned keys (%d) is already used", PC_MAX_PINNED_KEYS);
+    }
+}
+
+void pc_lib_clear_pinned_public_keys(void)
+{
+    pc_mutex_lock(&pc__pinned_keys_mutex);
+    for (size_t i = 0; i < PC_MAX_PINNED_KEYS; ++i) {
+        if (pc__pinned_keys[i].key) {
+            pc_lib_free(pc__pinned_keys[i].key);
+            pc__pinned_keys[i].key = NULL;
+            pc__pinned_keys[i].size = 0;
+        }
+        pc__pinned_keys[i].key = NULL;
+        pc__pinned_keys[i].size = 0;
+    }
+    pc_mutex_unlock(&pc__pinned_keys_mutex);
 }

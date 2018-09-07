@@ -91,6 +91,50 @@ void tls__reset(tr_uv_tcp_transport_t* tt)
     tcp__reset(tt);
 }
 
+static bool tls__public_key_pinned(tr_uv_tls_transport_t *tls)
+{
+    bool key_pinned = false;
+    X509 *cert = NULL;
+    EVP_PKEY *pkey = NULL;
+    int pkey_len = 0;
+    uint8_t *pkey_buf = NULL, *pkey_temp_buf = NULL;
+
+    if (tls->tls == NULL) {
+        pc_lib_log(PC_LOG_ERROR, "tls__public_key_pinned - SSL struct is empty.");
+        goto out;
+    }
+
+    cert = SSL_get_peer_certificate(tls->tls);
+    if (!cert) {
+        pc_lib_log(PC_LOG_ERROR, "tls__public_key_pinned - could not retrieve peer certificate");
+        goto out;
+    }
+
+    pkey = X509_get_pubkey(cert);
+    if (!pkey) {
+        pc_lib_log(PC_LOG_ERROR, "tls__public_key_pinned - error getting public key from certificate");
+        goto cleanup_cert;
+    }
+
+    // Decode the current public key struct into a byte array stored in
+    // pkey_buf with size pkey_len
+    pkey_len = i2d_PublicKey(pkey, NULL);
+    if ((pkey_buf = (uint8_t*)pc_lib_malloc(pkey_len+1))) {
+        pkey_temp_buf = pkey_buf;
+        i2d_PublicKey(pkey, &pkey_temp_buf);
+        key_pinned = pc_lib_is_key_pinned(pkey_buf, pkey_len);
+        pc_lib_free(pkey_buf);
+    } else {
+        pc_lib_log(PC_LOG_ERROR, "tls__public_key_pinned - out of memory: failed to allocated pkey buffer");
+    }
+
+    EVP_PKEY_free(pkey);
+cleanup_cert:
+    X509_free(cert);
+out:
+    return key_pinned;
+}
+
 void tls__conn_done_cb(uv_connect_t* conn, int status)
 {
     GET_TLS(conn);
@@ -103,6 +147,7 @@ void tls__conn_done_cb(uv_connect_t* conn, int status)
         SSL_set_info_callback(tls->tls, tls__info_callback);
         /* SSL_read will write ClientHello to bio. */
         SSL_set_connect_state(tls->tls);
+
         tls__read_from_bio(tls);
 
         /* write ClientHello out */
@@ -218,6 +263,12 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
 
             if (!tls->is_handshake_completed) {
                 tls->is_handshake_completed = 1;
+//                if (!tls__public_key_pinned(tls)) {
+//                    pc_lib_log(PC_LOG_ERROR, "Public key is not pinned.");
+//                    pc_trans_fire_event(tt->client, PC_EV_UNPINNED_KEY, "Public key from server is not pinned.", NULL);
+//                    tt->reset_fn(tt);
+//                    return;
+//                }
             }
 
             /* retry succeeds */
@@ -287,9 +338,9 @@ static void tls__read_from_bio(tr_uv_tls_transport_t* tls)
     tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t* )tls;
 
     do {
+        pc_lib_log(PC_LOG_DEBUG, "READING FROM BIO BOI");
         read = SSL_read(tls->tls, tls->rb, PC_TLS_READ_BUF_SIZE);
         if (read > 0) {
-
             if (!tls->is_handshake_completed) {
                 tls->is_handshake_completed = 1;
             }
