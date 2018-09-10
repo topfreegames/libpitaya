@@ -292,8 +292,6 @@ int pc_client_cleanup(pc_client_t* client)
 
 static void pc__handle_event(pc_client_t* client, pc_event_t* ev)
 {
-    pc_lib_log(PC_LOG_DEBUG, "pc__handle_event - ENTERED BOI"); 
-
     pc_assert(PC_EV_IS_RESP(ev->type) || PC_EV_IS_NOTIFY_SENT(ev->type) || PC_EV_IS_NET_EVENT(ev->type));
 
     if (PC_EV_IS_RESP(ev->type)) {

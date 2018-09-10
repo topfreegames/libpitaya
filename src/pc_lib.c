@@ -10,6 +10,7 @@
 #include <pc_assert.h>
 #include <pc_mutex.h>
 #include <time.h>
+#include <openssl/pem.h>
 
 #include <pitaya.h>
 #include <pitaya_trans.h>
@@ -52,6 +53,7 @@ typedef struct {
 
 static pc_pinned_key_t pc__pinned_keys[PC_MAX_PINNED_KEYS];
 static pc_mutex_t pc__pinned_keys_mutex;
+static bool pc__skip_key_pin_check = false;
 
 static int pc_initiateded = 0;
 
@@ -166,7 +168,7 @@ void pc_lib_init(void (*pc_log)(int level, const char* msg, ...),
 #endif
 }
 
-void pc_lib_cleanup() {
+void pc_lib_cleanup(void) {
     pc_lib_free((char*)pc_lib_platform_str);
     pc_lib_free((char*)pc_lib_client_build_number_str);
     pc_lib_free((char*)pc_lib_client_version_str);
@@ -261,6 +263,7 @@ static const char* rc_str[] = {
     "PC_RC_RESET",
     "PC_RC_SERVER_ERROR",
     "PC_RC_UV_ERROR",
+    "PC_RC_NO_SUCH_FILE",
     NULL
 };
 
@@ -269,7 +272,7 @@ const char* pc_client_rc_str(int rc) {
     return rc_str[-rc];
 }
 
-int pc_lib_get_default_log_level() {
+int pc_lib_get_default_log_level(void) {
     return pc__default_log_level;
 }
 
@@ -283,6 +286,11 @@ void pc_lib_set_default_log_level(int level) {
 
 bool pc_lib_is_key_pinned(uint8_t *key, size_t key_size)
 {
+    if (pc__skip_key_pin_check) {
+        pc_lib_log(PC_LOG_WARN, "pc_lib_is_key_pinned - skipping key pin check");
+        return true;
+    }
+
     bool result = false;
     pc_mutex_lock(&pc__pinned_keys_mutex);
     for (size_t i = 0; i < PC_MAX_PINNED_KEYS; ++i) {
@@ -299,12 +307,12 @@ out:
     return result;
 }
 
-void pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size)
+int pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size)
 {
     pc_assert(public_key);
     if (!public_key || size == 0) {
         pc_lib_log(PC_LOG_ERROR, "The public_key should not be a NULL pointer");
-        return;
+        return PC_RC_INVALID_ARG;
     }
 
     bool found = false;
@@ -321,6 +329,68 @@ void pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size)
         pc_lib_free(public_key);
         pc_lib_log(PC_LOG_ERROR, "Maximum amount of pinned keys (%d) is already used", PC_MAX_PINNED_KEYS);
     }
+
+    return PC_RC_OK;
+}
+
+int pc_lib_add_pinned_public_key_from_ca(const char *ca_path)
+{
+    int rc = PC_RC_OK;
+    FILE *ca_file = NULL;
+    X509 *cert = NULL;
+    EVP_PKEY *pkey = NULL;
+    size_t pkey_len = 0;
+    uint8_t *pkey_buf = NULL, *pkey_temp_buf = NULL;
+
+    if (!ca_path) {
+        pc_lib_log(PC_LOG_ERROR, "ca_path is NULL");
+        rc = PC_RC_INVALID_ARG;
+        goto out;
+    }
+
+    ca_file = fopen(ca_path, "rb");
+    if (!ca_file) {
+        pc_lib_log(PC_LOG_ERROR, "ca_path could not be opened");
+        rc = PC_RC_NO_SUCH_FILE;
+        goto out;
+    }
+    
+    cert = PEM_read_X509(ca_file, NULL, NULL, NULL);
+    if (!cert) {
+        pc_lib_log(PC_LOG_ERROR, "Error reading certificate file %s", ca_path);
+        rc = PC_RC_ERROR;
+        goto cleanup_file;
+    }
+
+    pkey = X509_get_pubkey(cert);
+    if (!pkey) {
+        pc_lib_log(PC_LOG_ERROR, "Error reading public key from ca %s", ca_path);
+        rc = PC_RC_ERROR;
+        goto cleanup_cert;
+    }
+
+    // Decode the current public key struct into a byte array stored in
+    // pkey_buf with size pkey_len
+    pkey_len = i2d_PublicKey(pkey, NULL);
+    if (!(pkey_buf = (uint8_t*)pc_lib_malloc(pkey_len+1))) {
+        pc_lib_log(PC_LOG_ERROR, "pc_lib_add_pinned_public_key_from_ca - out of memory");
+        rc = PC_RC_ERROR;
+        goto cleanup_pkey;
+    }
+
+    pkey_temp_buf = pkey_buf;
+    i2d_PublicKey(pkey, &pkey_temp_buf);
+
+    rc = pc_lib_add_pinned_public_key(pkey_buf, pkey_len);
+
+cleanup_pkey:
+    EVP_PKEY_free(pkey);
+cleanup_cert:
+    X509_free(cert);
+cleanup_file:
+    fclose(ca_file);
+out:
+    return rc;
 }
 
 void pc_lib_clear_pinned_public_keys(void)
@@ -336,4 +406,9 @@ void pc_lib_clear_pinned_public_keys(void)
         pc__pinned_keys[i].size = 0;
     }
     pc_mutex_unlock(&pc__pinned_keys_mutex);
+}
+
+void pc_lib_skip_key_pin_check(bool should_skip)
+{
+    pc__skip_key_pin_check = should_skip;
 }

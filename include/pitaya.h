@@ -50,7 +50,8 @@ extern "C" {
 #define PC_RC_RESET -11
 #define PC_RC_SERVER_ERROR -12
 #define PC_RC_UV_ERROR -13
-#define PC_RC_MIN -14
+#define PC_RC_NO_SUCH_FILE -14
+#define PC_RC_MIN -15
 
 typedef struct pc_client_s pc_client_t;
 typedef struct pc_request_s pc_request_t;
@@ -118,7 +119,7 @@ typedef struct {
     int64_t  len;
 } pc_buf_t;
 
-PC_EXPORT pc_buf_t pc_buf_empty();
+PC_EXPORT pc_buf_t pc_buf_empty(void);
 PC_EXPORT pc_buf_t pc_buf_copy(const pc_buf_t *buf);
 PC_EXPORT void pc_buf_free(pc_buf_t *buf);
 PC_EXPORT pc_buf_t pc_buf_from_string(const char *str);
@@ -165,8 +166,8 @@ typedef struct {
     0 /* disable_compression */                       \
 }
 
-PC_EXPORT int pc_lib_version();
-PC_EXPORT const char* pc_lib_version_str();
+PC_EXPORT int pc_lib_version(void);
+PC_EXPORT const char* pc_lib_version_str(void);
 
 /**
  * If you do use default log callback,
@@ -175,7 +176,7 @@ PC_EXPORT const char* pc_lib_version_str();
  * Otherwise, this function does nothing.
  */
 PC_EXPORT void pc_lib_set_default_log_level(int level);
-PC_EXPORT int pc_lib_get_default_log_level();
+PC_EXPORT int pc_lib_get_default_log_level(void);
 
 /**
  * pc_lib_init and pc_lib_cleanup both should be invoked only once.
@@ -195,20 +196,23 @@ PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...),
 /**
  * Pins a public key globally for all clients.
  */
-PC_EXPORT void pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size);
+PC_EXPORT int pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size);
+PC_EXPORT int pc_lib_add_pinned_public_key_from_ca(const char *ca_path);
+PC_EXPORT void pc_lib_skip_key_pin_check(bool should_skip);
+    
 /**
  * Remote all pinned public keys.
  */
 PC_EXPORT void pc_lib_clear_pinned_public_keys(void);
 
-PC_EXPORT void pc_lib_cleanup();
+PC_EXPORT void pc_lib_cleanup(void);
 
 typedef struct {
     pc_client_t *client;
     int rc;
 } pc_client_init_result_t;
 
-PC_EXPORT size_t pc_client_size();
+PC_EXPORT size_t pc_client_size(void);
 PC_EXPORT pc_client_init_result_t pc_client_init(void* ex_data, const pc_client_config_t* config);
 PC_EXPORT int pc_client_connect(pc_client_t* client, const char* host, int port, const char* handshake_opts);
 PC_EXPORT int pc_client_disconnect(pc_client_t* client);

@@ -74,11 +74,15 @@ int main(int argc, char **argv)
     client_info.version = "2.1";
 
     // Run this function only one time, otherwise things break.
-#if 0
+#if 1
     pc_lib_init(quiet_log, NULL, NULL, NULL, client_info);
 #else
     pc_lib_init(NULL, NULL, NULL, NULL, client_info);
 #endif
+    // By default, skip all checks of key pinning on tests.
+    // If the tests wants to check the key pinning functionality,
+    // it will explicitly set the check to false.
+    pc_lib_skip_key_pin_check(true);
 
     int ret = munit_suite_main(&main_suite, NULL, argc, argv);
 

@@ -145,6 +145,7 @@ void tls__conn_done_cb(uv_connect_t* conn, int status)
         pc_lib_log(PC_LOG_INFO, "tls__conn_done_cb - send client hello");
 
         SSL_set_info_callback(tls->tls, tls__info_callback);
+
         /* SSL_read will write ClientHello to bio. */
         SSL_set_connect_state(tls->tls);
 
@@ -262,13 +263,14 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
         } else {
 
             if (!tls->is_handshake_completed) {
+                if (!tls__public_key_pinned(tls)) {
+                    pc_lib_log(PC_LOG_ERROR, "Public key is not pinned.");
+                    pc_trans_fire_event(tt->client, PC_EV_UNPINNED_KEY, "Public key from server is not pinned.", NULL);
+                    tt->reset_fn(tt);
+                    return;
+                }
+
                 tls->is_handshake_completed = 1;
-//                if (!tls__public_key_pinned(tls)) {
-//                    pc_lib_log(PC_LOG_ERROR, "Public key is not pinned.");
-//                    pc_trans_fire_event(tt->client, PC_EV_UNPINNED_KEY, "Public key from server is not pinned.", NULL);
-//                    tt->reset_fn(tt);
-//                    return;
-//                }
             }
 
             /* retry succeeds */
@@ -311,6 +313,7 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
                     break;
                 }
             } else {
+                pc_assert(tls->is_handshake_completed);
                 if (!tls->is_handshake_completed) {
                     tls->is_handshake_completed = 1;
                 }
@@ -338,9 +341,9 @@ static void tls__read_from_bio(tr_uv_tls_transport_t* tls)
     tr_uv_tcp_transport_t* tt = (tr_uv_tcp_transport_t* )tls;
 
     do {
-        pc_lib_log(PC_LOG_DEBUG, "READING FROM BIO BOI");
         read = SSL_read(tls->tls, tls->rb, PC_TLS_READ_BUF_SIZE);
         if (read > 0) {
+            pc_assert(tls->is_handshake_completed);
             if (!tls->is_handshake_completed) {
                 tls->is_handshake_completed = 1;
             }
