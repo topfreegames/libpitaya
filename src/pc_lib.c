@@ -307,7 +307,7 @@ out:
     return result;
 }
 
-int pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size)
+static int pc_lib__add_pinned_public_key(uint8_t *public_key, size_t size)
 {
     pc_assert(public_key);
     if (!public_key || size == 0) {
@@ -333,63 +333,106 @@ int pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size)
     return PC_RC_OK;
 }
 
-int pc_lib_add_pinned_public_key_from_ca(const char *ca_path)
+static int add_pinned_public_key_from_file_pointer(BIO *fp)
 {
     int rc = PC_RC_OK;
-    FILE *ca_file = NULL;
     X509 *cert = NULL;
     EVP_PKEY *pkey = NULL;
     size_t pkey_len = 0;
     uint8_t *pkey_buf = NULL, *pkey_temp_buf = NULL;
-
-    if (!ca_path) {
-        pc_lib_log(PC_LOG_ERROR, "ca_path is NULL");
+    
+    if (!fp) {
+        pc_lib_log(PC_LOG_ERROR, "add_pinned_public_key_from_file_pointer - file pointer is NULL");
         rc = PC_RC_INVALID_ARG;
         goto out;
     }
-
-    ca_file = fopen(ca_path, "rb");
-    if (!ca_file) {
-        pc_lib_log(PC_LOG_ERROR, "ca_path could not be opened");
-        rc = PC_RC_NO_SUCH_FILE;
+    
+    cert = PEM_read_bio_X509(fp, NULL, NULL, NULL);
+    if (!cert) {
+        pc_lib_log(PC_LOG_ERROR, "add_pinned_public_key_from_file_pointer - Error reading certificate file");
+        rc = PC_RC_ERROR;
         goto out;
     }
     
-    cert = PEM_read_X509(ca_file, NULL, NULL, NULL);
-    if (!cert) {
-        pc_lib_log(PC_LOG_ERROR, "Error reading certificate file %s", ca_path);
-        rc = PC_RC_ERROR;
-        goto cleanup_file;
-    }
-
     pkey = X509_get_pubkey(cert);
     if (!pkey) {
-        pc_lib_log(PC_LOG_ERROR, "Error reading public key from ca %s", ca_path);
+        pc_lib_log(PC_LOG_ERROR, "add_pinned_public_key_from_file_pointer - Error reading public key from certificate");
         rc = PC_RC_ERROR;
         goto cleanup_cert;
     }
-
+    
     // Decode the current public key struct into a byte array stored in
     // pkey_buf with size pkey_len
     pkey_len = i2d_PublicKey(pkey, NULL);
     if (!(pkey_buf = (uint8_t*)pc_lib_malloc(pkey_len+1))) {
-        pc_lib_log(PC_LOG_ERROR, "pc_lib_add_pinned_public_key_from_ca - out of memory");
+        pc_lib_log(PC_LOG_ERROR, "add_pinned_public_key_from_ca - out of memory");
         rc = PC_RC_ERROR;
         goto cleanup_pkey;
     }
-
+    
     pkey_temp_buf = pkey_buf;
     i2d_PublicKey(pkey, &pkey_temp_buf);
-
-    rc = pc_lib_add_pinned_public_key(pkey_buf, pkey_len);
-
+    
+    rc = pc_lib__add_pinned_public_key(pkey_buf, pkey_len);
+    
 cleanup_pkey:
     EVP_PKEY_free(pkey);
 cleanup_cert:
     X509_free(cert);
-cleanup_file:
-    fclose(ca_file);
 out:
+    return rc;
+
+}
+
+int pc_lib_add_pinned_public_key_from_ca_string(const char *ca_string)
+{
+    int rc = PC_RC_OK;
+    BIO *fp = NULL;
+    size_t nwritten = 0;
+
+    if (!ca_string) {
+        pc_lib_log(PC_LOG_ERROR, "pc_lib_add_pinned_public_key_from_ca_string - empty certificate string");
+        rc = PC_RC_ERROR;
+        goto out;
+    }
+
+    fp = BIO_new(BIO_s_mem());
+    if (!fp) {
+        pc_lib_log(PC_LOG_ERROR, "pc_lib_add_pinned_public_key_from_ca_string - failed to create BIO from string");
+        rc = PC_RC_ERROR;
+        goto out;
+    }
+
+    nwritten = BIO_write(fp, ca_string, strlen(ca_string));
+    if (nwritten <= 0) {
+        pc_lib_log(PC_LOG_ERROR, "pc_lib_add_pinned_public_key_from_ca_string - could not write to BIO");
+        rc = PC_RC_ERROR;
+        goto cleanup_bio;
+    }
+
+    rc = add_pinned_public_key_from_file_pointer(fp);
+
+cleanup_bio:
+    BIO_vfree(fp);
+out:
+    return rc;
+}
+
+int pc_lib_add_pinned_public_key_from_ca_file(const char *ca_path)
+{
+    if (!ca_path) {
+        pc_lib_log(PC_LOG_ERROR, "ca_path is NULL");
+        return PC_RC_INVALID_ARG;
+    }
+
+    BIO *ca_file = BIO_new_file(ca_path, "rb");
+    if (!ca_file) {
+        pc_lib_log(PC_LOG_ERROR, "pc_lib_add_pinned_public_key_from_ca_file - ca_path could not be opened");
+        return PC_RC_NO_SUCH_FILE;
+    }
+    
+    int rc = add_pinned_public_key_from_file_pointer(ca_file);
+    BIO_vfree(ca_file);
     return rc;
 }
 

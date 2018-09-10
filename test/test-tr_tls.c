@@ -81,9 +81,9 @@ notify_cb(const pc_notify_t* noti, const pc_error_t *err)
 static MunitResult
 test_add_key_pinned_errors(const MunitParameter params[], void *state)
 {
-    assert_int(pc_lib_add_pinned_public_key_from_ca("fixtures/asoijdoaisjdisajd"), ==, PC_RC_NO_SUCH_FILE);
-    assert_int(pc_lib_add_pinned_public_key_from_ca("fixtures/corrupt-ca.crt"), ==, PC_RC_ERROR);
-    assert_int(pc_lib_add_pinned_public_key_from_ca("fixtures/ca.crt"), ==, PC_RC_OK);
+    assert_int(pc_lib_add_pinned_public_key_from_ca_file("fixtures/asoijdoaisjdisajd"), ==, PC_RC_NO_SUCH_FILE);
+    assert_int(pc_lib_add_pinned_public_key_from_ca_file("fixtures/corrupt-ca.crt"), ==, PC_RC_ERROR);
+    assert_int(pc_lib_add_pinned_public_key_from_ca_file("fixtures/ca.crt"), ==, PC_RC_OK);
     pc_lib_clear_pinned_public_keys();
     return MUNIT_OK;
 }
@@ -101,16 +101,16 @@ test_key_pinned(const MunitParameter params[], void *state)
         // if one is valid it always should work.
         switch (i) {
             case 0:
-                pc_lib_add_pinned_public_key_from_ca(ca_array[2]);
+                pc_lib_add_pinned_public_key_from_ca_file(ca_array[2]);
                 break;
             case 1:
-                pc_lib_add_pinned_public_key_from_ca(ca_array[0]);
-                pc_lib_add_pinned_public_key_from_ca(ca_array[2]);
+                pc_lib_add_pinned_public_key_from_ca_file(ca_array[0]);
+                pc_lib_add_pinned_public_key_from_ca_file(ca_array[2]);
                 break;
             case 2:
-                pc_lib_add_pinned_public_key_from_ca(ca_array[0]);
-                pc_lib_add_pinned_public_key_from_ca(ca_array[1]);
-                pc_lib_add_pinned_public_key_from_ca(ca_array[2]);
+                pc_lib_add_pinned_public_key_from_ca_file(ca_array[0]);
+                pc_lib_add_pinned_public_key_from_ca_file(ca_array[1]);
+                pc_lib_add_pinned_public_key_from_ca_file(ca_array[2]);
                 break;
             default:
                 assert(false);
@@ -148,7 +148,7 @@ test_key_pinned(const MunitParameter params[], void *state)
 static MunitResult
 test_key_not_pinned(const MunitParameter params[], void *state)
 {
-    pc_lib_add_pinned_public_key_from_ca("fixtures/client-ssl.localhost.crt");
+    pc_lib_add_pinned_public_key_from_ca_file("fixtures/client-ssl.localhost.crt");
     pc_lib_clear_pinned_public_keys();
     pc_lib_skip_key_pin_check(false);
 
@@ -182,7 +182,7 @@ test_key_not_pinned(const MunitParameter params[], void *state)
 static MunitResult
 test_successful_handshake(const MunitParameter params[], void *state)
 {
-    pc_lib_add_pinned_public_key_from_ca(SERVER_CRT);
+    pc_lib_add_pinned_public_key_from_ca_file(SERVER_CRT);
     
     Unused(state); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;

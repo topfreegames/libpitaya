@@ -196,8 +196,8 @@ PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...),
 /**
  * Pins a public key globally for all clients.
  */
-PC_EXPORT int pc_lib_add_pinned_public_key(uint8_t *public_key, size_t size);
-PC_EXPORT int pc_lib_add_pinned_public_key_from_ca(const char *ca_path);
+PC_EXPORT int pc_lib_add_pinned_public_key_from_ca_string(const char *ca_string);
+PC_EXPORT int pc_lib_add_pinned_public_key_from_ca_file(const char *ca_path);
 PC_EXPORT void pc_lib_skip_key_pin_check(bool should_skip);
     
 /**
