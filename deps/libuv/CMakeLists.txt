@@ -344,6 +344,10 @@ target_include_directories(uv_a
   PRIVATE src)
 target_link_libraries(uv_a ${uv_libraries})
 
+if(UNIX AND NOT APPLE)
+    set_target_properties(uv uv_a PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
 if(BUILD_TESTING)
   include(CTest)
   add_executable(uv_run_tests ${uv_test_sources})
