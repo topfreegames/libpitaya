@@ -2,12 +2,12 @@ setup-mac:
 	@brew install ninja
 
 setup-android:
-	@mkdir -p temp 
+	@mkdir -p temp
 	@curl https://dl.google.com/android/repository/android-ndk-r17b-darwin-x86_64.zip -o temp/android-ndk-r17b.zip
 	@unzip -qo temp/android-ndk-r17b.zip -d temp/
 
 setup-android-linux:
-	@mkdir -p temp 
+	@mkdir -p temp
 	@curl https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip -o temp/android-ndk-r17b.zip
 	@unzip -qo temp/android-ndk-r17b.zip -d temp/
 
@@ -37,19 +37,18 @@ setup-node-mac:
 	@cd ~ && tar xf ~/node-v8.11.3-darwin-x64.tar.xz
 
 build-android:clean-build
-	@mkdir -p build
-	@cd build && cmake -GNinja -DPITAYA_LIB_TYPE=SHARED -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../temp/android-ndk-r17b/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a ..
-	@cmake --build ./build
+	@cmake -GNinja -H. -Bbuild -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
+				   -DCMAKE_TOOLCHAIN_FILE=../temp/android-ndk-r17b/build/cmake/android.toolchain.cmake \
+				   -DANDROID_ABI=armeabi-v7a
+	@cmake --build build
 
 build-mac:clean-build
-	@mkdir -p build
-	@cd build && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DPITAYA_LIB_TYPE=MODULE ..
-	@cmake --build ./build
+	@cmake -H. -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
+	@cmake --build build
 
 build-ios:clean-build
-	@mkdir -p build
-	@cd build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DPITAYA_LIB_TYPE=STATIC ..
-	@cmake --build ./build
+	@cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake
+	@cmake --build build
 
 clean-build:
 	@rm -rf build
@@ -60,7 +59,7 @@ test-deps: setup-node setup-go
 	@-(cd test/server && go get)
 
 build:
-	cd build/out/Release_x64 && ninja
+	cmake --build build
 
 test: build test-deps
 	./run-tests.sh

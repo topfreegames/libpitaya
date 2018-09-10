@@ -2,97 +2,13 @@ cmake_minimum_required(VERSION 3.7)
 
 project(pitaya)
 
-# Set build to Debug if none is specified
-if(NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
-endif()
-
-if(ANDROID)
-    set(PITAYA_TARGET "pitaya-android")
-elseif(IOS)
-    set(PITAYA_TARGET "pitaya-ios")
-elseif(APPLE)
-    set(PITAYA_TARGET "pitaya-mac")
-elseif(WIN32)
-    set(PITAYA_TARGET "pitaya-windows")
-else()
-    set(PITAYA_TARGET "pitaya-linux")
-endif()
-
 #
 # Options passed as parameters
 #
-set(PITAYA_LIB_TYPE "STATIC" CACHE STRING "The type of the library to build (STATIC | SHARED | MODULE).")
 set(PITAYA_OPENSSL_DIR "${CMAKE_SOURCE_DIR}/deps/openssl" CACHE STRING "Where is OpenSSL built.")
+option(BUILD_MACOS_BUNDLE "If it should build a .bundle library" OFF)
 
-if(UNIX AND NOT APPLE)
-    add_compile_options(-fPIC)
-endif()
-
-#
-# Lib UV
-#
-set(BUILD_TESTING OFF CACHE BOOL "")
-add_subdirectory(deps/libuv)
-include_directories(deps/libuv/include)
-
-#
-# Lib Zlib
-#
-if(ANDROID)
-    find_package(ZLIB REQUIRED)
-    include_directories(${ZLIB_INCLUDE_DIRS})
-else()
-    include_directories(deps/zlib ${CMAKE_BINARY_DIR}/deps/zlib)
-    add_subdirectory(deps/zlib)
-endif()
-
-#
-# OpenSSL
-#
-if(WIN32)
-    find_package(OpenSSL REQUIRED)
-    include_directories(${OPENSSL_INCLUDE_DIR})
-else()
-    if(ANDROID)
-        include_directories(${PITAYA_OPENSSL_DIR}/android/include)
-        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libssl.a)
-        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libcrypto.a)
-    elseif(IOS)
-        include_directories(${PITAYA_OPENSSL_DIR}/ios/include)
-        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libssl.a)
-        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libcrypto.a)
-    elseif(APPLE)
-        include_directories(${PITAYA_OPENSSL_DIR}/mac/include)
-        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libssl.a)
-        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libcrypto.a)
-    else() # Linux
-        include_directories(${CMAKE_SOURCE_DIR}/openssl-build/include)
-        set(SSL_LOCATION ${CMAKE_SOURCE_DIR}/openssl-build/lib/libssl.a)
-        set(CRYPTO_LOCATION ${CMAKE_SOURCE_DIR}/openssl-build/lib/libcrypto.a)
-    endif()
-
-    add_library(ssl STATIC IMPORTED)
-    set_property(TARGET ssl PROPERTY IMPORTED_LOCATION ${SSL_LOCATION})
-
-    add_library(crypto STATIC IMPORTED)
-    set_property(TARGET crypto PROPERTY IMPORTED_LOCATION ${CRYPTO_LOCATION})
-endif()
-
-#
-# Android Log
-#
-if(ANDROID)
-    find_library(ANDROID_LOG_LIB log)
-endif()
-
-#
-# Pitaya
-# TODO: Consider removing references to `dummy`
-#
-include_directories(include src)
-
-set(PITAYA_SOURCES
+set(pitaya_sources
     src/pc_assert.c
     src/pc_JSON.c
     src/pc_lib.c
@@ -112,7 +28,7 @@ set(PITAYA_SOURCES
     src/tr/uv/tr_uv_tls.c
     src/tr/dummy/tr_dummy.c)
 
-set(PITAYA_HEADERS
+set(pitaya_headers
     src/pc_error.h
     src/pc_JSON.h
     src/pc_lib.h
@@ -135,39 +51,139 @@ set(PITAYA_HEADERS
     src/tr/uv/tr_uv_tls.h
     src/tr/dummy/tr_dummy.h)
 
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-elseif (CMAKE_BUILD_TYPE STREQUAL Release)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-    add_definitions(-DNDEBUG)
+if(BUILD_MACOS_BUNDLE)
+    add_library(pitaya MODULE ${pitaya_sources} ${pitaya_headers})
+    set_target_properties(pitaya PROPERTIES SUFFIX ".bundle")
 else()
-    message(FATAL_ERROR "Unrecognized build type specified.")
+    add_library(pitaya ${pitaya_sources} ${pitaya_headers})
 endif()
 
-add_library(${PITAYA_TARGET} ${PITAYA_LIB_TYPE} ${PITAYA_SOURCES} ${PITAYA_HEADERS})
-
-if (PITAYA_LIB_TYPE STREQUAL MODULE)
-    set_target_properties(${PITAYA_TARGET} PROPERTIES SUFFIX ".bundle")
-endif()
-
-if(WIN32)
-    target_link_libraries(${PITAYA_TARGET} PUBLIC zlib uv_a OpenSSL::SSL OpenSSL::Crypto)
-elseif(ANDROID)
-    find_package(Threads REQUIRED)
-    target_link_libraries(${PITAYA_TARGET} PRIVATE Threads::Threads ${ZLIB_LIBRARIES} uv_a ssl crypto ${ANDROID_LOG_LIB})
+if(ANDROID)
+    set_target_properties(pitaya PROPERTIES OUTPUT_NAME "pitaya-android")
+elseif(IOS)
+    set_target_properties(pitaya PROPERTIES OUTPUT_NAME "pitaya-ios")
+elseif(APPLE)
+    set_target_properties(pitaya PROPERTIES OUTPUT_NAME "pitaya-mac")
+elseif(WIN32)
+    set_target_properties(pitaya PROPERTIES OUTPUT_NAME "pitaya-windows")
 else()
-    target_link_libraries(${PITAYA_TARGET} PRIVATE zlib uv_a ssl crypto)
+    set_target_properties(pitaya PROPERTIES OUTPUT_NAME "pitaya-linux")
 endif()
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(${PITAYA_TARGET} PRIVATE m)
+    target_compile_options(pitaya -fPIC)
+endif()
+
+#
+# Lib UV
+#
+set(BUILD_TESTING OFF CACHE BOOL "")
+add_subdirectory(deps/libuv)
+
+#
+# Lib Zlib
+#
+if(ANDROID)
+    find_package(ZLIB REQUIRED)
+    target_include_directories(pitaya PRIVATE ${ZLIB_INCLUDE_DIRS})
+else()
+    target_include_directories(pitaya PRIVATE PRIVATE deps/zlib ${CMAKE_BINARY_DIR}/deps/zlib)
+    add_subdirectory(deps/zlib)
+endif()
+
+#
+# OpenSSL
+#
+if(WIN32)
+    find_package(OpenSSL REQUIRED)
+    target_include_directories(pitaya PRIVATE ${OPENSSL_INCLUDE_DIR})
+else()
+    if(ANDROID)
+        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/android/include)
+        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libssl.a)
+        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libcrypto.a)
+    elseif(IOS)
+        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/ios/include)
+        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libssl.a)
+        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libcrypto.a)
+    elseif(APPLE)
+        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/mac/include)
+        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libssl.a)
+        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libcrypto.a)
+    else() # Linux
+        target_include_directories(pitaya PRIVATE ${CMAKE_SOURCE_DIR}/openssl-build/include)
+        set(SSL_LOCATION ${CMAKE_SOURCE_DIR}/openssl-build/lib/libssl.a)
+        set(CRYPTO_LOCATION ${CMAKE_SOURCE_DIR}/openssl-build/lib/libcrypto.a)
+    endif()
+
+    add_library(ssl STATIC IMPORTED)
+    set_property(TARGET ssl PROPERTY IMPORTED_LOCATION ${SSL_LOCATION})
+
+    add_library(crypto STATIC IMPORTED)
+    set_property(TARGET crypto PROPERTY IMPORTED_LOCATION ${CRYPTO_LOCATION})
+endif()
+
+#
+# Android Log
+#
+if(ANDROID)
+    find_library(ANDROID_LOG_LIB log)
+endif()
+
+#
+# Pitaya
+# TODO: Consider removing references to `dummy`
+#
+target_include_directories(pitaya
+  PUBLIC
+    include
+  PRIVATE
+    src)
+
+target_compile_options(pitaya
+  PRIVATE $<$<CONFIG:Debug>:-g>)
+
+target_compile_definitions(pitaya
+  PRIVATE
+    $<$<CONFIG:Release>:NDEBUG>
+    $<$<CONFIG:RelWithDebugInfo>:NDEBUG>)
+
+if(WIN32)
+    target_link_libraries(pitaya
+      PRIVATE
+        zlib
+        uv_a
+        OpenSSL::SSL
+        OpenSSL::Crypto)
+elseif(ANDROID)
+    find_package(Threads REQUIRED)
+    target_link_libraries(pitaya
+      PRIVATE
+        Threads::Threads
+        ${ZLIB_LIBRARIES}
+        uv_a
+        ssl
+        crypto
+        ${ANDROID_LOG_LIB})
+else()
+    target_link_libraries(pitaya
+      PRIVATE
+        zlib
+        uv_a
+        ssl
+        crypto)
+endif()
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(pitaya PRIVATE m)
 endif()
 
 #
 # Tests
 #
-if(NOT IOS AND NOT ANDROID AND NOT WIN32 AND NOT PITAYA_LIB_TYPE STREQUAL "MODULE")
-    set(TEST_SOURCES
+if(NOT IOS AND NOT ANDROID AND NOT WIN32 AND NOT BUILD_MACOS_BUNDLE)
+    add_executable(pitaya_tests
+        # Sources
         test/main.c
         test/test_compression.c
         test/test_kick.c
@@ -192,9 +208,9 @@ if(NOT IOS AND NOT ANDROID AND NOT WIN32 AND NOT PITAYA_LIB_TYPE STREQUAL "MODUL
         test/big-message.pb.c
         test/error.pb.c
         test/response.pb.c
-        test/session-data.pb.c)
+        test/session-data.pb.c
 
-    set(TEST_HEADERS
+        # Headers
         test/test_common.h
         # munit
         deps/munit/munit.h
@@ -209,17 +225,17 @@ if(NOT IOS AND NOT ANDROID AND NOT WIN32 AND NOT PITAYA_LIB_TYPE STREQUAL "MODUL
         test/response.pb.h
         test/session-data.pb.h)
 
-    add_executable(tests ${TEST_HEADERS} ${TEST_SOURCES})
-    target_include_directories(tests PUBLIC deps/munit deps/nanopb-0.3.9.1 test)
-    target_link_libraries(tests PUBLIC ${PITAYA_TARGET})
+    set_target_properties(pitaya_tests PROPERTIES OUTPUT_NAME "tests")
+    target_include_directories(pitaya_tests PUBLIC deps/munit deps/nanopb-0.3.9.1 test)
+    target_link_libraries(pitaya_tests PUBLIC pitaya)
 
     add_custom_command(
       TARGET
-        tests POST_BUILD
+        pitaya_tests POST_BUILD
       COMMAND
             ${CMAKE_COMMAND} -E copy_directory
                                 ${CMAKE_SOURCE_DIR}/fixtures
-                                $<TARGET_FILE_DIR:tests>/fixtures)
+                                $<TARGET_FILE_DIR:pitaya_tests>/fixtures)
 endif()
 
 add_custom_target(create_zip ALL COMMAND
