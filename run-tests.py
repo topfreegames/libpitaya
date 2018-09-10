@@ -10,16 +10,12 @@ import time
 
 THIS_DIR = path.abspath(path.dirname(__file__))
 
-TESTS_DIR = path.join(THIS_DIR, 'build')
-
 if sys.platform == 'win32' or sys.platform == 'cygwin':
     TESTS_EXE = 'tests.exe'
     SERVER_EXE = 'server.exe'
 else:
     TESTS_EXE = 'tests'
     SERVER_EXE = 'server'
-
-COMPILE_DIR = path.join(THIS_DIR, 'build')
 
 MOCK_SERVERS_DIR = path.join(THIS_DIR, 'test', 'mock-servers')
 MOCK_SERVERS = [
@@ -40,11 +36,13 @@ mock_server_processes = []
 pitaya_server_processes = []
 file_descriptors = []
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--node-path', dest='node_path', help='Where is node located')
     parser.add_argument('--go-path', dest='go_path', help='Where is Go located.')
+    parser.add_argument('--tests-dir', dest='tests_dir',
+                        help='Where the test executable is located',
+                        required=True)
     return parser.parse_known_args()
 
 
@@ -76,6 +74,16 @@ def ensure_pitaya_servers(go_path):
             ])
         os.chdir(PITAYA_SERVERS_DIR)
     os.chdir(THIS_DIR)
+
+
+def docker_compose_up():
+    subprocess.call('cd {} && docker-compose up -d'.format(PITAYA_SERVERS_DIR),
+                    shell=True)
+
+
+def docker_compose_down():
+    subprocess.call('cd {} && docker-compose down'.format(PITAYA_SERVERS_DIR),
+                    shell=True)
 
 
 def start_pitaya_servers():
@@ -121,25 +129,15 @@ def start_mock_servers(node_path):
     os.chdir(THIS_DIR)
 
 
-def ensure_tests_executable():
-    if not path.exists(COMPILE_DIR):
-        print('Compile directory does not exist, run gyp first.')
+def ensure_tests_executable(tests_dir):
+    tests_path = path.join(tests_dir, TESTS_EXE)
+    if not path.exists(tests_path):
+        print('Tests executable {} does not exist.'.format(tests_path))
         exit(1)
 
-    os.chdir(COMPILE_DIR)
-    print('Compiling tests executable')
-    ret = subprocess.call(['cmake', '--build', '.'])
-    os.chdir(THIS_DIR)
 
-    if ret != 0:
-        print('Compilation failed')
-        exit(1)
-
-    assert(path.exists(path.join(TESTS_DIR, TESTS_EXE)))
-
-
-def run_tests():
-    os.chdir(TESTS_DIR)
+def run_tests(tests_dir):
+    os.chdir(tests_dir)
     if sys.platform == 'win32' or sys.platform == 'cygwin':
         args = '{} {}'.format(TESTS_EXE, ' '.join(sys.argv))
     else:
@@ -164,14 +162,16 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
 
-    ensure_tests_executable()
+    ensure_tests_executable(args.tests_dir)
     start_mock_servers(args.node_path)
     ensure_pitaya_servers(args.go_path)
+    docker_compose_up()
     start_pitaya_servers()
     time.sleep(1)
-    code = run_tests()
+    code = run_tests(args.tests_dir)
     kill_all_servers()
     close_file_descriptors()
+    docker_compose_down()
     exit(code)
 
 

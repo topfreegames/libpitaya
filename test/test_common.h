@@ -39,6 +39,7 @@
 
 #define CRT "fixtures/ca.crt"
 #define INCORRECT_CRT "fixtures/ca_incorrect.crt"
+#define SERVER_CRT "fixtures/server/client-ssl.localhost.crt"
 
 typedef struct {
     int tcp_port;
