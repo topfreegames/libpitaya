@@ -1038,12 +1038,12 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
         size_t uncompressed_len;
         pr_decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
 
-        pc_lib_log(PC_LOG_INFO, "data: %s", uncompressed_data);
+        pc_lib_log(PC_LOG_INFO, "data: %.*s", uncompressed_len, uncompressed_data);
         res = pc_JSON_Parse(uncompressed_data);
         pc_lib_free(uncompressed_data);
         
     } else {
-        pc_lib_log(PC_LOG_INFO, "data: %s", data);
+        pc_lib_log(PC_LOG_INFO, "data: %.*s", len, data);
         res = pc_JSON_Parse(data);
     }
 
