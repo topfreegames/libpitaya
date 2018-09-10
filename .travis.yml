@@ -20,12 +20,12 @@ matrix:
           packages:
             - ninja-build
       sudo: required
-      install: 
+      install:
         - cd ~
         - curl https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip -o android-ndk-r17b.zip
         - unzip -qo android-ndk-r17b.zip
         - cd $TRAVIS_BUILD_DIR
-      before_script: 
+      before_script:
         - mkdir -p build
         - cd build
         - cmake -GNinja -DPITAYA_LIB_TYPE=SHARED -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=~/android-ndk-r17b/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a ..
@@ -64,7 +64,7 @@ matrix:
         - mv $TRAVIS_BUILD_DIR/../libpitaya ~/go/src/github.com/topfreegames
         - export TRAVIS_BUILD_DIR=~/go/src/github.com/topfreegames/libpitaya
         - cd $TRAVIS_BUILD_DIR
-      install: 
+      install:
         - eval "$(GIMME_GO_VERSION=1.10 gimme)"
         - make setup-node-linux
 
@@ -77,8 +77,6 @@ matrix:
         - cd ~/go/src/github.com/topfreegames/libpitaya
         - (cd pitaya-servers/json-server && go get)
         - (cd pitaya-servers/protobuf-server && go get)
-        - docker run -p 4222:4222 -d --name nats-main nats
-        - docker run -d -p 2379:2379 -p 2380:2380 appcelerator/etcd
 
         - ./build-openssl.py --force --prefix openssl-build --openssl-tar deps/openssl-OpenSSL_1_0_1u.tar.gz linux
       before_script: 
@@ -88,7 +86,7 @@ matrix:
         - cmake --build .
         - sudo cp libpitaya-linux.so /usr/lib
         - cd ..
-        - ./run-tests.py --node-path ~/node/bin/node --go-path ~/.gimme/versions/go1.10.linux.amd64/bin/go
+        - ./run-tests.py --node-path ~/node/bin/node --go-path ~/.gimme/versions/go1.10.linux.amd64/bin/go --tests-dir build
       deploy:
         provider: releases
         draft: true
