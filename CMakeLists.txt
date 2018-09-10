@@ -71,7 +71,7 @@ else()
 endif()
 
 if(UNIX AND NOT APPLE)
-    target_compile_options(pitaya -fPIC)
+    set_target_properties(pitaya PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
 #
