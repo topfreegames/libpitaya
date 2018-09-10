@@ -24,7 +24,7 @@ install:
 
 before_build:
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
-  - cmake -H. -Bbuild -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON ..
+  - cmake -H. -Bbuild -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON
   - cd build
 
 build_script:
