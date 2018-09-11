@@ -171,12 +171,6 @@ default_error_cb(const pc_request_t *req, const pc_error_t *error)
 
 void 
 pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, const char* platform, const char* build_number,const char* version) {
-#if !defined(PC_NO_UV_TLS_TRANS)
-    if (ca_file || ca_path) {
-        tr_uv_tls_set_ca_file(ca_file, ca_path);
-    }
-#endif
-    
     if (custom_assert != NULL) {
         update_assert(custom_assert);
     }
@@ -193,6 +187,12 @@ pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_un
     pc_lib_init(unity_log, NULL, NULL, NULL, client_info);
 #else
     pc_lib_init(NULL, NULL, NULL, NULL, client_info);
+#endif
+
+#if !defined(PC_NO_UV_TLS_TRANS)
+    if (ca_file || ca_path) {
+        tr_uv_tls_set_ca_file(ca_file, ca_path);
+    }
 #endif
 }
 
