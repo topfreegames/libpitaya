@@ -259,8 +259,7 @@ typedef void (*pc_event_cb_t)(pc_client_t *client, int ev_type, void* ex_data,
 #define PC_EV_PROTO_ERROR 7
 #define PC_EV_RECONNECT_FAILED 8
 #define PC_EV_RECONNECT_STARTED 9
-#define PC_EV_UNPINNED_KEY 10
-#define PC_EV_COUNT 11
+#define PC_EV_COUNT 10
 
 #define PC_EV_INVALID_HANDLER_ID -1
 

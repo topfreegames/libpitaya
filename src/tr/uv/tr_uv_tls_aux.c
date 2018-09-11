@@ -265,7 +265,7 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
             if (!tls->is_handshake_completed) {
                 if (!tls__public_key_pinned(tls)) {
                     pc_lib_log(PC_LOG_ERROR, "Public key is not pinned.");
-                    pc_trans_fire_event(tt->client, PC_EV_UNPINNED_KEY, "Public key from server is not pinned.", NULL);
+                    pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Public key from server is not pinned.", NULL);
                     tt->reset_fn(tt);
                     return;
                 }

@@ -21,8 +21,7 @@ static int EV_ORDER[] = {
 };
 
 static int KEY_NOT_PINNED_EV_ORDER[] = {
-    PC_EV_UNPINNED_KEY,
-    PC_EV_DISCONNECT,
+    PC_EV_CONNECT_FAILED,
 };
 
 static int KEY_PINNED_EV_ORDER[] = {
@@ -167,10 +166,8 @@ test_key_not_pinned(const MunitParameter params[], void *state)
 
     assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tls_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
-
-    assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
     
+    assert_int(pc_client_state(g_client), ==, PC_ST_INITED);
     assert_int(num_ev_cb_called, ==, ArrayCount(KEY_NOT_PINNED_EV_ORDER));
     assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
