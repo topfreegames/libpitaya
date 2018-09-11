@@ -10,6 +10,7 @@
 
 #include "pitaya.h"
 #include "pc_assert.h"
+#include "pc_lib.h"
 #include "pitaya_unity.h"
 
 #define __UNITYEDITOR__
@@ -238,7 +239,7 @@ pc_unity_request(pc_client_t* client, const char* route, const char* msg,
                  uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb, 
                  pc_unity_request_error_callback_t error_cb) 
 {
-    request_cb_t* rp = (request_cb_t*)malloc(sizeof(request_cb_t));
+    request_cb_t* rp = (request_cb_t*)pc_lib_malloc(sizeof(request_cb_t));
     if (!rp) {
         return PC_RC_TIMEOUT;
     }
@@ -253,7 +254,7 @@ pc_unity_binary_request(pc_client_t* client, const char* route, uint8_t* data,
                  int64_t len, uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb,
                  pc_unity_request_error_callback_t error_cb)
 {
-    request_cb_t* rp = (request_cb_t*)malloc(sizeof(request_cb_t));
+    request_cb_t* rp = (request_cb_t*)pc_lib_malloc(sizeof(request_cb_t));
     if (!rp) {
         return PC_RC_TIMEOUT;
     }
