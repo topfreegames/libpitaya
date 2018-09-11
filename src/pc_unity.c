@@ -248,3 +248,17 @@ pc_unity_request(pc_client_t* client, const char* route, const char* msg,
     return pc_string_request_with_timeout(client, route, msg, rp, timeout, default_request_cb, default_error_cb);
 }
 
+int
+pc_unity_binary_request(pc_client_t* client, const char* route, uint8_t* data,
+                 int64_t len, uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb,
+                 pc_unity_request_error_callback_t error_cb)
+{
+    request_cb_t* rp = (request_cb_t*)malloc(sizeof(request_cb_t));
+    if (!rp) {
+        return PC_RC_TIMEOUT;
+    }
+    rp->cb = cb;
+    rp->error_cb = error_cb;
+    rp->cbid= cbid;
+    return pc_binary_request_with_timeout(client, route, data, len, rp, timeout, default_request_cb, default_error_cb);
+}
