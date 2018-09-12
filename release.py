@@ -90,17 +90,7 @@ def new_release(new_version):
         print('invalid version string ({} <= {})'.format(new_version, curr_version))
         exit(1)
 
-    status_text = str(sp.check_output('git status', shell=True))
-    if not re.search(r".*nothing to commit, working tree clean.*", status_text):
-        print('Please commit all changes first.')
-        exit(1)
-
     save_new_version(new_version)
-
-    sp.call('git add include/pitaya_version.h', shell=True)
-    sp.call('git commit -m"New release {}"'.format(new_version), shell=True)
-    sp.call('git tag {}'.format(new_version), shell=True)
-    print('tag {} created, now you can push your changes'.format(new_version))
 
 
 def main():
