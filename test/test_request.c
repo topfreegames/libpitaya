@@ -14,7 +14,6 @@ static int g_num_timeout_error_cb_called = 0;
 static void
 request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
-    // printf("RESP IS: %s\n", resp);
     g_num_success_cb_called++;
 }
 
@@ -101,12 +100,12 @@ test_timeout(const MunitParameter params[], void *data)
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", NULL, NULL, 1,
                                                   request_cb, timeout_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(2);
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 1,
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", NULL, NULL, 1,
                                                   request_cb, NULL), ==, PC_RC_OK);
 
         SLEEP_SECONDS(2);
@@ -144,12 +143,12 @@ test_valid_route(const MunitParameter params[], void *data)
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", NULL, NULL, REQ_TIMEOUT,
                                                   request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, REQ_TIMEOUT,
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", NULL, NULL, REQ_TIMEOUT,
                                                   request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);

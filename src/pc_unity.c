@@ -234,7 +234,7 @@ pc_unity_destroy(pc_client_t *client)
     }
 }
 
-int 
+int
 pc_unity_request(pc_client_t* client, const char* route, const char* msg,
                  uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb, 
                  pc_unity_request_error_callback_t error_cb) 

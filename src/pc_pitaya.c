@@ -530,10 +530,6 @@ int pc_string_request_with_timeout(pc_client_t* client, const char* route,
                                    const char *str, void* ex_data, int timeout, 
                                    pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb)
 {
-    if (!str) {
-        return PC_RC_INVALID_ARG;
-    }
-
     pc_buf_t buf = pc_buf_from_string(str);
     return pc__request_with_timeout(client, route, buf, ex_data, timeout, success_cb, error_cb);
 }
@@ -542,9 +538,12 @@ int pc_binary_request_with_timeout(pc_client_t* client, const char* route,
                                    uint8_t *data, int64_t len, void* ex_data, int timeout,
                                    pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb)
 {
-    if (!data || len <= 0) {
+    if (len < 0) {
+        return PC_RC_INVALID_ARG;
+    } else if (data && len == 0) {
         return PC_RC_INVALID_ARG;
     }
+
     pc_buf_t buf;
     buf.len = len;
     buf.base = pc_lib_malloc((size_t)len);
@@ -869,21 +868,18 @@ pc_buf_t pc_buf_empty()
 
 pc_buf_t pc_buf_from_string(const char *str)
 {
-    pc_assert(str);
-    size_t str_len = strlen(str);
-
-    if (str_len == 0) {
-        pc_buf_t buf = {0};
-        return buf;
+    pc_buf_t buf = {0};
+    if (str) {
+        size_t str_len = strlen(str);
+        
+        if (str_len > 0) {
+            buf.base = pc_lib_malloc(str_len+1);
+            buf.len = (int64_t)str_len;
+            
+            buf.base[buf.len] = '\0';
+            strncpy((char*)buf.base, str, buf.len);
+        }
     }
-    
-    pc_buf_t buf;
-    buf.base = pc_lib_malloc(str_len+1);
-    buf.len = (int64_t)str_len;
-
-    buf.base[buf.len] = '\0';
-    strncpy((char*)buf.base, str, buf.len);
-
     return buf;
 }
 

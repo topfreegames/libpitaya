@@ -61,10 +61,6 @@ do_test_session_persistence(pc_client_config_t *config, int port)
     session_cb_data.called = false;
     session_cb_data.data = EMPTY_RESP;
 
-    // TODO: why passing NULL msg is an invalid argument?
-    assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", NULL, NULL, 
-                                              REQ_TIMEOUT, get_session_request_cb, NULL), ==, PC_RC_INVALID_ARG);
-
     // Get empty session and check that the callback was called.
     assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &session_cb_data, 
                                               REQ_TIMEOUT, get_session_request_cb, NULL), ==, PC_RC_OK);
