@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package protos;
+
+message PlayerResponse {
+    string publicId = 1;
+    string accessToken = 2;
+    string name = 3;
+    repeated string items = 4;
+    double health = 5;
+}
+
+message NPC {
+    string name = 1;
+    double health = 2;
+    string publicId = 3;
+}
+
+message BigMessageResponse {
+    PlayerResponse player = 1;
+    map<string, NPC> npcs = 2;
+    repeated string chests = 3;
+}
+
+message BigMessage {
+    string code = 1;
+    BigMessageResponse response = 2;
+}
