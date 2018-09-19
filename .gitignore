@@ -26,3 +26,6 @@ out.log
 pitaya-servers/json-server/server
 pitaya-servers/protobuf-server/server
 temp/
+unity/PitayaExample/.idea
+unity/PitayaExample/.idea/*
+
