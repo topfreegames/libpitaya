@@ -1,6 +1,7 @@
-﻿using Google.Protobuf;
+﻿using System;
 using NUnit.Framework;
 using Protos;
+using ProtoBuf;
 
 namespace Pitaya.Tests
 {
@@ -18,64 +19,46 @@ namespace Pitaya.Tests
                 Code = 1,
                 Msg = "Fake message"
             };
+            
 
-            _responseEncoded = _responseStub.ToByteArray();
+            _responseEncoded = ProtobufSerializer.Encode(_responseStub, PitayaSerializer.Protobuf);
 
         }
 
-        [Test]
-        public void ShouldStoreDescriptorWhenCreatingProtobuf()
-        {
-//            Assert.NotNull(_p.GetDescriptor());
-        }
-
-        [Test]
-        public void ShouldGetDescriptorReturnCorrectDescriptor()
-        {
-//            _p = new ProtobufSerializer(SessionData.Descriptor);
-//            var md = _p.GetDescriptor();
-//
-//            Assert.AreEqual(SessionData.Descriptor, md);
-//            Assert.AreNotEqual(Response.Descriptor, md);
-        }
 
         [Test]
         public void ShouldEncodeMessageSuccessfully()
         {
-//            var encoded = ProtobufSerializer.Encode(_responseStub);
-//
-//            Assert.AreEqual(encoded, _responseEncoded);
-//
-//            _p = new ProtobufSerializer(SessionData.Descriptor);
-//            encoded = _p.Encode(_sessionStub);
-//
-//            Assert.AreEqual(encoded, _sessionEncoded);
+            var output = ProtobufSerializer.Encode(_responseStub, PitayaSerializer.Protobuf);
+            Assert.True(output.Length > 0);
+            Assert.True(output.Length > 0);
+
         }
+        
 
         [Test]
         public void ShouldDecodeMessageSuccessfully()
         {
             var obj = ProtobufSerializer.Decode(_responseEncoded, typeof(Response), PitayaSerializer.Protobuf);
 
-            Assert.AreEqual(obj.GetType(), typeof(Response));
-            Assert.AreEqual(obj, _responseStub);
+            Assert.True(typeof(Response) == obj.GetType());
+            Assert.AreEqual(((Response)obj).Code, _responseStub.Code);
+            Assert.AreEqual(((Response)obj).Msg, _responseStub.Msg);
         }
 
-        [Test]
-        public void ShouldNotEncodeMessageIfObjectPassedIsNotIMessage()
+        private bool IsResponseEquals(Response obj1, Response obj2)
         {
-//            const string message = "wrong data";
-//
-//            Assert.Null(_p.Encode(message));
-        }
+            if (obj1 == obj2)
+            {
+                return true;
+            }
 
-        [Test]
-        public void ShouldNotDecodeMessageIfThereIsNoDescriptor()
-        {
-//            _p = new ProtobufSerializer();
-//
-//            Assert.Null(_p.Decode(_responseEncoded));
-//            Assert.Null(_p.Decode(_sessionEncoded));
-        }
+            if (obj1 == null || obj2 == null)
+            {
+                return false;
+            }
+
+            return obj1.Code == obj2.Code && obj1.Msg == obj2.Msg;
+        } 
     }
 }

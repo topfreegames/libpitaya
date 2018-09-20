@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Google.Protobuf;
 using SimpleJson;
 
 namespace Pitaya
@@ -82,12 +81,12 @@ namespace Pitaya
             Request(route, msg, -1, action, errorAction);
         }
 
-        public void Request<T>(string route, IMessage msg, Action<T> action, Action<PitayaError> errorAction)
+        public void Request<T>(string route, ProtoBuf.IExtensible msg, Action<T> action, Action<PitayaError> errorAction)
         {
             Request(route, msg, -1, action, errorAction);
         }
 
-        public void Request<T>(string route, IMessage msg, int timeout, Action<T> action, Action<PitayaError> errorAction)
+        public void Request<T>(string route, ProtoBuf.IExtensible msg, int timeout, Action<T> action, Action<PitayaError> errorAction)
         {
             _reqUid++;
             _typeRequestSubscriber.Subscribe(_reqUid, typeof(T));
@@ -111,12 +110,12 @@ namespace Pitaya
             PitayaBinding.Request(_client, route, JsonSerializer.Encode(msg), _reqUid, timeout);
         }
 
-        public void Notify(string route, IMessage msg)
+        public void Notify(string route, ProtoBuf.IExtensible msg)
         {
             Notify(route, -1, msg);
         }
 
-        public void Notify(string route, int timeout, IMessage msg)
+        public void Notify(string route, int timeout, ProtoBuf.IExtensible msg)
         {
             var serializer = PitayaBinding.ClientSerializer(_client);
             PitayaBinding.Notify(_client, route, ProtobufSerializer.Encode(msg,serializer), timeout);
