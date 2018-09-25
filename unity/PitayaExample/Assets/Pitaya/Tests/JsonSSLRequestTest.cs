@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Threading;
 using NUnit.Framework;
 using SimpleJson;
 using UnityEngine;
@@ -22,11 +23,13 @@ namespace Pitaya.Tests
         private bool _isFinished;
         private string _data;
         private string _emptyData;
+        private Thread _mainThread;
 
         [SetUp]
         public void Init()
         {
             // PitayaBinding.AddPinnedPublicKeyFromCaFile("client-ssl.localhost.crt");
+            _mainThread = Thread.CurrentThread;
             PitayaBinding.SkipKeyPinCheck(true);
 
             _client = new PitayaClient("ca.crt");
@@ -70,11 +73,13 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
-                }
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
+                }    
             );
 
             while(!_isFinished) {
@@ -99,10 +104,12 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
@@ -118,10 +125,12 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
@@ -145,10 +154,12 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
@@ -164,10 +175,12 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
@@ -191,10 +204,12 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 

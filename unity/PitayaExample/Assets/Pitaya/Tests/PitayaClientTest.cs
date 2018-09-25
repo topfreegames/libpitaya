@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Threading;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -15,9 +16,12 @@ namespace Pitaya.Tests
 #endif
         private const int ServerPort = 3251;
 
+        private Thread _mainThread;
+
         [SetUp]
         public void Setup()
         {
+            _mainThread = Thread.CurrentThread;
             _client = new PitayaClient();
         }
 
@@ -46,6 +50,7 @@ namespace Pitaya.Tests
             _client.NetWorkStateChangedEvent += networkState => {
                 called = true;
                 connectionState = networkState;
+                Assert.AreEqual(_mainThread, Thread.CurrentThread);
             };
 
             _client.Connect(ServerHost, ServerPort);
@@ -68,6 +73,7 @@ namespace Pitaya.Tests
             _client.NetWorkStateChangedEvent += networkState => {
                 called = true;
                 connectionState = networkState;
+                Assert.AreEqual(_mainThread, Thread.CurrentThread);
             };
 
             const string wrongServer = "1";
@@ -96,6 +102,7 @@ namespace Pitaya.Tests
             _client.NetWorkStateChangedEvent += networkState => {
                 called = true;
                 connectionState = networkState;
+                Assert.AreEqual(_mainThread, Thread.CurrentThread);
             };
 
             _client.Connect(ServerHost, unauthorizedPort);

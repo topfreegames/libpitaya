@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Threading;
 using NUnit.Framework;
 using SimpleJson;
 using UnityEngine;
@@ -15,10 +16,12 @@ namespace Pitaya.Tests
         private const string ServerHost = "10.0.22.57";
 #endif
         private const int ServerPort = 3251;
+        private Thread _mainThread;
 
         [SetUp]
         public void Setup()
         {
+            _mainThread = Thread.CurrentThread;
             _client = new PitayaClient();
         }
 
@@ -46,6 +49,7 @@ namespace Pitaya.Tests
                 res => {
                     receivedPushResponse = true;
                     response = res;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
@@ -57,10 +61,12 @@ namespace Pitaya.Tests
                 res => {
                     requestFinished = true;
                     sendPushResponse = res;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     requestFinished = true;
                     sendPushResponse = error;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
@@ -89,6 +95,7 @@ namespace Pitaya.Tests
                 res => {
                     receivedPushResponse = true;
                     response = res;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
@@ -100,9 +107,11 @@ namespace Pitaya.Tests
                 "connector.sendpush",
                 res => {
                     requestFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     requestFinished = true;
+                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
