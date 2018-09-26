@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using Newtonsoft.Json;
 using ProtoBuf;
 
 namespace Pitaya
@@ -16,26 +17,20 @@ namespace Pitaya
                 return stream.ToArray();
             }
             
-//            var jsf = new JsonFormatter(new JsonFormatter.Settings(true));
-//            var jsonString = jsf.Format(message);
-//            
-//            return Encoding.UTF8.GetBytes(jsonString);
-            return null;
+            
+            var jsonString = JsonConvert.SerializeObject(message);
+            return Encoding.UTF8.GetBytes(jsonString);
         }
         
         public static IExtensible Decode(byte[] buffer, Type type, PitayaSerializer serializer)
         {
             if (PitayaSerializer.Protobuf == serializer)
-            {
-                var res = (IExtensible) Activator.CreateInstance(type);
-//                var merged = (IExtensible) Serializer.NonGeneric.Merge(new MemoryStream(buffer), res);
-                
+            {   
                 return (IExtensible) Serializer.Deserialize(type, new MemoryStream(buffer));
             }
             
-//            var stringified = Encoding.UTF8.GetString(data);
-//            return (IMessage)SimpleJson.SimpleJson.DeserializeObject(stringified, type);  
-            return null;
+            var stringified = Encoding.UTF8.GetString(buffer);
+            return (IExtensible) JsonConvert.DeserializeObject(stringified, type);
         }
     }
 }

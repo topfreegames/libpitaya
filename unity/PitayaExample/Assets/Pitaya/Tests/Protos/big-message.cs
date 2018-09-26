@@ -3,7 +3,7 @@
 // Input: big-message.proto
 
 #pragma warning disable CS0612, CS1591, CS3021, IDE1006, RCS1036, RCS1057, RCS1085, RCS1192
-namespace Protos
+namespace protos
 {
 
     [global::ProtoBuf.ProtoContract()]
@@ -21,31 +21,31 @@ namespace Protos
         [global::System.ComponentModel.DefaultValue("")]
         public string accessToken { get; set; } = "";
 
-        [global::ProtoBuf.ProtoMember(3, Name = @"name")]
+        [global::ProtoBuf.ProtoMember(3)]
         [global::System.ComponentModel.DefaultValue("")]
-        public string Name { get; set; } = "";
+        public string name { get; set; } = "";
 
-        [global::ProtoBuf.ProtoMember(4, Name = @"items")]
-        public global::System.Collections.Generic.List<string> Items { get; } = new global::System.Collections.Generic.List<string>();
+        [global::ProtoBuf.ProtoMember(4)]
+        public global::System.Collections.Generic.List<string> items { get; } = new global::System.Collections.Generic.List<string>();
 
-        [global::ProtoBuf.ProtoMember(5, Name = @"health")]
-        public double Health { get; set; }
+        [global::ProtoBuf.ProtoMember(5)]
+        public double health { get; set; }
 
     }
 
-    [global::ProtoBuf.ProtoContract(Name = @"NPC")]
-    public partial class Npc : global::ProtoBuf.IExtensible
+    [global::ProtoBuf.ProtoContract()]
+    public partial class NPC : global::ProtoBuf.IExtensible
     {
         private global::ProtoBuf.IExtension __pbn__extensionData;
         global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
             => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
 
-        [global::ProtoBuf.ProtoMember(1, Name = @"name")]
+        [global::ProtoBuf.ProtoMember(1)]
         [global::System.ComponentModel.DefaultValue("")]
-        public string Name { get; set; } = "";
+        public string name { get; set; } = "";
 
-        [global::ProtoBuf.ProtoMember(2, Name = @"health")]
-        public double Health { get; set; }
+        [global::ProtoBuf.ProtoMember(2)]
+        public double health { get; set; }
 
         [global::ProtoBuf.ProtoMember(3)]
         [global::System.ComponentModel.DefaultValue("")]
@@ -60,15 +60,15 @@ namespace Protos
         global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
             => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
 
-        [global::ProtoBuf.ProtoMember(1, Name = @"player")]
-        public PlayerResponse Player { get; set; }
+        [global::ProtoBuf.ProtoMember(1)]
+        public PlayerResponse player { get; set; }
 
-        [global::ProtoBuf.ProtoMember(2, Name = @"npcs")]
+        [global::ProtoBuf.ProtoMember(2)]
         [global::ProtoBuf.ProtoMap]
-        public global::System.Collections.Generic.Dictionary<string, Npc> Npcs { get; } = new global::System.Collections.Generic.Dictionary<string, Npc>();
+        public global::System.Collections.Generic.Dictionary<string, NPC> npcs { get; } = new global::System.Collections.Generic.Dictionary<string, NPC>();
 
-        [global::ProtoBuf.ProtoMember(3, Name = @"chests")]
-        public global::System.Collections.Generic.List<string> Chests { get; } = new global::System.Collections.Generic.List<string>();
+        [global::ProtoBuf.ProtoMember(3)]
+        public global::System.Collections.Generic.List<string> chests { get; } = new global::System.Collections.Generic.List<string>();
 
     }
 
@@ -79,12 +79,12 @@ namespace Protos
         global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
             => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
 
-        [global::ProtoBuf.ProtoMember(1, Name = @"code")]
+        [global::ProtoBuf.ProtoMember(1)]
         [global::System.ComponentModel.DefaultValue("")]
-        public string Code { get; set; } = "";
+        public string code { get; set; } = "";
 
-        [global::ProtoBuf.ProtoMember(2, Name = @"response")]
-        public BigMessageResponse Response { get; set; }
+        [global::ProtoBuf.ProtoMember(2)]
+        public BigMessageResponse response { get; set; }
 
     }
 

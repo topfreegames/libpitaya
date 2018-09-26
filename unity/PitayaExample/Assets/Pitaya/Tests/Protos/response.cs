@@ -3,7 +3,7 @@
 // Input: response.proto
 
 #pragma warning disable CS0612, CS1591, CS3021, IDE1006, RCS1036, RCS1057, RCS1085, RCS1192
-namespace Protos
+namespace protos
 {
 
     [global::ProtoBuf.ProtoContract()]
@@ -13,12 +13,12 @@ namespace Protos
         global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
             => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
 
-        [global::ProtoBuf.ProtoMember(1, Name = @"code")]
-        public int Code { get; set; }
+        [global::ProtoBuf.ProtoMember(1)]
+        public int code { get; set; }
 
-        [global::ProtoBuf.ProtoMember(2, Name = @"msg")]
+        [global::ProtoBuf.ProtoMember(2)]
         [global::System.ComponentModel.DefaultValue("")]
-        public string Msg { get; set; } = "";
+        public string msg { get; set; } = "";
 
     }
 

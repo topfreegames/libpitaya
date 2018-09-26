@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
-using Google.Protobuf;
 using SimpleJson;
 using UnityThreading;
 
@@ -253,28 +252,15 @@ namespace Pitaya
             return Marshal.PtrToStringAuto(NativeRcToStr(rc));
         }
 
-        private static PitayaError CreatePitayaErrorWithJson(PitayaBindingError errorBinding)
-        {
-            var res = Marshal.PtrToStringAuto(errorBinding.Buffer.Data, (int) errorBinding.Buffer.Len);
-
-            var msg = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(res);
-            var metadata = new Dictionary<string, string>();
-
-            if(msg.ContainsKey("metadata")){
-                metadata = SimpleJson.SimpleJson.DeserializeObject<Dictionary<string, string>>((string) msg["metadata"]);
-            }
-
-            return new PitayaError((string)msg["code"], (string)msg["msg"], metadata);
-        }
-
-        private static PitayaError CreatePitayaErrorWithProto(PitayaBindingError errorBinding)
+        private static PitayaError CreatePitayaError(PitayaBindingError errorBinding, PitayaSerializer serializer)
         {
             var rawData = new byte[errorBinding.Buffer.Len];
             Marshal.Copy(errorBinding.Buffer.Data, rawData, 0, (int)errorBinding.Buffer.Len);
 
-            var error = new Protos.Error();
-            error.MergeFrom(rawData);
-            return new PitayaError(error.Code, error.Msg, error.Metadata);
+            
+            var error = (protos.Error) ProtobufSerializer.Decode(rawData, typeof(protos.Error), serializer);
+            
+            return new PitayaError(error.code, error.msg, error.metadata);
         }
 
         //-------------------------PRIVATE METHODS------------------------------// 
@@ -303,7 +289,7 @@ namespace Pitaya
 
             if(errBinding.Code == PitayaConstants.PcRcServerError)
             {
-                error = PitayaSerializer.Json == ClientSerializer(client) ? CreatePitayaErrorWithJson(errBinding) : CreatePitayaErrorWithProto(errBinding);
+                error = CreatePitayaError(errBinding, ClientSerializer(client));
             } else {
                 var code = RcToStr(errBinding.Code);
                 error = new PitayaError(code, "Internal Pitaya error");
