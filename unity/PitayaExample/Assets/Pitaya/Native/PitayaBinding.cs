@@ -393,7 +393,7 @@ namespace Pitaya
         #elif (UNITY_ANDROID) && !UNITY_EDITOR
         private const string LibName = "libpitaya-android";
         #elif (UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX)
-        private const string LibName = "__Internal";
+        private const string LibName = "libpitaya-mac";
         #else
         private const string LibName = "libpitaya-linux";
         #endif
