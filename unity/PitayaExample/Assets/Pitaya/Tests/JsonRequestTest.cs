@@ -1,9 +1,9 @@
 ﻿using System.Collections;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using SimpleJson;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Pitaya;
 
 namespace Pitaya.Tests
 {
@@ -17,8 +17,8 @@ namespace Pitaya.Tests
         private const string ServerHost = "10.0.22.57";
 #endif
         private const int ServerPort = 3251;
-        private JsonObject _jsonStub;
-        private JsonObject _emptyJsonStub;
+        private JObject _jsonStub;
+        private JObject _emptyJsonStub;
         private bool _isFinished;
         private string _data;
         private string _emptyData;
@@ -32,9 +32,9 @@ namespace Pitaya.Tests
             _client.Connect(ServerHost, ServerPort);
 
             _data = "{\"Data\":{\"name\":\"test25\"}}";
-            _jsonStub = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(_data);
+            _jsonStub = (JObject)JsonConvert.DeserializeObject(_data);
             _emptyData = "{\"Data\":{}}";
-            _emptyJsonStub = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(_emptyData);
+            _emptyJsonStub = (JObject)JsonConvert.DeserializeObject(_emptyData);
 
             _isFinished = false;
 
@@ -78,11 +78,14 @@ namespace Pitaya.Tests
                 yield return new WaitForSeconds(1);
             }
 
+            var ob = (JObject) response;
+            
+
             Assert.True(_isFinished);
             Assert.NotNull(response);
-            Assert.AreEqual(typeof(JsonObject), response.GetType());
-            Assert.AreEqual(((JsonObject)response)["Code"], 200);
-            Assert.AreEqual(((JsonObject)response)["Msg"], "success");
+            Assert.AreEqual(typeof(JObject), response.GetType());
+            Assert.AreEqual((int)ob["Code"], 200);
+            Assert.AreEqual((string)ob["Msg"], "success");
         }
 
         [UnityTest]
@@ -129,7 +132,7 @@ namespace Pitaya.Tests
             Assert.True(_isFinished);
             Assert.NotNull(response);
             Assert.AreEqual(response, _jsonStub);
-            Assert.AreEqual(response.ToString(), _data);
+            Assert.AreEqual(JsonConvert.SerializeObject(response), _data);
         }
 
         [UnityTest]
@@ -175,7 +178,7 @@ namespace Pitaya.Tests
             Assert.True(_isFinished);
             Assert.NotNull(response);
             Assert.AreEqual(response, _emptyJsonStub);
-            Assert.AreEqual(response.ToString(), _emptyData);
+            Assert.AreEqual(JsonConvert.SerializeObject(response), _emptyData);
         }
 
         [UnityTest]

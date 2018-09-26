@@ -1,5 +1,7 @@
 using System.Text;
-using SimpleJson;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace Pitaya
 {
@@ -7,18 +9,18 @@ namespace Pitaya
     {
         public static byte[] Encode(object obj)
         {
-            if (!(obj is JsonObject)) {
+            if (!(obj is JObject)) {
                 return null;
             }
 
-            var stringified = ((JsonObject)obj).ToString();
+            var stringified = JsonConvert.SerializeObject(obj);
             return Encoding.UTF8.GetBytes(stringified);
         }
 
-        public static JsonObject Decode(byte[] data)
+        public static JObject Decode(byte[] data)
         {
             var stringified = Encoding.UTF8.GetString(data);
-            return (JsonObject)SimpleJson.SimpleJson.DeserializeObject(stringified);
+            return JObject.Parse(stringified);
         }
     }
 }

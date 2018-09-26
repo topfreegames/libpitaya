@@ -1,20 +1,21 @@
 ﻿using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using SimpleJson;
 
 namespace Pitaya.Tests
 {
     public class JsonSerializerTest
     {
 
-        private JsonObject _jsonStub;
+        private JObject _jsonStub;
         private byte[] _jsonEncoded;
 
         [SetUp]
         public void Init()
         {
             const string data = "{\"Data\":{\"name\":\"test\"}}";
-            _jsonStub = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(data);
+            _jsonStub = (JObject)JsonConvert.DeserializeObject(data);
             _jsonEncoded = Encoding.UTF8.GetBytes(data);
         }
 
@@ -31,7 +32,7 @@ namespace Pitaya.Tests
         {
             var decoded = JsonSerializer.Decode(_jsonEncoded);
         
-            Assert.AreEqual(typeof(JsonObject), decoded.GetType());
+            Assert.AreEqual(typeof(JObject), decoded.GetType());
             Assert.AreEqual(decoded, _jsonStub);
         }
 

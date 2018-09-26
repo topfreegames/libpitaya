@@ -5,7 +5,8 @@
 
 using System;
 using System.Collections;
-using SimpleJson;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Pitaya.Scripts
@@ -119,7 +120,7 @@ namespace Pitaya.Scripts
 
             var isFinished = false;
             const string data = "{\"Data\": { \"name\": \"test\" }}";
-            var obj = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(data);
+            var obj = (JObject) JsonConvert.DeserializeObject(data);
 
             _client.Request("connector.setsessiondata",
                 obj,

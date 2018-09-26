@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
-using SimpleJson;
 using UnityThreading;
 
 //typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
