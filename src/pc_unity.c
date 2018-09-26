@@ -169,6 +169,15 @@ default_error_cb(const pc_request_t *req, const pc_error_t *error)
     r.error_cb(client, r.cbid, error);
 }
 
+void pc_unity_update_client_info( const char* platform, const char* build_number,const char* version) {
+    pc_lib_client_info_t client_info;
+    client_info.platform = platform;
+    client_info.build_number = build_number;
+    client_info.version = version;
+    
+    pc_update_client_info(client_info);
+}
+
 void 
 pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, const char* platform, const char* build_number,const char* version) {
     if (custom_assert != NULL) {

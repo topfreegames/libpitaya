@@ -119,6 +119,12 @@ static void default_log(int level, const char* msg, ...) {
     fflush(stderr   );
 }
 
+void pc_update_client_info(pc_lib_client_info_t client_info) {
+    pc_lib_platform_str = client_info.platform ? pc_lib_strdup(client_info.platform) : pc_lib_strdup("desktop");
+    pc_lib_client_build_number_str = client_info.build_number ? pc_lib_strdup(client_info.build_number) : pc_lib_strdup("1");
+    pc_lib_client_version_str = client_info.version ? pc_lib_strdup(client_info.version) : pc_lib_strdup("0.1");
+}
+
 void pc_lib_init(void (*pc_log)(int level, const char* msg, ...), 
                  void* (*pc_alloc)(size_t), void (*pc_free)(void* ), 
                  void* (*pc_realloc)(void*, size_t), 
