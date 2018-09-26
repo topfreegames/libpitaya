@@ -30,7 +30,7 @@ namespace Pitaya {
             action?.Invoke();
         }
 
-        [RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
+        [RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize () {
             Create ();
         }

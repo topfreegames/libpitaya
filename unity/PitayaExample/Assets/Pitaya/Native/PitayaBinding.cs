@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
+using UnityEditor;
 
 //typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
 using NativeRequestCallback = System.Action<System.IntPtr, uint, System.IntPtr>;
@@ -72,32 +73,18 @@ namespace Pitaya
             NativeNotifyCallback = OnNotify;
             NativeErrorCallback = OnError;
 
-            NativeLibInit((int)_currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
-        }
-
-        private static string Platform ()
-        {
-        #if (UNITY_IPHONE) && !UNITY_EDITOR
-            return "iOS";
-        #elif (UNITY_ANDROID) && !UNITY_EDITOR
-            return "android";
-        #elif (UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX)
-            return "mac";
-        #else
-            return "linux";
-        #endif
+            NativeLibInit((int)_currentLogLevel, null, null, OnAssert, Application.platform.ToString(), BuildNumber(), Application.version);
         }
 
         private static string BuildNumber ()
         {
-        #if (UNITY_IPHONE) && !UNITY_EDITOR
-            return BuildInfo.BuildNumber;
-        #elif (UNITY_ANDROID) && !UNITY_EDITOR
-            return BuildInfo.BuildNumber;
-        #else
-            return "1";
-        #endif
+            var buildNumber = PlayerSettings.iOS.buildNumber;
+            
+            buildNumber = String.IsNullOrEmpty(buildNumber) ? PlayerSettings.Android.bundleVersionCode.ToString() : buildNumber ;
+
+            return buildNumber;
         }
+        
         public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, IPitayaListener listener)
         {
             var client = NativeCreate(enableTls, enablePolling, enableReconnect);
@@ -134,17 +121,22 @@ namespace Pitaya
 
         public static void SetCertificateName(string name)
         {
-#if (UNITY_IPHONE) && !UNITY_EDITOR
-            string certPath = Application.dataPath + "/Raw/" + name;
-#else
-            string certPath = Application.dataPath + "/StreamingAssets/"+ name;
-#endif
+            string certPath;
+            if (Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                certPath = Application.dataPath + "/Raw/" + name;    
+            }
+            else
+            {
+                certPath = Application.dataPath + "/StreamingAssets/"+ name;
+            }
+            
             NativeSetCertificatePath(certPath, null);
         }
 
         public static void Request(IntPtr client, string route, byte[] msg, uint reqtId, int timeout)
         {
-            int length = 0;
+            var length = 0;
             if (msg != null)
                 length = msg.Length;
 
@@ -163,7 +155,7 @@ namespace Pitaya
 
         public static void Notify(IntPtr client, string route, byte[] msg, int timeout)
         {
-            int length = 0;
+            var length = 0;
             if (msg != null)
                 length = msg.Length;
 
@@ -200,7 +192,7 @@ namespace Pitaya
 
         public static void AddPinnedPublicKeyFromCaString(string caString)
         {
-            int rc = NativeAddPinnedPublicKeyFromCaString(caString);
+            var rc = NativeAddPinnedPublicKeyFromCaString(caString);
             switch (rc)
             {
                 case PitayaConstants.PcRcError:
@@ -401,7 +393,7 @@ namespace Pitaya
         #elif (UNITY_ANDROID) && !UNITY_EDITOR
         private const string LibName = "libpitaya-android";
         #elif (UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX)
-        private const string LibName = "libpitaya-mac";
+        private const string LibName = "__Internal";
         #else
         private const string LibName = "libpitaya-linux";
         #endif

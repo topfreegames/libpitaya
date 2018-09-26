@@ -1,7 +1,8 @@
 {
     "name": "Tests",
     "references": [
-        "Assets"
+        "Assets",
+        "Pitaya"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
