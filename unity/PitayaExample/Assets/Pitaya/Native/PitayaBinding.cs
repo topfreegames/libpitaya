@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
-using UnityThreading;
 
 //typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
 using NativeRequestCallback = System.Action<System.IntPtr, uint, System.IntPtr>;
@@ -72,7 +71,6 @@ namespace Pitaya
             NativePushCallback = OnPush;
             NativeNotifyCallback = OnNotify;
             NativeErrorCallback = OnError;
-            UnityThreadHelper.EnsureHelper();
 
             NativeLibInit((int)_currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
         }
@@ -294,7 +292,7 @@ namespace Pitaya
                 error = new PitayaError(code, "Internal Pitaya error");
             }
 
-             UnityThreadHelper.Dispatcher.Dispatch(() => {
+            MainQueueDispatcher.Dispatch(() => {
                 WeakReference reference;
                  if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
                  var listener = reference.Target as IPitayaListener;
@@ -310,7 +308,7 @@ namespace Pitaya
             var rawData = new byte[buffer.Len];
             Marshal.Copy(buffer.Data, rawData, 0, (int)buffer.Len);
 
-            UnityThreadHelper.Dispatcher.Dispatch(()=>{
+            MainQueueDispatcher.Dispatch(()=>{
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
                 var listener = reference.Target as IPitayaListener;
@@ -334,11 +332,6 @@ namespace Pitaya
 
             WeakReference reference;
 
-            if (!UnityThreadHelper.IsValid)
-            {
-                DLog("OnEvent - thread is invalid");
-                return;
-            }
             if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive)
             {
                 DLog($"OnEvent - no listener fond for client ev={client}");
@@ -346,7 +339,7 @@ namespace Pitaya
             } 
 
             var listener = reference.Target as IPitayaListener;
-            UnityThreadHelper.Dispatcher.Dispatch(()=>
+            MainQueueDispatcher.Dispatch(()=>
             {
                 var serializedBody = Encoding.UTF8.GetBytes(bodyStr);
                 listener?.OnUserDefinedPush(route, serializedBody);
@@ -364,11 +357,6 @@ namespace Pitaya
 
             WeakReference reference;
 
-            if (!UnityThreadHelper.IsValid)
-            {
-                DLog("OnEvent - thread is invalid");
-                return;
-            }
             if(!Listeners.TryGetValue(client, out reference) || !reference.IsAlive)
             {
                 DLog($"OnEvent - no listener fond for client ev={client}");
@@ -377,7 +365,7 @@ namespace Pitaya
 
             var listener = reference.Target as IPitayaListener;
 
-            UnityThreadHelper.Dispatcher.Dispatch(()=>{
+            MainQueueDispatcher.Dispatch(()=>{
                 switch(ev)
                 {
                     case PitayaConstants.PcEvConnected:
