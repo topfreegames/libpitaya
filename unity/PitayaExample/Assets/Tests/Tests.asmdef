@@ -1,0 +1,13 @@
+{
+    "name": "Tests",
+    "references": [
+        "Assets",
+        "Pitaya"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
