@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
-using UnityEditor;
 
 //typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
 using NativeRequestCallback = System.Action<System.IntPtr, uint, System.IntPtr>;
@@ -78,11 +77,25 @@ namespace Pitaya
 
         private static string BuildNumber ()
         {
-            var buildNumber = PlayerSettings.iOS.buildNumber;
-            
-            buildNumber = String.IsNullOrEmpty(buildNumber) ? PlayerSettings.Android.bundleVersionCode.ToString() : buildNumber ;
+            switch (Application.platform)
+            {
+                case RuntimePlatform.IPhonePlayer:
+                    return _PitayaGetCFBundleVersion();
+                case RuntimePlatform.Android:
+                    return _AndroidBuildNumber();
+                default:
+                    return "1";
+            }
+        }
 
-            return buildNumber;
+        private static string _AndroidBuildNumber()
+        {
+            var contextCls = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            var context = contextCls.GetStatic<AndroidJavaObject>("currentActivity"); 
+            var packageMngr = context.Call<AndroidJavaObject>("getPackageManager");
+            var packageName = context.Call<string>("getPackageName");
+            var packageInfo = packageMngr.Call<AndroidJavaObject>("getPackageInfo", packageName, 0);
+            return (packageInfo.Get<int>("versionCode")).ToString();
         }
         
         public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, IPitayaListener listener)
@@ -398,6 +411,7 @@ namespace Pitaya
         private const string LibName = "libpitaya-linux";
         #endif
         
+        
         // ReSharper disable UnusedMember.Local
         [DllImport(LibName, EntryPoint="tr_uv_tls_set_ca_file")]
         private static extern void NativeSetCertificatePath(string caFile, string caPath);
@@ -465,6 +479,9 @@ namespace Pitaya
 
         [DllImport(LibName, EntryPoint="pc_lib_clear_pinned_public_keys")]
         private static extern void NativeClearPinnedPublicKeys();
+        
+        [DllImport("__Internal")]
+        private static extern string _PitayaGetCFBundleVersion();
 
     }
 }
