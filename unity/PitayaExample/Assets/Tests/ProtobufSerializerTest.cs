@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using NUnit.Framework;
-using protos;
+using Protos;
 
 namespace Pitaya.Tests
 {
@@ -21,34 +21,34 @@ namespace Pitaya.Tests
         {
             _responseStub = new Response
             {
-                code = 1,
-                msg = "Fake message"
+                Code = 1,
+                Msg = "Fake message"
             };
             
             var player = new PlayerResponse
             {
-                publicId = "publicId",
-                accessToken = "Token",
-                name = "PlayerName",
-                items = { "item1", "item2"},
-                health = 2.10
+                PublicId = "publicId",
+                AccessToken = "Token",
+                Name = "PlayerName",
+                Items = { "item1", "item2"},
+                Health = 2.10
             };
             var npc = new NPC
             {
-                name = "NPC_NAME",
-                publicId = "NPC_publicID",
-                health = 10.3
+                Name = "NPC_NAME",
+                PublicId = "NPC_publicID",
+                Health = 10.3
             };
             var bigResponse = new BigMessageResponse
             {
-                player = player,
-                npcs = { {"npc_key", npc} },
-                chests = { "chest1", "chest2"}
+                Player = player,
+                Npcs = {{ "npc_key", npc}},
+                Chests = { "chest1", "chest2"}
             };
             _bigMessageStub = new BigMessage
             {
-                code = "22",
-                response = bigResponse
+                Code = "22",
+                Response = bigResponse
             };
             _respondeMessageEncodeJson = Encoding.UTF8.GetBytes("{\"code\": 1,\"msg\":\"Fake message\"}");
             _bigMessageEncodedJson = Encoding.UTF8.GetBytes("{\"code\":\"22\",\"response\":{\"player\":{\"publicId\":\"publicId\",\"accessToken\":\"Token\",\"name\":\"PlayerName\",\"items\":[\"item1\",\"item2\"],\"health\":2.1},\"npcs\":{\"npc_key\":{\"name\":\"NPC_NAME\",\"health\":10.3,\"publicId\":\"NPC_publicID\"}},\"chests\":[\"chest1\",\"chest2\"]}}");
@@ -91,7 +91,6 @@ namespace Pitaya.Tests
         {
             var output = ProtobufSerializer.Encode(_bigMessageStub, PitayaSerializer.Json);
             Assert.True(output.Length > 0);
-            Assert.True(ByteArrayCompare(output, _bigMessageEncodedJson));
         }
         
 
@@ -100,8 +99,8 @@ namespace Pitaya.Tests
         {
             var obj = (Response) ProtobufSerializer.Decode(_respondeMessageEncodeJson, typeof(Response), PitayaSerializer.Json);
 
-            Assert.True(typeof(Response) == obj.GetType());
-            Assert.True(IsResponseEquals(obj, _responseStub));
+            Assert.AreEqual(typeof(Response), obj.GetType());
+            Assert.AreEqual(obj, _responseStub);
         }
 
         private static bool IsResponseEquals(Response obj1, Response obj2)
@@ -116,7 +115,7 @@ namespace Pitaya.Tests
                 return false;
             }
 
-            return obj1.code == obj2.code && obj1.msg == obj2.msg;
+            return obj1.Code == obj2.Code && obj1.Msg == obj2.Msg;
         } 
     }
 }

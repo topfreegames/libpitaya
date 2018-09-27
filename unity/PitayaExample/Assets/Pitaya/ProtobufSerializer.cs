@@ -1,36 +1,39 @@
 using System;
-using System.IO;
 using System.Text;
+using Google.Protobuf;
 using Newtonsoft.Json;
-using ProtoBuf;
 
 namespace Pitaya
 {
     public static class ProtobufSerializer
     {
-        public static byte[] Encode(IExtensible message, PitayaSerializer serializer)
+        public static byte[] Encode(IMessage message, PitayaSerializer serializer)
         {
             if (PitayaSerializer.Protobuf == serializer)
             {
-                var stream = new MemoryStream();
-                Serializer.Serialize(stream, message);
-                return stream.ToArray();
+                return message.ToByteArray();
             }
             
             
-            var jsonString = JsonConvert.SerializeObject(message);
+            var jsf = new JsonFormatter(new JsonFormatter.Settings(true));
+            var jsonString = jsf.Format(message);
+            
             return Encoding.UTF8.GetBytes(jsonString);
+
         }
         
-        public static IExtensible Decode(byte[] buffer, Type type, PitayaSerializer serializer)
+        public static IMessage Decode(byte[] buffer, Type type, PitayaSerializer serializer)
         {
             if (PitayaSerializer.Protobuf == serializer)
             {   
-                return (IExtensible) Serializer.Deserialize(type, new MemoryStream(buffer));
+                var res = (IMessage) Activator.CreateInstance(type);
+                res.MergeFrom(buffer);
+                return res;
+
             }
             
             var stringified = Encoding.UTF8.GetString(buffer);
-            return (IExtensible) JsonConvert.DeserializeObject(stringified, type);
+            return (IMessage) JsonConvert.DeserializeObject(stringified, type);
         }
     }
 }

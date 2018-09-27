@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using NUnit.Framework;
-using protos;
+using Protos;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -33,7 +33,7 @@ namespace Pitaya.Tests
 
             _sessionData = new SessionData
             {
-                data = "fake data"
+                Data = "fake data"
             };
         }
 
@@ -128,7 +128,7 @@ namespace Pitaya.Tests
 
             Assert.NotNull(response);
             Assert.AreEqual(typeof(SessionData), response.GetType());
-            Assert.AreEqual(((SessionData)response).data, "THIS IS THE SESSION DATA");
+            Assert.AreEqual(((SessionData)response).Data, "THIS IS THE SESSION DATA");
 
         }
     }

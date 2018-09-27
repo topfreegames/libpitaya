@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
+using Protos;
 
 //typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
 using NativeRequestCallback = System.Action<System.IntPtr, uint, System.IntPtr>;
@@ -260,9 +261,9 @@ namespace Pitaya
             Marshal.Copy(errorBinding.Buffer.Data, rawData, 0, (int)errorBinding.Buffer.Len);
 
             
-            var error = (protos.Error) ProtobufSerializer.Decode(rawData, typeof(protos.Error), serializer);
+            var error = (Error) ProtobufSerializer.Decode(rawData, typeof(Error), serializer);
             
-            return new PitayaError(error.code, error.msg, error.metadata);
+            return new PitayaError(error.Code, error.Msg, error.Metadata);
         }
 
         //-------------------------PRIVATE METHODS------------------------------// 
