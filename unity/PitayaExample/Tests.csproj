@@ -64,6 +64,8 @@
     <Compile Include="Assets\Tests\Protos\big-message.cs" />
     <Compile Include="Assets\Tests\Protos\response.cs" />
     <Compile Include="Assets\Tests\Protos\session-data.cs" />
+    <Compile Include="Assets\Tests\Protos\SessionData.cs" />
+    <Compile Include="Assets\Tests\SimpleJson.cs" />
     <Reference Include="UnityEngine.AIModule">
       <HintPath>/Applications/Unity2018.2.8/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
     </Reference>
@@ -324,9 +326,6 @@
     </Reference>
     <Reference Include="Google.Protobuf">
       <HintPath>/Users/guthyerrz/go-workspace/src/github.com/topfreegames/libpitaya/unity/PitayaExample/Assets/Packages/protobuf.net35.3.5.1/lib/net35/Google.Protobuf.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>/Users/guthyerrz/go-workspace/src/github.com/topfreegames/libpitaya/unity/PitayaExample/Assets/Packages/Newtonsoft.Json.11.0.2/lib/net35/Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.Advertisements">
       <HintPath>/Users/guthyerrz/Library/Unity/cache/packages/packages.unity.com/com.unity.ads@2.0.8/Editor/UnityEditor.Advertisements.dll</HintPath>

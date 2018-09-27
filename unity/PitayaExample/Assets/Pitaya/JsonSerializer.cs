@@ -7,20 +7,14 @@ namespace Pitaya
 {
     public static class JsonSerializer
     {
-        public static byte[] Encode(object obj)
+        public static byte[] Encode(string obj)
         {
-            if (!(obj is JObject)) {
-                return null;
-            }
-
-            var stringified = JsonConvert.SerializeObject(obj);
-            return Encoding.UTF8.GetBytes(stringified);
+            return obj != null ? Encoding.UTF8.GetBytes(obj) : null;
         }
 
-        public static JObject Decode(byte[] data)
+        public static string Decode(byte[] data)
         {
-            var stringified = Encoding.UTF8.GetString(data);
-            return JObject.Parse(stringified);
+            return Encoding.UTF8.GetString(data);
         }
     }
 }

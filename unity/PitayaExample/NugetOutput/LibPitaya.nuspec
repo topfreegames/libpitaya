@@ -2,17 +2,16 @@
 <package >
   <metadata>
     <id>LibPitaya</id>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Initial Nuget release</releaseNotes>
+    <releaseNotes>Added missing openssl dependencies for the iOS builds</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>pitaya,libpitaya</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="11.0.2" />
       <dependency id="protobuf.net35" version="3.5.1" />
     </dependencies>
     
@@ -20,6 +19,6 @@
   <files>
         <!-- Add files from an arbitrary folder that's not necessarily in the project -->
         <file src="binaries\**\*.*" target="" />
-        <file src="lib\*.*" target="" />
+        <file src="lib\**" target="" />
     </files>
 </package>

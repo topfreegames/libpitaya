@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Threading;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using Protos;
+using SimpleJson;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -42,7 +42,6 @@ namespace Pitaya.Tests
             object response = null;
 
             const string expectedResponse = "{\"key1\":10,\"key2\":true}";
-            var expectedResponseObj = (JObject)JsonConvert.DeserializeObject(expectedResponse);
 
             _client.Connect(ServerHost, ServerPort);
 
@@ -75,12 +74,17 @@ namespace Pitaya.Tests
                 yield return new WaitForSeconds(0.5f);
             }
 
+            var resp = (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string) sendPushResponse);
+            
+            
+            
+
             Assert.True(receivedPushResponse);
             Assert.NotNull(response);
-            Assert.AreEqual(response, expectedResponseObj);
+            Assert.AreEqual(response, expectedResponse);
             Assert.NotNull(sendPushResponse);
-            Assert.AreEqual((int)((JObject)sendPushResponse)["Code"], 200);
-            Assert.AreEqual((string)((JObject)sendPushResponse)["Msg"], "Ok");
+            Assert.AreEqual(resp["Code"], 200);
+            Assert.AreEqual(resp["Msg"], "Ok");
         }
 
         [UnityTest]

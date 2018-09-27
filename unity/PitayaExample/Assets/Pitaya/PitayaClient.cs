@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Google.Protobuf;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -67,9 +68,9 @@ namespace Pitaya
             PitayaBinding.Connect(_client, host, port);
         }
 
-        public void Request(string route, Action<JObject> action, Action<PitayaError> errorAction)
+        public void Request(string route, Action<string> action, Action<PitayaError> errorAction)
         {
-            Request(route, (JObject)null, action, errorAction);
+            Request(route, (string)null, action, errorAction);
         }
         
         public void Request<T>(string route, Action<T> action, Action<PitayaError> errorAction)
@@ -77,7 +78,7 @@ namespace Pitaya
             Request(route, null, action, errorAction);
         }
 
-        public void Request(string route, JObject msg, Action<JObject> action, Action<PitayaError> errorAction)
+        public void Request(string route, string msg, Action<string> action, Action<PitayaError> errorAction)
         {
             Request(route, msg, -1, action, errorAction);
         }
@@ -101,14 +102,14 @@ namespace Pitaya
             PitayaBinding.Request(_client, route, ProtobufSerializer.Encode(msg, serializer), _reqUid, timeout);
         }
 
-        public void Request(string route, JObject msg, int timeout, Action<JObject> action, Action<PitayaError> errorAction)
+        public void Request(string route, string msg, int timeout, Action<string> action, Action<PitayaError> errorAction)
         {
             _reqUid++;
-            Action<object> responseAction = res => { action((JObject) res); };
+            Action<object> responseAction = res => { action((string) res); };
             
             _eventManager.AddCallBack(_reqUid, responseAction, errorAction);
 
-            PitayaBinding.Request(_client, route, JsonSerializer.Encode(msg), _reqUid, timeout);
+            PitayaBinding.Request(_client, route,JsonSerializer.Encode(msg), _reqUid, timeout);
         }
 
         public void Notify(string route, IMessage msg)
@@ -122,19 +123,19 @@ namespace Pitaya
             PitayaBinding.Notify(_client, route, ProtobufSerializer.Encode(msg,serializer), timeout);
         }
         
-        public void Notify(string route, JObject msg)
+        public void Notify(string route, string msg)
         {
             Notify(route, -1, msg);
         }
 
-        public void Notify(string route, int timeout, JObject msg)
+        public void Notify(string route, int timeout, string msg)
         {
             PitayaBinding.Notify(_client, route, JsonSerializer.Encode(msg), timeout);
         }
         
-        public void OnRoute(string route, Action<JObject> action)
+        public void OnRoute(string route, Action<string> action)
         {   
-            Action<object> responseAction = res => { action((JObject) res); };
+            Action<object> responseAction = res => { action((string) res); };
             _eventManager.AddOnRouteEvent(route, responseAction);
         }
 

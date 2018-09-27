@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 using Google.Protobuf;
-using Newtonsoft.Json;
+using UnityEngine;
 
 namespace Pitaya
 {
@@ -24,16 +24,28 @@ namespace Pitaya
         
         public static IMessage Decode(byte[] buffer, Type type, PitayaSerializer serializer)
         {
+            var res = (IMessage) Activator.CreateInstance(type);
             if (PitayaSerializer.Protobuf == serializer)
             {   
-                var res = (IMessage) Activator.CreateInstance(type);
                 res.MergeFrom(buffer);
                 return res;
 
             }
-            
             var stringified = Encoding.UTF8.GetString(buffer);
-            return (IMessage) JsonConvert.DeserializeObject(stringified, type);
+            
+            return JsonParser.Default.Parse(stringified, res.Descriptor);
+
+//            return res;
+//            var parser = new MessageParser();
+            
+            return (IMessage) JsonUtility.FromJson(stringified, type);
+//            return (IMessage) JsonConvert.DeserializeObject(stringified, type);
         }
+
+        public static T FromJson<T>(string json) where T : IMessage, new()
+        {
+            return JsonParser.Default.Parse<T>(json);
+        }
+        
     }
 }

@@ -3,6 +3,8 @@ using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using Protos;
+using SimpleJson;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -19,8 +21,8 @@ namespace Pitaya.Tests
         private const string ServerHost = "10.0.22.57";
 #endif
         private const int ServerPort = 3252;
-        private JObject _jsonStub;
-        private JObject _emptyJsonStub;
+        private JsonObject _jsonStub;
+        private JsonObject _emptyJsonStub;
         private bool _isFinished;
         private string _data;
         private string _emptyData;
@@ -39,16 +41,16 @@ namespace Pitaya.Tests
             _client.Connect(ServerHost, ServerPort);
 
             _data = "{\"Data\":{\"name\":\"test25\"}}";
-            _jsonStub = (JObject)JsonConvert.DeserializeObject(_data);
+            _jsonStub = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(_data);
             _emptyData = "{\"Data\":{}}";
-            _emptyJsonStub = (JObject)JsonConvert.DeserializeObject(_emptyData);
+            _emptyJsonStub = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(_emptyData);
 
             _isFinished = false;
 
             // clearing sessiondata
             _client.Request(
                 "connector.setsessiondata",
-                _emptyJsonStub,
+                _emptyData,
                 res => {},
                 error => {}
             );
@@ -70,7 +72,7 @@ namespace Pitaya.Tests
 
             _client.Request(
                 "connector.setsessiondata",
-                _jsonStub,
+                _data,
                 res => {
                     response = res;
                     _isFinished = true;
@@ -87,11 +89,12 @@ namespace Pitaya.Tests
                 yield return new WaitForSeconds(1);
             }
 
+            var resp = (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string) response);
+            
             Assert.True(_isFinished);
             Assert.NotNull(response);
-            Assert.AreEqual(typeof(JObject), response.GetType());
-            Assert.AreEqual((int)((JObject)response)["Code"], 200);
-            Assert.AreEqual((string)((JObject)response)["Msg"], "success");
+            Assert.AreEqual(resp["Code"], 200);
+            Assert.AreEqual(resp["Msg"], "success");
         }
 
         [UnityTest]
@@ -101,7 +104,7 @@ namespace Pitaya.Tests
 
             _client.Request(
                 "connector.setsessiondata",
-                _jsonStub,
+                _data,
                 res => {
                     response = res;
                     _isFinished = true;
@@ -141,8 +144,8 @@ namespace Pitaya.Tests
 
             Assert.True(_isFinished);
             Assert.NotNull(response);
-            Assert.AreEqual(response, _jsonStub);
-            Assert.AreEqual(JsonConvert.SerializeObject(response), _data);
+            Assert.AreEqual(response, _data);
+            Assert.AreEqual(SimpleJson.SimpleJson.DeserializeObject((string)response), _jsonStub);
         }
 
         [UnityTest]
@@ -191,8 +194,8 @@ namespace Pitaya.Tests
 
             Assert.True(_isFinished);
             Assert.NotNull(response);
-            Assert.AreEqual(response, _emptyJsonStub);
-            Assert.AreEqual(JsonConvert.SerializeObject(response), _emptyData);
+            Assert.AreEqual(response, _emptyData);
+            Assert.AreEqual(SimpleJson.SimpleJson.DeserializeObject((string)response), _emptyJsonStub);
         }
 
         [UnityTest]
