@@ -13,7 +13,7 @@
     <tags>pitaya,libpitaya</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="11.0.2" />
-      <dependency id="protobuf-net" version="2.4.0" />
+      <dependency id="protobuf.net35" version="3.5.1" />
     </dependencies>
     
   </metadata>
