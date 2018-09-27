@@ -91,6 +91,12 @@ PluginImporter:
       settings:
         CPU: AnyCPU
   - first:
+      Windows Store Apps: WindowsStoreApps
+    second:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
+  - first:
       iPhone: iOS
     second:
       enabled: 0

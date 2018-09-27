@@ -26,7 +26,7 @@ PluginImporter:
   - first:
       Android: Android
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: ARMv7
   - first:
@@ -91,10 +91,17 @@ PluginImporter:
       settings:
         CPU: AnyCPU
   - first:
-      iPhone: iOS
+      Windows Store Apps: WindowsStoreApps
     second:
       enabled: 0
       settings:
+        CPU: AnyCPU
+  - first:
+      iPhone: iOS
+    second:
+      enabled: 1
+      settings:
+        AddToEmbeddedBinaries: false
         CompileFlags: 
         FrameworkDependencies: 
   userData: 
