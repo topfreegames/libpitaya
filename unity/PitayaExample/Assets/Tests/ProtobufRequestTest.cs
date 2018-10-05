@@ -78,6 +78,37 @@ namespace Pitaya.Tests
         }
         
         [UnityTest]
+        public IEnumerator ShoulSendEmptyRequest()
+        {
+
+            Response response = null;
+            
+            var sessionData = new SessionData();
+            
+            _isFinished = false;
+
+            _client.Request<Response>("connector.setsessiondata",
+                sessionData,
+                (res) => {
+                    response = res;
+                    _isFinished = true;
+                },
+                error => {
+                    _isFinished = true;
+                }
+            );
+
+            while(!_isFinished) {
+                yield return new WaitForSeconds(1);
+            }
+
+            Assert.NotNull(response);
+            Assert.AreEqual(typeof(Response), response.GetType());
+            Assert.AreEqual(response.Code , 200);
+
+        }
+        
+        [UnityTest]
         public IEnumerator ShouldReceiveAnError()
         {
 
