@@ -540,8 +540,6 @@ int pc_binary_request_with_timeout(pc_client_t* client, const char* route,
 {
     if (len < 0) {
         return PC_RC_INVALID_ARG;
-    } else if (data && len == 0) {
-        return PC_RC_INVALID_ARG;
     }
 
     pc_buf_t buf;
