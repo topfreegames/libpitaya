@@ -28,4 +28,4 @@ pitaya-servers/protobuf-server/server
 temp/
 unity/PitayaExample/.idea
 unity/PitayaExample/.idea/*
-
+unity/PitayaExample/Assets/InitTestScene*

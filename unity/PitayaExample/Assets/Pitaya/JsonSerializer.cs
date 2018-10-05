@@ -1,24 +1,20 @@
 using System.Text;
-using SimpleJson;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace Pitaya
 {
     public static class JsonSerializer
     {
-        public static byte[] Encode(object obj)
+        public static byte[] Encode(string obj)
         {
-            if (!(obj is JsonObject)) {
-                return null;
-            }
-
-            var stringified = ((JsonObject)obj).ToString();
-            return Encoding.UTF8.GetBytes(stringified);
+            return obj != null ? Encoding.UTF8.GetBytes(obj) : null;
         }
 
-        public static JsonObject Decode(byte[] data)
+        public static string Decode(byte[] data)
         {
-            var stringified = Encoding.UTF8.GetString(data);
-            return (JsonObject)SimpleJson.SimpleJson.DeserializeObject(stringified);
+            return Encoding.UTF8.GetString(data);
         }
     }
 }

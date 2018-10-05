@@ -87,6 +87,7 @@ matrix:
         - sudo cp libpitaya-linux.so /usr/lib
         - cd ..
         - ./run-tests.py --node-path ~/node/bin/node --go-path ~/.gimme/versions/go1.10.linux.amd64/bin/go --tests-dir build
+        - cd build
       deploy:
         provider: releases
         draft: true

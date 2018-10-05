@@ -43,7 +43,7 @@ build-android:clean-build
 	@cmake --build build
 
 build-mac:clean-build
-	@cmake -H. -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
+	@cmake -H. -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release
 	@cmake --build build
 
 build-ios:clean-build

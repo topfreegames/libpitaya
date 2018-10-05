@@ -192,6 +192,8 @@ PC_EXPORT void pc_lib_init(void (*pc_log)(int level, const char* msg, ...),
                            void (*pc_free)(void* ), 
                            void* (*pc_realloc)(void*, size_t), 
                            pc_lib_client_info_t client_info);
+    
+PC_EXPORT void pc_update_client_info(pc_lib_client_info_t client_info);
 
 /**
  * Pins a public key globally for all clients.

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"strings"
@@ -12,7 +13,6 @@ import (
 	"github.com/topfreegames/pitaya/component"
 	"github.com/topfreegames/pitaya/route"
 	"github.com/topfreegames/pitaya/serialize/protobuf"
-	"github.com/topfreegames/pitaya/session"
 )
 
 func configureFrontend(port int) {
@@ -27,7 +27,7 @@ func configureFrontend(port int) {
 	)
 
 	err := pitaya.AddRoute("room", func(
-		session *session.Session,
+		ctx context.Context,
 		route *route.Route,
 		payload []byte,
 		servers map[string]*cluster.Server,

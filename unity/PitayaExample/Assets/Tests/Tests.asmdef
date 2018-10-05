@@ -1,0 +1,11 @@
+{
+    "name": "Tests",
+    "references": [
+        "Assets",
+        "Pitaya"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
