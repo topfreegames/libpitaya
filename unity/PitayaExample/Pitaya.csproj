@@ -64,7 +64,6 @@
     <Compile Include="Assets\Pitaya\Protos\Error.cs" />
     <Compile Include="Assets\Pitaya\Serializer.cs" />
     <Compile Include="Assets\Pitaya\TypeSubscriber.cs" />
-    <None Include="Assets\Pitaya\Native\openssl\LICENSE.txt" />
     <Reference Include="UnityEngine.AIModule">
       <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
     </Reference>
