@@ -1,6 +1,7 @@
 clean:
 	@rm -rf Temp/bin/Release
 	@rm -rf obj
+	@rm -rf NugetOutput/*.nupkg
 
 build-mac: clean
 	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release 
