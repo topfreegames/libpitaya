@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>LibPitaya</id>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
@@ -20,5 +20,6 @@
         <!-- Add files from an arbitrary folder that's not necessarily in the project -->
         <file src="binaries\**\*.*" target="" />
         <file src="lib\**" target="" />
+        <file src="Unity\**" target="" />
     </files>
 </package>
