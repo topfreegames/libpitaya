@@ -1,7 +1,5 @@
 fileFormatVersion: 2
 guid: ae1cf9cad3ead4360a9c0001a984e42a
-timeCreated: 1531855008
-licenseType: Pro
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -21,10 +19,8 @@ PluginImporter:
         Exclude Linux64: 0
         Exclude LinuxUniversal: 0
         Exclude OSXUniversal: 0
-        Exclude WebGL: 1
         Exclude Win: 0
         Exclude Win64: 0
-        Exclude iOS: 1
   - first:
       Android: Android
     second:
@@ -91,13 +87,6 @@ PluginImporter:
       enabled: 1
       settings:
         CPU: AnyCPU
-  - first:
-      iPhone: iOS
-    second:
-      enabled: 0
-      settings:
-        CompileFlags: 
-        FrameworkDependencies: 
   userData: 
   assetBundleName: 
   assetBundleVariant: 

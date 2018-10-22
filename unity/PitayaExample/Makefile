@@ -7,6 +7,10 @@ build-mac: clean
 	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release 
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/mac/Pitaya.dll
 
+build-win: clean
+	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_WIN" /p:Configuration=Release 
+	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/win/Pitaya.dll
+
 build-ios: clean
 	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_IPHONE" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/ios/Pitaya.dll
@@ -19,7 +23,7 @@ build-android: clean
 	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_ANDROID" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/android/Pitaya.dll
 
-build-all: build-mac build-ios build-linux build-android
+build-all: build-mac build-ios build-linux build-android build-win
 	@mkdir -p NugetOutput/binaries
 	@rm -rf NugetOutput/binaries/*
 	@cp -r Assets/Pitaya/Native NugetOutput/binaries

@@ -2,15 +2,15 @@
 <package >
   <metadata>
     <id>LibPitaya</id>
-    <version>1.3.4</version>
+    <version>1.4.0</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Fixed Linux and Mac meta files</releaseNotes>
+    <releaseNotes>Added Windows support</releaseNotes>
     <copyright>Copyright 2018</copyright>
-    <tags>pitaya,libpitaya</tags>
+    <tags>pitaya libpitaya</tags>
     <dependencies>
       <dependency id="protobuf.net35" version="3.5.1" />
     </dependencies>
