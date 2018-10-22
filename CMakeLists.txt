@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 3.7)
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.23.34.tar.gz"
+    SHA1 "70287b1ffa810ee4e952052a9adff9b4856d0d54"
+)
 
 project(pitaya)
 
@@ -86,6 +91,10 @@ add_subdirectory(deps/libuv)
 if(ANDROID)
     find_package(ZLIB REQUIRED)
     target_include_directories(pitaya PRIVATE ${ZLIB_INCLUDE_DIRS})
+elseif(WIN32)
+    hunter_add_package(ZLIB)
+    find_package(ZLIB CONFIG REQUIRED)
+    #target_include_directories(pitaya PRIVATE ${ZLIB_INCLUDE_DIRS})
 else()
     target_include_directories(pitaya PRIVATE PRIVATE deps/zlib ${CMAKE_BINARY_DIR}/deps/zlib)
     add_subdirectory(deps/zlib)
@@ -95,6 +104,7 @@ endif()
 # OpenSSL
 #
 if(WIN32)
+    hunter_add_package(OpenSSL)
     find_package(OpenSSL REQUIRED)
     target_include_directories(pitaya PRIVATE ${OPENSSL_INCLUDE_DIR})
 else()
@@ -151,7 +161,7 @@ target_compile_definitions(pitaya
 if(WIN32)
     target_link_libraries(pitaya
       PRIVATE
-        zlib
+        ZLIB::zlib
         uv_a
         OpenSSL::SSL
         OpenSSL::Crypto)

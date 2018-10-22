@@ -200,7 +200,7 @@ namespace Pitaya
 
         public static PitayaSerializer ClientSerializer(IntPtr client)
         {
-            var serializer = Marshal.PtrToStringAuto(NativeSerializer(client));
+            var serializer = Marshal.PtrToStringAnsi(NativeSerializer(client));
             return PitayaConstants.SerializerJson.Equals(serializer) ? PitayaSerializer.Json : PitayaSerializer.Protobuf;
         }
 
@@ -247,12 +247,12 @@ namespace Pitaya
         //--------------------HELPER METHODS----------------------------------//
         private static string EvToStr(int ev) 
         {
-            return Marshal.PtrToStringAuto(NativeEvToStr(ev));
+            return Marshal.PtrToStringAnsi(NativeEvToStr(ev));
         }
 
         private static string RcToStr(int rc) 
         {
-            return Marshal.PtrToStringAuto(NativeRcToStr(rc));
+            return Marshal.PtrToStringAnsi(NativeRcToStr(rc));
         }
 
         private static PitayaError CreatePitayaError(PitayaBindingError errorBinding, PitayaSerializer serializer)
@@ -278,8 +278,8 @@ namespace Pitaya
         [MonoPInvokeCallback(typeof(NativeAssertCallback))]
         private static void OnAssert(IntPtr e, IntPtr file, int line)
         {
-            var eName = Marshal.PtrToStringAuto(e);
-            var fileName = Marshal.PtrToStringAuto(file);
+            var eName = Marshal.PtrToStringAnsi(e);
+            var fileName = Marshal.PtrToStringAnsi(file);
 
             Debug.LogAssertion($"{fileName}:{line} Failed assertion {eName}");
         }
@@ -332,9 +332,9 @@ namespace Pitaya
         [MonoPInvokeCallback(typeof(NativePushCallback))]
         private static void OnPush(IntPtr client, IntPtr routePtr, IntPtr payloadBufferPtr) 
         {
-            var route = Marshal.PtrToStringAuto(routePtr);
+            var route = Marshal.PtrToStringAnsi(routePtr);
             var buffer = (PitayaBuffer)Marshal.PtrToStructure(payloadBufferPtr, typeof(PitayaBuffer));
-            var bodyStr = Marshal.PtrToStringAuto(buffer.Data, (int)buffer.Len);
+            var bodyStr = Marshal.PtrToStringAnsi(buffer.Data, (int)buffer.Len);
 
             WeakReference reference;
 
@@ -402,13 +402,15 @@ namespace Pitaya
             DLog("OnEvent - pinvoke callback END");
         }
 
-        #if (UNITY_IPHONE || UNITY_XBOX360) && !UNITY_EDITOR
+#if (UNITY_IPHONE || UNITY_XBOX360) && !UNITY_EDITOR
         private const string LibName = "__Internal";
-        #elif (UNITY_ANDROID) && !UNITY_EDITOR
+#elif (UNITY_ANDROID) && !UNITY_EDITOR
         private const string LibName = "libpitaya-android";
-        #elif (UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX)
+#elif (UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX)
         private const string LibName = "libpitaya-mac";
-        #else
+#elif (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN)
+        private const string LibName = "pitaya-windows";
+#else
         private const string LibName = "libpitaya-linux";
         #endif
         
