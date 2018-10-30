@@ -210,6 +210,18 @@ void tcp__reconn(tr_uv_tcp_transport_t* tt)
     uv_timer_start(&tt->reconn_delay_timer, tcp__reconn_delay_timer_cb, timeout * 1000, 0);
 }
 
+static void on_connection_done_cb(uv_connect_t *connect, int status)
+{
+    tr_uv_tcp_transport_t *tt = (tr_uv_tcp_transport_t*)connect->data;
+    pc_assert(tt);
+
+    // NOTE(lhahn): If conn_done_cb is set on the transport, it means the client
+    // has not yet cleaned up, otherwise the pointer will be NULL.
+    if (tt->conn_done_cb) {
+        tt->conn_done_cb(connect, status);
+    }
+}
+
 void tcp__conn_async_cb(uv_async_t* t)
 {
     struct addrinfo hints;
@@ -275,7 +287,7 @@ void tcp__conn_async_cb(uv_async_t* t)
 
     addr = addr4 ? (struct sockaddr* )addr4 : (struct sockaddr* )addr6;
     tt->conn_req.data = tt;
-    ret = uv_tcp_connect(&tt->conn_req, &tt->socket, addr, tt->conn_done_cb);
+    ret = uv_tcp_connect(&tt->conn_req, &tt->socket, addr, on_connection_done_cb);
 
     freeaddrinfo(ainfo);
 
@@ -688,6 +700,9 @@ void tcp__cleanup_async_cb(uv_async_t* a)
 
     tcp__cleanup_pc_json(&tt->handshake_opts);
     tt->reconn_times = 0;
+    // This ensures that the callback will not be called after everything is
+    // cleaned up.
+    tt->conn_done_cb = NULL;
 
 #define C(x) uv_close((uv_handle_t*)&tt->x, NULL)
     C(conn_timeout);

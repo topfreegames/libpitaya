@@ -12,6 +12,7 @@
 #include <pitaya_trans.h>
 
 #include "test_common.h"
+#include "pc_assert.h"
 
 static pc_client_t *g_client = NULL;
 
@@ -289,6 +290,37 @@ test_wrong_client_certificate(const MunitParameter params[], void *state)
     return MUNIT_OK;
 }
 
+static void
+custom_assert(const char *e, const char *file, int line)
+{
+    Unused(e); Unused(file); Unused(line);
+    // Do nothing
+}
+
+static MunitResult
+test_cleanup_before_connection_done(const MunitParameter params[], void *data)
+{
+    Unused(data); Unused(params);
+    update_assert(custom_assert);
+
+    pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
+    config.transport_name = PC_TR_NAME_UV_TLS;
+    config.reconn_max_retry = 4;
+    config.enable_reconn = true;
+
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+
+    assert_int(res.rc, ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, "localhost", 8080, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+    assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+
+    update_assert(NULL);
+
+    return MUNIT_OK;
+}
+
 static MunitTest tests[] = {
     {"/no_client_certificate", test_no_client_certificate, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/wrong_client_certificate", test_wrong_client_certificate, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
@@ -296,6 +328,7 @@ static MunitTest tests[] = {
     {"/key_pinned", test_key_pinned, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/key_not_pinned", test_key_not_pinned, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/add_pinned_key_errors", test_add_key_pinned_errors, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/cleanup_before_connection_done", test_cleanup_before_connection_done, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 
