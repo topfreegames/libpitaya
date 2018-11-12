@@ -63,3 +63,14 @@ build:
 
 test: build test-deps
 	./run-tests.sh
+
+create-out-folder:
+	@rm -r out
+	@mkdir -p out
+
+build-servers-linux: create-out-folder
+	@cd pitaya-servers/json-server && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ../../out/json_server_linux
+	@cd pitaya-servers/protobuf-server && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ../../out/protobuf_server_linux
+
+docker-build: build-servers-linux
+	@docker build -t libpitaya-test-servers .
