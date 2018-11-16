@@ -206,7 +206,8 @@ pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_un
 }
 
 pc_client_t * 
-pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect) {
+pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect, int conn_timeout) {
+    pc_assert(conn_timeout >= 0);
     pc_client_init_result_t res = {0};
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     if (enable_tls) {
@@ -215,6 +216,7 @@ pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect) {
 
     config.enable_polling = enable_poll;
     config.enable_reconn = enable_reconnect;
+    config.conn_timeout = conn_timeout;
 
     res = pc_client_init(NULL, &config);
     if (res.rc == PC_RC_OK) {

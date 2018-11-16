@@ -39,12 +39,12 @@ namespace Pitaya
             Dispose();
         }
 
-        private void Init(string certificateName, bool enableTlS, bool enablePolling, bool enableReconnect)
+        private void Init(string certificateName, bool enableTlS, bool enablePolling, bool enableReconnect, int connTimeout)
         {
             _eventManager = new EventManager();
             _typeRequestSubscriber = new TypeSubscriber<uint>();
             _typePushSubscriber = new TypeSubscriber<string>();
-            _client = PitayaBinding.CreateClient(enableTlS, enablePolling, enableReconnect, this);
+            _client = PitayaBinding.CreateClient(enableTlS, enablePolling, enableReconnect, connTimeout, this);
             
             if (certificateName != null)
             {

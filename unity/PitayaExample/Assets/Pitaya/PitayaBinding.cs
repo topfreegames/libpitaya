@@ -99,9 +99,9 @@ namespace Pitaya
             return (packageInfo.Get<int>("versionCode")).ToString();
         }
         
-        public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, IPitayaListener listener)
+        public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener)
         {
-            var client = NativeCreate(enableTls, enablePolling, enableReconnect);
+            var client = NativeCreate(enableTls, enablePolling, enableReconnect, connTimeout);
             if(client == IntPtr.Zero)
             {
                 throw new Exception ("Fail to create a client");
@@ -431,7 +431,7 @@ namespace Pitaya
         private static extern IntPtr NativeRcToStr(int rc);
 
         [DllImport(LibName, EntryPoint="pc_unity_create")]
-        private static extern IntPtr NativeCreate(bool enableTls, bool enablePoll, bool enableReconnect);
+        private static extern IntPtr NativeCreate(bool enableTls, bool enablePoll, bool enableReconnect, int connTimeout);
         [DllImport(LibName, EntryPoint="pc_unity_destroy")]
         private static extern int NativeDestroy(IntPtr client);
 
