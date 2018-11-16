@@ -23,7 +23,7 @@ CS_PITAYA_EXPORT void pc_unity_native_log(const char* msg);
 
 CS_PITAYA_EXPORT void pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, const char* platform, const char* build_number,const char* version);
 
-CS_PITAYA_EXPORT pc_client_t *pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect);
+CS_PITAYA_EXPORT pc_client_t *pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect, int conn_timeout);
 
 CS_PITAYA_EXPORT void pc_unity_destroy(pc_client_t *client);
 

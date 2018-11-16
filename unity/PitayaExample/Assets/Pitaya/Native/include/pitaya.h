@@ -15,11 +15,7 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
-#  if defined(BUILDING_PC_SHARED)
-#    define PC_EXPORT __declspec(dllexport)
-#  else
-#    define PC_EXPORT
-#  endif
+#  define PC_EXPORT __declspec(dllexport)
 #else
 #  define PC_EXPORT
 #endif
@@ -130,7 +126,7 @@ PC_EXPORT void pc_buf_debug_print(const pc_buf_t *buf);
  */
 typedef void (*pc_push_handler_cb_t)(pc_client_t *client, const char *route, const pc_buf_t *payload);
 
-void pc_client_set_push_handler(pc_client_t *client, pc_push_handler_cb_t cb);
+PC_EXPORT void pc_client_set_push_handler(pc_client_t *client, pc_push_handler_cb_t cb);
 
 typedef struct {
     int conn_timeout;

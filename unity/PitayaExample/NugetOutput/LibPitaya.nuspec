@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>LibPitaya</id>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Added Windows support</releaseNotes>
+    <releaseNotes>Add support to custom connection timeout</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
