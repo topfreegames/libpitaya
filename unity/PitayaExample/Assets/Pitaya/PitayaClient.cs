@@ -11,6 +11,8 @@ namespace Pitaya
     {
         public event Action<PitayaNetWorkState> NetWorkStateChangedEvent;
 
+        private int DEFAULT_CONNECTION_TIMEOUT = 30;
+
         private IntPtr _client = IntPtr.Zero;
         private EventManager _eventManager;
         private bool _disposed;
@@ -21,17 +23,22 @@ namespace Pitaya
 
         public PitayaClient()
         {
-            Init(null, false, false, false);
+            Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT);
+        }
+
+        public PitayaClient(int connectionTimeout)
+        {
+            Init(null, false, false, false, connectionTimeout);
         }
 
         public PitayaClient(string certificateName = null)
         {
-            Init(certificateName, certificateName != null, false, false);
+            Init(certificateName, certificateName != null, false, false, DEFAULT_CONNECTION_TIMEOUT);
         }
 
         public PitayaClient(bool enableReconnect = false, string certificateName = null)
         {
-            Init(certificateName, certificateName != null, false, enableReconnect);
+            Init(certificateName, certificateName != null, false, enableReconnect, DEFAULT_CONNECTION_TIMEOUT);
         }
 
         ~PitayaClient()
