@@ -92,13 +92,13 @@ namespace Pitaya
         private static string _AndroidBuildNumber()
         {
             var contextCls = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            var context = contextCls.GetStatic<AndroidJavaObject>("currentActivity"); 
+            var context = contextCls.GetStatic<AndroidJavaObject>("currentActivity");
             var packageMngr = context.Call<AndroidJavaObject>("getPackageManager");
             var packageName = context.Call<string>("getPackageName");
             var packageInfo = packageMngr.Call<AndroidJavaObject>("getPackageInfo", packageName, 0);
             return (packageInfo.Get<int>("versionCode")).ToString();
         }
-        
+
         public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener)
         {
             var client = NativeCreate(enableTls, enablePolling, enableReconnect, connTimeout);
@@ -106,7 +106,7 @@ namespace Pitaya
             {
                 throw new Exception ("Fail to create a client");
             }
-    
+
             var handlerId = NativeAddEventHandler(client, NativeEventCallback, IntPtr.Zero, IntPtr.Zero);
             NativeAddPushHandler(client, NativePushCallback);
             Listeners[client] = new WeakReference(listener);
@@ -138,13 +138,13 @@ namespace Pitaya
             string certPath;
             if (Application.platform == RuntimePlatform.IPhonePlayer)
             {
-                certPath = Application.dataPath + "/Raw/" + name;    
+                certPath = Application.dataPath + "/Raw/" + name;
             }
             else
             {
                 certPath = Application.dataPath + "/StreamingAssets/"+ name;
             }
-            
+
             NativeSetCertificatePath(certPath, null);
         }
 
@@ -159,7 +159,7 @@ namespace Pitaya
             if (rc != PitayaConstants.PcRcOk)
             {
                 DLog($"request - failed to perform request {RcToStr(rc)}");
-                
+
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
                 var listener = reference.Target as IPitayaListener;
@@ -189,12 +189,12 @@ namespace Pitaya
 
         public static void Dispose(IntPtr client)
         {
-            
+
             NativeRemoveEventHandler(client, EventHandlersIds[client]);
-            
+
             Listeners.Remove(client);
             EventHandlersIds.Remove(client);
-            
+
             NativeDestroy(client);
         }
 
@@ -204,35 +204,35 @@ namespace Pitaya
             return PitayaConstants.SerializerJson.Equals(serializer) ? PitayaSerializer.Json : PitayaSerializer.Protobuf;
         }
 
-        public static void AddPinnedPublicKeyFromCaString(string caString)
+        public static void AddPinnedPublicKeyFromCertificateString(string caString)
         {
-            var rc = NativeAddPinnedPublicKeyFromCaString(caString);
+            var rc = NativeAddPinnedPublicKeyFromCertificateString(caString);
             switch (rc)
             {
                 case PitayaConstants.PcRcError:
-                    DLog("Error reading public key from ca string");
+                    DLog("Error reading public key from certificate string");
                     break;
                 case PitayaConstants.PcRcInvalidArg:
-                    DLog("Invalid arguments to NativeAddPinnedPublicKeyFromCaString");
+                    DLog("Invalid arguments to NativeAddPinnedPublicKeyFromCertificateString");
                     break;
-                default: 
+                default:
                     SkipKeyPinCheck(false);
                     break;
             }
         }
 
-        public static void AddPinnedPublicKeyFromCaFile(string caPath)
+        public static void AddPinnedPublicKeyFromCertificateFile(string caPath)
         {
-            int rc = NativeAddPinnedPublicKeyFromCaFile(caPath);
+            int rc = NativeAddPinnedPublicKeyFromCertificateFile(caPath);
             switch (rc)
             {
                 case PitayaConstants.PcRcError:
-                    DLog("Error reading public key from ca file");
+                    DLog("Error reading public key from certificate file");
                     break;
                 case PitayaConstants.PcRcInvalidArg:
-                    DLog("Invalid arguments to NativeAddPinnedPublicKeyFromCaString");
+                    DLog("Invalid arguments to NativeAddPinnedPublicKeyFromCertificateString");
                     break;
-                default: 
+                default:
                     SkipKeyPinCheck(false);
                     break;
             }
@@ -249,12 +249,12 @@ namespace Pitaya
         }
 
         //--------------------HELPER METHODS----------------------------------//
-        private static string EvToStr(int ev) 
+        private static string EvToStr(int ev)
         {
             return Marshal.PtrToStringAnsi(NativeEvToStr(ev));
         }
 
-        private static string RcToStr(int rc) 
+        private static string RcToStr(int rc)
         {
             return Marshal.PtrToStringAnsi(NativeRcToStr(rc));
         }
@@ -264,13 +264,13 @@ namespace Pitaya
             var rawData = new byte[errorBinding.Buffer.Len];
             Marshal.Copy(errorBinding.Buffer.Data, rawData, 0, (int)errorBinding.Buffer.Len);
 
-            
+
             var error = (Error) ProtobufSerializer.Decode(rawData, typeof(Error), serializer);
-            
+
             return new PitayaError(error.Code, error.Msg, error.Metadata);
         }
 
-        //-------------------------PRIVATE METHODS------------------------------// 
+        //-------------------------PRIVATE METHODS------------------------------//
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static void CheckClient(IntPtr client)
         {
@@ -289,7 +289,7 @@ namespace Pitaya
         }
 
         [MonoPInvokeCallback(typeof(NativeErrorCallback))]
-        private static void OnError(IntPtr client, uint rid, IntPtr errorPtr) 
+        private static void OnError(IntPtr client, uint rid, IntPtr errorPtr)
         {
             var errBinding = (PitayaBindingError)Marshal.PtrToStructure(errorPtr, typeof(PitayaBindingError));
             PitayaError error;
@@ -311,7 +311,7 @@ namespace Pitaya
         }
 
         [MonoPInvokeCallback(typeof(NativeRequestCallback))]
-        private static void OnRequest(IntPtr client, uint rid, IntPtr respPtr) 
+        private static void OnRequest(IntPtr client, uint rid, IntPtr respPtr)
         {
             var buffer = (PitayaBuffer)Marshal.PtrToStructure(respPtr, typeof(PitayaBuffer));
 
@@ -334,7 +334,7 @@ namespace Pitaya
         }
 
         [MonoPInvokeCallback(typeof(NativePushCallback))]
-        private static void OnPush(IntPtr client, IntPtr routePtr, IntPtr payloadBufferPtr) 
+        private static void OnPush(IntPtr client, IntPtr routePtr, IntPtr payloadBufferPtr)
         {
             var route = Marshal.PtrToStringAnsi(routePtr);
             var buffer = (PitayaBuffer)Marshal.PtrToStructure(payloadBufferPtr, typeof(PitayaBuffer));
@@ -346,7 +346,7 @@ namespace Pitaya
             {
                 DLog($"OnEvent - no listener fond for client ev={client}");
                 return;
-            } 
+            }
 
             var listener = reference.Target as IPitayaListener;
             MainQueueDispatcher.Dispatch(()=>
@@ -357,7 +357,7 @@ namespace Pitaya
         }
 
         [MonoPInvokeCallback(typeof(NativeEventCallback))]
-        private static void OnEvent(IntPtr client, int ev, IntPtr exData, IntPtr arg1Ptr, IntPtr arg2Ptr) 
+        private static void OnEvent(IntPtr client, int ev, IntPtr exData, IntPtr arg1Ptr, IntPtr arg2Ptr)
         {
             DLog($"OnEvent - pinvoke callback START | ev={EvToStr(ev)} client={client}");
             if (arg1Ptr != IntPtr.Zero)
@@ -371,7 +371,7 @@ namespace Pitaya
             {
                 DLog($"OnEvent - no listener fond for client ev={client}");
                 return;
-            } 
+            }
 
             var listener = reference.Target as IPitayaListener;
 
@@ -417,8 +417,7 @@ namespace Pitaya
 #else
         private const string LibName = "libpitaya-linux";
         #endif
-        
-        
+
         // ReSharper disable UnusedMember.Local
         [DllImport(LibName, EntryPoint="tr_uv_tls_set_ca_file")]
         private static extern void NativeSetCertificatePath(string caFile, string caPath);
@@ -446,7 +445,7 @@ namespace Pitaya
 
         [DllImport(LibName, EntryPoint="pc_unity_request")]
         private static extern int NativeRequest(IntPtr client, string route, string msg, uint cbUid, int timeout, NativeRequestCallback callback, NativeErrorCallback errorCallback);
-        
+
         [DllImport(LibName, EntryPoint="pc_unity_binary_request")]
         private static extern int NativeBinaryRequest(IntPtr client, string route, byte[] data, long len, uint cbUid, int timeout, NativeRequestCallback callback, NativeErrorCallback errorCallback);
 
@@ -459,10 +458,10 @@ namespace Pitaya
 
         [DllImport(LibName, EntryPoint="pc_client_add_ev_handler")]
         private static extern int NativeAddEventHandler(IntPtr client, NativeEventCallback callback, IntPtr exData, IntPtr destructor);
-        
+
         [DllImport(LibName, EntryPoint="pc_client_set_push_handler")]
         private static extern int NativeAddPushHandler(IntPtr client, NativePushCallback callback);
-        
+
         [DllImport(LibName, EntryPoint="pc_client_rm_ev_handler")]
         private static extern int NativeRemoveEventHandler(IntPtr client, int handlerId);
 
@@ -475,18 +474,18 @@ namespace Pitaya
         private static extern IntPtr NativeSerializer(IntPtr client);
         // ReSharper restore UnusedMember.Local
 
-        [DllImport(LibName, EntryPoint="pc_lib_add_pinned_public_key_from_ca_string")]
-        private static extern int NativeAddPinnedPublicKeyFromCaString(string ca_string);
+        [DllImport(LibName, EntryPoint="pc_lib_add_pinned_public_key_from_certificate_string")]
+        private static extern int NativeAddPinnedPublicKeyFromCertificateString(string ca_string);
 
-        [DllImport(LibName, EntryPoint="pc_lib_add_pinned_public_key_from_ca_file")]
-        private static extern int NativeAddPinnedPublicKeyFromCaFile(string caPath);
+        [DllImport(LibName, EntryPoint="pc_lib_add_pinned_public_key_from_certificate_file")]
+        private static extern int NativeAddPinnedPublicKeyFromCertificateFile(string caPath);
 
         [DllImport(LibName, EntryPoint="pc_lib_skip_key_pin_check")]
         private static extern void NativeSkipKeyPinCheck(bool shouldSkip);
 
         [DllImport(LibName, EntryPoint="pc_lib_clear_pinned_public_keys")]
         private static extern void NativeClearPinnedPublicKeys();
-        
+
         [DllImport("__Internal")]
         private static extern string _PitayaGetCFBundleVersion();
 
