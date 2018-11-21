@@ -389,7 +389,7 @@ out:
 
 }
 
-int pc_lib_add_pinned_public_key_from_ca_string(const char *ca_string)
+int pc_lib_add_pinned_public_key_from_certificate_string(const char *ca_string)
 {
     int rc = PC_RC_OK;
     BIO *fp = NULL;
@@ -423,7 +423,7 @@ out:
     return rc;
 }
 
-int pc_lib_add_pinned_public_key_from_ca_file(const char *ca_path)
+int pc_lib_add_pinned_public_key_from_certificate_file(const char *ca_path)
 {
     if (!ca_path) {
         pc_lib_log(PC_LOG_ERROR, "ca_path is NULL");
