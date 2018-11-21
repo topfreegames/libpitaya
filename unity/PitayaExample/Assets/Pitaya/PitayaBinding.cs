@@ -215,7 +215,9 @@ namespace Pitaya
                 case PitayaConstants.PcRcInvalidArg:
                     DLog("Invalid arguments to NativeAddPinnedPublicKeyFromCaString");
                     break;
-                default: break;
+                default: 
+                    SkipKeyPinCheck(false);
+                    break;
             }
         }
 
@@ -230,7 +232,9 @@ namespace Pitaya
                 case PitayaConstants.PcRcInvalidArg:
                     DLog("Invalid arguments to NativeAddPinnedPublicKeyFromCaString");
                     break;
-                default: break;
+                default: 
+                    SkipKeyPinCheck(false);
+                    break;
             }
         }
 

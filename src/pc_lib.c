@@ -53,7 +53,7 @@ typedef struct {
 
 static pc_pinned_key_t pc__pinned_keys[PC_MAX_PINNED_KEYS];
 static pc_mutex_t pc__pinned_keys_mutex;
-static bool pc__skip_key_pin_check = false;
+static bool pc__skip_key_pin_check = true;
 
 static int pc_initiateded = 0;
 
