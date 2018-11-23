@@ -15,7 +15,7 @@ namespace Pitaya.Tests
 #if UNITY_EDITOR
         private const string ServerHost = "127.0.0.1";
 #else
-        private const string ServerHost = "10.0.22.57";
+        private const string ServerHost = "10.0.20.70";
 #endif
         private const int ServerPort = 3251;
         private JsonObject _jsonStub;
@@ -177,8 +177,8 @@ namespace Pitaya.Tests
 
             Assert.True(_isFinished);
             Assert.NotNull(response);
-            Assert.AreEqual(response, _emptyData);
-            Assert.AreEqual((JsonObject)SimpleJson.SimpleJson.DeserializeObject((string)response), _emptyJsonStub);
+            var responseJson = (JsonObject) SimpleJson.SimpleJson.DeserializeObject((string) response);
+            Assert.True(responseJson.ContainsKey("Data"));
         }
 
         [UnityTest]

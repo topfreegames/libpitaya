@@ -1,9 +1,6 @@
 ﻿using System.Collections;
 using System.Threading;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using Protos;
 using SimpleJson;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -18,7 +15,7 @@ namespace Pitaya.Tests
 #if UNITY_EDITOR
         private const string ServerHost = "127.0.0.1";
 #else
-        private const string ServerHost = "10.0.22.57";
+        private const string ServerHost = "10.0.20.70";
 #endif
         private const int ServerPort = 3252;
         private JsonObject _jsonStub;

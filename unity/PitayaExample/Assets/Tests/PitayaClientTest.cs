@@ -12,7 +12,7 @@ namespace Pitaya.Tests
 #if UNITY_EDITOR
         private const string ServerHost = "127.0.0.1";
 #else
-        private const string ServerHost = "10.0.22.57";
+        private const string ServerHost = "10.0.20.70";
 #endif
         private const int ServerPort = 3251;
 

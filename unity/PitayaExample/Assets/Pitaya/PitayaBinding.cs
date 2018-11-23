@@ -140,6 +140,22 @@ namespace Pitaya
             {
                 certPath = Application.dataPath + "/Raw/" + name;
             }
+            else if (Application.platform == RuntimePlatform.Android)
+            {
+                certPath = "jar:file://" + Application.dataPath + "!/assets/" + name;
+
+                var persistentPath = Application.persistentDataPath + "/" + name;
+
+                if (!PlayerPrefs.HasKey(persistentPath))
+                {
+                    var reader = new WWW(certPath);
+                    while (!reader.isDone) {}
+                    System.IO.File.WriteAllBytes(persistentPath, reader.bytes);
+                    PlayerPrefs.SetInt(persistentPath, 1);
+                }
+
+                certPath = persistentPath;
+            }
             else
             {
                 certPath = Application.dataPath + "/StreamingAssets/"+ name;
