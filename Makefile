@@ -43,17 +43,17 @@ build-android:
 	@cmake -GNinja -H. -B_builds/android -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
 				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
 				   -DANDROID_ABI=armeabi-v7a
-	@cmake --build build
+	@cmake --build _builds/android
 
 build-mac:
 	@rm -rf _builds/mac
 	@cmake -H. -B_builds/mac -GNinja -DCMAKE_BUILD_TYPE=Release
-	@cmake --build build
+	@cmake --build _builds/mac
 
 build-ios:
 	@rm -rf _builds/ios
 	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake
-	@cmake --build build
+	@cmake --build _builds/ios
 
 .PHONY: build
 
