@@ -188,7 +188,7 @@ else()
 endif()
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(pitaya PRIVATE m)
+    target_link_libraries(pitaya PRIVATE m dl)
 endif()
 
 #

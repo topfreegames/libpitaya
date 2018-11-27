@@ -155,7 +155,7 @@ def mac_build(openssl_temp_dir, prefix):
 
 def linux_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
-    os.environ['CC'] = 'clang -fPIC'
+    os.environ['CC'] = '{} -fPIC'.format(os.environ['CC'])
     call_shell(
         'cd {} && ./Configure linux-x86_64 --prefix={}'.format(
             openssl_temp_dir, prefix))
