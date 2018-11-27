@@ -32,16 +32,25 @@ namespace Pitaya
 
         public void InvokeCallBack(uint id, object data)
         {
-            if (_callBackMap.ContainsKey(id)){ (_callBackMap[id]).Invoke(data);}
+            Action<object> action = null;
+            var foundAction = _callBackMap.TryGetValue(id, out action);
+            
+            ClearCallbacks(id);
+            
+            if (foundAction) action.Invoke(data);
 
-			ClearCallbacks(id);
         }
 
         public void InvokeErrorCallBack(uint id, PitayaError error)
         {
-            if (_errorCallBackMap.ContainsKey(id)) _errorCallBackMap[id].Invoke(error);
-
+            Action<PitayaError> action = null;
+            var foundAction = _errorCallBackMap.TryGetValue(id, out action);
+            
             ClearCallbacks(id);
+            
+            if (foundAction) action.Invoke(error);
+
+            
         }
 
 
