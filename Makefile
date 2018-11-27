@@ -38,22 +38,22 @@ setup-node-mac:
 	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-darwin-x64.tar.xz -o ~/node-v8.11.3-darwin-x64.tar.xz
 	@cd ~ && tar xf ~/node-v8.11.3-darwin-x64.tar.xz
 
-build-android:clean-build
+build-android:
+	@rm -rf _builds/android
 	@cmake -GNinja -H. -B_builds/android -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
 				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
 				   -DANDROID_ABI=armeabi-v7a
 	@cmake --build build
 
-build-mac:clean-build
+build-mac:
+	@rm -rf _builds/mac
 	@cmake -H. -B_builds/mac -GNinja -DCMAKE_BUILD_TYPE=Release
 	@cmake --build build
 
-build-ios:clean-build
+build-ios:
+	@rm -rf _builds/ios
 	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake
 	@cmake --build build
-
-clean-build:
-	@rm -rf build
 
 .PHONY: build
 
