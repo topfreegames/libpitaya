@@ -52,7 +52,7 @@ build-mac:
 
 build-ios:
 	@rm -rf _builds/ios
-	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake
+	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
 	@cmake --build _builds/ios
 
 .PHONY: build
