@@ -1,3 +1,5 @@
+ANDROID_TOOLCHAIN_FILE = ../temp/android-ndk-r17b/build/cmake/android.toolchain.cmake
+
 setup-mac:
 	@brew install ninja
 
@@ -38,7 +40,7 @@ setup-node-mac:
 
 build-android:clean-build
 	@cmake -GNinja -H. -Bbuild -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
-				   -DCMAKE_TOOLCHAIN_FILE=../temp/android-ndk-r17b/build/cmake/android.toolchain.cmake \
+				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
 				   -DANDROID_ABI=armeabi-v7a
 	@cmake --build build
 
