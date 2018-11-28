@@ -12,10 +12,8 @@ THIS_DIR = path.abspath(path.dirname(__file__))
 
 if sys.platform == 'win32' or sys.platform == 'cygwin':
     TESTS_EXE = 'tests.exe'
-    SERVER_EXE = 'server.exe'
 else:
     TESTS_EXE = 'tests'
-    SERVER_EXE = 'server'
 
 MOCK_SERVERS_DIR = path.join(THIS_DIR, 'test', 'mock-servers')
 MOCK_SERVERS = [
@@ -24,12 +22,6 @@ MOCK_SERVERS = [
     ('mock-kick-server.js', 'mock-kick-server-log'),
     ('mock-timeout-server.js', 'mock-timeout-server-log'),
     ('mock-destroy-socket-server.js', 'mock-destroy-socket-server-log'),
-]
-
-PITAYA_SERVERS_DIR = path.join(THIS_DIR, 'pitaya-servers')
-PITAYA_SERVERS = [
-    (path.join('json-server', SERVER_EXE), path.join('json-server', 'server-exe-out')),
-    (path.join('protobuf-server', SERVER_EXE), path.join('protobuf-server', 'server-exe-out')),
 ]
 
 mock_server_processes = []

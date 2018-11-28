@@ -194,7 +194,7 @@ endif()
 #
 # Tests
 #
-if(NOT IOS AND NOT ANDROID AND NOT WIN32 AND NOT BUILD_MACOS_BUNDLE)
+if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
     add_executable(pitaya_tests
         # Sources
         test/main.c
