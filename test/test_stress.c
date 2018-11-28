@@ -50,7 +50,7 @@ test_multiple_requests(const MunitParameter params[], void *data)
                                            request_cb, request_error_cb);
         }
 
-        SLEEP_SECONDS(3);
+        SLEEP_SECONDS(6);
 
         assert_int(g_num_error_cb_called, ==, 0);
         assert_int(g_num_success_cb_called, ==, num_requests_at_once);
