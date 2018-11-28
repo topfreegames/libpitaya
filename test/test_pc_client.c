@@ -29,7 +29,7 @@ test_polling(const MunitParameter params[], void *data)
     int handler_id = pc_client_add_ev_handler(g_client, empty_event_cb, &called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
     assert_false(called);
 
@@ -83,7 +83,7 @@ test_pc_client_conn_quality(const MunitParameter params[], void *data)
     g_client = res.client;
     assert_int(res.rc, ==, PC_RC_OK);
 
-    pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL);
+    pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tcp_port, NULL);
 
 //    for (int i = 0; i < 300; i++)
 //    {
@@ -108,7 +108,7 @@ test_serializer(const MunitParameter params[], void *data)
     assert_int(res.rc, ==, PC_RC_OK);
 
     assert_null(pc_client_serializer(g_client));
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
 
     SLEEP_SECONDS(1);
 

@@ -129,7 +129,7 @@ test_key_pinned(const MunitParameter params[], void *state)
         
         assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
         
-        assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tls_port, NULL), ==, PC_RC_OK);
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
         
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
@@ -165,7 +165,7 @@ test_key_not_pinned(const MunitParameter params[], void *state)
 
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tls_port, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
     
     assert_int(pc_client_state(g_client), ==, PC_ST_INITED);
@@ -200,7 +200,7 @@ test_successful_handshake(const MunitParameter params[], void *state)
     // Set CA file so that the handshake is successful.
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tls_port, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
     assert_int(pc_string_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &req_cb_called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
     assert_int(pc_string_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, &noti_cb_called, NOTI_TIMEOUT, notify_cb), ==, PC_RC_OK);
@@ -242,7 +242,7 @@ test_invalid_handshake()
     int handler_id = pc_client_add_ev_handler(g_client, connect_failed_event_cb, &called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tls_port, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
 
     assert_true(called);

@@ -23,6 +23,7 @@
 #define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #define LOCALHOST "127.0.0.1"
+#define PITAYA_SERVER_URL "a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com"
 
 #define REQ_ROUTE "connector.getsessiondata"
 #define REQ_MSG "{\"name\": \"test\"}"

@@ -60,6 +60,11 @@ build-ios:
 	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
 	@cmake --build _builds/ios
 
+build-mac-tests:
+	@rm -rf _builds/mac-tests
+	@cmake -H. -B_builds/mac-tests -DCMAKE_BUILD_TYPE=Release
+	@cmake --build _builds/mac-tests
+
 clean-docker-container:
 	@if [[ `docker ps -aqf "name=libpitaya"` != "" ]]; then \
 		docker rm `docker ps -aqf "name=libpitaya"` ; \

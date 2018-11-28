@@ -62,7 +62,7 @@ test_request_callback(const MunitParameter params[], void *data)
     assert_int(res.rc, ==, PC_RC_OK);
 
     const char *handshake_opts = "{\"age\":30}";
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, handshake_opts), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tcp_port, handshake_opts), ==, PC_RC_OK);
 
     SLEEP_SECONDS(1);
     // assert_int(pc_string_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
@@ -108,7 +108,7 @@ test_event_callback(const MunitParameter params[], void *data)
     int handler_id = pc_client_add_ev_handler(g_client, event_cb, &num_called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tcp_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
 
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
@@ -130,8 +130,9 @@ invalid_ev_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1,
 
     assert(ev_type == PC_EV_CONNECT_ERROR || ev_type == PC_EV_CONNECT_FAILED);
     bool is_connect_error = strcmp("Connect Error", arg1) == 0;
+    bool is_connect_timeout = strcmp("Connect Timeout", arg1) == 0;
     bool is_reconn_disabled = strcmp("Reconn Disabled", arg1) == 0;
-    assert(is_connect_error || is_reconn_disabled);
+    assert(is_connect_error || is_connect_timeout || is_reconn_disabled);
 }
 
 static MunitResult
@@ -140,30 +141,32 @@ test_connect_errors(const MunitParameter params[], void *data)
     Unused(data); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     config.transport_name = PC_TR_NAME_UV_TCP;
+    config.conn_timeout = 3;
 
     // Initializing the client
     pc_client_init_result_t res = pc_client_init(NULL, &config);
     g_client = res.client;
     assert_int(res.rc, ==, PC_RC_OK);
 
+
     bool cb_called = false;
     const int handler_id = pc_client_add_ev_handler(g_client, invalid_ev_cb, &cb_called, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
     // Invalid arguments for pc_client_connect
-    assert_int(pc_client_connect(NULL, LOCALHOST, g_test_server.tcp_port, NULL), ==, PC_RC_INVALID_ARG);
+    assert_int(pc_client_connect(NULL, PITAYA_SERVER_URL, g_test_server.tcp_port, NULL), ==, PC_RC_INVALID_ARG);
     assert_int(pc_client_connect(g_client, NULL, g_test_server.tcp_port, NULL), ==, PC_RC_INVALID_ARG);
-    assert_int(pc_client_connect(g_client, LOCALHOST, -1, NULL), ==, PC_RC_INVALID_ARG);
-    assert_int(pc_client_connect(g_client, LOCALHOST, (1 << 16), NULL), ==, PC_RC_INVALID_ARG);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, -1, NULL), ==, PC_RC_INVALID_ARG);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, (1 << 16), NULL), ==, PC_RC_INVALID_ARG);
 
     // Invalid JSON errors
     const char *invalid_handshake_opts = "wqdojh";
     const int invalid_port = g_test_server.tcp_port + 50;
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, invalid_handshake_opts), ==, PC_RC_INVALID_JSON);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tcp_port, invalid_handshake_opts), ==, PC_RC_INVALID_JSON);
 
     const char *valid_handshake_opts = "{ \"oi\": 2 }";
-    assert_int(pc_client_connect(g_client, LOCALHOST, invalid_port, valid_handshake_opts), ==, PC_RC_OK);
-    SLEEP_SECONDS(2);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, invalid_port, valid_handshake_opts), ==, PC_RC_OK);
+    SLEEP_SECONDS(5);
 
     assert_true(cb_called);
     assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);

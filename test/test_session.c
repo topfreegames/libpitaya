@@ -52,7 +52,7 @@ do_test_session_persistence(pc_client_config_t *config, int port)
     int handler_id = pc_client_add_ev_handler(g_client, event_cb, &connected, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
-    assert_int(pc_client_connect(g_client, LOCALHOST, port, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
 
     assert_true(connected);

@@ -390,7 +390,7 @@ test_big_message(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
@@ -437,7 +437,7 @@ test_request_encoding(const MunitParameter params[], void *data)
 
         assert_null(pc_client_serializer(g_client));
 
-        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
         assert_string_equal(pc_client_serializer(g_client), "protobuf");
@@ -494,7 +494,7 @@ test_response_decoding(const MunitParameter params[], void *data)
 
         assert_null(pc_client_serializer(g_client));
 
-        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
         assert_string_equal(pc_client_serializer(g_client), "protobuf");
@@ -542,7 +542,7 @@ test_error_decoding(const MunitParameter params[], void *data)
 
         assert_null(pc_client_serializer(g_client));
 
-        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
         assert_string_equal(pc_client_serializer(g_client), "protobuf");

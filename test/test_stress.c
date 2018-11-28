@@ -33,7 +33,7 @@ test_multiple_requests(const MunitParameter params[], void *data)
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
     bool called = false;
 
-    for (size_t i = 0; i < 1; i++) {
+    for (size_t i = 0; i < 2; i++) {
         pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
         config.transport_name = transports[i];
 
@@ -41,21 +41,19 @@ test_multiple_requests(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
-        static const int num_requests_at_once = 50;
-        static const int times_to_send = 10;
-        for (int x = 0; x < times_to_send; ++x) {
-            for (int y = 0; y < num_requests_at_once; ++y) {
-                pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 2,
-                                               request_cb, request_error_cb);
-            }
-            SLEEP_SECONDS(1);
+        static const int num_requests_at_once = 70;
+        for (int y = 0; y < num_requests_at_once; ++y) {
+            pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 10,
+                                           request_cb, request_error_cb);
         }
 
+        SLEEP_SECONDS(3);
+
         assert_int(g_num_error_cb_called, ==, 0);
-        assert_int(g_num_success_cb_called, ==, num_requests_at_once*times_to_send);
+        assert_int(g_num_success_cb_called, ==, num_requests_at_once);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 

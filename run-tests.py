@@ -33,7 +33,6 @@ PITAYA_SERVERS = [
 ]
 
 mock_server_processes = []
-pitaya_server_processes = []
 file_descriptors = []
 
 def parse_args():
@@ -48,7 +47,6 @@ def parse_args():
 
 def kill_all_servers():
     for p in mock_server_processes: p.terminate()
-    for p in pitaya_server_processes: p.terminate()
 
 
 def close_file_descriptors():
@@ -58,55 +56,6 @@ def close_file_descriptors():
 def signal_handler(signal, frame):
     kill_all_servers()
     close_file_descriptors()
-
-
-def ensure_pitaya_servers(go_path):
-    os.chdir(PITAYA_SERVERS_DIR)
-    for (s, _) in PITAYA_SERVERS:
-        os.chdir(path.dirname(s))
-        if go_path:
-            subprocess.call([
-                go_path, 'build', '-o', SERVER_EXE, 'main.go',
-            ])
-        else:
-            subprocess.call([
-                'go', 'build', '-o', SERVER_EXE, 'main.go',
-            ])
-        os.chdir(PITAYA_SERVERS_DIR)
-    os.chdir(THIS_DIR)
-
-
-def docker_compose_up():
-    subprocess.call('cd {} && docker-compose up -d'.format(PITAYA_SERVERS_DIR),
-                    shell=True)
-
-
-def docker_compose_down():
-    subprocess.call('cd {} && docker-compose down'.format(PITAYA_SERVERS_DIR),
-                    shell=True)
-
-
-def start_pitaya_servers():
-    os.chdir(PITAYA_SERVERS_DIR)
-    port = 9091
-    for (s, l) in PITAYA_SERVERS:
-        os.chdir(path.dirname(s))
-        print('Starting {}...'.format(s))
-
-        os.environ['PITAYA_METRICS_PROMETHEUS_PORT'] = str(port)
-        port += 1
-
-        fd = open(path.join(PITAYA_SERVERS_DIR, l), 'wb')
-
-        if sys.platform == 'win32' or sys.platform == 'cygwin':
-            process = subprocess.Popen(
-                '{}'.format(path.basename(s)), stdout=fd, stderr=fd)
-        else:
-            process = subprocess.Popen(
-                './{}'.format(path.basename(s)), stdout=fd, stderr=fd)
-        pitaya_server_processes.append(process)
-        os.chdir(PITAYA_SERVERS_DIR)
-    os.chdir(THIS_DIR)
 
 
 def start_mock_servers(node_path):
@@ -164,14 +113,10 @@ def main():
 
     ensure_tests_executable(args.tests_dir)
     start_mock_servers(args.node_path)
-    ensure_pitaya_servers(args.go_path)
-    docker_compose_up()
-    start_pitaya_servers()
     time.sleep(1)
     code = run_tests(args.tests_dir)
     kill_all_servers()
     close_file_descriptors()
-    docker_compose_down()
     exit(code)
 
 

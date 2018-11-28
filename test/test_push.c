@@ -73,7 +73,7 @@ test_success(const MunitParameter params[], void *data)
         pc_client_set_push_handler(g_client, push_handler);
         int handler_id = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
 
-        assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
