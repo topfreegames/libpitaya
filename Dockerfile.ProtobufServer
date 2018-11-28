@@ -4,7 +4,9 @@ WORKDIR /app
 ADD ./out/protobuf_server_linux ./protobuf_server
 ADD ./pitaya-servers/protobuf-server/fixtures ./fixtures
 
-EXPOSE 4000
+EXPOSE 3350
+EXPOSE 3351
+EXPOSE 3352
 
-CMD /app/protobuf_server -port 4000
+CMD /app/protobuf_server -port 3350
 

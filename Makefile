@@ -47,7 +47,7 @@ build-android:
 
 build-mac:
 	@rm -rf _builds/mac
-	@cmake -H. -B_builds/mac -GNinja -DCMAKE_BUILD_TYPE=Release
+	@cmake -H. -B_builds/mac -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
 	@cmake --build _builds/mac
 
 build-linux:
