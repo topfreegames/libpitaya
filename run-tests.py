@@ -38,7 +38,6 @@ file_descriptors = []
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--node-path', dest='node_path', help='Where is node located')
-    parser.add_argument('--go-path', dest='go_path', help='Where is Go located.')
     parser.add_argument('--tests-dir', dest='tests_dir',
                         help='Where the test executable is located',
                         required=True)
@@ -102,10 +101,6 @@ def main():
 
     if args.node_path and not path.exists(args.node_path):
         print("Node path does not exist.")
-        exit(1)
-
-    if args.go_path and not path.exists(args.go_path):
-        print("Go path does not exist.")
         exit(1)
 
     signal.signal(signal.SIGTERM, signal_handler)
