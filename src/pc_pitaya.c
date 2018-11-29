@@ -224,7 +224,6 @@ int pc_client_disconnect(pc_client_t* client)
 
 int pc_client_cleanup(pc_client_t* client)
 {
-    pc_lib_log(PC_LOG_DEBUG, "pc_client_cleanup - CALLING CLEANUP");
     QUEUE* q;
     int ret;
 

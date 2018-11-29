@@ -62,7 +62,7 @@ build-ios:
 
 build-mac-tests:
 	@rm -rf _builds/mac-tests
-	@cmake -H. -B_builds/mac-tests -DCMAKE_BUILD_TYPE=Release
+	@cmake -GNinja -H. -B_builds/mac-tests -DCMAKE_BUILD_TYPE=Release
 	@cmake --build _builds/mac-tests
 
 clean-docker-container:

@@ -916,7 +916,6 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
             pc_trans_resp(tt->client, msg.id, &msg.buf, &err);
             pc__error_free(&err);
         } else {
-            pc_lib_log(PC_LOG_INFO, "tcp__on_data_recieved - CALLING TRANSRESP");
             pc_trans_resp(tt->client, msg.id, &msg.buf, NULL);
         }
 
