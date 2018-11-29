@@ -27,7 +27,7 @@ event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, cons
     // *called = true;
 }
 
-static bool 
+static bool
 read_varint(pb_istream_t *stream, const pb_field_t *field, void **arg)
 {
     uint64_t *value = (uint64_t)(*arg);
@@ -44,7 +44,7 @@ read_string(pb_istream_t *stream, const pb_field_t *field, void **arg)
         free(buf);
         return false;
     }
-    
+
     *arg = buf;
     return true;
 }
@@ -55,7 +55,7 @@ typedef struct {
     char **data;
 } string_array_t;
 
-static bool 
+static bool
 read_repeated_string(pb_istream_t *stream, const pb_field_t *field, void **arg)
 {
     string_array_t *array = (string_array_t*)(*arg);
@@ -76,7 +76,7 @@ read_repeated_string(pb_istream_t *stream, const pb_field_t *field, void **arg)
     }
 
     array->data[array->len++] = (char*)buf;
-    
+
     return true;
 }
 
@@ -85,7 +85,7 @@ typedef struct {
     protos_BigMessageResponse_NpcsEntry *data;
 } npc_entry_array_t;
 
-static bool 
+static bool
 read_npc_entries(pb_istream_t *stream, const pb_field_t *field, void **arg)
 {
     npc_entry_array_t *array = (npc_entry_array_t*)(*arg);
@@ -114,7 +114,7 @@ read_npc_entries(pb_istream_t *stream, const pb_field_t *field, void **arg)
 static bool
 write_string(pb_ostream_t *stream, const pb_field_t *field, void * const *arg)
 {
-    return pb_encode_tag_for_field(stream, field) && 
+    return pb_encode_tag_for_field(stream, field) &&
            pb_encode_string(stream, *arg, strlen(*arg));
 }
 
@@ -135,7 +135,7 @@ typedef struct {
     double health;
 } npc_t;
 
-static bool 
+static bool
 contains_in_vals(npc_t *npcs_vals, size_t len, char *name, char *public_id, double health)
 {
     for (int i = 0; i < len; ++i) {
@@ -197,7 +197,7 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
 
     assert_true(pb_decode(&stream, protos_BigMessage_fields, &big_message));
 
-    assert_string_equal((char*)big_message.code.arg, "ABC-200"); 
+    assert_string_equal((char*)big_message.code.arg, "ABC-200");
     free(big_message.code.arg);
 
     string_array_t *str_arr = (string_array_t*)big_message.response.chests.arg;
@@ -263,7 +263,7 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
 
     for (int i = 0; i < npcs->len; ++i) {
         assert_true(contains_in_keys(npcs_keys, ArrayCount(npcs_keys), (char*)npcs->data[i].key.arg));
-        assert_true(contains_in_vals(npcs_vals, ArrayCount(npcs_vals), 
+        assert_true(contains_in_vals(npcs_vals, ArrayCount(npcs_vals),
                                      (char*)npcs->data[i].value.name.arg,
                                      (char*)npcs->data[i].value.publicId.arg,
                                      npcs->data[i].value.health));
@@ -396,7 +396,7 @@ test_big_message(const MunitParameter params[], void *data)
 
         assert_string_equal(pc_client_serializer(g_client), "protobuf");
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getbigmessage", "", NULL, 
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getbigmessage", "", NULL,
                                                   REQ_TIMEOUT, big_message_request_cb, NULL), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
@@ -451,7 +451,7 @@ test_request_encoding(const MunitParameter params[], void *data)
 
         assert_true(pb_encode(&stream, protos_SessionData_fields, &session_data));
         assert_int(stream.bytes_written, <=, sizeof(buf));
-        assert_int(pc_binary_request_with_timeout(g_client, "connector.setsessiondata", buf, stream.bytes_written, NULL, 
+        assert_int(pc_binary_request_with_timeout(g_client, "connector.setsessiondata", buf, stream.bytes_written, NULL,
                                                   REQ_TIMEOUT, encoded_request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
@@ -499,7 +499,7 @@ test_response_decoding(const MunitParameter params[], void *data)
 
         assert_string_equal(pc_client_serializer(g_client), "protobuf");
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL, 
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL,
                                                   REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
@@ -547,10 +547,10 @@ test_error_decoding(const MunitParameter params[], void *data)
 
         assert_string_equal(pc_client_serializer(g_client), "protobuf");
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.route", "{dqwdwqd}", NULL, 
+        assert_int(pc_string_request_with_timeout(g_client, "connector.route", "{dqwdwqd}", NULL,
                                                   REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(5);
 
         assert_int(g_num_error_cb_called, ==, 1);
         assert_int(g_num_success_cb_called, ==, 0);
