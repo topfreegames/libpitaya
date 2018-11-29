@@ -34,7 +34,7 @@ event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, cons
     assert_int(ev_type, ==, EV_ORDER[g_num_ev_cb_called++]);
 }
 
-void 
+void
 push_handler(pc_client_t *client, const char *route, const pc_buf_t *payload)
 {
     assert_not_null(payload);
@@ -79,11 +79,11 @@ test_success(const MunitParameter params[], void *data)
 
         assert_int(pc_string_request_with_timeout(g_client, "connector.sendpush", "{}", NULL, REQ_TIMEOUT,
                                                   request_cb, request_error_cb), ==, PC_RC_OK);
-        SLEEP_SECONDS(2);
+        SLEEP_SECONDS(4);
 
         assert_int(g_num_success_cb_called, ==, 1);
         assert_int(g_num_error_cb_called, ==, 0);
-        assert_int(g_num_ev_cb_called, ==, ArrayCount(EV_ORDER)); 
+        assert_int(g_num_ev_cb_called, ==, ArrayCount(EV_ORDER));
         assert_int(g_num_push_cb_called, ==, 1);
 
         g_num_success_cb_called = 0;
