@@ -9,11 +9,7 @@ namespace Pitaya.Tests
     public class PitayaClientTest
     {
         private PitayaClient _client;
-#if UNITY_EDITOR
-        private const string ServerHost = "127.0.0.1";
-#else
-        private const string ServerHost = "10.0.20.70";
-#endif
+        private const string ServerHost = "a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com";
         private const int ServerPort = 3251;
 
         private Thread _mainThread;

@@ -12,11 +12,7 @@ namespace Pitaya.Tests
     {
         private PitayaClient _client;
 
-#if UNITY_EDITOR
-        private const string ServerHost = "127.0.0.1";
-#else
-        private const string ServerHost = "10.0.20.70";
-#endif
+        private const string ServerHost = "a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com";
         private const int ServerPort = 3251;
         private JsonObject _jsonStub;
         private JsonObject _emptyJsonStub;
@@ -39,12 +35,17 @@ namespace Pitaya.Tests
 
             _isFinished = false;
 
+            Debug.Log("MAKING REQ TEST SETUP");
             // clearing sessiondata
             _client.Request(
                 "connector.setsessiondata",
                 _emptyData,
-                res => {},
-                error => {}
+                res => {
+                    _isFinished = true;
+                },
+                error => {
+                    _isFinished = true;
+                }
             );
         }
 
@@ -60,6 +61,11 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldReturnJsonObjectWhenNoSubscriberIsAdded()
         {
+            while(!_isFinished) {
+                yield return new WaitForSeconds(1);
+            }
+            _isFinished = false;
+
             object response = null;
 
             _client.Request(
@@ -80,7 +86,6 @@ namespace Pitaya.Tests
             }
 
             var resp = (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string)response);
-            
 
             Assert.True(_isFinished);
             Assert.NotNull(response);
@@ -91,6 +96,11 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldGetAndSetJsonObject()
         {
+            while(!_isFinished) {
+                yield return new WaitForSeconds(1);
+            }
+            _isFinished = false;
+
             object response = null;
 
             _client.Request(
@@ -131,13 +141,18 @@ namespace Pitaya.Tests
 
             Assert.True(_isFinished);
             Assert.NotNull(response);
-            Assert.AreEqual(response, _data);
-            Assert.AreEqual((JsonObject)SimpleJson.SimpleJson.DeserializeObject((string)response), _jsonStub);
+            Assert.AreEqual(_data, response);
+            Assert.AreEqual(_jsonStub, (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string)response));
         }
 
         [UnityTest]
         public IEnumerator ShouldReceiveEmptyDataWhenSettingNullRequest()
         {
+            while(!_isFinished) {
+                yield return new WaitForSeconds(1);
+            }
+            _isFinished = false;
+
             object response = null;
 
             _client.Request(
@@ -184,6 +199,11 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldReturnBadRequestWhenRequestingToInvalidRoute()
         {
+            while(!_isFinished) {
+                yield return new WaitForSeconds(1);
+            }
+            _isFinished = false;
+
             object response = null;
 
             _client.Request(
