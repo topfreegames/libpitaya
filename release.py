@@ -6,8 +6,12 @@ from distutils.version import StrictVersion
 from os.path import dirname, abspath, join
 import sys
 import re
+import xml.etree.ElementTree
 
-VERSION_FILE = join(abspath(dirname(__file__)), 'include', 'pitaya_version.h')
+
+THIS_DIR = abspath(dirname(__file__))
+VERSION_FILE = join(THIS_DIR, 'include', 'pitaya_version.h')
+VERSION_FILE_UNITY = join(THIS_DIR, 'unity', 'PitayaExample', 'NugetOutput', 'LibPitaya.nuspec')
 
 
 def parse_args():
@@ -16,10 +20,12 @@ def parse_args():
     subparsers.required = True
 
     parser_check = subparsers.add_parser('check', help='Check version against the lib')
+    parser_check.add_argument('--unity', help='Check unity version', action='store_true')
     parser_check.add_argument('--against', help='The version to check against', required=False)
 
     parser_new = subparsers.add_parser('new', help='Build for Windows')
     parser_new.add_argument('version', help='The new version')
+    parser_new.add_argument('--unity', help='If should create a new unity version', action='store_true')
 
     return parser.parse_args(sys.argv[1:])
 
@@ -38,6 +44,11 @@ def get_curr_version():
     suffix = lines[3].replace('#define PC_VERSION_SUFFIX', '').strip().lstrip('"').rstrip('"')
 
     return '{}.{}.{}{}'.format(major, minor, revision, suffix)
+
+
+def get_curr_version_unity():
+    e = xml.etree.ElementTree.parse(VERSION_FILE_UNITY).getroot()
+    return e.find('metadata').find('version').text
 
 
 def save_new_version(version):
@@ -61,8 +72,33 @@ def save_new_version(version):
         f.write('#define PC_VERSION_SUFFIX "{}"'.format(suffix))
 
 
+def save_new_unity_version(version):
+    print('Saving new unity version: {}'.format(version))
+    tree = xml.etree.ElementTree.parse(VERSION_FILE_UNITY)
+    version_el = tree.getroot().find('metadata').find('version')
+    version_el.text = version
+    tree.write(VERSION_FILE_UNITY, xml_declaration=True, encoding='utf-8')
+
+
 def check_release(against_version):
     curr_version = get_curr_version()
+
+    if against_version == None or against_version == '':
+        print(curr_version)
+        return
+
+    try:
+        if StrictVersion(against_version) != StrictVersion(curr_version):
+            print('The build version should be equal to the lib version (build {}, lib {})'
+                .format(against_version, curr_version))
+            exit(1)
+    except ValueError:
+        print('invalid version string ({} != {})'.format(against_version, curr_version))
+        exit(1)
+
+
+def check_release_unity(against_version):
+    curr_version = get_curr_version_unity()
 
     if against_version == None or against_version == '':
         print(curr_version)
@@ -93,13 +129,34 @@ def new_release(new_version):
     save_new_version(new_version)
 
 
+def new_release_unity(new_version):
+    curr_version = get_curr_version_unity()
+
+    try:
+        if StrictVersion(new_version) <= StrictVersion(curr_version):
+            print('the new version should be larger than the older version (new {}, old {})'
+                .format(new_version, curr_version))
+            exit(1)
+    except ValueError:
+        print('invalid version string ({} <= {})'.format(new_version, curr_version))
+        exit(1)
+
+    save_new_unity_version(new_version)
+
+
 def main():
     args = parse_args()
 
     if args.command == 'check':
-        check_release(args.against)
+        if args.unity:
+            check_release_unity(args.against)
+        else:
+            check_release(args.against)
     elif args.command == 'new':
-        new_release(args.version)
+        if args.unity:
+            new_release_unity(args.version)
+        else:
+            new_release(args.version)
 
 
 if __name__ == '__main__':
