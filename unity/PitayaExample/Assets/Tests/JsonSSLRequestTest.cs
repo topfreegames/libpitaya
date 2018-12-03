@@ -9,7 +9,7 @@ namespace Pitaya.Tests
 {
     public class JsonSSLRequestTest
     {
-    
+
         private PitayaClient _client;
 
         private const string ServerHost = "a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com";
@@ -31,7 +31,7 @@ namespace Pitaya.Tests
 
             _client = new PitayaClient("ca.crt");
             PitayaClient.SetLogLevel(PitayaLogLevel.Debug);
-            
+
             _client.Connect(ServerHost, ServerPort);
 
             _data = "{\"Data\":{\"name\":\"test25\"}}";
@@ -45,8 +45,8 @@ namespace Pitaya.Tests
             _client.Request(
                 "connector.setsessiondata",
                 _emptyData,
-                res => {},
-                error => {}
+                res => { _isFinished = true; },
+                error => { _isFinished = true; }
             );
         }
 
@@ -62,6 +62,13 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldReturnJsonObjectWhenNoSubscriberIsAdded()
         {
+            while (!_isFinished)
+            {
+                yield return new WaitForSeconds(1);
+            }
+
+            _isFinished = false;
+
             object response = null;
 
             _client.Request(
@@ -76,7 +83,7 @@ namespace Pitaya.Tests
                     response = error;
                     _isFinished = true;
                     Assert.AreEqual(_mainThread, Thread.CurrentThread);
-                }    
+                }
             );
 
             while(!_isFinished) {
@@ -84,7 +91,7 @@ namespace Pitaya.Tests
             }
 
             var resp = (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string) response);
-            
+
             Assert.True(_isFinished);
             Assert.NotNull(response);
             Assert.AreEqual(resp["Code"], 200);
@@ -94,6 +101,13 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldGetAndSetJsonObject()
         {
+            while (!_isFinished)
+            {
+                yield return new WaitForSeconds(1);
+            }
+
+            _isFinished = false;
+
             object response = null;
 
             _client.Request(
@@ -145,6 +159,13 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldReceiveEmptyDataWhenSettingNullRequest()
         {
+            while (!_isFinished)
+            {
+                yield return new WaitForSeconds(1);
+            }
+
+            _isFinished = false;
+
             object response = null;
 
             _client.Request(
@@ -195,6 +216,13 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldReturnBadRequestWhenRequestingToInvalidRoute()
         {
+            while (!_isFinished)
+            {
+                yield return new WaitForSeconds(1);
+            }
+
+            _isFinished = false;
+
             object response = null;
 
             _client.Request(
