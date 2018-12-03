@@ -46,7 +46,7 @@ test_multiple_requests(const MunitParameter params[], void *data)
 
         static const int num_requests_at_once = 40;
         for (int y = 0; y < num_requests_at_once; ++y) {
-            pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 10,
+            pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 20,
                                            request_cb, request_error_cb);
         }
 
