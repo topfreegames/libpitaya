@@ -2,19 +2,19 @@
 <package >
   <metadata>
     <id>LibPitaya</id>
-    <version>1.6.2</version>
+    <version>1.6.3</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Better handling error callback when disposing a client</releaseNotes>
+    <releaseNotes>Fix crashes when server used json but the client had proto classes (only in the case of request error)</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
       <dependency id="protobuf.net35" version="3.5.1" />
     </dependencies>
-    
+
   </metadata>
   <files>
         <!-- Add files from an arbitrary folder that's not necessarily in the project -->
