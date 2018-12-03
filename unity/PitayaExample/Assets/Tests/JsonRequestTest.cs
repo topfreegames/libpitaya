@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Threading;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -25,9 +26,9 @@ namespace Pitaya.Tests
         {
             _client = new PitayaClient();
             PitayaClient.SetLogLevel(PitayaLogLevel.Debug);
-            
+
             _client.Connect(ServerHost, ServerPort);
-            
+
             _data = "{\"Data\":{\"name\":\"test25\"}}";
             _jsonStub = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(_data);
             _emptyData = "{\"Data\":{}}";
@@ -35,7 +36,8 @@ namespace Pitaya.Tests
 
             _isFinished = false;
 
-            Debug.Log("MAKING REQ TEST SETUP");
+            Thread.Sleep(300);
+
             // clearing sessiondata
             _client.Request(
                 "connector.setsessiondata",
@@ -62,7 +64,7 @@ namespace Pitaya.Tests
         public IEnumerator ShouldReturnJsonObjectWhenNoSubscriberIsAdded()
         {
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
             _isFinished = false;
 
@@ -82,7 +84,7 @@ namespace Pitaya.Tests
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             var resp = (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string)response);
@@ -97,7 +99,7 @@ namespace Pitaya.Tests
         public IEnumerator ShouldGetAndSetJsonObject()
         {
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
             _isFinished = false;
 
@@ -117,7 +119,7 @@ namespace Pitaya.Tests
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             _isFinished = false;
@@ -136,7 +138,7 @@ namespace Pitaya.Tests
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             Assert.True(_isFinished);
@@ -149,7 +151,7 @@ namespace Pitaya.Tests
         public IEnumerator ShouldReceiveEmptyDataWhenSettingNullRequest()
         {
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
             _isFinished = false;
 
@@ -168,7 +170,7 @@ namespace Pitaya.Tests
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.3f);
             }
 
             _isFinished = false;
@@ -187,7 +189,7 @@ namespace Pitaya.Tests
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.3f);
             }
 
             Assert.True(_isFinished);
@@ -200,7 +202,7 @@ namespace Pitaya.Tests
         public IEnumerator ShouldReturnBadRequestWhenRequestingToInvalidRoute()
         {
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
             _isFinished = false;
 
@@ -219,7 +221,7 @@ namespace Pitaya.Tests
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.3f);
             }
 
             Assert.True(_isFinished);

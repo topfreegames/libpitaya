@@ -34,6 +34,8 @@ namespace Pitaya.Tests
 
             _client.Connect(ServerHost, ServerPort);
 
+            Thread.Sleep(200);
+
             _data = "{\"Data\":{\"name\":\"test25\"}}";
             _jsonStub = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(_data);
             _emptyData = "{\"Data\":{}}";
@@ -64,7 +66,7 @@ namespace Pitaya.Tests
         {
             while (!_isFinished)
             {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             _isFinished = false;
@@ -103,7 +105,7 @@ namespace Pitaya.Tests
         {
             while (!_isFinished)
             {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             _isFinished = false;
@@ -154,6 +156,9 @@ namespace Pitaya.Tests
             Assert.NotNull(response);
             Assert.AreEqual(response, _data);
             Assert.AreEqual(SimpleJson.SimpleJson.DeserializeObject((string)response), _jsonStub);
+
+            _isFinished = false;
+
         }
 
         [UnityTest]
@@ -161,7 +166,7 @@ namespace Pitaya.Tests
         {
             while (!_isFinished)
             {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             _isFinished = false;
@@ -218,7 +223,7 @@ namespace Pitaya.Tests
         {
             while (!_isFinished)
             {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             _isFinished = false;
