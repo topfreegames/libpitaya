@@ -54,6 +54,7 @@ func configureFrontend(port int) {
 		"room.room.getsessiondata": 3,
 		"onMessage":                4,
 		"onMembers":                5,
+		"connector.geterror":       6,
 	})
 
 	if err != nil {

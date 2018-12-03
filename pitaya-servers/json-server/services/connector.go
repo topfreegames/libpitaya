@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -44,7 +45,6 @@ func reply(code int32, msg string) (*Response, error) {
 
 // GetHandshakeData gets the handshake data
 func (c *Connector) GetHandshakeData(ctx context.Context) (*session.HandshakeData, error) {
-	println("GETTING HANDSHAKE DATA")
 	session := pitaya.GetSessionFromCtx(ctx)
 	return session.GetHandshakeData(), nil
 }
@@ -129,7 +129,6 @@ func (c *Connector) SetSessionData(ctx context.Context, data *SessionData) (*Res
 
 // SendPush sends a push to a user
 func (c *Connector) SendPush(ctx context.Context) (*Response, error) {
-	println("SENDING PUSH MAI BOI")
 	err := pitaya.GetSessionFromCtx(ctx).Push("some.push.route", map[string]interface{}{
 		"key1": 10,
 		"key2": true,
@@ -143,4 +142,8 @@ func (c *Connector) SendPush(ctx context.Context) (*Response, error) {
 		Code: 200,
 		Msg:  "Ok",
 	}, nil
+}
+
+func (c *Connector) GetError(ctx context.Context) (*Response, error) {
+	return nil, errors.New("GetError is returning a custom error")
 }
