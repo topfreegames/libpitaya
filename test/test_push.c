@@ -79,7 +79,7 @@ test_success(const MunitParameter params[], void *data)
 
         assert_int(pc_string_request_with_timeout(g_client, "connector.sendpush", "{}", NULL, REQ_TIMEOUT,
                                                   request_cb, request_error_cb), ==, PC_RC_OK);
-        SLEEP_SECONDS(4);
+        SLEEP_SECONDS(6);
 
         assert_int(g_num_success_cb_called, ==, 1);
         assert_int(g_num_error_cb_called, ==, 0);
