@@ -227,7 +227,7 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                throw new Exception($"AddPineedPublicKeyFromCertificateString: {NativeRcToStr(rc)}");
+                throw new Exception($"AddPineedPublicKeyFromCertificateString: {RcToStr(rc)}");
             }
 
             SkipKeyPinCheck(false);
@@ -239,7 +239,7 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                throw new Exception($"AddPineedPublicKeyFromCertificateFile: {NativeRcToStr(rc)}");
+                throw new Exception($"AddPineedPublicKeyFromCertificateFile: {RcToStr(rc)}");
             }
 
             SkipKeyPinCheck(false);
