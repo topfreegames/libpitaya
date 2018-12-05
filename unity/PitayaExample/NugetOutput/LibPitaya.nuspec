@@ -1,8 +1,8 @@
-<?xml version="1.0"?>
-<package >
+<?xml version='1.0' encoding='utf-8'?>
+<package>
   <metadata>
     <id>LibPitaya</id>
-    <version>1.7.1</version>
+    <version>1.8.0</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
@@ -17,7 +17,7 @@
 
   </metadata>
   <files>
-        <!-- Add files from an arbitrary folder that's not necessarily in the project -->
+        
         <file src="binaries/**/*.*" target="" />
         <file src="lib/**" target="" />
         <file src="Unity/**" target="" />
