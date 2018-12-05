@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>LibPitaya</id>
-    <version>1.6.3</version>
+    <version>1.7.0</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Fix crashes when server used json but the client had proto classes (only in the case of request error)</releaseNotes>
+    <releaseNotes>When the functions AddPublicKey* fail, they throw an exception.</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
