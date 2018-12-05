@@ -79,3 +79,29 @@ Copy the ca root certificate to `Assets/StreamingAssets` and initialize the clie
 ```cs
 client = new PitayaClient("ca.crt");
 ```
+
+### Using public key pinning
+Pitaya also supports public key pinning. This allows the client to reject servers whose public key does not match one of the keys specified by the application. Libpitaya can receive multiple keys, and adding them is one function call:
+
+```cs
+// Pass the name of the certificate file. Libpitaya will extract 
+// the public key from the certificate. Note that the certificates *must* be
+// located inside the StreamingAssets folder.
+PitayaBinding.AddPinnedPublicKeyFromCertificateFile("server.crt");
+
+// You can also directly pass the certificate string instead of the path to the file.
+var contents = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt"));
+PitayaBinding.AddPinnedPublicKeyFromCertificateString(contents);
+
+// If you do not want to use public key pinning, you can call this function (the default is to not use key pinning):
+PitayaBinding.SkipKeyPinCheck(true);
+
+// You can clear the certificate keys as well. Note that doing this and using 
+// SkipeKeyPinCheck = false will reject *all* servers.
+PitayaBinding.ClearPinnedPublicKeys();
+```
+
+**IMPORTANT**: The certificate passed to libpitaya _must_ be the same one used by the server. The certificate cannot be the root certificate, for example, it will not work.
+
+**IMPORTANT**: The keys added in libpitaya are global while the library is running. This means that all clients will watch for all of the keys added. Also, since Unity *does not* unload the library unless the editor is restarted, clearing the keys just before the app exits is a good idea.
+
