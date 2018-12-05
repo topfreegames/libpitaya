@@ -8,7 +8,7 @@ HunterGate(
 )
 endif()
 
-project(pitaya)
+project(pitaya LANGUAGES C)
 
 #
 # Options passed as parameters
