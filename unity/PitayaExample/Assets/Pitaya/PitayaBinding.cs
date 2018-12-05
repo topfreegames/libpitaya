@@ -136,32 +136,7 @@ namespace Pitaya
 
         public static void SetCertificateName(string name)
         {
-            string certPath;
-            if (Application.platform == RuntimePlatform.IPhonePlayer)
-            {
-                certPath = Application.dataPath + "/Raw/" + name;
-            }
-            else if (Application.platform == RuntimePlatform.Android)
-            {
-                certPath = "jar:file://" + Application.dataPath + "!/assets/" + name;
-
-                var persistentPath = Application.persistentDataPath + "/" + name;
-
-                if (!PlayerPrefs.HasKey(persistentPath))
-                {
-                    var reader = new WWW(certPath);
-                    while (!reader.isDone) {}
-                    System.IO.File.WriteAllBytes(persistentPath, reader.bytes);
-                    PlayerPrefs.SetInt(persistentPath, 1);
-                }
-
-                certPath = persistentPath;
-            }
-            else
-            {
-                certPath = Application.dataPath + "/StreamingAssets/"+ name;
-            }
-
+            var certPath = FindCertPathFromName(name);
             NativeSetCertificatePath(certPath, null);
         }
 
@@ -233,9 +208,10 @@ namespace Pitaya
             SkipKeyPinCheck(false);
         }
 
-        public static void AddPinnedPublicKeyFromCertificateFile(string caPath)
+        public static void AddPinnedPublicKeyFromCertificateFile(string name)
         {
-            int rc = NativeAddPinnedPublicKeyFromCertificateFile(caPath);
+            var certPath = FindCertPathFromName(name);
+            int rc = NativeAddPinnedPublicKeyFromCertificateFile(certPath);
 
             if (rc != PitayaConstants.PcRcOk)
             {
@@ -264,6 +240,38 @@ namespace Pitaya
         private static string RcToStr(int rc)
         {
             return Marshal.PtrToStringAnsi(NativeRcToStr(rc));
+        }
+
+        private static string FindCertPathFromName(string name)
+        {
+            string certPath;
+
+            if (Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                certPath = Application.dataPath + "/Raw/" + name;
+            }
+            else if (Application.platform == RuntimePlatform.Android)
+            {
+                certPath = "jar:file://" + Application.dataPath + "!/assets/" + name;
+
+                var persistentPath = Application.persistentDataPath + "/" + name;
+
+                if (!PlayerPrefs.HasKey(persistentPath))
+                {
+                    var reader = new WWW(certPath);
+                    while (!reader.isDone) {}
+                    System.IO.File.WriteAllBytes(persistentPath, reader.bytes);
+                    PlayerPrefs.SetInt(persistentPath, 1);
+                }
+
+                certPath = persistentPath;
+            }
+            else
+            {
+                certPath = Application.dataPath + "/StreamingAssets/"+ name;
+            }
+
+            return certPath;
         }
 
         private static PitayaError CreatePitayaError(PitayaBindingError errorBinding, PitayaSerializer serializer)
