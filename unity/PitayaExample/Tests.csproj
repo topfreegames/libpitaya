@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Tests\AddPublicKeyPinningTest.cs" />
     <Compile Include="Assets\Tests\JsonRequestTest.cs" />
     <Compile Include="Assets\Tests\JsonSerializerTest.cs" />
     <Compile Include="Assets\Tests\JsonSSLRequestTest.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Assets\Tests\Protos\response.cs" />
     <Compile Include="Assets\Tests\Protos\session-data.cs" />
     <Compile Include="Assets\Tests\Protos\SessionData.cs" />
+    <None Include="Assets\Tests\Tests.asmdef" />
     <Reference Include="UnityEngine.AIModule">
       <HintPath>/Applications/Unity2018211f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
     </Reference>
@@ -708,13 +710,8 @@
   </Target>
   -->
   <ItemGroup>
-    <Reference Include="UnityEditor.iOS.Extensions.Xcode">
-      <HintPath>/Applications/Unity2018211f1/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="UnityEditor.iOS.Extensions.Common">
-      <HintPath>/Applications/Unity2018211f1/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Common.dll</HintPath>
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>/Applications/Unity2018211f1/Unity.app/Contents/MonoBleedingEdge/lib/mono/4.7.1-api/Microsoft.CSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

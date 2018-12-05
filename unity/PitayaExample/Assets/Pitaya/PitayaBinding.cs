@@ -224,35 +224,25 @@ namespace Pitaya
         public static void AddPinnedPublicKeyFromCertificateString(string caString)
         {
             var rc = NativeAddPinnedPublicKeyFromCertificateString(caString);
-            switch (rc)
+
+            if (rc != PitayaConstants.PcRcOk)
             {
-                case PitayaConstants.PcRcError:
-                    DLog("Error reading public key from certificate string");
-                    break;
-                case PitayaConstants.PcRcInvalidArg:
-                    DLog("Invalid arguments to NativeAddPinnedPublicKeyFromCertificateString");
-                    break;
-                default:
-                    SkipKeyPinCheck(false);
-                    break;
+                throw new Exception($"AddPineedPublicKeyFromCertificateString: {NativeRcToStr(rc)}");
             }
+
+            SkipKeyPinCheck(false);
         }
 
         public static void AddPinnedPublicKeyFromCertificateFile(string caPath)
         {
             int rc = NativeAddPinnedPublicKeyFromCertificateFile(caPath);
-            switch (rc)
+
+            if (rc != PitayaConstants.PcRcOk)
             {
-                case PitayaConstants.PcRcError:
-                    DLog("Error reading public key from certificate file");
-                    break;
-                case PitayaConstants.PcRcInvalidArg:
-                    DLog("Invalid arguments to NativeAddPinnedPublicKeyFromCertificateString");
-                    break;
-                default:
-                    SkipKeyPinCheck(false);
-                    break;
+                throw new Exception($"AddPineedPublicKeyFromCertificateFile: {NativeRcToStr(rc)}");
             }
+
+            SkipKeyPinCheck(false);
         }
 
         public static void SkipKeyPinCheck(bool shouldSkip)
