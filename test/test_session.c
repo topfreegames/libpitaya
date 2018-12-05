@@ -62,7 +62,7 @@ do_test_session_persistence(pc_client_config_t *config, int port)
     session_cb_data.data = EMPTY_RESP;
 
     // Get empty session and check that the callback was called.
-    assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &session_cb_data, 
+    assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &session_cb_data,
                                               REQ_TIMEOUT, get_session_request_cb, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
     assert_true(session_cb_data.called);
@@ -72,21 +72,21 @@ do_test_session_persistence(pc_client_config_t *config, int port)
 
     // Set session and check that the callback was called.
     bool set_session_cb_called = false;
-    assert_int(pc_string_request_with_timeout(g_client, "connector.setsessiondata", SESSION_DATA, &set_session_cb_called, 
+    assert_int(pc_string_request_with_timeout(g_client, "connector.setsessiondata", SESSION_DATA, &set_session_cb_called,
                                               REQ_TIMEOUT, set_session_request_cb, NULL), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
+    SLEEP_SECONDS(2);
     assert_true(set_session_cb_called);
 
     // Get session and check that the callback was called.
-    assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &session_cb_data, 
+    assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &session_cb_data,
                                               REQ_TIMEOUT, get_session_request_cb, NULL), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
+    SLEEP_SECONDS(2);
     assert_true(session_cb_data.called);
 
     session_cb_data.called = false;
-    assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &session_cb_data, 
+    assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &session_cb_data,
                                               REQ_TIMEOUT, get_session_request_cb, NULL), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
+    SLEEP_SECONDS(2);
     assert_true(session_cb_data.called);
 
     pc_client_disconnect(g_client);

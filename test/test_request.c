@@ -146,12 +146,12 @@ test_valid_route(const MunitParameter params[], void *data)
         assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", NULL, NULL, REQ_TIMEOUT,
                                                   request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
         assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", NULL, NULL, REQ_TIMEOUT,
                                                   request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
         assert_int(g_num_error_cb_called, ==, 0);
         assert_int(g_num_success_cb_called, ==, 2);
@@ -186,12 +186,12 @@ test_invalid_route(const MunitParameter params[], void *data)
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
 
-        assert_int(pc_string_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, 
+        assert_int(pc_string_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL,
                                                   REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
 
-        assert_int(pc_string_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL, 
+        assert_int(pc_string_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL,
                                                   REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
 
         SLEEP_SECONDS(1);
