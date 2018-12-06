@@ -124,9 +124,9 @@ else()
         set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libssl.a)
         set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libcrypto.a)
     else() # Linux
-        target_include_directories(pitaya PRIVATE ${CMAKE_SOURCE_DIR}/openssl-build/include)
-        set(SSL_LOCATION ${CMAKE_SOURCE_DIR}/openssl-build/lib/libssl.a)
-        set(CRYPTO_LOCATION ${CMAKE_SOURCE_DIR}/openssl-build/lib/libcrypto.a)
+	    target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/linux/include)
+	    set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libssl.a)
+	    set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libcrypto.a)
     endif()
 
     add_library(ssl STATIC IMPORTED)

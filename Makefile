@@ -3,7 +3,7 @@ ANDROID_TOOLCHAIN_FILE = ../temp/android-ndk-r17b/build/cmake/android.toolchain.
 setup-mac:
 	@brew install ninja
 
-setup-android:
+setup-android-mac:
 	@mkdir -p temp
 	@curl https://dl.google.com/android/repository/android-ndk-r17b-darwin-x86_64.zip -o temp/android-ndk-r17b.zip
 	@unzip -qo temp/android-ndk-r17b.zip -d temp/
@@ -12,31 +12,6 @@ setup-android-linux:
 	@mkdir -p temp
 	@curl https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip -o temp/android-ndk-r17b.zip
 	@unzip -qo temp/android-ndk-r17b.zip -d temp/
-
-setup-go:
-	@sudo rm -rf ~/.gimme
-	@gimme 1.10.2
-	@gimme list
-	@echo Go installed version $(shell go version)
-
-setup-go-linux:
-	@mkdir -p ~/bin
-	@curl https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz -o ~/bin/go1.10.3.linux-amd64.tar.gz
-	@cd ~/bin && tar xf ~/bin/go1.10.3.linux-amd64.tar.gz
-	@~/bin/go/bin/go version
-
-setup-go-mac:
-	@mkdir -p ~/bin
-	@curl https://dl.google.com/go/go1.10.3.darwin-amd64.tar.gz -o ~/bin/go1.10.3.darwin-amd64.tar.gz
-	@cd ~/bin && tar xf ~/bin/go1.10.3.darwin-amd64.tar.gz
-
-setup-node-linux:
-	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz -o ~/node-v8.11.3-linux-x64.tar.xz
-	@cd ~ && tar xf ~/node-v8.11.3-linux-x64.tar.xz && mv ~/node-v8.11.3-linux-x64 ~/node
-
-setup-node-mac:
-	@curl https://nodejs.org/dist/v8.11.3/node-v8.11.3-darwin-x64.tar.xz -o ~/node-v8.11.3-darwin-x64.tar.xz
-	@cd ~ && tar xf ~/node-v8.11.3-darwin-x64.tar.xz
 
 build-android:
 	@rm -rf _builds/android
@@ -78,15 +53,6 @@ build-linux-docker: clean-docker-container
 	@$(MAKE) clean-docker-container
 
 .PHONY: build
-
-test-deps: setup-node setup-go
-	@-(cd test/server && go get)
-
-build:
-	cmake --build build
-
-test: build test-deps
-	./run-tests.sh
 
 create-out-folder:
 	@rm -r out
