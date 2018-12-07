@@ -3,13 +3,11 @@
   <a href="https://ci.appveyor.com/project/leohahn/libpitaya"><img src="https://ci.appveyor.com/api/projects/status/326391ofs0q26s0d/branch/master?svg=true&passingText=Windows" alt="Windows Build Status"></a>
 </p>
 
-Attention
-=========
+# Attention
 
 Libpitaya is currently under development and is not yet ready for production use. We are working on tests and better documentation and we'll update the project as soon as possible.
 
-Libpitaya
-=========
+# Libpitaya
 
 Libpitaya is a SDK for building clients for projects using the pitaya game server framework and is built on top of [libpomelo2](https://github.com/NetEase/libpomelo2)
 
@@ -81,3 +79,88 @@ You can also pass command line options, for example:
 ```
 
 You can also run the tests directly through the executable. The problem is that the mock servers will not be started, therefore some tests will fail. You can avoid that by manually starting the servers located in `test/mock-servers` using `node`.
+
+## Contribution
+Libpitaya contributions should be done by making a Pull Request from a different branch. 
+
+### Native lib contribution
+In order to run, edit and debug the code, you can generate native projects with CMake. For example, to create an XCode project, you can run the following commands:
+
+```bash
+git clone https://github.com/topfreegames/libpitaya
+cd libpitaya
+cmake -H. -B_builds/xcode
+# The previous command has created an xcode project inside _builds/xcode.
+# You can build with the command line if you want to:
+cmake --build _builds/xcode --config Release
+cmake --build _builds/xcode --config Debug
+# Or you can open the project with xcode and use it through the IDE
+open _builds/xcode/pitaya.xcodeproj
+```
+After you have edited, and builded the code, you should run the tests and make sure that they pass and also add a test for your specific change. The tests are separated in suites (a suite is a group of related tests). Each suite is located in its own source file under the test directory with names in the format test_<suite-name>.c.  If the addition is related to an existing suite, you can just create the new test and add it to the suite (it is just a function). However, if the functionality belongs in a new suite, you have to create the file and add it to cmake under the following block of code in CMakeLists.txt:
+
+```cmake
+add_executable(pitaya_tests
+    # Sources
+    test/main.c
+    test/test_compression.c
+    test/test_kick.c
+    test/test_notify.c
+    test/test_pc_client.c
+    #==== Add your file here ====
+    test/test_my_new_suite.c
+    #============================
+    )
+```
+
+Having added the file, you need to tell test/main.c that there is a new suite to be run, this can be done in the test/main.c source file:
+
+```c
+static const int SUITES_START = __LINE__;
+extern const MunitSuite pc_client_suite;
+extern const MunitSuite tcp_suite;
+extern const MunitSuite tls_suite;
+extern const MunitSuite session_suite;
+extern const MunitSuite reconnection_suite;
+extern const MunitSuite compression_suite;
+extern const MunitSuite kick_suite;
+extern const MunitSuite request_suite;
+extern const MunitSuite notify_suite;
+extern const MunitSuite stress_suite;
+extern const MunitSuite protobuf_suite;
+extern const MunitSuite push_suite;
+extern const MunitSuite my_new_suite; // ==> Add your new suite here. Do NOT add new lines
+static const int SUITES_END = __LINE__;
+ 
+...
+
+static MunitSuite *
+make_suites()
+{
+    ...
+ 
+    suites_array[i++] = pc_client_suite;
+    suites_array[i++] = tcp_suite;
+    suites_array[i++] = tls_suite;
+    suites_array[i++] = session_suite;
+    suites_array[i++] = reconnection_suite;
+    suites_array[i++] = compression_suite;
+    suites_array[i++] = kick_suite;
+    suites_array[i++] = request_suite;
+    suites_array[i++] = notify_suite;
+    suites_array[i++] = stress_suite;
+    suites_array[i++] = protobuf_suite;
+    suites_array[i++] = push_suite;
+    suites_array[i++] = my_new_suite;
+
+    ...
+}
+```
+
+Having done this, you can now run the tests using the run-tests.py script. If the tests pass, you should open a pull request.
+
+**NOTE**: In most cases, you can just add the changes to the native library and it should be fine. However, if you change the interface of the library, you have to also update the csharp library.
+
+### Csharp lib contribution
+
+For more information, please look in [this](Assets/Pitaya/README.md) document.
