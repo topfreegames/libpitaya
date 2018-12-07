@@ -9,5 +9,3 @@ In order the run the tests, the user can open the unity project located in `unit
 
 ## Making a new release
 The script `release.py` in the root folder can be used to see the current version of the library and used to create a new one as well, example: `./release.py check --unity`, `./release.py new --unity 1.2.3`.
-
-In order to trigger a build with jenkins, see [this](https://wiki.tfgco.com/...) link.
