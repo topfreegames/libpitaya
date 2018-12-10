@@ -194,7 +194,7 @@ test_invalid_route(const MunitParameter params[], void *data)
         assert_int(pc_string_request_with_timeout(g_client, "invalid.route", REQ_MSG, NULL,
                                                   REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
         assert_int(g_num_error_cb_called, ==, 1);
         assert_int(g_num_success_cb_called, ==, 0);
