@@ -320,9 +320,6 @@
  <Reference Include="UnityEditor.OSXStandalone.Extensions">
  <HintPath>/Applications/Unity2018211f1/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
  </Reference>
- <Reference Include="JetBrains.Rider.Unity.Editor.Plugin.Repacked">
- <HintPath>/Users/lhahn/go/src/github.com/topfreegames/libpitaya/unity/PitayaExample/Assets/Plugins/Editor/JetBrains/JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll</HintPath>
- </Reference>
  <Reference Include="NugetForUnity">
  <HintPath>/Users/lhahn/go/src/github.com/topfreegames/libpitaya/unity/PitayaExample/Assets/NuGet/Editor/NugetForUnity.dll</HintPath>
  </Reference>
