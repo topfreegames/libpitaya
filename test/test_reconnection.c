@@ -12,6 +12,7 @@ static int SUCCESS_RECONNECT_EV_ORDER[] = {
     PC_EV_UNEXPECTED_DISCONNECT,
     PC_EV_RECONNECT_STARTED,
     PC_EV_CONNECTED,
+    PC_EV_DISCONNECT,
 };
 
 static void
@@ -49,8 +50,9 @@ test_success(const MunitParameter params[], void *data)
         assert_int(pc_client_connect(g_client, LOCALHOST, ports[i], NULL), ==, PC_RC_OK);
         SLEEP_SECONDS(10);
 
-        assert_int(num_calls, ==, ArrayCount(SUCCESS_RECONNECT_EV_ORDER));
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        SLEEP_SECONDS(1);
+        assert_int(num_calls, ==, ArrayCount(SUCCESS_RECONNECT_EV_ORDER));
         assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 
