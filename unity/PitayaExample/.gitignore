@@ -33,5 +33,4 @@ sysinfo.txt
 *.apk
 *.unitypackage
 *.nupkg
-Pitaya.dll
 JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll
