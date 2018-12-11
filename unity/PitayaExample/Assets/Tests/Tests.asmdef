@@ -1,7 +1,6 @@
 {
     "name": "Tests",
     "references": [
-        "Assets",
         "Pitaya"
     ],
     "optionalUnityReferences": [
