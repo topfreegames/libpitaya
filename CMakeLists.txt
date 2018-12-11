@@ -107,7 +107,7 @@ endif()
 #
 if(WIN32)
     find_package(OpenSSL REQUIRED)
-    target_include_directories(pitaya PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    target_link_libraries(pitaya PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 else()
     if(ANDROID)
         target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/android/include)
