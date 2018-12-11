@@ -1,0 +1,6 @@
+[requires]
+OpenSSL/1.0.2q@conan/stable
+zlib/1.2.11@conan/stable
+
+[generators]
+cmake_paths

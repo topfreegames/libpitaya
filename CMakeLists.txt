@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.7)
 
 if(WIN32)
-include("cmake/HunterGate.cmake")
-HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.23.34.tar.gz"
-    SHA1 "70287b1ffa810ee4e952052a9adff9b4856d0d54"
-)
+    if(NOT EXISTS ${CMAKE_BINARY_DIR}/conan_paths.cmake)
+        message(FATAL_ERROR "Run conan install before running CMake")
+    endif()
+
+    include(EXISTS ${CMAKE_BINARY_DIR}/conan_paths.cmake)
 endif()
 
 project(pitaya LANGUAGES C)
@@ -95,9 +95,8 @@ if(ANDROID)
     find_package(ZLIB REQUIRED)
     target_include_directories(pitaya PRIVATE ${ZLIB_INCLUDE_DIRS})
 elseif(WIN32)
-    hunter_add_package(ZLIB)
-    find_package(ZLIB CONFIG REQUIRED)
-    #target_include_directories(pitaya PRIVATE ${ZLIB_INCLUDE_DIRS})
+    find_package(ZLIB REQUIRED)
+    target_link_libraries(pitaya PRIVATE ZLIB::ZLIB)
 else()
     target_include_directories(pitaya PRIVATE PRIVATE deps/zlib ${CMAKE_BINARY_DIR}/deps/zlib)
     add_subdirectory(deps/zlib)
@@ -107,9 +106,8 @@ endif()
 # OpenSSL
 #
 if(WIN32)
-    hunter_add_package(OpenSSL)
     find_package(OpenSSL REQUIRED)
-    target_include_directories(pitaya PRIVATE ${OPENSSL_INCLUDE_DIR})
+    target_include_directories(pitaya PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 else()
     if(ANDROID)
         target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/android/include)
@@ -163,11 +161,7 @@ target_compile_definitions(pitaya
 
 if(WIN32)
     target_link_libraries(pitaya
-      PRIVATE
-        ZLIB::zlib
-        uv_a
-        OpenSSL::SSL
-        OpenSSL::Crypto)
+      PRIVATE uv_a)
 elseif(ANDROID)
     find_package(Threads REQUIRED)
     target_link_libraries(pitaya
