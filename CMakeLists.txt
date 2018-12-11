@@ -5,7 +5,7 @@ if(WIN32)
         message(FATAL_ERROR "Run conan install before running CMake")
     endif()
 
-    include(EXISTS ${CMAKE_BINARY_DIR}/conan_paths.cmake)
+    include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 endif()
 
 project(pitaya LANGUAGES C)
