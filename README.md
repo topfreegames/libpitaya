@@ -54,9 +54,6 @@ The iOS binary will be under `_builds/ios/libpitaya-ios.a`
 On iOS this library in conpiled statically wich means you must include in your project the dependencies `libz.a`,`libuv_a.a`,`libssl.a` and `libcrypto.a`.
 
 
----
-* Note, however, that the chosen options can be changed if you need a different combination. For example, you can easily build statically on linux if you want. Take the Make target as an example.
-
 ### Building for Windows
 
 ```bash
@@ -75,6 +72,10 @@ make build-linux
 ```
 
 The binaries for windows will then be located at `_builds/linux/pitaya-linux.so`.
+
+---
+* Note, however, that the chosen options can be changed if you need a different combination. For example, you can easily build statically on linux if you want. Take the Make target as an example.
+
 
 Tests
 =====
