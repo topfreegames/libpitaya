@@ -57,6 +57,25 @@ On iOS this library in conpiled statically wich means you must include in your p
 ---
 * Note, however, that the chosen options can be changed if you need a different combination. For example, you can easily build statically on linux if you want. Take the Make target as an example.
 
+### Building for Windows
+
+```bash
+pip install conan # Install conan if you dont have it
+conan install . -if _builds/windows
+cmake -H. -B_builds/windows -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON
+cmake --build _builds/windows --config Release
+```
+
+The binaries for windows will then be located at `_builds/windows/pitaya-windows.dll` and `_builds/windows/pitaya-windows.lib`.
+
+### Building for Linux
+
+```bash
+make build-linux
+```
+
+The binaries for windows will then be located at `_builds/linux/pitaya-linux.so`.
+
 Tests
 =====
 
@@ -81,7 +100,7 @@ You can also pass command line options, for example:
 You can also run the tests directly through the executable. The problem is that the mock servers will not be started, therefore some tests will fail. You can avoid that by manually starting the servers located in `test/mock-servers` using `node`.
 
 ## Contribution
-Libpitaya contributions should be done by making a Pull Request from a different branch. 
+Libpitaya contributions should be done by making a Pull Request from a different branch.
 
 ### Native lib contribution
 In order to run, edit and debug the code, you can generate native projects with CMake. For example, to create an XCode project, you can run the following commands:
@@ -131,14 +150,14 @@ extern const MunitSuite protobuf_suite;
 extern const MunitSuite push_suite;
 extern const MunitSuite my_new_suite; // ==> Add your new suite here. Do NOT add new lines
 static const int SUITES_END = __LINE__;
- 
+
 ...
 
 static MunitSuite *
 make_suites()
 {
     ...
- 
+
     suites_array[i++] = pc_client_suite;
     suites_array[i++] = tcp_suite;
     suites_array[i++] = tls_suite;
