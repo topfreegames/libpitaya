@@ -858,8 +858,16 @@ void tcp__on_tcp_read_cb(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf
 
     if (nread < 0) {
         pc_lib_log(PC_LOG_ERROR, "tcp__on_tcp_read_cb - read from tcp error: %s,"
-                "will reconn", uv_strerror(nread));
-        pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "Read Error Or Close", NULL);
+                   "will reconn", uv_strerror(nread));
+
+        if (tt->state == TR_UV_TCP_DONE) {
+            // If connection is completed, there was an unexpected disconnect
+            pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "Read Error Or Close", NULL);
+        } else {
+            // Otherwise, the client failed to connect.
+            pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Failed to complete pitaya connection", NULL);
+        }
+
         tt->reconn_fn(tt);
         return;
     }

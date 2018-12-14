@@ -108,7 +108,7 @@ namespace Pitaya.Tests
             }
 
             Assert.True(called);
-            Assert.AreEqual(connectionState, PitayaNetWorkState.Disconnected);
+            Assert.AreEqual(PitayaNetWorkState.FailToConnect, connectionState);
         }
     }
 }

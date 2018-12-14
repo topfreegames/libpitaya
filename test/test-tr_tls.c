@@ -96,7 +96,7 @@ test_key_pinned(const MunitParameter params[], void *state)
         const char *ca_array[] = {
             CRT, INCORRECT_CRT, SERVER_CRT,
         };
-        
+
         // This switch means that it does not matter how many items are added to the array,
         // if one is valid it always should work.
         switch (i) {
@@ -118,27 +118,27 @@ test_key_pinned(const MunitParameter params[], void *state)
 
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = PC_TR_NAME_UV_TLS;
-        
+
         pc_client_init_result_t res = pc_client_init(NULL, &config);
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
-        
+
         int num_ev_cb_called = 0;
         int handler_id = pc_client_add_ev_handler(g_client, key_pinned_event_cb, &num_ev_cb_called, NULL);
         assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
-        
+
         assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
-        
+
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(1);
-        
+        SLEEP_SECONDS(3);
+
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
         SLEEP_SECONDS(1);
-        
+
         assert_int(num_ev_cb_called, ==, ArrayCount(KEY_PINNED_EV_ORDER));
         assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
-        
+
         pc_lib_clear_pinned_public_keys();
     }
     pc_lib_skip_key_pin_check(true);
@@ -167,12 +167,12 @@ test_key_not_pinned(const MunitParameter params[], void *state)
 
     assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
     SLEEP_SECONDS(1);
-    
+
     assert_int(pc_client_state(g_client), ==, PC_ST_INITED);
     assert_int(num_ev_cb_called, ==, ArrayCount(KEY_NOT_PINNED_EV_ORDER));
     assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
-    
+
     pc_lib_skip_key_pin_check(true);
     return MUNIT_OK;
 }
@@ -181,7 +181,7 @@ static MunitResult
 test_successful_handshake(const MunitParameter params[], void *state)
 {
     pc_lib_add_pinned_public_key_from_certificate_file(SERVER_CRT);
-    
+
     Unused(state); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TLS;
@@ -215,7 +215,7 @@ test_successful_handshake(const MunitParameter params[], void *state)
     assert_int(num_ev_cb_called, ==, ArrayCount(EV_ORDER));
     assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
-    
+
     pc_lib_clear_pinned_public_keys();
     return MUNIT_OK;
 }
@@ -321,6 +321,46 @@ test_cleanup_before_connection_done(const MunitParameter params[], void *data)
     return MUNIT_OK;
 }
 
+static int EV_ORDER_UNEXPECTED_DISCONNECT[] = {
+    PC_EV_CONNECTED,
+    PC_EV_UNEXPECTED_DISCONNECT,
+};
+
+static void
+unexpected_disconnect_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
+{
+    Unused(client); Unused(arg1); Unused(arg2);
+    int *num_called = (int*)ex_data;
+    assert_int(ev_type, ==, EV_ORDER_UNEXPECTED_DISCONNECT[*num_called]);
+    (*num_called)++;
+}
+
+static MunitResult
+test_unexpected_disconnect(const MunitParameter params[], void *data)
+{
+    Unused(data); Unused(params);
+
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+    config.transport_name = PC_TR_NAME_UV_TLS;
+    assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
+
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
+    int num_called = 0;
+    assert_int(pc_client_add_ev_handler(g_client, unexpected_disconnect_event_cb, &num_called, NULL), ==, PC_RC_OK);
+
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_kill_client_mock_server.tls_port, NULL), ==, PC_RC_OK);
+
+    SLEEP_SECONDS(1);
+
+    assert_int(num_called, ==, ArrayCount(EV_ORDER_UNEXPECTED_DISCONNECT));
+    assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
+
+    return MUNIT_OK;
+}
+
 static MunitTest tests[] = {
     {"/no_client_certificate", test_no_client_certificate, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/wrong_client_certificate", test_wrong_client_certificate, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
@@ -329,6 +369,7 @@ static MunitTest tests[] = {
     {"/key_not_pinned", test_key_not_pinned, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/add_pinned_key_errors", test_add_key_pinned_errors, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/cleanup_before_connection_done", test_cleanup_before_connection_done, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/unexpected_disconnect", test_unexpected_disconnect, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 

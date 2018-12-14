@@ -22,6 +22,7 @@ MOCK_SERVERS = [
     ('mock-kick-server.js', 'mock-kick-server-log'),
     ('mock-timeout-server.js', 'mock-timeout-server-log'),
     ('mock-destroy-socket-server.js', 'mock-destroy-socket-server-log'),
+    ('mock-kill-client-server.js', 'mock-kill-client-server-log'),
 ]
 
 mock_server_processes = []

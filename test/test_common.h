@@ -53,6 +53,7 @@ static test_server_t g_compression_mock_server = {4100, 4101};
 static test_server_t g_kick_mock_server = {4200, 4201};
 static test_server_t g_timeout_mock_server = {4300, 4301};
 static test_server_t g_destroy_socket_mock_server = {4400, 4401};
+static test_server_t g_kill_client_mock_server = {4500, 4501};
 // Pitaya servers
 static test_server_t g_test_server = {3251, 3252};
 static test_server_t g_test_protobuf_server = {3351, 3352};

@@ -191,11 +191,86 @@ test_invalid_disconnect(const MunitParameter params[], void *data)
     return MUNIT_OK;
 }
 
+static int EV_ORDER_CONNECT_TLS_SERVER[] = {
+    PC_EV_CONNECT_FAILED,
+};
+
+static void
+connect_tls_server_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
+{
+    Unused(client); Unused(arg1); Unused(arg2);
+    int *num_called = (int*)ex_data;
+    assert_int(ev_type, ==, EV_ORDER_CONNECT_TLS_SERVER[*num_called]);
+    (*num_called)++;
+}
+
+static MunitResult
+test_fails_to_connect_to_tls_server(const MunitParameter params[], void *data)
+{
+    Unused(data); Unused(params);
+
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
+    int num_called = 0;
+    assert_int(pc_client_add_ev_handler(g_client, connect_tls_server_event_cb, &num_called, NULL), ==, PC_RC_OK);
+
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
+
+    SLEEP_SECONDS(3);
+
+    assert_int(num_called, ==, ArrayCount(EV_ORDER_CONNECT_TLS_SERVER));
+    assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
+
+    return MUNIT_OK;
+}
+
+static int EV_ORDER_UNEXPECTED_DISCONNECT[] = {
+    PC_EV_CONNECTED,
+    PC_EV_UNEXPECTED_DISCONNECT,
+};
+
+static void
+unexpected_disconnect_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
+{
+    Unused(client); Unused(arg1); Unused(arg2);
+    int *num_called = (int*)ex_data;
+    assert_int(ev_type, ==, EV_ORDER_UNEXPECTED_DISCONNECT[*num_called]);
+    (*num_called)++;
+}
+
+static MunitResult
+test_unexpected_disconnect(const MunitParameter params[], void *data)
+{
+    Unused(data); Unused(params);
+
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
+    int num_called = 0;
+    assert_int(pc_client_add_ev_handler(g_client, unexpected_disconnect_event_cb, &num_called, NULL), ==, PC_RC_OK);
+
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_kill_client_mock_server.tcp_port, NULL), ==, PC_RC_OK);
+
+    SLEEP_SECONDS(1);
+
+    assert_int(num_called, ==, ArrayCount(EV_ORDER_UNEXPECTED_DISCONNECT));
+    assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
+
+    return MUNIT_OK;
+}
+
 static MunitTest tests[] = {
     {"/invalid_disconnect", test_invalid_disconnect, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/event_cb", test_event_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/request_cb", test_request_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/connect_errors", test_connect_errors, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/fails_to_connect_to_tls_server", test_fails_to_connect_to_tls_server, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/unexpected_disconnect", test_unexpected_disconnect, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 
