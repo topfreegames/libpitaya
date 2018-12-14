@@ -130,6 +130,7 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
     tt->client = client;
     tt->config = pc_client_config(client);
     tt->serializer = NULL;
+    pc_mutex_init(&tt->serializer_mutex);
 
     tt->state = TR_UV_TCP_NOT_CONN;
 
@@ -424,9 +425,19 @@ int tr_uv_tcp_cleanup(pc_transport_t* trans)
         return PC_RC_ERROR;
     }
 
-    pc_lib_free((char*)tt->serializer);
+    {
+        // Free serializer set it to null and destroy the mutex.
+        pc_mutex_lock(&tt->serializer_mutex);
+        if (tt->serializer) {
+            pc_lib_free((char*)tt->serializer);
+            tt->serializer = NULL;
+        }
+        pc_mutex_unlock(&tt->serializer_mutex);
+        pc_mutex_destroy(&tt->serializer_mutex);
+    }
 
     pc_mutex_destroy(&tt->wq_mutex);
+
     uv_loop_close(&tt->uv_loop);
 
     return PC_RC_OK;
@@ -450,7 +461,14 @@ const char *tr_uv_tcp_serializer(pc_transport_t *trans)
 {
     GET_TT;
 
-    return tt->serializer;
+    pc_mutex_lock(&tt->serializer_mutex);
+    const char *serializer = NULL;
+    if (tt->serializer) {
+        serializer = pc_lib_strdup(tt->serializer);
+    }
+    pc_mutex_unlock(&tt->serializer_mutex);
+
+    return serializer;
 }
 
 pc_transport_plugin_t* tr_uv_tcp_plugin(pc_transport_t* trans)

@@ -521,6 +521,11 @@ const char *pc_client_serializer(pc_client_t *client)
     return client->trans->serializer(client->trans);
 }
 
+void pc_client_free_serializer(const char *serializer)
+{
+    pc_lib_free((void*)serializer);
+}
+
 static int pc__request_with_timeout(pc_client_t* client, const char* route, 
                                     pc_buf_t msg_buf, void* ex_data, int timeout, 
                                     pc_request_success_cb_t success_cb, pc_request_error_cb_t error_cb);

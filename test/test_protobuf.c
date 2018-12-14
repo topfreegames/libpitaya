@@ -16,7 +16,6 @@ static pc_client_t *g_client = NULL;
 
 static int g_num_success_cb_called = 0;
 static int g_num_error_cb_called = 0;
-static int g_num_timeout_error_cb_called = 0;
 
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
@@ -25,13 +24,6 @@ event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, cons
     Unused(arg1); Unused(arg2); Unused(client); Unused(ev_type);
     // bool *called = (bool*)ex_data;
     // *called = true;
-}
-
-static bool
-read_varint(pb_istream_t *stream, const pb_field_t *field, void **arg)
-{
-    uint64_t *value = (uint64_t)(*arg);
-    return pb_decode_varint(stream, value);
 }
 
 static bool
@@ -199,8 +191,6 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
 
     assert_string_equal((char*)big_message.code.arg, "ABC-200");
     free(big_message.code.arg);
-
-    string_array_t *str_arr = (string_array_t*)big_message.response.chests.arg;
 
     assert_string_equal((char*)big_message.response.player.publicId.arg,
                         "qwid1ioj230as09d1908309asd12oij3lkjoaisjd21");
@@ -392,14 +382,17 @@ test_big_message(const MunitParameter params[], void *data)
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
-        assert_string_equal(pc_client_serializer(g_client), "protobuf");
+        const char *serializer = pc_client_serializer(g_client);
+        assert_not_null(serializer);
+        assert_string_equal(serializer, "protobuf");
+        pc_client_free_serializer(serializer);
 
         assert_int(pc_string_request_with_timeout(g_client, "connector.getbigmessage", "", NULL,
                                                   REQ_TIMEOUT, big_message_request_cb, NULL), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
         assert_int(g_num_error_cb_called, ==, 0);
         assert_int(g_num_success_cb_called, ==, 1);
@@ -432,15 +425,15 @@ test_request_encoding(const MunitParameter params[], void *data)
         assert_int(res.rc, ==, PC_RC_OK);
 
         int handler = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
-
-        SLEEP_SECONDS(1);
-
         assert_null(pc_client_serializer(g_client));
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
-        assert_string_equal(pc_client_serializer(g_client), "protobuf");
+        const char *serializer = pc_client_serializer(g_client);
+        assert_not_null(serializer);
+        assert_string_equal(serializer, "protobuf");
+        pc_client_free_serializer(serializer);
 
         protos_SessionData session_data = protos_SessionData_init_zero;
         session_data.data.funcs.encode = write_string;
@@ -454,7 +447,7 @@ test_request_encoding(const MunitParameter params[], void *data)
         assert_int(pc_binary_request_with_timeout(g_client, "connector.setsessiondata", buf, stream.bytes_written, NULL,
                                                   REQ_TIMEOUT, encoded_request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
         assert_int(g_num_error_cb_called, ==, 0);
         assert_int(g_num_success_cb_called, ==, 1);
@@ -489,20 +482,20 @@ test_response_decoding(const MunitParameter params[], void *data)
         assert_int(res.rc, ==, PC_RC_OK);
 
         int handler = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
-
-        SLEEP_SECONDS(1);
-
         assert_null(pc_client_serializer(g_client));
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
-        assert_string_equal(pc_client_serializer(g_client), "protobuf");
+        const char *serializer = pc_client_serializer(g_client);
+        assert_not_null(serializer);
+        assert_string_equal(serializer, "protobuf");
+        pc_client_free_serializer(serializer);
 
         assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL,
                                                   REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
         assert_int(g_num_error_cb_called, ==, 0);
         assert_int(g_num_success_cb_called, ==, 1);
@@ -537,15 +530,15 @@ test_error_decoding(const MunitParameter params[], void *data)
         assert_int(res.rc, ==, PC_RC_OK);
 
         int handler = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
-
-        SLEEP_SECONDS(1);
-
         assert_null(pc_client_serializer(g_client));
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(1);
+        SLEEP_SECONDS(2);
 
-        assert_string_equal(pc_client_serializer(g_client), "protobuf");
+        const char *serializer = pc_client_serializer(g_client);
+        assert_not_null(serializer);
+        assert_string_equal(serializer, "protobuf");
+        pc_client_free_serializer(serializer);
 
         assert_int(pc_string_request_with_timeout(g_client, "connector.route", "{dqwdwqd}", NULL,
                                                   REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);

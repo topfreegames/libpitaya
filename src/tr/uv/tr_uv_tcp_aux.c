@@ -1117,9 +1117,14 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     tmp = pc_JSON_GetObjectItem(sys, "serializer");
     if (!tmp || tmp->type != pc_JSON_String) {
         pc_lib_log(PC_LOG_WARN, "tcp__on_handshake_resp - invalid serializer field sent by the server, defaulting to 'json'");
+
+        pc_mutex_lock(&tt->serializer_mutex);
         tt->serializer = pc_lib_strdup("json");
+        pc_mutex_unlock(&tt->serializer_mutex);
     } else {
+        pc_mutex_lock(&tt->serializer_mutex);
         tt->serializer = pc_lib_strdup(tmp->valuestring);
+        pc_mutex_unlock(&tt->serializer_mutex);
     }
 
     tmp = pc_JSON_GetObjectItem(sys, "useDict");

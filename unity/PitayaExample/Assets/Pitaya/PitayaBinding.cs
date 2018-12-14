@@ -60,7 +60,7 @@ namespace Pitaya
 
         private static void DLog(object data)
         {
-            if(_currentLogLevel != PitayaLogLevel.Disable)
+            if (_currentLogLevel != PitayaLogLevel.Disable)
             {
                 Debug.Log(data);
             }
@@ -77,7 +77,7 @@ namespace Pitaya
             NativeLibInit((int)_currentLogLevel, null, null, OnAssert, Application.platform.ToString(), BuildNumber(), Application.version);
         }
 
-        private static string BuildNumber ()
+        private static string BuildNumber()
         {
             switch (Application.platform)
             {
@@ -103,9 +103,9 @@ namespace Pitaya
         public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener)
         {
             var client = NativeCreate(enableTls, enablePolling, enableReconnect, connTimeout);
-            if(client == IntPtr.Zero)
+            if (client == IntPtr.Zero)
             {
-                throw new Exception ("Fail to create a client");
+                throw new Exception("Fail to create a client");
             }
 
             var handlerId = NativeAddEventHandler(client, NativeEventCallback, IntPtr.Zero, IntPtr.Zero);
@@ -174,7 +174,8 @@ namespace Pitaya
             return NativeQuality(client);
         }
 
-        public static PitayaClientState State(IntPtr client){
+        public static PitayaClientState State(IntPtr client)
+        {
             CheckClient(client);
             return (PitayaClientState)NativeState(client);
         }
@@ -192,7 +193,9 @@ namespace Pitaya
 
         public static PitayaSerializer ClientSerializer(IntPtr client)
         {
-            var serializer = Marshal.PtrToStringAnsi(NativeSerializer(client));
+            IntPtr nativeSerializer = NativeSerializer(client);
+            var serializer = Marshal.PtrToStringAnsi(nativeSerializer);
+            NativeFreeSerializer(nativeSerializer);
             return PitayaConstants.SerializerJson.Equals(serializer) ? PitayaSerializer.Json : PitayaSerializer.Protobuf;
         }
 
@@ -259,7 +262,7 @@ namespace Pitaya
                 if (!PlayerPrefs.HasKey(persistentPath))
                 {
                     var reader = new WWW(certPath);
-                    while (!reader.isDone) {}
+                    while (!reader.isDone) { }
                     System.IO.File.WriteAllBytes(persistentPath, reader.bytes);
                     PlayerPrefs.SetInt(persistentPath, 1);
                 }
@@ -268,7 +271,7 @@ namespace Pitaya
             }
             else
             {
-                certPath = Application.dataPath + "/StreamingAssets/"+ name;
+                certPath = Application.dataPath + "/StreamingAssets/" + name;
             }
 
             return certPath;
@@ -281,7 +284,7 @@ namespace Pitaya
 
             if (serializer == PitayaSerializer.Protobuf)
             {
-                Error error = (Error) ProtobufSerializer.Decode(rawData, typeof(Error), serializer);
+                Error error = (Error)ProtobufSerializer.Decode(rawData, typeof(Error), serializer);
                 return new PitayaError(error.Code, error.Msg, error.Metadata);
             }
 
@@ -294,7 +297,7 @@ namespace Pitaya
             Dictionary<string, string> metadata;
             if (json.ContainsKey("metadata"))
             {
-                metadata = (Dictionary<string,string>)json["metadata"];
+                metadata = (Dictionary<string, string>)json["metadata"];
             }
             else
             {
@@ -308,7 +311,7 @@ namespace Pitaya
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static void CheckClient(IntPtr client)
         {
-            if(client == IntPtr.Zero)
+            if (client == IntPtr.Zero)
                 throw new NullReferenceException("invalid client");
         }
 
@@ -338,12 +341,13 @@ namespace Pitaya
                 error = new PitayaError(code, "Internal Pitaya error");
             }
 
-            MainQueueDispatcher.Dispatch(() => {
+            MainQueueDispatcher.Dispatch(() =>
+            {
                 WeakReference reference;
-                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
-                 var listener = reference.Target as IPitayaListener;
-                 listener?.OnRequestError(rid, error);
-             });
+                if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
+                var listener = reference.Target as IPitayaListener;
+                listener?.OnRequestError(rid, error);
+            });
         }
 
         [MonoPInvokeCallback(typeof(NativeRequestCallback))]
@@ -354,7 +358,8 @@ namespace Pitaya
             var rawData = new byte[buffer.Len];
             Marshal.Copy(buffer.Data, rawData, 0, (int)buffer.Len);
 
-            MainQueueDispatcher.Dispatch(()=>{
+            MainQueueDispatcher.Dispatch(() =>
+            {
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
                 var listener = reference.Target as IPitayaListener;
@@ -364,7 +369,8 @@ namespace Pitaya
 
 
         [MonoPInvokeCallback(typeof(NativeNotifyCallback))]
-        private static void OnNotify(IntPtr req, IntPtr error) {
+        private static void OnNotify(IntPtr req, IntPtr error)
+        {
             var errBinding = (PitayaBindingError)Marshal.PtrToStructure(error, typeof(PitayaBindingError));
             DLog(string.Format("OnNotify | rc={0}", RcToStr(errBinding.Code)));
         }
@@ -385,7 +391,7 @@ namespace Pitaya
             }
 
             var listener = reference.Target as IPitayaListener;
-            MainQueueDispatcher.Dispatch(()=>
+            MainQueueDispatcher.Dispatch(() =>
             {
                 var serializedBody = Encoding.UTF8.GetBytes(bodyStr);
                 listener?.OnUserDefinedPush(route, serializedBody);
@@ -403,7 +409,7 @@ namespace Pitaya
 
             WeakReference reference;
 
-            if(!Listeners.TryGetValue(client, out reference) || !reference.IsAlive)
+            if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive)
             {
                 DLog($"OnEvent - no listener fond for client ev={client}");
                 return;
@@ -411,8 +417,9 @@ namespace Pitaya
 
             var listener = reference.Target as IPitayaListener;
 
-            MainQueueDispatcher.Dispatch(()=>{
-                switch(ev)
+            MainQueueDispatcher.Dispatch(() =>
+            {
+                switch (ev)
                 {
                     case PitayaConstants.PcEvConnected:
                         listener?.OnNetworkEvent(PitayaNetWorkState.Connected);
@@ -452,74 +459,78 @@ namespace Pitaya
         private const string LibName = "pitaya-windows";
 #else
         private const string LibName = "libpitaya-linux";
-        #endif
+#endif
 
         // ReSharper disable UnusedMember.Local
-        [DllImport(LibName, EntryPoint="tr_uv_tls_set_ca_file")]
+        [DllImport(LibName, EntryPoint = "tr_uv_tls_set_ca_file")]
         private static extern void NativeSetCertificatePath(string caFile, string caPath);
 
-        [DllImport(LibName, EntryPoint="pc_unity_lib_init")]
+        [DllImport(LibName, EntryPoint = "pc_unity_lib_init")]
         private static extern void NativeLibInit(int logLevel, string caFile, string caPath, NativeAssertCallback assert, string platform, string buildNumber, string version);
 
-        [DllImport(LibName, EntryPoint="pc_lib_set_default_log_level")]
+        [DllImport(LibName, EntryPoint = "pc_lib_set_default_log_level")]
         private static extern void NativeLibSetLogLevel(int logLevel);
 
-        [DllImport(LibName, EntryPoint="pc_client_ev_str")]
+        [DllImport(LibName, EntryPoint = "pc_client_ev_str")]
         private static extern IntPtr NativeEvToStr(int ev);
-        [DllImport(LibName, EntryPoint="pc_client_rc_str")]
+        [DllImport(LibName, EntryPoint = "pc_client_rc_str")]
         private static extern IntPtr NativeRcToStr(int rc);
 
-        [DllImport(LibName, EntryPoint="pc_unity_create")]
+        [DllImport(LibName, EntryPoint = "pc_unity_create")]
         private static extern IntPtr NativeCreate(bool enableTls, bool enablePoll, bool enableReconnect, int connTimeout);
-        [DllImport(LibName, EntryPoint="pc_unity_destroy")]
+        [DllImport(LibName, EntryPoint = "pc_unity_destroy")]
         private static extern int NativeDestroy(IntPtr client);
 
-        [DllImport(LibName, EntryPoint="pc_client_connect")]
+        [DllImport(LibName, EntryPoint = "pc_client_connect")]
         private static extern int NativeConnect(IntPtr client, string host, int port, string handsharkOpts);
-        [DllImport(LibName, EntryPoint="pc_client_disconnect")]
+        [DllImport(LibName, EntryPoint = "pc_client_disconnect")]
         private static extern int NativeDisconnect(IntPtr client);
 
-        [DllImport(LibName, EntryPoint="pc_unity_request")]
+        [DllImport(LibName, EntryPoint = "pc_unity_request")]
         private static extern int NativeRequest(IntPtr client, string route, string msg, uint cbUid, int timeout, NativeRequestCallback callback, NativeErrorCallback errorCallback);
 
-        [DllImport(LibName, EntryPoint="pc_unity_binary_request")]
+        [DllImport(LibName, EntryPoint = "pc_unity_binary_request")]
         private static extern int NativeBinaryRequest(IntPtr client, string route, byte[] data, long len, uint cbUid, int timeout, NativeRequestCallback callback, NativeErrorCallback errorCallback);
 
-        [DllImport(LibName, EntryPoint="pc_string_notify_with_timeout")]
+        [DllImport(LibName, EntryPoint = "pc_string_notify_with_timeout")]
         private static extern int NativeNotify(IntPtr client, string route, string msg, IntPtr exData, int timeout, NativeNotifyCallback callback);
-        [DllImport(LibName, EntryPoint="pc_binary_notify_with_timeout")]
+        [DllImport(LibName, EntryPoint = "pc_binary_notify_with_timeout")]
         private static extern int NativeBinaryNotify(IntPtr client, string route, byte[] data, long len, IntPtr exData, int timeout, NativeNotifyCallback callback);
-        [DllImport(LibName, EntryPoint="pc_client_poll")]
+        [DllImport(LibName, EntryPoint = "pc_client_poll")]
         private static extern int NativePoll(IntPtr client);
 
-        [DllImport(LibName, EntryPoint="pc_client_add_ev_handler")]
+        [DllImport(LibName, EntryPoint = "pc_client_add_ev_handler")]
         private static extern int NativeAddEventHandler(IntPtr client, NativeEventCallback callback, IntPtr exData, IntPtr destructor);
 
-        [DllImport(LibName, EntryPoint="pc_client_set_push_handler")]
+        [DllImport(LibName, EntryPoint = "pc_client_set_push_handler")]
         private static extern int NativeAddPushHandler(IntPtr client, NativePushCallback callback);
 
-        [DllImport(LibName, EntryPoint="pc_client_rm_ev_handler")]
+        [DllImport(LibName, EntryPoint = "pc_client_rm_ev_handler")]
         private static extern int NativeRemoveEventHandler(IntPtr client, int handlerId);
 
-        [DllImport(LibName, EntryPoint="pc_client_conn_quality")]
+        [DllImport(LibName, EntryPoint = "pc_client_conn_quality")]
         private static extern int NativeQuality(IntPtr client);
-        [DllImport(LibName, EntryPoint="pc_client_state")]
+        [DllImport(LibName, EntryPoint = "pc_client_state")]
         private static extern int NativeState(IntPtr client);
 
-        [DllImport(LibName, EntryPoint="pc_client_serializer")]
+        [DllImport(LibName, EntryPoint = "pc_client_serializer")]
         private static extern IntPtr NativeSerializer(IntPtr client);
+
+        [DllImport(LibName, EntryPoint = "pc_client_free_serializer")]
+        private static extern IntPtr NativeFreeSerializer(IntPtr serializer);
+
         // ReSharper restore UnusedMember.Local
 
-        [DllImport(LibName, EntryPoint="pc_lib_add_pinned_public_key_from_certificate_string")]
+        [DllImport(LibName, EntryPoint = "pc_lib_add_pinned_public_key_from_certificate_string")]
         private static extern int NativeAddPinnedPublicKeyFromCertificateString(string ca_string);
 
-        [DllImport(LibName, EntryPoint="pc_lib_add_pinned_public_key_from_certificate_file")]
+        [DllImport(LibName, EntryPoint = "pc_lib_add_pinned_public_key_from_certificate_file")]
         private static extern int NativeAddPinnedPublicKeyFromCertificateFile(string caPath);
 
-        [DllImport(LibName, EntryPoint="pc_lib_skip_key_pin_check")]
+        [DllImport(LibName, EntryPoint = "pc_lib_skip_key_pin_check")]
         private static extern void NativeSkipKeyPinCheck(bool shouldSkip);
 
-        [DllImport(LibName, EntryPoint="pc_lib_clear_pinned_public_keys")]
+        [DllImport(LibName, EntryPoint = "pc_lib_clear_pinned_public_keys")]
         private static extern void NativeClearPinnedPublicKeys();
 
         [DllImport("__Internal")]

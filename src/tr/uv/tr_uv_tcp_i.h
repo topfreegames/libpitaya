@@ -116,6 +116,7 @@ struct tr_uv_tcp_transport_s {
     uv_async_t disconnect_async;
     uv_async_t cleanup_async;
 
+    pc_mutex_t serializer_mutex;
     const char *serializer;
 
     int hb_interval;

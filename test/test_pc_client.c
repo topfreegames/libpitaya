@@ -112,7 +112,10 @@ test_serializer(const MunitParameter params[], void *data)
 
     SLEEP_SECONDS(1);
 
-    assert_string_equal(pc_client_serializer(g_client), "json");
+    const char *serializer = pc_client_serializer(g_client);
+    assert_not_null(serializer);
+    assert_string_equal(serializer, "json");
+    pc_client_free_serializer(serializer);
 
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
     return MUNIT_OK;
