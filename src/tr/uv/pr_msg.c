@@ -353,8 +353,6 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, b
         ? pc_body_json_encode(msg->buf, &was_body_compressed)
         : msg->buf;
 
-    pc_lib_log(PC_LOG_DEBUG, "pc_default_msg_encode - BODY BUF LEN %ld\n", body_buf.len);
-
     pc_buf_t msg_buf;
     msg_buf.base = NULL;
     msg_buf.len = -1;

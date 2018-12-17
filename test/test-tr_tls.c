@@ -13,6 +13,7 @@
 
 #include "test_common.h"
 #include "pc_assert.h"
+#include "flag.h"
 
 static pc_client_t *g_client = NULL;
 
@@ -21,61 +22,66 @@ static int EV_ORDER[] = {
     PC_EV_DISCONNECT,
 };
 
-static int KEY_NOT_PINNED_EV_ORDER[] = {
-    PC_EV_CONNECT_FAILED,
-};
-
-static int KEY_PINNED_EV_ORDER[] = {
-    PC_EV_CONNECTED,
-    PC_EV_DISCONNECT,
-};
-
 static void
 key_not_pinned_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    int *num_called = (int*)ex_data;
-    assert_int(ev_type, ==, KEY_NOT_PINNED_EV_ORDER[*num_called]);
-    (*num_called)++;
+
+    static int EVENTS[] = {
+        PC_EV_CONNECT_FAILED,
+    };
+
+    flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+    assert_int(num_called, <=, ArrayCount(EVENTS));
+    assert_int(ev_type, ==, EVENTS[num_called]);
+    flag_set(flag);
 }
 
 static void
 key_pinned_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    int *num_called = (int*)ex_data;
-    assert_int(ev_type, ==, KEY_PINNED_EV_ORDER[*num_called]);
-    (*num_called)++;
+    static int EVENTS[] = {
+        PC_EV_CONNECTED,
+        PC_EV_DISCONNECT,
+    };
+
+    flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+    assert_int(ev_type, ==, EVENTS[num_called]);
+    assert_int(num_called, <, ArrayCount(EVENTS));
+    flag_set(flag);
 }
 
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    int *num_called = (int*)ex_data;
-    assert_int(ev_type, ==, EV_ORDER[*num_called]);
-    (*num_called)++;
+    flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+    assert_int(ev_type, ==, EV_ORDER[num_called]);
+    assert_int(num_called, <, ArrayCount(EV_ORDER));
+    flag_set(flag);
 }
 
 static void
 request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
-    bool *called = (bool*)pc_request_ex_data(req);
-    *called = true;
-
-    // assert_string_equal(resp, EMPTY_RESP);
+    flag_t *flag = (flag_t*)pc_request_ex_data(req);
     assert_not_null(resp);
     assert_ptr_equal(pc_request_client(req), g_client);
     assert_string_equal(pc_request_route(req), REQ_ROUTE);
     assert_string_equal(pc_request_msg(req), REQ_MSG);
     assert_int(pc_request_timeout(req), ==, REQ_TIMEOUT);
+    flag_set(flag);
 }
 
 static void
 notify_cb(const pc_notify_t* noti, const pc_error_t *err)
 {
-    bool *called = (bool*)pc_notify_ex_data(noti);
-    *called = true;
+    flag_t *flag= (flag_t*)pc_notify_ex_data(noti);
+    flag_set(flag);
 }
 
 static MunitResult
@@ -93,6 +99,8 @@ test_key_pinned(const MunitParameter params[], void *state)
 {
     pc_lib_skip_key_pin_check(false);
     for (int i = 0; i < 3; ++i) {
+        flag_t flag = flag_make();
+
         const char *ca_array[] = {
             CRT, INCORRECT_CRT, SERVER_CRT,
         };
@@ -123,23 +131,21 @@ test_key_pinned(const MunitParameter params[], void *state)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        int num_ev_cb_called = 0;
-        int handler_id = pc_client_add_ev_handler(g_client, key_pinned_event_cb, &num_ev_cb_called, NULL);
+        int handler_id = pc_client_add_ev_handler(g_client, key_pinned_event_cb, &flag, NULL);
         assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
         assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(3);
-
+        assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
-        SLEEP_SECONDS(1);
+        assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
 
-        assert_int(num_ev_cb_called, ==, ArrayCount(KEY_PINNED_EV_ORDER));
         assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 
         pc_lib_clear_pinned_public_keys();
+        flag_cleanup(&flag);
     }
     pc_lib_skip_key_pin_check(true);
     return MUNIT_OK;
@@ -148,6 +154,8 @@ test_key_pinned(const MunitParameter params[], void *state)
 static MunitResult
 test_key_not_pinned(const MunitParameter params[], void *state)
 {
+    flag_t flag = flag_make();
+
     pc_lib_add_pinned_public_key_from_certificate_file("fixtures/client-ssl.localhost.crt");
     pc_lib_clear_pinned_public_keys();
     pc_lib_skip_key_pin_check(false);
@@ -159,64 +167,62 @@ test_key_not_pinned(const MunitParameter params[], void *state)
     g_client = res.client;
     assert_int(res.rc, ==, PC_RC_OK);
 
-    int num_ev_cb_called = 0;
-    int handler_id = pc_client_add_ev_handler(g_client, key_not_pinned_event_cb, &num_ev_cb_called, NULL);
+    int handler_id = pc_client_add_ev_handler(g_client, key_not_pinned_event_cb, &flag, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
     assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
+    assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
 
     assert_int(pc_client_state(g_client), ==, PC_ST_INITED);
-    assert_int(num_ev_cb_called, ==, ArrayCount(KEY_NOT_PINNED_EV_ORDER));
     assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 
     pc_lib_skip_key_pin_check(true);
+    flag_cleanup(&flag);
     return MUNIT_OK;
 }
 
 static MunitResult
 test_successful_handshake(const MunitParameter params[], void *state)
 {
+    Unused(state); Unused(params);
+    flag_t flag_evs = flag_make();
+    flag_t flag_req_not = flag_make();
+
     pc_lib_add_pinned_public_key_from_certificate_file(SERVER_CRT);
 
-    Unused(state); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TLS;
-
-    int num_ev_cb_called = 0;
-    bool req_cb_called = false;
-    bool noti_cb_called = false;
 
     pc_client_init_result_t res = pc_client_init(NULL, &config);
     g_client = res.client;
     assert_int(res.rc, ==, PC_RC_OK);
 
-    int handler_id = pc_client_add_ev_handler(g_client, event_cb, &num_ev_cb_called, NULL);
+    int handler_id = pc_client_add_ev_handler(g_client, event_cb, &flag_evs, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
     // Set CA file so that the handshake is successful.
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
     assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
-    assert_int(pc_string_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &req_cb_called, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
-    assert_int(pc_string_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, &noti_cb_called, NOTI_TIMEOUT, notify_cb), ==, PC_RC_OK);
-    SLEEP_SECONDS(2);
+    assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
-    assert_false(noti_cb_called);
-    assert_true(req_cb_called);
+    assert_int(pc_string_request_with_timeout(g_client, REQ_ROUTE, REQ_MSG, &flag_req_not, REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
+    assert_int(flag_wait(&flag_req_not, 60), ==, FLAG_SET);
+    assert_int(pc_string_notify_with_timeout(g_client, NOTI_ROUTE, NOTI_MSG, &flag_req_not, NOTI_TIMEOUT, notify_cb), ==, PC_RC_OK);
+    assert_int(flag_wait(&flag_req_not, 4), ==, FLAG_TIMEOUT);
 
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
+    assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
-    assert_int(num_ev_cb_called, ==, ArrayCount(EV_ORDER));
     assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
     assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 
     pc_lib_clear_pinned_public_keys();
+    flag_cleanup(&flag_evs);
+    flag_cleanup(&flag_req_not);
     return MUNIT_OK;
 }
 
@@ -225,29 +231,25 @@ static void
 connect_failed_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client);
-
-    bool *called = (bool*)ex_data;
-    *called = true;
+    flag_t *flag = (flag_t*)ex_data;
     assert_int(ev_type, ==, PC_EV_CONNECT_FAILED);
     assert_string_equal(arg1, "TLS Handshake Error");
     assert_null(arg2);
+    flag_set(flag);
 }
 
 static void
 test_invalid_handshake()
 {
-    // The client fails the connection when no certificate files are set
-    // with the function tr_uv_tls_set_ca_file.
-    bool called = false;
-    int handler_id = pc_client_add_ev_handler(g_client, connect_failed_event_cb, &called, NULL);
+    flag_t flag = flag_make();
+    int handler_id = pc_client_add_ev_handler(g_client, connect_failed_event_cb, &flag, NULL);
     assert_int(handler_id, !=, PC_EV_INVALID_HANDLER_ID);
 
     assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tls_port, NULL), ==, PC_RC_OK);
-    SLEEP_SECONDS(1);
-
-    assert_true(called);
+    assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
     assert_int(pc_client_rm_ev_handler(g_client, handler_id), ==, PC_RC_OK);
+    flag_cleanup(&flag);
 }
 
 static MunitResult
@@ -321,7 +323,7 @@ test_cleanup_before_connection_done(const MunitParameter params[], void *data)
     return MUNIT_OK;
 }
 
-static int EV_ORDER_UNEXPECTED_DISCONNECT[] = {
+static int UNEXPECTED_DISCONNECT_EVENTS[] = {
     PC_EV_CONNECTED,
     PC_EV_UNEXPECTED_DISCONNECT,
 };
@@ -330,15 +332,19 @@ static void
 unexpected_disconnect_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    int *num_called = (int*)ex_data;
-    assert_int(ev_type, ==, EV_ORDER_UNEXPECTED_DISCONNECT[*num_called]);
-    (*num_called)++;
+
+    flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+    assert_int(ev_type, ==, UNEXPECTED_DISCONNECT_EVENTS[num_called]);
+    assert_int(num_called, <, ArrayCount(UNEXPECTED_DISCONNECT_EVENTS));
+    flag_set(flag);
 }
 
 static MunitResult
 test_unexpected_disconnect(const MunitParameter params[], void *data)
 {
     Unused(data); Unused(params);
+    flag_t flag = flag_make();
 
     pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
     config.transport_name = PC_TR_NAME_UV_TLS;
@@ -348,16 +354,17 @@ test_unexpected_disconnect(const MunitParameter params[], void *data)
     g_client = res.client;
     assert_int(res.rc, ==, PC_RC_OK);
 
-    int num_called = 0;
-    assert_int(pc_client_add_ev_handler(g_client, unexpected_disconnect_event_cb, &num_called, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_add_ev_handler(g_client, unexpected_disconnect_event_cb, &flag, NULL), ==, PC_RC_OK);
 
     assert_int(pc_client_connect(g_client, LOCALHOST, g_kill_client_mock_server.tls_port, NULL), ==, PC_RC_OK);
 
-    SLEEP_SECONDS(1);
+    while (flag_get_num_called(&flag) < ArrayCount(UNEXPECTED_DISCONNECT_EVENTS)) {
+        assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
+    }
 
-    assert_int(num_called, ==, ArrayCount(EV_ORDER_UNEXPECTED_DISCONNECT));
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
 
+    flag_cleanup(&flag);
     return MUNIT_OK;
 }
 

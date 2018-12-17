@@ -4,34 +4,31 @@
 #include <stdbool.h>
 
 #include "test_common.h"
+#include "flag.h"
 
 static pc_client_t *g_client = NULL;
-static int g_num_success_cb_called = 0;
-static int g_num_error_cb_called = 0;
-static int g_num_ev_cb_called = 0;
-static int g_num_push_cb_called = 0;
 
 static void
 request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
-    ++g_num_success_cb_called;
-}
-
-static void
-request_error_cb(const pc_request_t* req, const pc_error_t *error)
-{
-    ++g_num_error_cb_called;
+    flag_t *flag = (flag_t*)pc_request_ex_data(req);
+    flag_set(flag);
 }
 
 static int EV_ORDER[] = {
     PC_EV_CONNECTED,
+    PC_EV_DISCONNECT,
 };
 
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    assert_int(ev_type, ==, EV_ORDER[g_num_ev_cb_called++]);
+    flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+    assert_int(num_called, <, ArrayCount(EV_ORDER));
+    assert_int(ev_type, ==, EV_ORDER[num_called]);
+    flag_set(flag);
 }
 
 void
@@ -49,7 +46,8 @@ push_handler(pc_client_t *client, const char *route, const pc_buf_t *payload)
 
     free(str);
 
-    ++g_num_push_cb_called;
+    flag_t *flag = (flag_t*)pc_client_ex_data(client);
+    flag_set(flag);
 }
 
 static MunitResult
@@ -63,37 +61,37 @@ test_success(const MunitParameter params[], void *data)
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
     for (size_t i = 0; i < ArrayCount(ports); i++) {
+        flag_t flag_evs = flag_make();
+        flag_t flag_req = flag_make();
+        flag_t flag_push = flag_make();
+
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
-        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        pc_client_init_result_t res = pc_client_init(&flag_push, &config);
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
         pc_client_set_push_handler(g_client, push_handler);
-        int handler_id = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
+        int handler_id = pc_client_add_ev_handler(g_client, event_cb, &flag_evs, NULL);
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
-        SLEEP_SECONDS(1);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.sendpush", "{}", &flag_req, REQ_TIMEOUT,
+                                                  request_cb, NULL), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_req, 60), ==, FLAG_SET);
+        assert_int(flag_wait(&flag_push, 60), ==, FLAG_SET);
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.sendpush", "{}", NULL, REQ_TIMEOUT,
-                                                  request_cb, request_error_cb), ==, PC_RC_OK);
-        SLEEP_SECONDS(6);
-
-        assert_int(g_num_success_cb_called, ==, 1);
-        assert_int(g_num_error_cb_called, ==, 0);
-        assert_int(g_num_ev_cb_called, ==, ArrayCount(EV_ORDER));
-        assert_int(g_num_push_cb_called, ==, 1);
-
-        g_num_success_cb_called = 0;
-        g_num_error_cb_called = 0;
-        g_num_ev_cb_called = 0;
-        g_num_push_cb_called = 0;
+        assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
         pc_client_rm_ev_handler(g_client, handler_id);
-        assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+
+        flag_cleanup(&flag_push);
+        flag_cleanup(&flag_req);
+        flag_cleanup(&flag_evs);
     }
 
     return MUNIT_OK;

@@ -7,6 +7,7 @@
 
 #define MUNIT_ENABLE_ASSERT_ALIASES
 #include <munit.h>
+#include "pc_mutex.h"
 
 // Macro to sign to the compiler that the parameter is unused, avoiding a warning.
 #define Unused(x) ((void)(x))

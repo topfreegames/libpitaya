@@ -219,6 +219,11 @@ if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
 
         # Headers
         test/test_common.h
+
+        # utils
+        test/flag.h
+        test/flag.c
+
         # munit
         deps/munit/munit.h
         # nanopb
@@ -233,7 +238,11 @@ if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
         test/session-data.pb.h)
 
     set_target_properties(pitaya_tests PROPERTIES OUTPUT_NAME "tests")
-    target_include_directories(pitaya_tests PUBLIC deps/munit deps/nanopb-0.3.9.1 test)
+    target_include_directories(pitaya_tests
+        PUBLIC
+          src
+          deps/munit
+          deps/nanopb-0.3.9.1 test)
     target_link_libraries(pitaya_tests PUBLIC pitaya)
 
     add_custom_command(

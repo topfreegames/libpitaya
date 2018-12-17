@@ -4,22 +4,40 @@
 #include <stdbool.h>
 
 #include "test_common.h"
+#include "flag.h"
+
+#define NUM_REQUESTS_AT_ONCE 40
 
 static pc_client_t *g_client = NULL;
-static int g_num_success_cb_called = 0;
-static int g_num_error_cb_called = 0;
+
+static void
+event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
+{
+    Unused(arg1); Unused(arg2); Unused(client); Unused(ev_type);
+
+    const int EVENTS[] = {
+        PC_EV_CONNECTED, PC_EV_DISCONNECT
+    };
+
+    flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+    assert_int(num_called, <, ArrayCount(EVENTS));
+    assert_int(ev_type, ==, EVENTS[num_called]);
+    flag_set(flag);
+}
 
 static void
 request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
-    ++g_num_success_cb_called;
+    flag_t *flag = (flag_t*)pc_request_ex_data(req);
+    flag_set(flag);
 }
 
 static void
 request_error_cb(const pc_request_t* req, const pc_error_t *error)
 {
-    printf("Error called: %s\n", pc_client_rc_str(error->code));
-    ++g_num_error_cb_called;
+    flag_t *flag = (flag_t*)pc_request_ex_data(req);
+    flag_set(flag);
 }
 
 static MunitResult
@@ -31,9 +49,11 @@ test_multiple_requests(const MunitParameter params[], void *data)
     const int transports[] = {PC_TR_NAME_UV_TCP, PC_TR_NAME_UV_TLS};
 
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
-    bool called = false;
 
     for (size_t i = 0; i < 2; i++) {
+        flag_t flag_evs = flag_make();
+        flag_t flag_req = flag_make();
+
         pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
         config.transport_name = transports[i];
 
@@ -41,24 +61,27 @@ test_multiple_requests(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(1);
+        pc_client_add_ev_handler(g_client, event_cb, &flag_evs, NULL);
 
-        static const int num_requests_at_once = 40;
-        for (int y = 0; y < num_requests_at_once; ++y) {
-            pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &called, 20,
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
+
+        for (int y = 0; y < NUM_REQUESTS_AT_ONCE; ++y) {
+            pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &flag_req, 30,
                                            request_cb, request_error_cb);
         }
 
-        SLEEP_SECONDS(25);
+        while (flag_get_num_called(&flag_req) < NUM_REQUESTS_AT_ONCE) {
+            assert_int(flag_wait(&flag_req, 60), ==, FLAG_SET);
+        }
 
-        assert_int(g_num_error_cb_called, ==, 0);
-        assert_int(g_num_success_cb_called, ==, num_requests_at_once);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
+
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 
-        g_num_error_cb_called = 0;
-        g_num_success_cb_called = 0;
+        flag_cleanup(&flag_evs);
+        flag_cleanup(&flag_req);
     }
 
     return MUNIT_OK;

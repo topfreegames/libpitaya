@@ -11,19 +11,25 @@
 #include "response.pb.h"
 #include "big-message.pb.h"
 #include "test_common.h"
+#include "flag.h"
 
 static pc_client_t *g_client = NULL;
-
-static int g_num_success_cb_called = 0;
-static int g_num_error_cb_called = 0;
 
 static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     // This callback should not be called, therefore called should always be false.
     Unused(arg1); Unused(arg2); Unused(client); Unused(ev_type);
-    // bool *called = (bool*)ex_data;
-    // *called = true;
+
+    const int EVENTS[] = {
+        PC_EV_CONNECTED, PC_EV_DISCONNECT
+    };
+
+    flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+    assert_int(num_called, <, ArrayCount(EVENTS));
+    assert_int(ev_type, ==, EVENTS[num_called]);
+    flag_set(flag);
 }
 
 static bool
@@ -143,6 +149,8 @@ contains_in_vals(npc_t *npcs_vals, size_t len, char *name, char *public_id, doub
 static void
 big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
+    flag_t *flag = (flag_t*)pc_request_ex_data(req);
+
     assert_not_null(resp);
     assert_not_null(resp);
     assert_int(resp->len, >, 0);
@@ -287,12 +295,13 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
     free(chests->data);
     free(chests);
 
-    g_num_success_cb_called++;
+    flag_set(flag);
 }
 
 static void
 encoded_request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
+    flag_t *flag = (flag_t*)pc_request_ex_data(req);
     assert_not_null(resp);
     assert_not_null(resp);
     assert_int(resp->len, >, 0);
@@ -309,13 +318,13 @@ encoded_request_cb(const pc_request_t* req, const pc_buf_t *resp)
     assert_string_equal((char*)response.msg.arg, "success");
 
     free(response.msg.arg);
-
-    g_num_success_cb_called++;
+    flag_set(flag);
 }
 
 static void
 request_cb(const pc_request_t* req, const pc_buf_t *resp)
 {
+    flag_t *flag = (flag_t*)pc_request_ex_data(req);
     assert_not_null(resp);
     assert_not_null(resp);
     assert_int(resp->len, >, 0);
@@ -330,8 +339,7 @@ request_cb(const pc_request_t* req, const pc_buf_t *resp)
     assert_string_equal((char*)session_data.data.arg, "THIS IS THE SESSION DATA");
 
     free(session_data.data.arg);
-
-    g_num_success_cb_called++;
+    flag_set(flag);
 }
 
 static void
@@ -339,6 +347,8 @@ request_error_cb(const pc_request_t* req, const pc_error_t *error)
 {
     assert_not_null(error->payload.base);
     assert_int(error->code, ==, PC_RC_SERVER_ERROR);
+
+    flag_t *flag = pc_request_ex_data(req);
 
     protos_Error decoded_error = protos_Error_init_zero;
     decoded_error.code.funcs.decode = read_string;
@@ -358,7 +368,7 @@ request_error_cb(const pc_request_t* req, const pc_error_t *error)
     free(decoded_error.code.arg);
     free(decoded_error.msg.arg);
 
-    g_num_error_cb_called++;
+    flag_set(flag);
 }
 
 static MunitResult
@@ -371,8 +381,10 @@ test_big_message(const MunitParameter params[], void *data)
 
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
-    // for (size_t i = 0; i < ArrayCount(ports); ++i) {
-    for (size_t i = 0; i < 1; ++i) {
+    for (size_t i = 0; i < ArrayCount(ports); ++i) {
+        flag_t flag_evs = flag_make();
+        flag_t flag_req = flag_make();
+
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
@@ -380,27 +392,27 @@ test_big_message(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
+        pc_client_add_ev_handler(g_client, event_cb, &flag_evs, NULL);
 
-        SLEEP_SECONDS(2);
+        assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
         const char *serializer = pc_client_serializer(g_client);
         assert_not_null(serializer);
         assert_string_equal(serializer, "protobuf");
         pc_client_free_serializer(serializer);
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getbigmessage", "", NULL,
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getbigmessage", "", &flag_req,
                                                   REQ_TIMEOUT, big_message_request_cb, NULL), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(2);
-
-        assert_int(g_num_error_cb_called, ==, 0);
-        assert_int(g_num_success_cb_called, ==, 1);
-
-        g_num_success_cb_called = 0;
+        assert_int(flag_wait(&flag_req, 60), ==, FLAG_SET);
 
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
+
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+        flag_cleanup(&flag_req);
+        flag_cleanup(&flag_evs);
     }
 
     return MUNIT_OK;
@@ -417,6 +429,9 @@ test_request_encoding(const MunitParameter params[], void *data)
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
     for (size_t i = 0; i < ArrayCount(ports); ++i) {
+        flag_t flag_evs = flag_make();
+        flag_t flag_req = flag_make();
+
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
@@ -424,11 +439,11 @@ test_request_encoding(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        int handler = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
+        int handler = pc_client_add_ev_handler(g_client, event_cb, &flag_evs, NULL);
         assert_null(pc_client_serializer(g_client));
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(2);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
         const char *serializer = pc_client_serializer(g_client);
         assert_not_null(serializer);
@@ -444,20 +459,16 @@ test_request_encoding(const MunitParameter params[], void *data)
 
         assert_true(pb_encode(&stream, protos_SessionData_fields, &session_data));
         assert_int(stream.bytes_written, <=, sizeof(buf));
-        assert_int(pc_binary_request_with_timeout(g_client, "connector.setsessiondata", buf, stream.bytes_written, NULL,
+        assert_int(pc_binary_request_with_timeout(g_client, "connector.setsessiondata", buf, stream.bytes_written, &flag_req,
                                                   REQ_TIMEOUT, encoded_request_cb, request_error_cb), ==, PC_RC_OK);
-
-        SLEEP_SECONDS(2);
-
-        assert_int(g_num_error_cb_called, ==, 0);
-        assert_int(g_num_success_cb_called, ==, 1);
-
-        g_num_success_cb_called = 0;
+        assert_int(flag_wait(&flag_req, 60), ==, FLAG_SET);
 
         // assert_true(ev_cb_called);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
         pc_client_rm_ev_handler(g_client, handler);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+        flag_cleanup(&flag_req);
+        flag_cleanup(&flag_evs);
     }
 
     return MUNIT_OK;
@@ -474,6 +485,9 @@ test_response_decoding(const MunitParameter params[], void *data)
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
     for (size_t i = 0; i < ArrayCount(ports); ++i) {
+        flag_t flag_evs = flag_make();
+        flag_t flag_req = flag_make();
+
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
@@ -481,31 +495,29 @@ test_response_decoding(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        int handler = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
+        int handler = pc_client_add_ev_handler(g_client, event_cb, &flag_evs, NULL);
         assert_null(pc_client_serializer(g_client));
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(2);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
         const char *serializer = pc_client_serializer(g_client);
         assert_not_null(serializer);
         assert_string_equal(serializer, "protobuf");
         pc_client_free_serializer(serializer);
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", NULL,
-                                                  REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
+        assert_int(pc_string_request_with_timeout(g_client, "connector.getsessiondata", "{}", &flag_req,
+                                                  REQ_TIMEOUT, request_cb, NULL), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(2);
-
-        assert_int(g_num_error_cb_called, ==, 0);
-        assert_int(g_num_success_cb_called, ==, 1);
-
-        g_num_success_cb_called = 0;
+        assert_int(flag_wait(&flag_req, 60), ==, FLAG_SET);
 
         // assert_true(ev_cb_called);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
         pc_client_rm_ev_handler(g_client, handler);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+
+        flag_cleanup(&flag_evs);
+        flag_cleanup(&flag_req);
     }
 
     return MUNIT_OK;
@@ -522,6 +534,9 @@ test_error_decoding(const MunitParameter params[], void *data)
     assert_int(tr_uv_tls_set_ca_file(CRT, NULL), ==, PC_RC_OK);
 
     for (size_t i = 0; i < ArrayCount(ports); ++i) {
+        flag_t flag_evs = flag_make();
+        flag_t flag_req = flag_make();
+
         pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
         config.transport_name = transports[i];
 
@@ -529,31 +544,27 @@ test_error_decoding(const MunitParameter params[], void *data)
         g_client = res.client;
         assert_int(res.rc, ==, PC_RC_OK);
 
-        int handler = pc_client_add_ev_handler(g_client, event_cb, NULL, NULL);
+        int handler = pc_client_add_ev_handler(g_client, event_cb, &flag_evs, NULL);
         assert_null(pc_client_serializer(g_client));
 
         assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, ports[i], NULL), ==, PC_RC_OK);
-        SLEEP_SECONDS(2);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
         const char *serializer = pc_client_serializer(g_client);
         assert_not_null(serializer);
         assert_string_equal(serializer, "protobuf");
         pc_client_free_serializer(serializer);
 
-        assert_int(pc_string_request_with_timeout(g_client, "connector.route", "{dqwdwqd}", NULL,
+        assert_int(pc_string_request_with_timeout(g_client, "connector.route", "{dqwdwqd}", &flag_req,
                                                   REQ_TIMEOUT, request_cb, request_error_cb), ==, PC_RC_OK);
 
-        SLEEP_SECONDS(5);
+        assert_int(flag_wait(&flag_req, 60), ==, FLAG_SET);
 
-        assert_int(g_num_error_cb_called, ==, 1);
-        assert_int(g_num_success_cb_called, ==, 0);
-
-        g_num_error_cb_called = 0;
-
-        // assert_true(ev_cb_called);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
         pc_client_rm_ev_handler(g_client, handler);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+        flag_cleanup(&flag_req);
+        flag_cleanup(&flag_evs);
     }
 
     return MUNIT_OK;
