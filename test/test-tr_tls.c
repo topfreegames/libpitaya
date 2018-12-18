@@ -354,7 +354,7 @@ test_unexpected_disconnect(const MunitParameter params[], void *data)
     g_client = res.client;
     assert_int(res.rc, ==, PC_RC_OK);
 
-    assert_int(pc_client_add_ev_handler(g_client, unexpected_disconnect_event_cb, &flag, NULL), ==, PC_RC_OK);
+    assert_int(pc_client_add_ev_handler(g_client, unexpected_disconnect_event_cb, &flag, NULL), !=, PC_EV_INVALID_HANDLER_ID);
 
     assert_int(pc_client_connect(g_client, LOCALHOST, g_kill_client_mock_server.tls_port, NULL), ==, PC_RC_OK);
 

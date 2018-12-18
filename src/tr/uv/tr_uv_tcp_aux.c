@@ -391,9 +391,6 @@ void tcp__write_async_cb(uv_async_t* a)
     uv_buf_t* bufs;
     GET_TT(a);
 
-    pc_lib_log(PC_LOG_DEBUG, "WRITING ASYNC");
-
-
     if (tt->state == TR_UV_TCP_NOT_CONN) {
         return ;
     }

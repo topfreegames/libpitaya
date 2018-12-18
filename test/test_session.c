@@ -40,7 +40,7 @@ get_session_request_cb(const pc_request_t* req, const pc_buf_t *resp)
     flag_set(&sd->flag);
 }
 
-void
+static void
 do_test_session_persistence(pc_client_config_t *config, int port)
 {
     pc_client_init_result_t res = pc_client_init(NULL, config);
