@@ -234,9 +234,6 @@ void pc__trans_queue_push(pc_client_t *client, const char *route, const pc_buf_t
 
 void pc__trans_push(pc_client_t *client, const char *route, const pc_buf_t *buf)
 {
-    QUEUE* q;
-    pc_ev_handler_t *handler;
-
     pc_assert(client);
     if (!client || !buf->base || buf->len < 0) {
         pc_lib_log(PC_LOG_ERROR, "pc__trans_push - error parameters");

@@ -13,6 +13,11 @@
 
 #include "pr_msg.h"
 
+// PERFORMANCE(leo): This function returns either a copy from the original buffer
+// or a new buffer with the original contents compressed. It could be made more efficient
+// by having a flag specifying if the contents were compressed or not, then the client could
+// decide if the buffer should be freed or not. This would however make the code harder to understand,
+// therefore it is not implemented.
 pc_buf_t pc_body_json_encode(pc_buf_t buf, bool *was_body_compressed)
 {
     pc_buf_t out_buf;
@@ -24,7 +29,7 @@ pc_buf_t pc_body_json_encode(pc_buf_t buf, bool *was_body_compressed)
     if (compress_err) {
         pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - error compressing data");
         pc_buf_free(&out_buf); // free the buffers, since it will not be used.
-        return buf;
+        return pc_buf_copy(&buf);
     }
 
     // TODO, NOTE(leo): This check could be more specialized. For example, the compressed buffer is only used if it 
@@ -33,7 +38,7 @@ pc_buf_t pc_body_json_encode(pc_buf_t buf, bool *was_body_compressed)
         pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - compressed is larger (%d > %d)", out_buf.len, buf.len);
         pc_buf_free(&out_buf); // free the buffers, since it will not be used.
         if (was_body_compressed) *was_body_compressed = false;
-        return buf;
+        return pc_buf_copy(&buf);
     }
     
     // out_buf is smaller than buf

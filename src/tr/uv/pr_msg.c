@@ -69,6 +69,13 @@ static void* length_error() {
     return NULL;
 }
 
+static void pc_msg_free_raw_msg(pc__msg_raw_t *raw_msg)
+{
+    // NOTE: The pc__msg_raw_t takes a reference to an existing buffer in its
+    // body buffer. Therefore it should not release the buffer memory.
+    pc_lib_free(raw_msg);
+}
+
 static pc__msg_raw_t *pc_msg_decode_to_raw(const pc_buf_t* buf)
 {
     int len = buf->len;
@@ -200,7 +207,7 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
         if (err) {
             pc_lib_log(PC_LOG_ERROR, "pc_default_msg_decode - gzip inflate error");
             pc_lib_free(decompressed_data);
-            pc_lib_free(raw_msg);
+            pc_msg_free_raw_msg(raw_msg);
             msg.id = PC_INVALID_REQ_ID;
             return msg;
         }
@@ -209,11 +216,14 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
         msg.buf.len = decompressed_len;
         pc_lib_log(PC_LOG_DEBUG, "pc_default_msg_decode decompressed msg: %lu -> %lld bytes", raw_msg->body.len, msg.buf.len);
     } else {
-        // Assign raw buffer to message, since it is not compressed.
-        msg.buf = raw_msg->body;
+        // NOTE(leo): Since raw_msg->body points to an internal libuv buffer, we have to make a copy here, in order to match
+        // the copy made by zlib when the message was decompressed.
+        // PERFORMANCE(leo): Maybe a more efficient approach would be to return a variable saying if the buffer is malloced or not, but that would
+        // hurt readability and mantainability.
+        msg.buf = pc_buf_copy(&raw_msg->body);
     }
 
-    pc_lib_free(raw_msg);
+    pc_msg_free_raw_msg(raw_msg);
 
     return msg;
 }

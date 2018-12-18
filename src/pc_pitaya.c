@@ -834,6 +834,11 @@ void* pc_notify_ex_data(const pc_notify_t* notify)
 
 pc_buf_t pc_buf_copy(const pc_buf_t *buf)
 {
+    if (!buf->base) {
+        pc_buf_t empty_buf = {0};
+        return empty_buf;
+    }
+
     pc_assert(buf->base);
     pc_assert(buf->len > 0);
 
