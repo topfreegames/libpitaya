@@ -27,11 +27,13 @@ int pr_decompress(unsigned char** output,
     // (8 to 15) + 16 for gzip
     // (8 to 15) + 32 to automatically detect gzip/zlib header
     const int window_bits = 15 + 32; // auto with windowbits of 15
-    
+
     if (inflateInit2(&inflate_s, window_bits) != Z_OK)
     {
         return 1;
     }
+
+    *output = NULL;
 
     inflate_s.next_in = (Bytef *)data;
     inflate_s.avail_in = (unsigned int)size;
@@ -40,7 +42,16 @@ int pr_decompress(unsigned char** output,
     do
     {
         size_t resize_to = size_uncompressed + 2 * size;
-        *output = (unsigned char*) pc_lib_realloc(*output, resize_to);
+        {
+            unsigned char *new_output = (unsigned char*)pc_lib_realloc(*output, resize_to);
+            if (!new_output) {
+                // If it fails to reallocate (no memory left), return a memory error.
+                // The client is responsible for cleaning up the memory.
+                return Z_MEM_ERROR;
+            }
+            *output = new_output;
+        }
+
         inflate_s.avail_out = (unsigned int)(2 * size);
         inflate_s.next_out = (Bytef *)(*output + size_uncompressed);
         int ret = inflate(&inflate_s, Z_FINISH);

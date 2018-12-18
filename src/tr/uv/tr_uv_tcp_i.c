@@ -335,6 +335,7 @@ int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_nu
     pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - encoded msg length = %lu", uv_buf.len);
 
     if (uv_buf.len == (unsigned int)-1) {
+        pc_assert(uv_buf.base == NULL && "uv_buf should be empty here");
         pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - encode msg failed, route: %s", route);
         return PC_RC_ERROR;
     }
@@ -343,12 +344,12 @@ int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_nu
 
     pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - encoded pkg length = %lu", pkg_buf.len);
 
+    pc_lib_free(uv_buf.base);
+
     if (pkg_buf.len == (unsigned int)-1) {
         pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - encode package failed");
         return PC_RC_ERROR;
     }
-
-    pc_lib_free(uv_buf.base);
 
     wi = NULL;
     pc_mutex_lock(&tt->wq_mutex);

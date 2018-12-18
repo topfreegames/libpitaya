@@ -959,6 +959,7 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
     }
 
     pc_lib_free((char *)msg.route);
+    pc_buf_free(&msg.buf);
 }
 
 void tcp__on_kick_recieved(tr_uv_tcp_transport_t* tt)

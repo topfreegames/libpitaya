@@ -157,7 +157,6 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
     pc_assert(raw_msg->id != PC_INVALID_REQ_ID);
 
     msg.id = raw_msg->id;
-    msg.buf = raw_msg->body;
     msg.error = raw_msg->error;
 
     /* route */
@@ -195,7 +194,7 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
     if (raw_msg->is_gzipped && raw_msg->body.len > 0) {
         uint8_t *decompressed_data = NULL;
         size_t decompressed_len;
-        int err = pr_decompress(&decompressed_data, &decompressed_len, 
+        int err = pr_decompress(&decompressed_data, &decompressed_len,
                                 raw_msg->body.base, raw_msg->body.len);
 
         if (err) {
@@ -209,6 +208,9 @@ pc_msg_t pc_default_msg_decode(const pc_JSON* code2route, const pc_buf_t* buf)
         msg.buf.base = decompressed_data;
         msg.buf.len = decompressed_len;
         pc_lib_log(PC_LOG_DEBUG, "pc_default_msg_decode decompressed msg: %lu -> %lld bytes", raw_msg->body.len, msg.buf.len);
+    } else {
+        // Assign raw buffer to message, since it is not compressed.
+        msg.buf = raw_msg->body;
     }
 
     pc_lib_free(raw_msg);
@@ -351,7 +353,7 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, b
 
     pc_buf_t body_buf = (compress_data && msg->buf.len > 0)
         ? pc_body_json_encode(msg->buf, &was_body_compressed)
-        : msg->buf;
+        : pc_buf_copy(&msg->buf);
 
     pc_buf_t msg_buf;
     msg_buf.base = NULL;
@@ -390,6 +392,8 @@ pc_buf_t pc_default_msg_encode(const pc_JSON* route2code, const pc_msg_t* msg, b
                     msg->route);
         }
     }
+
+    pc_buf_free(&body_buf);
 
     return msg_buf;
 }
