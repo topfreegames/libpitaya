@@ -189,6 +189,8 @@ endif()
 # Tests
 #
 if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
+    find_package(Threads REQUIRED)
+
     add_executable(pitaya_tests
         # Sources
         test/main.c
@@ -243,15 +245,15 @@ if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
           src
           deps/munit
           deps/nanopb-0.3.9.1 test)
-    target_link_libraries(pitaya_tests PUBLIC pitaya)
+    target_link_libraries(pitaya_tests PUBLIC pitaya Threads::Threads)
 
     add_custom_command(
       TARGET
         pitaya_tests POST_BUILD
       COMMAND
-            ${CMAKE_COMMAND} -E copy_directory
-                                ${CMAKE_SOURCE_DIR}/fixtures
-                                $<TARGET_FILE_DIR:pitaya_tests>/fixtures)
+        ${CMAKE_COMMAND} -E copy_directory
+                            ${CMAKE_SOURCE_DIR}/fixtures
+                            $<TARGET_FILE_DIR:pitaya_tests>/fixtures)
 endif()
 
 add_custom_target(create_zip ALL COMMAND
