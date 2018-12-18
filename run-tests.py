@@ -32,8 +32,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--node-path', dest='node_path', help='Where is node located')
     parser.add_argument('--tests-dir', dest='tests_dir',
-                        help='Where the test executable is located',
-                        required=True)
+                        help='Where the test executable is located')
+    parser.add_argument('--only-deps', dest='only_deps', action='store_true')
     return parser.parse_known_args()
 
 
@@ -99,13 +99,21 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
 
-    ensure_tests_executable(args.tests_dir)
-    start_mock_servers(args.node_path)
-    time.sleep(1)
-    code = run_tests(args.tests_dir)
-    kill_all_servers()
-    close_file_descriptors()
-    exit(code)
+    if args.only_deps:
+        start_mock_servers(args.node_path)
+        input()
+    else:
+        if args.tests_dir == None:
+            print('You need to pass the test executable directory')
+            exit(1)
+
+        ensure_tests_executable(args.tests_dir)
+        start_mock_servers(args.node_path)
+        time.sleep(1)
+        code = run_tests(args.tests_dir)
+        kill_all_servers()
+        close_file_descriptors()
+        exit(code)
 
 
 if __name__ == '__main__':
