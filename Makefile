@@ -30,6 +30,11 @@ build-linux:
 	@cmake -H. -B_builds/linux -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
 	@cmake --build _builds/linux
 
+build-linux-debug:
+	@rm -rf _builds/linux-debug
+	@cmake -H. -B_builds/linux-debug -GNinja -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=ON
+	@cmake --build _builds/linux-debug
+
 build-ios:
 	@rm -rf _builds/ios
 	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
