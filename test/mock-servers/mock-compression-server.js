@@ -17,6 +17,8 @@ function processPacket(packet, clientSocket) {
 
     switch (packet.type) {
     case pkt.PacketType.Handshake:
+        console.log('Handshake length: ' + packet.data.length);
+        console.log(packet.data.toString('utf8'));
         pkt.sendHandshakeResponse(clientSocket);
         break;
 
@@ -66,9 +68,9 @@ function processBuffer(buffer, socket) {
 
     console.log(`Decoded ${packets.length} packet(s)`);
 
-    for (let p of packets) {
+    packets.forEach(p => {
         processPacket(p, socket);
-    }
+    })
 }
 
 const tcpServer = net.createServer((socket) => {
@@ -82,6 +84,11 @@ const tcpServer = net.createServer((socket) => {
     socket.on('end', () => {
         clientDisconnected = true;
         console.log('Client disconnected :(');
+    });
+
+    socket.on('error', () => {
+        clientDisconnected = true;
+        console.log('Client disconnected with error :(');
     });
 });
 
@@ -104,6 +111,11 @@ const tlsServer = tls.createServer(tlsOptions, (socket) => {
     socket.on('end', () => {
         clientDisconnected = true;
         console.log('Client disconnected :(');
+    });
+
+    socket.on('error', () => {
+        clientDisconnected = true;
+        console.log('Client disconnected with error :(');
     });
 });
 

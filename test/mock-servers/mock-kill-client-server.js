@@ -53,6 +53,12 @@ const tcpServer = net.createServer((socket) => {
         clearTimeout(handshakeTimeout);
         console.log('Client disconnected :(');
     });
+
+    socket.on('error', () => {
+        clientDisconnected = true;
+        clearTimeout(handshakeTimeout);
+        console.log('Client disconnected with error :(');
+    });
 });
 
 
@@ -75,6 +81,12 @@ const tlsServer = tls.createServer(tlsOptions, (socket) => {
         clientDisconnected = true;
         clearTimeout(handshakeTimeout);
         console.log('Client disconnected :(');
+    });
+
+    socket.on('error', () => {
+        clientDisconnected = true;
+        clearTimeout(handshakeTimeout);
+        console.log('Client disconnected with error :(');
     });
 });
 

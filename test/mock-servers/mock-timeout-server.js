@@ -73,6 +73,11 @@ const tcpServer = net.createServer((socket) => {
         clientDisconnected = true;
         console.log('Client disconnected :(');
     });
+
+    socket.on('error', () => {
+        clientDisconnected = true;
+        console.log('Client disconnected with error :(');
+    });
 });
 
 
@@ -94,6 +99,11 @@ const tlsServer = tls.createServer(tlsOptions, (socket) => {
     socket.on('end', () => {
         clientDisconnected = true;
         console.log('Client disconnected :(');
+    });
+
+    socket.on('error', () => {
+        clientDisconnected = true;
+        console.log('Client disconnected with error :(');
     });
 });
 
