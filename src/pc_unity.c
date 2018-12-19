@@ -252,7 +252,8 @@ pc_unity_request(pc_client_t* client, const char* route, const char* msg,
 {
     request_cb_t* rp = (request_cb_t*)pc_lib_malloc(sizeof(request_cb_t));
     if (!rp) {
-        return PC_RC_TIMEOUT;
+        // TODO: consider creating a new return code like PC_RC_NO_MEM
+        return PC_RC_ERROR;
     }
     rp->cb = cb;
     rp->error_cb = error_cb;
@@ -267,7 +268,8 @@ pc_unity_binary_request(pc_client_t* client, const char* route, uint8_t* data,
 {
     request_cb_t* rp = (request_cb_t*)pc_lib_malloc(sizeof(request_cb_t));
     if (!rp) {
-        return PC_RC_TIMEOUT;
+        // TODO: consider creating a new return code like PC_RC_NO_MEM
+        return PC_RC_ERROR;
     }
     rp->cb = cb;
     rp->error_cb = error_cb;
