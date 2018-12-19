@@ -840,7 +840,7 @@ pc_buf_t pc_buf_copy(const pc_buf_t *buf)
     }
 
     pc_assert(buf->base);
-    pc_assert(buf->len > 0);
+    pc_assert(buf->len >= 0);
 
     pc_buf_t new_buf;
     new_buf.base = pc_lib_malloc((size_t)buf->len);
