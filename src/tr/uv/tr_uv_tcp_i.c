@@ -426,6 +426,10 @@ int tr_uv_tcp_cleanup(pc_transport_t* trans)
         return PC_RC_ERROR;
     }
 
+    // After the thread exits, run pending close callbacks to avoid
+    // memory leaks.
+    uv_run(&tt->uv_loop, UV_RUN_DEFAULT);
+
     {
         // Free serializer set it to null and destroy the mutex.
         pc_mutex_lock(&tt->serializer_mutex);

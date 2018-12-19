@@ -155,6 +155,42 @@ test_pc_client_trans_data(const MunitParameter params[], void *data)
     return MUNIT_SKIP;
 }
 
+static void
+error_event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
+{
+    Unused(arg1); Unused(arg2); Unused(client); Unused(ev_type);
+    flag_t *flag = (flag_t*)ex_data;
+    assert_int(ev_type, ==, PC_EV_CONNECT_ERROR);
+    flag_set(flag);
+}
+
+static MunitResult
+test_creating_and_deleting(const MunitParameter params[], void *data)
+{
+    Unused(params); Unused(data);
+    flag_t flag = flag_make();
+
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+
+    const int num_connections = 8;
+    for (int i = 0; i < num_connections; ++i) {
+        pc_client_init_result_t res = pc_client_init(NULL, &config);
+        g_client = res.client;
+        assert_int(res.rc, ==, PC_RC_OK);
+
+        assert_int(pc_client_add_ev_handler(g_client, error_event_cb, &flag, NULL), !=, PC_EV_INVALID_HANDLER_ID);
+
+        assert_int(pc_client_connect(g_client, "10.0.21.121", 29301, NULL), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
+        assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
+
+        assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+    }
+
+    flag_cleanup(&flag);
+    return MUNIT_OK;
+}
+
 //static MunitResult
 //test_disconnect_right_after_connect(const MunitParameter params[], void *data)
 //{
@@ -180,6 +216,7 @@ static MunitTest tests[] = {
     {"/trans_data", test_pc_client_trans_data, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/polling", test_polling, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/serializer", test_serializer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/creating_and_deleting", test_creating_and_deleting, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 //    {"/disconnect_right_after_connect", test_disconnect_right_after_connect, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };

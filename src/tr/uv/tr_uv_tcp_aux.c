@@ -682,6 +682,11 @@ static void tcp__cleanup_pc_json(pc_JSON** j)
     }
 }
 
+static void walk_cb(uv_handle_t *handle, void *arg)
+{
+    uv_close(handle, NULL);
+}
+
 void tcp__cleanup_async_cb(uv_async_t* a)
 {
     GET_TT(a);
@@ -695,25 +700,16 @@ void tcp__cleanup_async_cb(uv_async_t* a)
         tt->host = NULL;
     }
 
-    tcp__cleanup_pc_json(&tt->handshake_opts);
     tt->reconn_times = 0;
     // This ensures that the callback will not be called after everything is
     // cleaned up.
     tt->conn_done_cb = NULL;
 
-#define C(x) uv_close((uv_handle_t*)&tt->x, NULL)
-    C(conn_timeout);
-    C(reconn_delay_timer);
-    C(conn_async);
-    C(handshake_timer);
-    C(write_async);
-    C(check_timeout);
-    C(disconnect_async);
-    C(cleanup_async);
-    C(hb_timer);
-    C(hb_timeout_timer);
-#undef C
+    // Walk all handles in the loop closing each one of them.
+    // libuv will call for each handle the walk_cb function.
+    uv_walk(&tt->uv_loop, walk_cb, NULL);
 
+    tcp__cleanup_pc_json(&tt->handshake_opts);
     tcp__cleanup_pc_json(&tt->route_to_code);
     tcp__cleanup_pc_json(&tt->code_to_route);
 }
