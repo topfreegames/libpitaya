@@ -60,7 +60,7 @@ build-linux-docker: clean-docker-container
 .PHONY: build
 
 create-out-folder:
-	@rm -r out
+	@rm -rf out
 	@mkdir -p out
 
 build-servers-linux: create-out-folder
