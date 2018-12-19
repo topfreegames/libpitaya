@@ -180,7 +180,7 @@ test_creating_and_deleting(const MunitParameter params[], void *data)
 
         assert_int(pc_client_add_ev_handler(g_client, error_event_cb, &flag, NULL), !=, PC_EV_INVALID_HANDLER_ID);
 
-        assert_int(pc_client_connect(g_client, "10.0.21.121", 29301, NULL), ==, PC_RC_OK);
+        assert_int(pc_client_connect(g_client, LOCALHOST, 29301, NULL), ==, PC_RC_OK);
         assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
 

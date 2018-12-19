@@ -684,7 +684,9 @@ static void tcp__cleanup_pc_json(pc_JSON** j)
 
 static void walk_cb(uv_handle_t *handle, void *arg)
 {
-    uv_close(handle, NULL);
+    if (!uv_is_closing(handle)) {
+        uv_close(handle, NULL);
+    }
 }
 
 void tcp__cleanup_async_cb(uv_async_t* a)
