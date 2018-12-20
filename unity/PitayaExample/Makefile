@@ -34,4 +34,4 @@ pack: build-all
 UNITY_PATH=/Applications/Unity2018211f1/Unity.app/Contents/MacOS/Unity
 
 test:
-	${UNITY_PATH} -runTests -projectPath $(pwd) -testResults $(pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
+	${UNITY_PATH} -runTests -projectPath $(shell pwd) -testResults $(shell pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
