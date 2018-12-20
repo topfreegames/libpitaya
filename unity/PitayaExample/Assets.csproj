@@ -9,7 +9,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{710FD022-974F-E7F7-F02F-951247F03E86}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -54,7 +55,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\NewTestScript.cs" />
     <None Include="Assets\Assets.asmdef" />
     <None Include="Assets\Packages\protobuf.net35.3.5.1\lib\net35\Google.Protobuf.xml" />
     <Reference Include="UnityEngine.AIModule">

@@ -4,6 +4,9 @@
 [Bb]uild/
 [Bb]uilds/
 Assets/AssetStoreTools*
+JetBrains.meta
+JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll.meta
+
 
 # Visual Studio cache directory
 .vs/
