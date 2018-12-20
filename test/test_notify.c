@@ -73,6 +73,7 @@ test_reset(const MunitParameter params[], void *data)
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
 
         assert_int(flag_wait(&flag_notify, 60), ==, FLAG_SET);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
 
         pc_client_rm_ev_handler(g_client, handler);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
