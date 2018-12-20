@@ -9,7 +9,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
     <releaseNotes>Fix memory leaks and a bug where an unexpected disconnect error was sent when a connection error was the correct one.</releaseNotes>
-    <copyright>Copyright 2018</copyright>
+    <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
+    <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
       <dependency id="protobuf.net35" version="3.5.1" />
