@@ -19,8 +19,18 @@ static void
 event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2)
 {
     Unused(client); Unused(arg1); Unused(arg2);
-    assert_int(ev_type, ==, PC_EV_CONNECTED);
+
+    static int EVENTS[] = {
+        PC_EV_CONNECTED,
+        PC_EV_DISCONNECT,
+    };
+
     flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+
+    assert_int(num_called, <, ArrayCount(EVENTS));
+    assert_int(ev_type, ==, EVENTS[num_called]);
+
     flag_set(flag);
 }
 
@@ -82,6 +92,9 @@ do_test_session_persistence(pc_client_config_t *config, int port)
     assert_int(flag_wait(&session_cb_data.flag, 60), ==, FLAG_SET);
 
     pc_client_disconnect(g_client);
+
+    assert_int(flag_wait(&ev_flag, 60), ==, FLAG_SET);
+
     pc_client_rm_ev_handler(g_client, handler_id);
     pc_client_cleanup(g_client);
 
