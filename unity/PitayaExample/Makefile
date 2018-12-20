@@ -4,11 +4,11 @@ clean:
 	@rm -rf NugetOutput/*.nupkg
 
 build-mac: clean
-	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release 
+	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/mac/Pitaya.dll
 
 build-win: clean
-	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_WIN" /p:Configuration=Release 
+	@msbuild Pitaya.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_WIN" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/win/Pitaya.dll
 
 build-ios: clean
@@ -30,3 +30,8 @@ build-all: build-mac build-ios build-linux build-android build-win
 
 pack: build-all
 	@nuget pack NugetOutput/LibPitaya.nuspec -OutputDirectory NugetOutput
+
+UNITY_PATH=/Applications/Unity2018211f1/Unity.app/Contents/MacOS/Unity
+
+test:
+	${UNITY_PATH} -runTests -projectPath $(pwd) -testResults $(pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
