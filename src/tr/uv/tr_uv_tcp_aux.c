@@ -1052,14 +1052,17 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     tt->reconn_times = 0;
 
     if (is_compressed((unsigned char*)data, len)) {
-        char* uncompressed_data = (char*)pc_lib_malloc(1);
+        char* uncompressed_data = NULL;
         size_t uncompressed_len;
         pr_decompress((unsigned char**)&uncompressed_data, &uncompressed_len, (unsigned char*) data, len);
 
-        pc_lib_log(PC_LOG_INFO, "data: %.*s", uncompressed_len, uncompressed_data);
-        res = pc_JSON_Parse(uncompressed_data);
-        pc_lib_free(uncompressed_data);
-        
+        if (uncompressed_data) {
+            pc_lib_log(PC_LOG_INFO, "data: %.*s", uncompressed_len, uncompressed_data);
+            res = pc_JSON_Parse(uncompressed_data);
+            pc_lib_free(uncompressed_data);
+        } else {
+            pc_lib_log(PC_LOG_ERROR, "tcp__on_handshake_resp - failed to uncompress handshake data");
+        }
     } else {
         pc_lib_log(PC_LOG_INFO, "data: %.*s", len, data);
         res = pc_JSON_Parse(data);
