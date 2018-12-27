@@ -3,9 +3,7 @@ using System.Threading;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Pitaya.Json;
-using Protos;
-using SimpleJson;
+using Pitaya.SimpleJson;
 
 namespace Pitaya.Tests
 {

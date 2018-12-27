@@ -3,6 +3,7 @@ using System.Threading;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Pitaya.SimpleJson;
 
 namespace Pitaya.Tests
 {

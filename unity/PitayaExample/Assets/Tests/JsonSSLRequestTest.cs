@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SimpleJson;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Pitaya.SimpleJson;
 
 namespace Pitaya.Tests
 {

@@ -56,9 +56,9 @@ using System.Reflection.Emit;
 using System.Runtime.Serialization;
 #endif
 using System.Text;
-using SimpleJson.Reflection;
+using Pitaya.SimpleJson.Reflection;
 
-namespace SimpleJson
+namespace Pitaya.SimpleJson
 {
 	#region JsonArray
 	
@@ -467,7 +467,7 @@ namespace SimpleJson
 	#endregion
 }
 
-namespace SimpleJson
+namespace Pitaya.SimpleJson
 {
 	#region JsonParser
 	

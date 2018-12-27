@@ -17,6 +17,7 @@ namespace Pitaya {
             
             var go = new GameObject (typeof(MainQueueDispatcher).FullName);
             _instance = go.AddComponent<MainQueueDispatcher> ();
+            DontDestroyOnLoad(_instance.gameObject);
         }
 
         private void _DispatchAfter(float seconds, Action action)
@@ -27,7 +28,7 @@ namespace Pitaya {
         private static IEnumerator DispatchAfterProcess(float seconds, Action action)
         {
             yield return new WaitForSeconds(seconds);
-            action?.Invoke();
+            if (action != null ) action.Invoke();
         }
 
         [RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]

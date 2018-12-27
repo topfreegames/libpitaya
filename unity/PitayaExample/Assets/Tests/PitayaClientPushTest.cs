@@ -5,6 +5,7 @@ using Protos;
 using SimpleJson;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Pitaya.SimpleJson;
 
 namespace Pitaya.Tests
 {

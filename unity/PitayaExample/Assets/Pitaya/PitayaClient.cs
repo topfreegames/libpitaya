@@ -64,9 +64,21 @@ namespace Pitaya
         }
 
 
-        public int Quality => PitayaBinding.Quality(_client);
+        public int Quality
+        {
+            get {
+                return PitayaBinding.Quality(_client);  
+            }
+        }
+        
 
-        public PitayaClientState State => PitayaBinding.State(_client);
+        public PitayaClientState State
+        {
+            get {
+                return PitayaBinding.State(_client);
+            }
+              
+        } 
 
         public void Connect(string host, int port) 
         {
@@ -188,7 +200,7 @@ namespace Pitaya
 
         public void OnNetworkEvent(PitayaNetWorkState state)
         {
-            NetWorkStateChangedEvent?.Invoke(state);
+            if(NetWorkStateChangedEvent != null ) NetWorkStateChangedEvent.Invoke(state);
         }
 
         public void OnUserDefinedPush(string route, byte[] serializedBody)
@@ -209,10 +221,11 @@ namespace Pitaya
 
         public void Dispose()
         {
-            Debug.Log($"PitayaClient Disposed {_client}");
+            Debug.Log(string.Format("PitayaClient Disposed {0}", _client));
             if (_disposed)
                 return;
-            _eventManager?.Dispose();
+            
+            if(_eventManager != null ) _eventManager.Dispose();
 
             _reqUid = 0;
             PitayaBinding.Disconnect(_client);

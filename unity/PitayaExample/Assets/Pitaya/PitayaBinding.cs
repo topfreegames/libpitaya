@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Protos;
-using SimpleJson;
 
 //typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
 using NativeRequestCallback = System.Action<System.IntPtr, uint, System.IntPtr>;
@@ -150,12 +149,12 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                DLog($"request - failed to perform request {RcToStr(rc)}");
+                DLog(string.Format("request - failed to perform request {0}", RcToStr(rc)));
 
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
                 var listener = reference.Target as IPitayaListener;
-                listener?.OnRequestError(reqtId, new PitayaError(PitayaConstants.PitayaInternalError, "Failed to send request"));
+                if (listener != null) listener.OnRequestError(reqtId, new PitayaError(PitayaConstants.PitayaInternalError, "Failed to send request"));
             }
         }
 
@@ -205,7 +204,7 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                throw new Exception($"AddPineedPublicKeyFromCertificateString: {RcToStr(rc)}");
+                throw new Exception(string.Format("AddPineedPublicKeyFromCertificateString: {0}",RcToStr(rc)));
             }
 
             SkipKeyPinCheck(false);
@@ -218,7 +217,7 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                throw new Exception($"AddPineedPublicKeyFromCertificateFile: {RcToStr(rc)}");
+                throw new Exception(string.Format("AddPineedPublicKeyFromCertificateFile: {0}",RcToStr(rc)));
             }
 
             SkipKeyPinCheck(false);
@@ -322,7 +321,7 @@ namespace Pitaya
             var eName = Marshal.PtrToStringAnsi(e);
             var fileName = Marshal.PtrToStringAnsi(file);
 
-            Debug.LogAssertion($"{fileName}:{line} Failed assertion {eName}");
+            Debug.LogAssertion(string.Format("{0}:{1} Failed assertion {2}", fileName, line, eName));
         }
 
         [MonoPInvokeCallback(typeof(NativeErrorCallback))]
@@ -346,7 +345,7 @@ namespace Pitaya
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
                 var listener = reference.Target as IPitayaListener;
-                listener?.OnRequestError(rid, error);
+                if (listener != null) listener.OnRequestError(rid, error);
             });
         }
 
@@ -363,7 +362,7 @@ namespace Pitaya
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
                 var listener = reference.Target as IPitayaListener;
-                listener?.OnRequestResponse(rid, rawData);
+                if (listener != null) listener.OnRequestResponse(rid, rawData);
             });
         }
 
@@ -386,7 +385,7 @@ namespace Pitaya
 
             if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive)
             {
-                DLog($"OnEvent - no listener fond for client ev={client}");
+                DLog(string.Format("OnEvent - no listener fond for client ev={0}",client ));
                 return;
             }
 
@@ -394,24 +393,24 @@ namespace Pitaya
             MainQueueDispatcher.Dispatch(() =>
             {
                 var serializedBody = Encoding.UTF8.GetBytes(bodyStr);
-                listener?.OnUserDefinedPush(route, serializedBody);
+                if (listener != null) listener.OnUserDefinedPush(route, serializedBody);
             });
         }
 
         [MonoPInvokeCallback(typeof(NativeEventCallback))]
         private static void OnEvent(IntPtr client, int ev, IntPtr exData, IntPtr arg1Ptr, IntPtr arg2Ptr)
         {
-            DLog($"OnEvent - pinvoke callback START | ev={EvToStr(ev)} client={client}");
+            DLog(string.Format("OnEvent - pinvoke callback START | ev={0} client={1}",EvToStr(ev), client));
             if (arg1Ptr != IntPtr.Zero)
             {
-                DLog($"OnEvent - msg={Marshal.PtrToStringAnsi(arg1Ptr)}");
+                DLog(string.Format("OnEvent - msg={0}", Marshal.PtrToStringAnsi(arg1Ptr)));
             }
 
             WeakReference reference;
 
             if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive)
             {
-                DLog($"OnEvent - no listener fond for client ev={client}");
+                DLog(string.Format("OnEvent - no listener fond for client ev={0}",client));
                 return;
             }
 
@@ -422,26 +421,26 @@ namespace Pitaya
                 switch (ev)
                 {
                     case PitayaConstants.PcEvConnected:
-                        listener?.OnNetworkEvent(PitayaNetWorkState.Connected);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Connected);
                         break;
                     case PitayaConstants.PcEvConnectError:
-                        listener?.OnNetworkEvent(PitayaNetWorkState.FailToConnect);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.FailToConnect);
                         break;
                     case PitayaConstants.PcEvConnectFailed:
-                        listener?.OnNetworkEvent(PitayaNetWorkState.FailToConnect);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.FailToConnect);
                         break;
                     case PitayaConstants.PcEvDisconnect:
-                        listener?.OnNetworkEvent(PitayaNetWorkState.Disconnected);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected);
                         break;
                     case PitayaConstants.PcEvKickedByServer:
-                        listener?.OnNetworkEvent(PitayaNetWorkState.Kicked);
-                        listener?.OnNetworkEvent(PitayaNetWorkState.Disconnected);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Kicked);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected);
                         break;
                     case PitayaConstants.PcEvUnexpectedDisconnect:
-                        listener?.OnNetworkEvent(PitayaNetWorkState.Disconnected);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected);
                         break;
                     case PitayaConstants.PcEvProtoError:
-                        listener?.OnNetworkEvent(PitayaNetWorkState.Error);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Error);
                         break;
                 }
                 DLog("OnEvent - main thread END");
