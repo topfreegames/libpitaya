@@ -234,6 +234,7 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
     assert_int(items->len, ==, ArrayCount(expected_items));
     for (int i = 0; i < items->len; ++i) {
         assert_string_equal(items->data[i], expected_items[i]);
+        free(items->data[i]);
     }
     free(items->data);
     free(items);
@@ -270,6 +271,8 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
         free(npcs->data[i].value.name.arg);
         free(npcs->data[i].value.publicId.arg);
     }
+    free(npcs->data);
+    free(npcs);
 
     char *expected_chests[] = {
         "chchche",
@@ -291,6 +294,7 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
     assert_int(chests->len, ==, ArrayCount(expected_chests));
     for (int i = 0; i < chests->len; ++i) {
         assert_string_equal(chests->data[i], expected_chests[i]);
+        free(chests->data[i]);
     }
     free(chests->data);
     free(chests);

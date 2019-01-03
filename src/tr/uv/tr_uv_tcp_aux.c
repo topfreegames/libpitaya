@@ -56,8 +56,6 @@ void tcp__reset(tr_uv_tcp_transport_t* tt)
 
     pc_assert(tt);
 
-    tt->state = TR_UV_TCP_NOT_CONN;
-
     pc_pkg_parser_reset(&tt->pkg_parser);
 
     uv_timer_stop(&tt->hb_timeout_timer);
@@ -71,10 +69,18 @@ void tcp__reset(tr_uv_tcp_transport_t* tt)
     tt->is_waiting_hb = 0;
     tt->hb_rtt = -1;
 
+    pc_mutex_lock(&tt->serializer_mutex);
+    pc_lib_free((char*)tt->serializer);
+    tt->serializer = NULL;
+    pc_mutex_unlock(&tt->serializer_mutex);
+
     uv_read_stop((uv_stream_t* )&tt->socket);
 
-    if (tt->client->state != PC_ST_INITED
+    if (tt->state != TR_UV_TCP_NOT_CONN
             && !uv_is_closing((uv_handle_t*)&tt->socket)) {
+        // If the state is something other than not connected and the socket
+        // is not closing, we close the socket since it is potentially going to be called
+        // again in a reconnection.
         uv_close((uv_handle_t*)&tt->socket, NULL);
     }
 
@@ -119,6 +125,8 @@ void tcp__reset(tr_uv_tcp_transport_t* tt)
 
     pc_mutex_unlock(&tt->wq_mutex);
 
+    // Set internal state to not connected.
+    tt->state = TR_UV_TCP_NOT_CONN;
 }
 
 void tcp__reconn_delay_timer_cb(uv_timer_t* t)
@@ -249,6 +257,7 @@ void tcp__conn_async_cb(uv_async_t* t)
     hints.ai_socktype = SOCK_STREAM;
 
     uv_tcp_init(&tt->uv_loop, &tt->socket);
+
     tt->socket.data = tt;
 
     ret = getaddrinfo(tt->host, NULL, &hints, &ainfo);
@@ -287,6 +296,7 @@ void tcp__conn_async_cb(uv_async_t* t)
 
     addr = addr4 ? (struct sockaddr* )addr4 : (struct sockaddr* )addr6;
     tt->conn_req.data = tt;
+
     ret = uv_tcp_connect(&tt->conn_req, &tt->socket, addr, on_connection_done_cb);
 
     freeaddrinfo(ainfo);
@@ -707,13 +717,15 @@ void tcp__cleanup_async_cb(uv_async_t* a)
     // cleaned up.
     tt->conn_done_cb = NULL;
 
-    // Walk all handles in the loop closing each one of them.
-    // libuv will call for each handle the walk_cb function.
-    uv_walk(&tt->uv_loop, walk_cb, NULL);
-
     tcp__cleanup_pc_json(&tt->handshake_opts);
     tcp__cleanup_pc_json(&tt->route_to_code);
     tcp__cleanup_pc_json(&tt->code_to_route);
+
+    // Stop the loop and walk all handles in the loop closing each one of them.
+    // libuv will call for each handle the walk_cb function.
+    uv_stop(&tt->uv_loop);
+    uv_walk(&tt->uv_loop, walk_cb, NULL);
+    uv_run(&tt->uv_loop, UV_RUN_DEFAULT);
 }
 
 void tcp__disconnect_async_cb(uv_async_t* a)

@@ -559,17 +559,20 @@ static int pc__request_with_timeout(pc_client_t* client, const char* route,
 {
     if (!client || !route || !cb) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - invalid args");
+        pc_buf_free(&msg_buf);
         return PC_RC_INVALID_ARG;
     }
 
     int state = pc_client_state(client);
     if (state != PC_ST_CONNECTED && state != PC_ST_CONNECTING) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - invalid state, state: %s", pc_client_state_str(state));
+        pc_buf_free(&msg_buf);
         return PC_RC_INVALID_STATE;
     }
 
     if (timeout != PC_WITHOUT_TIMEOUT && timeout <= 0) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - timeout value is invalid");
+        pc_buf_free(&msg_buf);
         return PC_RC_INVALID_ARG;
     }
 
@@ -630,7 +633,7 @@ static int pc__request_with_timeout(pc_client_t* client, const char* route,
 
         pc_mutex_lock(&client->req_mutex);
 
-        pc_lib_free((char* )req->base.msg_buf.base);
+        pc_buf_free(&req->base.msg_buf);
         pc_lib_free((char* )req->base.route);
 
         req->base.msg_buf.base = NULL;
@@ -711,21 +714,24 @@ static int pc__notify_with_timeout(pc_client_t* client, const char* route, pc_bu
     int state;
 
     if (!client || !route || msg_buf.len == -1) {
+        pc_assert(msg_buf.base == NULL);
         pc_lib_log(PC_LOG_ERROR, "pc_notify_with_timeout - invalid args");
+        pc_buf_free(&msg_buf);
         return PC_RC_INVALID_ARG;
     }
 
     if (timeout != PC_WITHOUT_TIMEOUT && timeout <= 0) {
         pc_lib_log(PC_LOG_ERROR, "pc_notify_with_timeout - invalid timeout value");
+        pc_buf_free(&msg_buf);
         return PC_RC_INVALID_ARG;
     }
 
     state = pc_client_state(client);
     if(state != PC_ST_CONNECTED && state != PC_ST_CONNECTING) {
         pc_lib_log(PC_LOG_ERROR, "pc_request_with_timeout - invalid state, state: %s", pc_client_state_str(state));
+        pc_buf_free(&msg_buf);
         return PC_RC_INVALID_STATE;
     }
-
 
     pc_assert(client->trans && client->trans->send);
 
@@ -781,7 +787,7 @@ static int pc__notify_with_timeout(pc_client_t* client, const char* route, pc_bu
 
         pc_mutex_lock(&client->req_mutex);
 
-        pc_lib_free((char* )notify->base.msg_buf.base);
+        pc_buf_free(&notify->base.msg_buf);
         pc_lib_free((char* )notify->base.route);
 
         notify->base.msg_buf.base = NULL;
