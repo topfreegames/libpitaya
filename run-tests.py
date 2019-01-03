@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('--tests-dir', dest='tests_dir',
                         help='Where the test executable is located')
     parser.add_argument('--only-deps', dest='only_deps', action='store_true')
+    parser.add_argument('--leak-check', dest='leak_check', action='store_true')
     return parser.parse_known_args()
 
 
@@ -88,6 +89,14 @@ def run_tests(tests_dir):
     return code
 
 
+def run_leak_check(tests_dir):
+    os.chdir(tests_dir)
+    args = 'valgrind --tool=memcheck --leak-check=full --xml=yes --xml-file=leaks.xml ./{} {}'.format(TESTS_EXE, ' '.join(sys.argv))
+    code = subprocess.call(args, shell=True)
+    os.chdir(THIS_DIR)
+    return code
+
+
 def main():
     args, unknown_args = parse_args()
     sys.argv = unknown_args
@@ -110,7 +119,12 @@ def main():
         ensure_tests_executable(args.tests_dir)
         start_mock_servers(args.node_path)
         time.sleep(1)
-        code = run_tests(args.tests_dir)
+        if args.leak_check:
+            if sys.platform != 'linux':
+                raise Exception('Leak check can only be run under linux')
+            code = run_leak_check(args.tests_dir)
+        else:
+            code = run_tests(args.tests_dir)
         kill_all_servers()
         close_file_descriptors()
         exit(code)
