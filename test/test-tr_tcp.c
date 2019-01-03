@@ -200,6 +200,8 @@ test_invalid_disconnect(const MunitParameter params[], void *data)
 
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
 
+    assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+
     return MUNIT_OK;
 }
 
@@ -234,6 +236,7 @@ test_fails_to_connect_to_tls_server(const MunitParameter params[], void *data)
         assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
     }
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
+    assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 
     flag_cleanup(&flag);
     return MUNIT_OK;
@@ -270,6 +273,7 @@ test_unexpected_disconnect(const MunitParameter params[], void *data)
         assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
     }
     assert_int(pc_client_disconnect(g_client), ==, PC_RC_INVALID_STATE);
+    assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
 
     flag_cleanup(&flag);
     return MUNIT_OK;
