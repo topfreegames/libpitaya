@@ -91,7 +91,7 @@ def run_tests(tests_dir):
 
 def run_leak_check(tests_dir):
     os.chdir(tests_dir)
-    args = 'valgrind --tool=memcheck --leak-check=full --xml=yes --xml-file=leaks.xml ./{} {}'.format(TESTS_EXE, ' '.join(sys.argv))
+    args = 'valgrind --tool=memcheck --leak-check=full --xml=yes --xml-file=leaks.xml ./{} --no-fork {}'.format(TESTS_EXE, ' '.join(sys.argv))
     code = subprocess.call(args, shell=True)
     os.chdir(THIS_DIR)
     return code
