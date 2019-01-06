@@ -44,6 +44,7 @@ StreamingAssets.meta
 *.unitypackage
 *.nupkg
 JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll
+Pitaya.dll
 
 # Rider files
 *.DotSettings.user

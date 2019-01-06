@@ -194,8 +194,8 @@ PC_EXPORT void pc_update_client_info(pc_lib_client_info_t client_info);
 /**
  * Pins a public key globally for all clients.
  */
-PC_EXPORT int pc_lib_add_pinned_public_key_from_ca_string(const char *ca_string);
-PC_EXPORT int pc_lib_add_pinned_public_key_from_ca_file(const char *ca_path);
+PC_EXPORT int pc_lib_add_pinned_public_key_from_certificate_string(const char *ca_string);
+PC_EXPORT int pc_lib_add_pinned_public_key_from_certificate_file(const char *ca_path);
 PC_EXPORT void pc_lib_skip_key_pin_check(bool should_skip);
     
 /**
@@ -226,6 +226,9 @@ PC_EXPORT int pc_client_state(pc_client_t* client);
 PC_EXPORT int pc_client_conn_quality(pc_client_t* client);
 PC_EXPORT void* pc_client_trans_data(pc_client_t* client);
 PC_EXPORT const char *pc_client_serializer(pc_client_t *client);
+
+// Free serializer
+PC_EXPORT void pc_client_free_serializer(const char *serializer);
 
 /**
  * Event
