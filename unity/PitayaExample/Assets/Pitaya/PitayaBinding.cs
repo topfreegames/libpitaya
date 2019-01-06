@@ -532,8 +532,11 @@ namespace Pitaya
         [DllImport(LibName, EntryPoint = "pc_lib_clear_pinned_public_keys")]
         private static extern void NativeClearPinnedPublicKeys();
 
+#if UNITY_IPHONE && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern string _PitayaGetCFBundleVersion();
-
+#else
+        private static string _PitayaGetCFBundleVersion() { return "1"; }
+#endif
     }
 }
