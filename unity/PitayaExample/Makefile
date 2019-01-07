@@ -28,7 +28,10 @@ build-all: build-mac build-ios build-linux build-android build-win
 	@rm -rf NugetOutput/binaries/*
 	@cp -r Assets/Pitaya/Native NugetOutput/binaries
 
-pack: build-all
+copy-native-artifacts:
+	@cp -r Assets/Pitaya/Native/* NugetOutput/binaries/Native
+
+pack: build-all copy-native-artifacts
 	@nuget pack NugetOutput/LibPitaya.nuspec -OutputDirectory NugetOutput
 
 UNITY_PATH=/Applications/Unity2017416f1/Unity.app/Contents/MacOS/Unity
