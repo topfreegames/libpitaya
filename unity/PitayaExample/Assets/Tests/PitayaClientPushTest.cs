@@ -72,9 +72,6 @@ namespace Pitaya.Tests
             }
 
             var resp = (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string) sendPushResponse);
-            
-            
-            
 
             Assert.True(receivedPushResponse);
             Assert.NotNull(response);
@@ -90,8 +87,24 @@ namespace Pitaya.Tests
             var receivedPushResponse = false;
             object response = null;
             const string pushRoute = "some.push.route";
+            bool connectFinished = false;
+            bool connectOk = false;
 
             _client.Connect(ServerHost, ServerPort);
+
+            _client.NetWorkStateChangedEvent += (ev) =>
+            {
+                connectFinished = true;
+                if (ev == PitayaNetWorkState.Connected)
+                    connectOk = true;
+            };
+
+            while (!connectFinished)
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
+
+            Assert.True(connectOk);
 
             _client.OnRoute(pushRoute,
                 res => {
@@ -117,7 +130,8 @@ namespace Pitaya.Tests
                 }
             );
 
-            while(!requestFinished) {
+            while(!requestFinished)
+            {
                 yield return new WaitForSeconds(0.5f);
             }
 

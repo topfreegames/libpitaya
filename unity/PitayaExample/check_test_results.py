@@ -15,9 +15,10 @@ if total == 0:
     print("No tests were run")
     exit(0)
 
-print("Test results:")
+print("======= Test results =======")
 print("  * Passed: {}/{}".format(passed, total))
 print("  * Failed: {}/{}".format(failed, total))
+print("============================")
 
 if failed > 0:
     exit(1)
