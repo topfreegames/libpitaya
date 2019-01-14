@@ -73,7 +73,33 @@ namespace Pitaya
             NativeNotifyCallback = OnNotify;
             NativeErrorCallback = OnError;
 
-            NativeLibInit((int)_currentLogLevel, null, null, OnAssert, Application.platform.ToString(), BuildNumber(), Application.version);
+            string platform;
+            switch (Application.platform)
+            {
+                case RuntimePlatform.Android:
+                    platform = "android";
+                    break;
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                    platform = "linux";
+                    break;
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    platform = "windows";
+                    break;
+                case RuntimePlatform.IPhonePlayer:
+                    platform = "ios";
+                    break;
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                    platform = "mac";
+                    break;
+                default:
+                    platform = Application.platform.ToString();
+                    break;
+            }
+
+            NativeLibInit((int)_currentLogLevel, null, null, OnAssert, platform, BuildNumber(), Application.version);
         }
 
         private static string BuildNumber()
