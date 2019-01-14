@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>1.8.6</version>
+    <version>1.8.7</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Fix build for android by defining an unexisting symbol</releaseNotes>
+    <releaseNotes>Fix crash on iOS by linking dynamically with zlib. Standardize platform string sent to the server.</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
