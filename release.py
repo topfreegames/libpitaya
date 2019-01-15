@@ -26,6 +26,7 @@ def parse_args():
     parser_new = subparsers.add_parser('new', help='Build for Windows')
     parser_new.add_argument('version', help='The new version')
     parser_new.add_argument('--unity', help='If should create a new unity version', action='store_true')
+    parser_new.add_argument('--release-notes', dest='release_notes', help='Release notes to the unity release')
 
     return parser.parse_args(sys.argv[1:])
 
@@ -72,11 +73,16 @@ def save_new_version(version):
         f.write('#define PC_VERSION_SUFFIX "{}"'.format(suffix))
 
 
-def save_new_unity_version(version):
+def save_new_unity_version(version, release_notes):
     print('Saving new unity version: {}'.format(version))
     tree = xml.etree.ElementTree.parse(VERSION_FILE_UNITY)
     version_el = tree.getroot().find('metadata').find('version')
     version_el.text = version
+
+    if release_notes != None:
+        release_notes_el = tree.getroot().find('metadata').find('releaseNotes')
+        release_notes_el.text = release_notes
+
     tree.write(VERSION_FILE_UNITY, xml_declaration=True, encoding='utf-8')
 
 
@@ -129,7 +135,7 @@ def new_release(new_version):
     save_new_version(new_version)
 
 
-def new_release_unity(new_version):
+def new_release_unity(new_version, release_notes):
     curr_version = get_curr_version_unity()
 
     try:
@@ -141,7 +147,7 @@ def new_release_unity(new_version):
         print('invalid version string ({} <= {})'.format(new_version, curr_version))
         exit(1)
 
-    save_new_unity_version(new_version)
+    save_new_unity_version(new_version, release_notes)
 
 
 def main():
@@ -154,7 +160,7 @@ def main():
             check_release(args.against)
     elif args.command == 'new':
         if args.unity:
-            new_release_unity(args.version)
+            new_release_unity(args.version, args.release_notes)
         else:
             new_release(args.version)
 
