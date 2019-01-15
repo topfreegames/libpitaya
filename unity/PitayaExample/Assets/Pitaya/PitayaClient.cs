@@ -50,12 +50,12 @@ namespace Pitaya
             _typeRequestSubscriber = new TypeSubscriber<uint>();
             _typePushSubscriber = new TypeSubscriber<string>();
             _client = PitayaBinding.CreateClient(enableTlS, enablePolling, enableReconnect, connTimeout, this);
-            
+
             if (certificateName != null)
             {
-                PitayaBinding.SetCertificateName(certificateName);    
+                PitayaBinding.SetCertificateName(certificateName);
             }
-            
+
         }
 
         public static void SetLogLevel(PitayaLogLevel level)
@@ -63,7 +63,7 @@ namespace Pitaya
             PitayaBinding.SetLogLevel(level);
         }
 
-        public static void LogToFile(string path)
+        public static void DebugLogToFile(string path)
         {
             PitayaBinding.InitLog(path);
         }
@@ -93,7 +93,7 @@ namespace Pitaya
         {
             Request(route, (string)null, action, errorAction);
         }
-        
+
         public void Request<T>(string route, Action<T> action, Action<PitayaError> errorAction)
         {
             Request(route, null, action, errorAction);
@@ -119,7 +119,7 @@ namespace Pitaya
             _eventManager.AddCallBack(_reqUid, responseAction, errorAction);
 
             var serializer = PitayaBinding.ClientSerializer(_client);
-    
+
             PitayaBinding.Request(_client, route, ProtobufSerializer.Encode(msg, serializer), _reqUid, timeout);
         }
 
@@ -127,7 +127,7 @@ namespace Pitaya
         {
             _reqUid++;
             Action<object> responseAction = res => { action((string) res); };
-            
+
             _eventManager.AddCallBack(_reqUid, responseAction, errorAction);
 
             PitayaBinding.Request(_client, route,JsonSerializer.Encode(msg), _reqUid, timeout);
@@ -143,7 +143,7 @@ namespace Pitaya
             var serializer = PitayaBinding.ClientSerializer(_client);
             PitayaBinding.Notify(_client, route, ProtobufSerializer.Encode(msg,serializer), timeout);
         }
-        
+
         public void Notify(string route, string msg)
         {
             Notify(route, -1, msg);
@@ -153,9 +153,9 @@ namespace Pitaya
         {
             PitayaBinding.Notify(_client, route, JsonSerializer.Encode(msg), timeout);
         }
-        
+
         public void OnRoute(string route, Action<string> action)
-        {   
+        {
             Action<object> responseAction = res => { action((string) res); };
             _eventManager.AddOnRouteEvent(route, responseAction);
         }
@@ -165,7 +165,7 @@ namespace Pitaya
         {
             _typePushSubscriber.Subscribe(route, typeof(T));
             Action<object> responseAction = res => { action((T) res); };
-            
+
             _eventManager.AddOnRouteEvent(route, responseAction);
         }
 
@@ -187,7 +187,7 @@ namespace Pitaya
             if (_typeRequestSubscriber.HasType(rid))
             {
                 var type = _typeRequestSubscriber.GetType(rid);
-                decoded = ProtobufSerializer.Decode(data, type, PitayaBinding.ClientSerializer(_client));   
+                decoded = ProtobufSerializer.Decode(data, type, PitayaBinding.ClientSerializer(_client));
             }
             else
             {
@@ -228,7 +228,7 @@ namespace Pitaya
             Debug.Log(string.Format("PitayaClient Disposed {0}", _client));
             if (_disposed)
                 return;
-            
+
             if(_eventManager != null ) _eventManager.Dispose();
 
             _reqUid = 0;
