@@ -63,24 +63,28 @@ namespace Pitaya
             PitayaBinding.SetLogLevel(level);
         }
 
+        public static void LogToFile(string path)
+        {
+            PitayaBinding.InitLog(path);
+        }
 
         public int Quality
         {
             get {
-                return PitayaBinding.Quality(_client);  
+                return PitayaBinding.Quality(_client);
             }
         }
-        
+
 
         public PitayaClientState State
         {
             get {
                 return PitayaBinding.State(_client);
             }
-              
-        } 
 
-        public void Connect(string host, int port) 
+        }
+
+        public void Connect(string host, int port)
         {
             PitayaBinding.Connect(_client, host, port);
         }

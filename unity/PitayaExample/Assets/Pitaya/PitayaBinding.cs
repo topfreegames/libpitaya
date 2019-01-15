@@ -102,6 +102,15 @@ namespace Pitaya
             NativeLibInit((int)_currentLogLevel, null, null, OnAssert, platform, BuildNumber(), Application.version);
         }
 
+        public static void InitLog(string path)
+        {
+            int rc = NativeInitLog(path);
+            if (rc != 0)
+            {
+                throw new Exception(string.Format("Cannot initialize path, invalid log file {0}", path));
+            }
+        }
+
         private static string BuildNumber()
         {
             switch (Application.platform)
@@ -230,7 +239,7 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                throw new Exception(string.Format("AddPineedPublicKeyFromCertificateString: {0}",RcToStr(rc)));
+                throw new Exception(string.Format("AddPineedPublicKeyFromCertificateString: {0}", RcToStr(rc)));
             }
 
             SkipKeyPinCheck(false);
@@ -243,7 +252,7 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                throw new Exception(string.Format("AddPineedPublicKeyFromCertificateFile: {0}",RcToStr(rc)));
+                throw new Exception(string.Format("AddPineedPublicKeyFromCertificateFile: {0}", RcToStr(rc)));
             }
 
             SkipKeyPinCheck(false);
@@ -411,7 +420,7 @@ namespace Pitaya
 
             if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive)
             {
-                DLog(string.Format("OnEvent - no listener fond for client ev={0}",client ));
+                DLog(string.Format("OnEvent - no listener fond for client ev={0}", client));
                 return;
             }
 
@@ -426,7 +435,7 @@ namespace Pitaya
         [MonoPInvokeCallback(typeof(NativeEventCallback))]
         private static void OnEvent(IntPtr client, int ev, IntPtr exData, IntPtr arg1Ptr, IntPtr arg2Ptr)
         {
-            DLog(string.Format("OnEvent - pinvoke callback START | ev={0} client={1}",EvToStr(ev), client));
+            DLog(string.Format("OnEvent - pinvoke callback START | ev={0} client={1}", EvToStr(ev), client));
             if (arg1Ptr != IntPtr.Zero)
             {
                 DLog(string.Format("OnEvent - msg={0}", Marshal.PtrToStringAnsi(arg1Ptr)));
@@ -436,7 +445,7 @@ namespace Pitaya
 
             if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive)
             {
-                DLog(string.Format("OnEvent - no listener fond for client ev={0}",client));
+                DLog(string.Format("OnEvent - no listener fond for client ev={0}", client));
                 return;
             }
 
@@ -492,6 +501,9 @@ namespace Pitaya
 
         [DllImport(LibName, EntryPoint = "pc_unity_lib_init")]
         private static extern void NativeLibInit(int logLevel, string caFile, string caPath, NativeAssertCallback assert, string platform, string buildNumber, string version);
+
+        [DllImport(LibName, EntryPoint = "pc_unity_init_log")]
+        private static extern int NativeInitLog(string path);
 
         [DllImport(LibName, EntryPoint = "pc_lib_set_default_log_level")]
         private static extern void NativeLibSetLogLevel(int logLevel);
