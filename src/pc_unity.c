@@ -34,7 +34,7 @@
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN  ,"cspitaya", __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR ,"cspitaya", __VA_ARGS__)
 
-static void 
+static void
 android_log(int level, const char* msg, ...)
 {
     char buf[256];
@@ -72,7 +72,7 @@ android_log(int level, const char* msg, ...)
 
 static FILE *f = NULL;
 
-static void 
+static void
 unity_log(int level, const char *msg, ...)
 {
     if (!f) {
@@ -111,10 +111,11 @@ unity_log(int level, const char *msg, ...)
     va_end(va);
 
     fprintf(f, "\n");
+    fflush(f);
 }
 #endif
 
-int 
+int
 pc_unity_init_log(const char *path)
 {
 #if defined(__UNITYEDITOR__)
@@ -126,7 +127,7 @@ pc_unity_init_log(const char *path)
     return 0;
 }
 
-void 
+void
 pc_unity_native_log(const char *msg)
 {
     if (!msg || strlen(msg) == 0) {
@@ -146,8 +147,8 @@ typedef struct {
     uint32_t cbid;
 } request_cb_t;
 
-static void 
-default_request_cb(const pc_request_t *req, const pc_buf_t *resp) 
+static void
+default_request_cb(const pc_request_t *req, const pc_buf_t *resp)
 {
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
     pc_client_t* client = pc_request_client(req);
@@ -158,8 +159,8 @@ default_request_cb(const pc_request_t *req, const pc_buf_t *resp)
     r.cb(client, r.cbid, resp);
 }
 
-static void 
-default_error_cb(const pc_request_t *req, const pc_error_t *error) 
+static void
+default_error_cb(const pc_request_t *req, const pc_error_t *error)
 {
     request_cb_t* rp = (request_cb_t*)pc_request_ex_data(req);
     pc_client_t* client = pc_request_client(req);
@@ -174,11 +175,11 @@ void pc_unity_update_client_info( const char* platform, const char* build_number
     client_info.platform = platform;
     client_info.build_number = build_number;
     client_info.version = version;
-    
+
     pc_update_client_info(client_info);
 }
 
-void 
+void
 pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, const char* platform, const char* build_number,const char* version) {
     if (custom_assert != NULL) {
         update_assert(custom_assert);
@@ -205,7 +206,7 @@ pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_un
 #endif
 }
 
-pc_client_t * 
+pc_client_t *
 pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect, int conn_timeout) {
     pc_assert(conn_timeout >= 0);
     pc_client_init_result_t res = {0};
@@ -226,8 +227,8 @@ pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect, int co
     return NULL;
 }
 
-void 
-pc_unity_destroy(pc_client_t *client) 
+void
+pc_unity_destroy(pc_client_t *client)
 {
     lc_callback_t* lc_cb;
 
@@ -235,7 +236,7 @@ pc_unity_destroy(pc_client_t *client)
     if (f) fclose(f);
     f = NULL;
 #endif
-    
+
     if (client) {
         lc_cb = (lc_callback_t*)pc_client_config(client)->ls_ex_data;
         if (lc_cb) {
@@ -247,8 +248,8 @@ pc_unity_destroy(pc_client_t *client)
 
 int
 pc_unity_request(pc_client_t* client, const char* route, const char* msg,
-                 uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb, 
-                 pc_unity_request_error_callback_t error_cb) 
+                 uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb,
+                 pc_unity_request_error_callback_t error_cb)
 {
     request_cb_t* rp = (request_cb_t*)pc_lib_malloc(sizeof(request_cb_t));
     if (!rp) {

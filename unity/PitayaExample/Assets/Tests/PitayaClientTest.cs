@@ -1,8 +1,6 @@
 ﻿using System.Collections;
-using System.IO;
 using System.Threading;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Pitaya.SimpleJson;
@@ -16,8 +14,6 @@ namespace Pitaya.Tests
         private const int ServerPort = 3251;
 
         private Thread _mainThread;
-
-        private const string TestLogFile = "my-test-log-file.txt";
 
         [SetUp]
         public void Setup()
@@ -48,8 +44,7 @@ namespace Pitaya.Tests
             var called = false;
             var connectionState = PitayaNetWorkState.Disconnected;
 
-            _client.NetWorkStateChangedEvent += networkState =>
-            {
+            _client.NetWorkStateChangedEvent += networkState => {
                 called = true;
                 connectionState = networkState;
                 Assert.AreEqual(_mainThread, Thread.CurrentThread);
@@ -57,8 +52,7 @@ namespace Pitaya.Tests
 
             _client.Connect(ServerHost, ServerPort);
 
-            while (!called)
-            {
+            while(!called) {
                 yield return new WaitForSeconds(0.5f);
             }
 
@@ -73,8 +67,7 @@ namespace Pitaya.Tests
             var called = false;
             var connectionState = PitayaNetWorkState.Disconnected;
 
-            _client.NetWorkStateChangedEvent += networkState =>
-            {
+            _client.NetWorkStateChangedEvent += networkState => {
                 called = true;
                 connectionState = networkState;
                 Assert.AreEqual(_mainThread, Thread.CurrentThread);
@@ -85,8 +78,7 @@ namespace Pitaya.Tests
 
             _client.Connect(wrongServer, wrongPort);
 
-            while (!called)
-            {
+            while (!called) {
                 yield return new WaitForSeconds(0.5f);
             }
 
@@ -104,8 +96,7 @@ namespace Pitaya.Tests
             // Start with some initial value different from DISCONNECTED
             var connectionState = PitayaNetWorkState.Error;
 
-            _client.NetWorkStateChangedEvent += networkState =>
-            {
+            _client.NetWorkStateChangedEvent += networkState => {
                 called = true;
                 connectionState = networkState;
                 Assert.AreEqual(_mainThread, Thread.CurrentThread);
@@ -113,50 +104,12 @@ namespace Pitaya.Tests
 
             _client.Connect(ServerHost, unauthorizedPort);
 
-            while (!called)
-            {
+            while(!called) {
                 yield return new WaitForSeconds(0.5f);
             }
 
             Assert.True(called);
             Assert.AreEqual(PitayaNetWorkState.FailToConnect, connectionState);
-        }
-
-        [UnityTest]
-        public IEnumerator NativeLogsCanBeSendToAFile()
-        {
-            PitayaClient.SetLogLevel(PitayaLogLevel.Debug);
-            PitayaClient.LogToFile(TestLogFile);
-
-            var called = false;
-            var connectionState = PitayaNetWorkState.Disconnected;
-
-            _client.NetWorkStateChangedEvent += networkState =>
-            {
-                called = true;
-                connectionState = networkState;
-                Assert.AreEqual(_mainThread, Thread.CurrentThread);
-            };
-
-            _client.Connect(ServerHost, ServerPort);
-
-            while (!called)
-            {
-                yield return new WaitForSeconds(0.5f);
-            }
-
-            Assert.True(called);
-            Assert.AreEqual(connectionState, PitayaNetWorkState.Connected);
-            Assert.AreEqual(_client.State, PitayaClientState.Connected);
-
-            Assert.True(File.Exists(TestLogFile));
-
-            // NOTE: this code forces the log file to be flushed to disk. This will ensure that when we read the
-            // file its contents will be larger than zero.
-            _client.Dispose();
-            _client = null;
-
-            Assert.Greater(File.ReadAllText(TestLogFile).Length, 0);
         }
     }
 }
