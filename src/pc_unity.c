@@ -70,6 +70,7 @@ android_log(int level, const char* msg, ...)
 
 #if defined(__UNITYEDITOR__)
 
+static int g_using_stdout = false;
 static FILE *f = NULL;
 
 static void
@@ -118,7 +119,16 @@ unity_log(int level, const char *msg, ...)
 int
 pc_unity_init_log(const char *path)
 {
+    // If the client gives a null pointer, the function
+    // should log to stdout.
 #if defined(__UNITYEDITOR__)
+    if (!path) {
+        f = stdout;
+        g_using_stdout = true;
+        return 0;
+    }
+
+    g_using_stdout = false;
     f = fopen(path, "w");
     if (!f) {
         return -1;
@@ -233,7 +243,10 @@ pc_unity_destroy(pc_client_t *client)
     lc_callback_t* lc_cb;
 
 #if defined(__UNITYEDITOR__)
-    if (f) fclose(f);
+    if (f && !g_using_stdout) {
+        fclose(f);
+    }
+    g_using_stdout = false;
     f = NULL;
 #endif
 

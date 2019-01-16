@@ -35,7 +35,7 @@ pc_buf_t pc_body_json_encode(pc_buf_t buf, bool *was_body_compressed)
     // TODO, NOTE(leo): This check could be more specialized. For example, the compressed buffer is only used if it 
     // is at least 30% smaller than the original buffer.
     if (out_buf.len >= buf.len) {
-        pc_lib_log(PC_LOG_ERROR, "pc_body_json_encode - compressed is larger (%d > %d)", out_buf.len, buf.len);
+        pc_lib_log(PC_LOG_DEBUG, "pc_body_json_encode - compressed is larger (%d > %d)", out_buf.len, buf.len);
         pc_buf_free(&out_buf); // free the buffers, since it will not be used.
         if (was_body_compressed) *was_body_compressed = false;
         return pc_buf_copy(&buf);
