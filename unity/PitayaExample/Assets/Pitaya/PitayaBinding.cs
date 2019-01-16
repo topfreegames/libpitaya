@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
+using Pitaya;
 using Protos;
 
 //typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
@@ -19,6 +20,8 @@ internal delegate void NativeEventCallback(IntPtr client, int ev, IntPtr exData,
 internal delegate void NativePushCallback(IntPtr client, IntPtr route, IntPtr payloadBuffer);
 
 internal delegate void NativeAssertCallback(IntPtr e, IntPtr file, int line);
+
+public delegate void NativeLogFunction(PitayaLogLevel level, string msg);
 
 #pragma warning disable 649
 internal struct PitayaBindingError
@@ -99,15 +102,16 @@ namespace Pitaya
                     break;
             }
 
+            SetLogFunction(LogFunction);
             NativeLibInit((int)_currentLogLevel, null, null, OnAssert, platform, BuildNumber(), Application.version);
         }
 
-        public static void InitLog(string path)
+        private static void SetLogFunction(NativeLogFunction fn)
         {
-            int rc = NativeInitLog(path);
+            int rc = NativeInitLogFunction(fn);
             if (rc != 0)
             {
-                throw new Exception(string.Format("Cannot initialize path, invalid log file {0}", path));
+                throw new Exception("Cannot initialize log function");
             }
         }
 
@@ -216,7 +220,6 @@ namespace Pitaya
 
         public static void Dispose(IntPtr client)
         {
-
             NativeRemoveEventHandler(client, EventHandlersIds[client]);
 
             Listeners.Remove(client);
@@ -483,6 +486,29 @@ namespace Pitaya
             DLog("OnEvent - pinvoke callback END");
         }
 
+        [MonoPInvokeCallback(typeof(NativeLogFunction))]
+        private static void LogFunction(PitayaLogLevel level, string msg)
+        {
+            switch (level)
+            {
+                case PitayaLogLevel.Debug:
+                    Debug.Log("[DEBUG] " + msg);
+                    break;
+                case PitayaLogLevel.Info:
+                    Debug.Log("[INFO] " + msg);
+                    break;
+                case PitayaLogLevel.Warn:
+                    Debug.Log("[WARN] " + msg);
+                    break;
+                case PitayaLogLevel.Error:
+                    Debug.Log("[ERROR] " + msg);
+                    break;
+                case PitayaLogLevel.Disable:
+                    // Don't do anything
+                    break;
+            }
+        }
+
 #if (UNITY_IPHONE || UNITY_XBOX360) && !UNITY_EDITOR
         private const string LibName = "__Internal";
 #elif (UNITY_ANDROID) && !UNITY_EDITOR
@@ -501,9 +527,6 @@ namespace Pitaya
 
         [DllImport(LibName, EntryPoint = "pc_unity_lib_init")]
         private static extern void NativeLibInit(int logLevel, string caFile, string caPath, NativeAssertCallback assert, string platform, string buildNumber, string version);
-
-        [DllImport(LibName, EntryPoint = "pc_unity_init_log")]
-        private static extern int NativeInitLog(string path);
 
         [DllImport(LibName, EntryPoint = "pc_lib_set_default_log_level")]
         private static extern void NativeLibSetLogLevel(int logLevel);
@@ -570,6 +593,8 @@ namespace Pitaya
         [DllImport(LibName, EntryPoint = "pc_lib_clear_pinned_public_keys")]
         private static extern void NativeClearPinnedPublicKeys();
 
+        [DllImport(LibName, EntryPoint = "pc_unity_init_log_function")]
+        private static extern int NativeInitLogFunction(NativeLogFunction fn);
 #if UNITY_IPHONE && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern string _PitayaGetCFBundleVersion();

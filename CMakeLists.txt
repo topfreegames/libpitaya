@@ -45,7 +45,6 @@ set(pitaya_headers
     src/pc_trans_repo.h
     src/queue.h
     include/pc_assert.h
-    include/pitaya_unity.h
     include/pitaya.h
     include/pitaya_trans.h
     src/tr/uv/pr_gzip.h

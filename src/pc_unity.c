@@ -7,17 +7,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
 
 #include "pitaya.h"
 #include "pc_assert.h"
 #include "pc_lib.h"
-#include "pitaya_unity.h"
-
-#define __UNITYEDITOR__
-
-#ifdef __UNITYEDITOR__
-#include <time.h>
-#endif
 
 #ifdef _WIN32
 #define CS_PITAYA_EXPORT __declspec(dllexport)
@@ -25,125 +19,47 @@
 #define CS_PITAYA_EXPORT
 #endif
 
-#if defined(__ANDROID__)
-#undef __UNITYEDITOR__
-#include <android/log.h>
-#define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "cspitaya", __VA_ARGS__)
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG ,"cspitaya", __VA_ARGS__)
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO  ,"cspitaya", __VA_ARGS__)
-#define LOGW(...) __android_log_print(ANDROID_LOG_WARN  ,"cspitaya", __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR ,"cspitaya", __VA_ARGS__)
+typedef void (*pc_unity_log_function_t)(int, char*);
+typedef void (*pc_unity_request_success_callback_t)(pc_client_t* client, uint32_t cbid, const pc_buf_t* resp);
+typedef void (*pc_unity_request_error_callback_t)(pc_client_t* client, uint32_t cbid, const pc_error_t* error);
+typedef void (*pc_unity_assert_t)(const char *e, const char *file, int line);
+
+static pc_unity_log_function_t g_log_function = NULL;
 
 static void
-android_log(int level, const char* msg, ...)
+custom_log(int level, const char *msg, ...)
 {
-    char buf[256];
-    va_list va;
+    if (g_log_function == NULL) {
+        return;
+    }
 
     if (level < 0 || level < pc_lib_get_default_log_level() ) {
         return;
     }
 
-    va_start(va, msg);
-    vsnprintf(buf, 256, msg, va);
-    va_end(va);
-
-    switch(level) {
-        case PC_LOG_DEBUG:
-            LOGD("%s", buf);
-            break;
-        case PC_LOG_INFO:
-            LOGI("%s", buf);
-            break;
-        case PC_LOG_WARN:
-            LOGW("%s", buf);
-            break;
-        case PC_LOG_ERROR:
-            LOGE("%s", buf);
-            break;
-        default:
-            LOGV("%s", buf);
-    }
-}
-
-#endif
-
-#if defined(__UNITYEDITOR__)
-
-static int g_using_stdout = false;
-static FILE *f = NULL;
-
-static void
-unity_log(int level, const char *msg, ...)
-{
-    if (!f) {
-        return;
-    }
+    const int max_size_for_time = 32;
+    char log_buf[256];
 
     time_t t = time(NULL);
-    char buf[32];
+    int bytes_written = strftime(log_buf, max_size_for_time, "[%Y-%m-%d %H:%M:%S]", localtime(&t));
+
     va_list va;
-    int n;
-
-    if (level < 0 || level < pc_lib_get_default_log_level() ) {
-        return;
-    }
-
-    n = strftime(buf, 32, "[%Y-%m-%d %H:%M:%S]", localtime(&t));
-    fwrite(buf, sizeof(char), n, f);
-
-    switch(level) {
-        case PC_LOG_DEBUG:
-            fprintf(f, "U[DEBUG] ");
-            break;
-        case PC_LOG_INFO:
-            fprintf(f, "U[INFO] ");
-            break;
-        case PC_LOG_WARN:
-            fprintf(f, "U[WARN] ");
-            break;
-        case PC_LOG_ERROR:
-            fprintf(f, "U[ERROR] ");
-            break;
-    }
-
     va_start(va, msg);
-    vfprintf(f, msg, va);
+    vsnprintf(log_buf + bytes_written, 256-bytes_written, msg, va);
     va_end(va);
 
-    fprintf(f, "\n");
-    fflush(f);
+    g_log_function(level, log_buf);
 }
-#endif
 
-int
-pc_unity_init_log(const char *path)
+CS_PITAYA_EXPORT int
+pc_unity_init_log_function(pc_unity_log_function_t log_function)
 {
-    // If the client gives a null pointer, the function
-    // should log to stdout.
-#if defined(__UNITYEDITOR__)
-    if (!path) {
-        f = stdout;
-        g_using_stdout = true;
-        return 0;
-    }
-
-    g_using_stdout = false;
-    f = fopen(path, "w");
-    if (!f) {
+    if (log_function == NULL) {
         return -1;
     }
-#endif
-    return 0;
-}
 
-void
-pc_unity_native_log(const char *msg)
-{
-    if (!msg || strlen(msg) == 0) {
-        return;
-    }
-//    pc_lib_log(PC_LOG_DEBUG, msg);
+    g_log_function = log_function;
+    return 0;
 }
 
 typedef struct {
@@ -180,7 +96,9 @@ default_error_cb(const pc_request_t *req, const pc_error_t *error)
     r.error_cb(client, r.cbid, error);
 }
 
-void pc_unity_update_client_info( const char* platform, const char* build_number,const char* version) {
+CS_PITAYA_EXPORT void 
+pc_unity_update_client_info( const char* platform, const char* build_number,const char* version)
+{
     pc_lib_client_info_t client_info;
     client_info.platform = platform;
     client_info.build_number = build_number;
@@ -189,8 +107,9 @@ void pc_unity_update_client_info( const char* platform, const char* build_number
     pc_update_client_info(client_info);
 }
 
-void
-pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, const char* platform, const char* build_number,const char* version) {
+CS_PITAYA_EXPORT void
+pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_unity_assert_t custom_assert, const char* platform, const char* build_number,const char* version) 
+{
     if (custom_assert != NULL) {
         update_assert(custom_assert);
     }
@@ -201,13 +120,8 @@ pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_un
     client_info.version = version;
 
     pc_lib_set_default_log_level(log_level);
-#if defined(__ANDROID__)
-    pc_lib_init(android_log, NULL, NULL, NULL, client_info);
-#elif defined(__UNITYEDITOR__)
-    pc_lib_init(unity_log, NULL, NULL, NULL, client_info);
-#else
-    pc_lib_init(NULL, NULL, NULL, NULL, client_info);
-#endif
+
+    pc_lib_init(custom_log, NULL, NULL, NULL, client_info);
 
 #if !defined(PC_NO_UV_TLS_TRANS)
     if (ca_file || ca_path) {
@@ -216,7 +130,7 @@ pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_un
 #endif
 }
 
-pc_client_t *
+CS_PITAYA_EXPORT pc_client_t *
 pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect, int conn_timeout) {
     pc_assert(conn_timeout >= 0);
     pc_client_init_result_t res = {0};
@@ -237,18 +151,10 @@ pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect, int co
     return NULL;
 }
 
-void
+CS_PITAYA_EXPORT void
 pc_unity_destroy(pc_client_t *client)
 {
     lc_callback_t* lc_cb;
-
-#if defined(__UNITYEDITOR__)
-    if (f && !g_using_stdout) {
-        fclose(f);
-    }
-    g_using_stdout = false;
-    f = NULL;
-#endif
 
     if (client) {
         lc_cb = (lc_callback_t*)pc_client_config(client)->ls_ex_data;
@@ -259,7 +165,7 @@ pc_unity_destroy(pc_client_t *client)
     }
 }
 
-int
+CS_PITAYA_EXPORT int
 pc_unity_request(pc_client_t* client, const char* route, const char* msg,
                  uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb,
                  pc_unity_request_error_callback_t error_cb)
@@ -275,7 +181,7 @@ pc_unity_request(pc_client_t* client, const char* route, const char* msg,
     return pc_string_request_with_timeout(client, route, msg, rp, timeout, default_request_cb, default_error_cb);
 }
 
-int
+CS_PITAYA_EXPORT int
 pc_unity_binary_request(pc_client_t* client, const char* route, uint8_t* data,
                  int64_t len, uint32_t cbid, int timeout, pc_unity_request_success_callback_t cb,
                  pc_unity_request_error_callback_t error_cb)

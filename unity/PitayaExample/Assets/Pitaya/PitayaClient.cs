@@ -63,11 +63,6 @@ namespace Pitaya
             PitayaBinding.SetLogLevel(level);
         }
 
-        public static void DebugLogToFile(string path)
-        {
-            PitayaBinding.InitLog(path);
-        }
-
         public int Quality
         {
             get {
