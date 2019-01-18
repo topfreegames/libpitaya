@@ -77,8 +77,7 @@ The binaries for windows will then be located at `_builds/linux/pitaya-linux.so`
 * Note, however, that the chosen options can be changed if you need a different combination. For example, you can easily build statically on linux if you want. Take the Make target as an example.
 
 
-Tests
-=====
+## Tests
 
 In order to run the tests, you need [node](https://nodejs.org) installed. Running the tests are done by running the following script in the root folder:
 ```bash
@@ -98,7 +97,7 @@ You can also pass command line options, for example:
 ./run-tests.py --tests-dir <tests-executable-directory> /tls
 ```
 
-You can also run the tests directly through the executable. The problem is that the mock servers will not be started, therefore some tests will fail. You can avoid that by manually starting the servers located in `test/mock-servers` using `node`.
+You can also run the tests directly through the executable. The problem is that the mock servers will not be started, therefore some tests will fail. You can avoid that by manually starting the servers located in `test/mock-servers` using `./run-tests.py --only-deps`.
 
 ## Contribution
 Libpitaya contributions should be done by making a Pull Request from a different branch.
@@ -184,3 +183,17 @@ Having done this, you can now run the tests using the run-tests.py script. If th
 ### Csharp lib contribution
 
 For more information, please look in [this](Assets/Pitaya/README.md) document.
+
+## Gotchas for mobile
+
+When using libpitaya on mobile, it is important to understand some aspects of its behaviour on Android and iOS.
+A pitaya client will always create a background thread that runs a libuv instance. The behaviour of this thread is different on iOS and Android.
+
+#### iOS
+When the application minimizes (goes to background), the pitaya thread will completely stop. This means that it will stop checking for hearbeats and also stop sending heartbeats. It will also stop any kind of pending requests for example. When the app goes back into foreground, the thread will start again. Since the thread stops, the server will stop receiving heartbeats from the client and may disconnect it if the heartbeat timeout passes, so depending on the heartbeat timeout configured by the server, making the app go to background may force the server to disconnect the client.
+
+#### Android
+The same scenario on Android does not block the thread, but it's quite the opposite. When the app is minimized the thread will continue running even though the app is in background. Since the thread is still sending heartbeats, the connection will not be dropped by the server. This could be a problem since the user might not wish to have the thread still alive while the app is in background.
+
+#### A possible solution
+If a consistent behaviour for Android and iOS is meant to be achieved, the default behaviour for both platforms will not make this possible. A possible solution is to force a disconnect when the app minimizes regardless of the platform. This disconnection can be triggered instantly or after X amount of seconds, for example. When the app is again in foreground a new connection can be created.
