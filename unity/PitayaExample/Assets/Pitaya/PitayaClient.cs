@@ -65,17 +65,13 @@ namespace Pitaya
 
         public int Quality
         {
-            get {
-                return PitayaBinding.Quality(_client);
-            }
+            get { return PitayaBinding.Quality(_client); }
         }
 
 
         public PitayaClientState State
         {
-            get {
-                return PitayaBinding.State(_client);
-            }
+            get { return PitayaBinding.State(_client); }
 
         }
 
@@ -99,7 +95,7 @@ namespace Pitaya
             Request(route, msg, -1, action, errorAction);
         }
 
-        public void Request<T>(string route,IMessage msg, Action<T> action, Action<PitayaError> errorAction)
+        public void Request<T>(string route, IMessage msg, Action<T> action, Action<PitayaError> errorAction)
         {
             Request(route, msg, -1, action, errorAction);
         }
