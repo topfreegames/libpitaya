@@ -469,6 +469,7 @@ test_request_encoding(const MunitParameter params[], void *data)
 
         // assert_true(ev_cb_called);
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
         pc_client_rm_ev_handler(g_client, handler);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
         flag_cleanup(&flag_req);
@@ -565,6 +566,8 @@ test_error_decoding(const MunitParameter params[], void *data)
         assert_int(flag_wait(&flag_req, 60), ==, FLAG_SET);
 
         assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+        assert_int(flag_wait(&flag_evs, 60), ==, FLAG_SET);
+
         pc_client_rm_ev_handler(g_client, handler);
         assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
         flag_cleanup(&flag_req);
