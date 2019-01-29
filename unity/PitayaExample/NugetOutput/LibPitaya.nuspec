@@ -13,7 +13,7 @@
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
-      <dependency id="protobuf.net35" version="3.5.1" />
+      <dependency id="TFG.Protobuff35" version="3.6.1" />
     </dependencies>
 
   </metadata>
