@@ -292,7 +292,7 @@
       <HintPath>./Assets/NuGet/Editor/DotNetZip.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>./Assets/Packages/protobuf.net35.3.5.1/lib/net35/Google.Protobuf.dll</HintPath>
+      <HintPath>./Assets/Packages/TFG.Protobuff35.3.6.1/lib/net35/Google.Protobuf.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
