@@ -182,7 +182,7 @@ Having done this, you can now run the tests using the run-tests.py script. If th
 
 ### Csharp lib contribution
 
-For more information, please look in [this](Assets/Pitaya/README.md) document.
+For more information, please look in [this](unity/PitayaExample/README.md) document.
 
 ## Gotchas for mobile
 
