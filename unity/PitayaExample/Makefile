@@ -2,6 +2,7 @@ clean:
 	@rm -rf Temp/bin/Release
 	@rm -rf obj
 	@rm -rf NugetOutput/*.nupkg
+	@rm -rf NugetOutput/binaries
 
 build-mac: clean
 	@msbuild Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release
@@ -24,15 +25,10 @@ build-android: clean
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/android/Pitaya.dll
 
 build-all: build-mac build-ios build-linux build-android build-win
-	@mkdir -p NugetOutput/binaries
-	@rm -rf NugetOutput/binaries/*
 	@cp -r Assets/Pitaya/Native NugetOutput/binaries
 
-copy-native-artifacts:
-	@cp -r Assets/Pitaya/Native/* NugetOutput/binaries/Native
-
-pack: build-all copy-native-artifacts
-	@nuget pack NugetOutput/LibPitaya.nuspec -OutputDirectory NugetOutput
+pack: build-all
+	@nuget pack LibPitaya.nuspec -OutputDirectory NugetOutput
 
 UNITY_PATH=/Applications/Unity2017416f1/Unity.app/Contents/MacOS/Unity
 

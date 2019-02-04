@@ -53,3 +53,5 @@ Pitaya.dll
 # Debug files
 leaks.xml
 test-results-playmode.xml
+
+NugetOutput/binaries

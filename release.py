@@ -11,7 +11,7 @@ import xml.etree.ElementTree
 
 THIS_DIR = abspath(dirname(__file__))
 VERSION_FILE = join(THIS_DIR, 'include', 'pitaya_version.h')
-VERSION_FILE_UNITY = join(THIS_DIR, 'unity', 'PitayaExample', 'NugetOutput', 'LibPitaya.nuspec')
+VERSION_FILE_UNITY = join(THIS_DIR, 'unity', 'PitayaExample', 'LibPitaya.nuspec')
 
 
 def parse_args():

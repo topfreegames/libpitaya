@@ -15,12 +15,10 @@
     <dependencies>
       <dependency id="TFG.Protobuff35" version="3.6.1" />
     </dependencies>
-
   </metadata>
   <files>
-
-        <file src="binaries/**/*.*" target="" />
-        <file src="lib/**" target="" />
-        <file src="Unity/**" target="" />
-    </files>
+    <file src="Assets/Pitaya/Native/**/*.*" target="Native" />
+    <file src="NugetOutput/lib/**" target="" />
+    <file src="NugetOutput/Unity/**" target="" />
+  </files>
 </package>
