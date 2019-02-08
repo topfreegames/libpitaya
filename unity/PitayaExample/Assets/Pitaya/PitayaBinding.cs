@@ -284,17 +284,11 @@ namespace Pitaya
 
         private static string FindCertPathFromName(string name)
         {
-            string certPath;
+            string certPath = Path.Combine(Application.streamingAssetsPath, name);
 
-            if (Application.platform == RuntimePlatform.IPhonePlayer)
+            if (Application.platform == RuntimePlatform.Android)
             {
-                certPath = Application.dataPath + "/Raw/" + name;
-            }
-            else if (Application.platform == RuntimePlatform.Android)
-            {
-                certPath = "jar:file://" + Application.dataPath + "!/assets/" + name;
-
-                var persistentPath = Application.persistentDataPath + "/" + name;
+                var persistentPath = Path.Combine(Application.persistentDataPath, name);
 
                 if (!PlayerPrefs.HasKey(persistentPath))
                 {
@@ -305,10 +299,6 @@ namespace Pitaya
                 }
 
                 certPath = persistentPath;
-            }
-            else
-            {
-                certPath = Application.dataPath + "/StreamingAssets/" + name;
             }
 
             return certPath;
