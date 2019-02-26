@@ -79,7 +79,7 @@ static void request_cb(const pc_request_t* req, const pc_buf_t *resp)
     [[NSNotificationCenter defaultCenter] postNotificationName:@"gotResponse" object:NULL userInfo:@{@"message": [NSString stringWithCString:resp->base]}];
 }
 
-static void error_cb(const pc_request_t* req, pc_error_t *error)
+static void error_cb(const pc_request_t* req, const pc_error_t *error)
 {
     NSLog(@"Error %d %@", error->code, [NSString stringWithCString:error->payload.base]);
 }
@@ -102,11 +102,10 @@ static void error_cb(const pc_request_t* req, pc_error_t *error)
 }
 
 - (IBAction)requestButtonClicked:(id)sender {
-    int i = 0;
     for(NSValue *value in self.clients){
         pc_client_t* client;
         [value getValue:&client];
-        pc_string_request_with_timeout(client, [@"data.redisHandler.get" cString], [@"{\"key\":\"test\"}" cString], NULL, 10, request_cb, error_cb);
+        pc_string_request_with_timeout(client, "connector.getsessiondata", "{\"key\":\"test\"}", NULL, 15, request_cb, error_cb);
     }
 }
 

@@ -4,14 +4,17 @@ PODS:
   - Pitaya (0.0.1):
     - libuv (~> 1.4.0)
     - OpenSSL-Universal (~> 1.0.2.13)
+  - Protobuf (3.6.1)
 
 DEPENDENCIES:
   - Pitaya (from `../../`)
+  - Protobuf
 
 SPEC REPOS:
-  "git@git.topfreegames.com:libs-frameworks/cocoapods-specs.git":
+  https://github.com/cocoapods/specs.git:
     - libuv
     - OpenSSL-Universal
+    - Protobuf
 
 EXTERNAL SOURCES:
   Pitaya:
@@ -21,7 +24,8 @@ SPEC CHECKSUMS:
   libuv: 8497e469e7918518052d895945a4b17e6dbb088e
   OpenSSL-Universal: 401888162f11c33ebbd46f782d9229da35c61327
   Pitaya: 34a57cfb04c457fa9cca1ac01668778a36a33144
+  Protobuf: 1eb9700044745f00181c136ef21b8ff3ad5a0fd5
 
-PODFILE CHECKSUM: 244e639dbb40a857341541f8ffdf38ea75ca7fa7
+PODFILE CHECKSUM: 068c9d44d058f94bba5a52c7c29f898b37489bbe
 
 COCOAPODS: 1.5.3

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0784B155A086EB302DED83D9 /* libPods-PitayaClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10658BD7632A9AE5B3DA3470 /* libPods-PitayaClient.a */; };
 		172C660F2087E05E0072EEC2 /* Pitaya.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 172C660E2087E05E0072EEC2 /* Pitaya.podspec */; };
 		174AD62F207BF58400C2D521 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 174AD62E207BF58400C2D521 /* AppDelegate.m */; };
 		174AD632207BF58400C2D521 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 174AD631207BF58400C2D521 /* ViewController.m */; };
@@ -15,11 +14,24 @@
 		174AD637207BF58400C2D521 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 174AD636207BF58400C2D521 /* Assets.xcassets */; };
 		174AD63A207BF58400C2D521 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 174AD638207BF58400C2D521 /* LaunchScreen.storyboard */; };
 		174AD63D207BF58400C2D521 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 174AD63C207BF58400C2D521 /* main.m */; };
+		179CA79922255E7F002DC4C5 /* PitayaClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 179CA78E22254F4A002DC4C5 /* PitayaClientTests.m */; };
+		179CA7A0222561BE002DC4C5 /* SessionData.m in Sources */ = {isa = PBXBuildFile; fileRef = 179CA79F222561BE002DC4C5 /* SessionData.m */; };
 		17AB7C9721304536008F6B83 /* ca_root.crt in Resources */ = {isa = PBXBuildFile; fileRef = 17AB7C9621304535008F6B83 /* ca_root.crt */; };
+		8C75B09D3B5EAD976F9C038F /* libPods-common-PitayaClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A331092ED51DB8F18DCB8795 /* libPods-common-PitayaClient.a */; };
+		ACB3219B68E3FDE669A895E2 /* libPods-common-PitayaClientTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62EF094BAF65771CCE251067 /* libPods-common-PitayaClientTests.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		179CA79122254F4A002DC4C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 174AD622207BF58400C2D521 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 174AD629207BF58400C2D521;
+			remoteInfo = PitayaClient;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		10658BD7632A9AE5B3DA3470 /* libPods-PitayaClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PitayaClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		172C660E2087E05E0072EEC2 /* Pitaya.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Pitaya.podspec; path = ../../Pitaya.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		174AD62A207BF58400C2D521 /* PitayaClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PitayaClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		174AD62D207BF58400C2D521 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -31,9 +43,19 @@
 		174AD639207BF58400C2D521 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		174AD63B207BF58400C2D521 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		174AD63C207BF58400C2D521 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		179CA78722254A66002DC4C5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		179CA78C22254F4A002DC4C5 /* PitayaClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PitayaClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		179CA78E22254F4A002DC4C5 /* PitayaClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PitayaClientTests.m; sourceTree = "<group>"; };
+		179CA79022254F4A002DC4C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		179CA79E222561BE002DC4C5 /* SessionData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SessionData.h; sourceTree = "<group>"; };
+		179CA79F222561BE002DC4C5 /* SessionData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SessionData.m; sourceTree = "<group>"; };
 		17AB7C9621304535008F6B83 /* ca_root.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ca_root.crt; sourceTree = "<group>"; };
-		349B7CC291DACB82999D58D0 /* Pods-PitayaClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PitayaClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-PitayaClient/Pods-PitayaClient.release.xcconfig"; sourceTree = "<group>"; };
-		3AE52631FEC6F39AACE5D6A9 /* Pods-PitayaClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PitayaClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PitayaClient/Pods-PitayaClient.debug.xcconfig"; sourceTree = "<group>"; };
+		46F21EF151A2181E2350DC44 /* Pods-common-PitayaClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-common-PitayaClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-common-PitayaClient/Pods-common-PitayaClient.release.xcconfig"; sourceTree = "<group>"; };
+		62EF094BAF65771CCE251067 /* libPods-common-PitayaClientTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-common-PitayaClientTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A331092ED51DB8F18DCB8795 /* libPods-common-PitayaClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-common-PitayaClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAD2FA329385B2DDF6B597B9 /* Pods-common-PitayaClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-common-PitayaClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-common-PitayaClient/Pods-common-PitayaClient.debug.xcconfig"; sourceTree = "<group>"; };
+		CED8DC2D4A72E137760F01F4 /* Pods-common-PitayaClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-common-PitayaClientTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-common-PitayaClientTests/Pods-common-PitayaClientTests.release.xcconfig"; sourceTree = "<group>"; };
+		E004108DBDCAB30BB1AEDF43 /* Pods-common-PitayaClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-common-PitayaClientTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-common-PitayaClientTests/Pods-common-PitayaClientTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,7 +63,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0784B155A086EB302DED83D9 /* libPods-PitayaClient.a in Frameworks */,
+				8C75B09D3B5EAD976F9C038F /* libPods-common-PitayaClient.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		179CA78922254F4A002DC4C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ACB3219B68E3FDE669A895E2 /* libPods-common-PitayaClientTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -51,11 +81,13 @@
 		174AD621207BF58400C2D521 = {
 			isa = PBXGroup;
 			children = (
+				179CA78722254A66002DC4C5 /* README.md */,
 				172C660E2087E05E0072EEC2 /* Pitaya.podspec */,
 				174AD62C207BF58400C2D521 /* PitayaClient */,
+				179CA78D22254F4A002DC4C5 /* PitayaClientTests */,
 				174AD62B207BF58400C2D521 /* Products */,
-				DCB05BB40E2A7E6B8000277E /* Pods */,
-				98B3D5DA3360F9F6344D03E1 /* Frameworks */,
+				18B220AC1D7980A9C073AECB /* Pods */,
+				80725167314589822BBB27A3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -63,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				174AD62A207BF58400C2D521 /* PitayaClient.app */,
+				179CA78C22254F4A002DC4C5 /* PitayaClientTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,21 +117,35 @@
 			path = PitayaClient;
 			sourceTree = "<group>";
 		};
-		98B3D5DA3360F9F6344D03E1 /* Frameworks */ = {
+		179CA78D22254F4A002DC4C5 /* PitayaClientTests */ = {
 			isa = PBXGroup;
 			children = (
-				10658BD7632A9AE5B3DA3470 /* libPods-PitayaClient.a */,
+				179CA78E22254F4A002DC4C5 /* PitayaClientTests.m */,
+				179CA79E222561BE002DC4C5 /* SessionData.h */,
+				179CA79F222561BE002DC4C5 /* SessionData.m */,
+				179CA79022254F4A002DC4C5 /* Info.plist */,
 			);
-			name = Frameworks;
+			path = PitayaClientTests;
 			sourceTree = "<group>";
 		};
-		DCB05BB40E2A7E6B8000277E /* Pods */ = {
+		18B220AC1D7980A9C073AECB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3AE52631FEC6F39AACE5D6A9 /* Pods-PitayaClient.debug.xcconfig */,
-				349B7CC291DACB82999D58D0 /* Pods-PitayaClient.release.xcconfig */,
+				BAD2FA329385B2DDF6B597B9 /* Pods-common-PitayaClient.debug.xcconfig */,
+				46F21EF151A2181E2350DC44 /* Pods-common-PitayaClient.release.xcconfig */,
+				E004108DBDCAB30BB1AEDF43 /* Pods-common-PitayaClientTests.debug.xcconfig */,
+				CED8DC2D4A72E137760F01F4 /* Pods-common-PitayaClientTests.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		80725167314589822BBB27A3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A331092ED51DB8F18DCB8795 /* libPods-common-PitayaClient.a */,
+				62EF094BAF65771CCE251067 /* libPods-common-PitayaClientTests.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -108,7 +155,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 174AD640207BF58400C2D521 /* Build configuration list for PBXNativeTarget "PitayaClient" */;
 			buildPhases = (
-				F25901BFEBA13FBA1C15F643 /* [CP] Check Pods Manifest.lock */,
+				130B7D21279DD9A04142FA9B /* [CP] Check Pods Manifest.lock */,
 				174AD626207BF58400C2D521 /* Sources */,
 				174AD627207BF58400C2D521 /* Frameworks */,
 				174AD628207BF58400C2D521 /* Resources */,
@@ -122,6 +169,25 @@
 			productReference = 174AD62A207BF58400C2D521 /* PitayaClient.app */;
 			productType = "com.apple.product-type.application";
 		};
+		179CA78B22254F4A002DC4C5 /* PitayaClientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 179CA79322254F4A002DC4C5 /* Build configuration list for PBXNativeTarget "PitayaClientTests" */;
+			buildPhases = (
+				CF143DF7D079C699C181BA0E /* [CP] Check Pods Manifest.lock */,
+				179CA78822254F4A002DC4C5 /* Sources */,
+				179CA78922254F4A002DC4C5 /* Frameworks */,
+				179CA78A22254F4A002DC4C5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				179CA79222254F4A002DC4C5 /* PBXTargetDependency */,
+			);
+			name = PitayaClientTests;
+			productName = PitayaClientTests;
+			productReference = 179CA78C22254F4A002DC4C5 /* PitayaClientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -134,6 +200,11 @@
 					174AD629207BF58400C2D521 = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Manual;
+					};
+					179CA78B22254F4A002DC4C5 = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 174AD629207BF58400C2D521;
 					};
 				};
 			};
@@ -151,6 +222,7 @@
 			projectRoot = "";
 			targets = (
 				174AD629207BF58400C2D521 /* PitayaClient */,
+				179CA78B22254F4A002DC4C5 /* PitayaClientTests */,
 			);
 		};
 /* End PBXProject section */
@@ -168,21 +240,54 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		179CA78A22254F4A002DC4C5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		F25901BFEBA13FBA1C15F643 /* [CP] Check Pods Manifest.lock */ = {
+		130B7D21279DD9A04142FA9B /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			inputFileListPaths = (
 			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-PitayaClient-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-common-PitayaClient-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CF143DF7D079C699C181BA0E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-common-PitayaClientTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -202,7 +307,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		179CA78822254F4A002DC4C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				179CA79922255E7F002DC4C5 /* PitayaClientTests.m in Sources */,
+				179CA7A0222561BE002DC4C5 /* SessionData.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		179CA79222254F4A002DC4C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 174AD629207BF58400C2D521 /* PitayaClient */;
+			targetProxy = 179CA79122254F4A002DC4C5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		174AD633207BF58400C2D521 /* Main.storyboard */ = {
@@ -330,7 +452,7 @@
 		};
 		174AD641207BF58400C2D521 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3AE52631FEC6F39AACE5D6A9 /* Pods-PitayaClient.debug.xcconfig */;
+			baseConfigurationReference = BAD2FA329385B2DDF6B597B9 /* Pods-common-PitayaClient.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
@@ -347,7 +469,7 @@
 		};
 		174AD642207BF58400C2D521 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 349B7CC291DACB82999D58D0 /* Pods-PitayaClient.release.xcconfig */;
+			baseConfigurationReference = 46F21EF151A2181E2350DC44 /* Pods-common-PitayaClient.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
@@ -359,6 +481,47 @@
 				PROVISIONING_PROFILE = "30d91c0f-64c3-4c7b-a78e-54a7965a0c68";
 				PROVISIONING_PROFILE_SPECIFIER = "Dev Top Free Games";
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		179CA79422254F4A002DC4C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E004108DBDCAB30BB1AEDF43 /* Pods-common-PitayaClientTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = PitayaClientTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tfg.PitayaClientTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PitayaClient.app/PitayaClient";
+			};
+			name = Debug;
+		};
+		179CA79522254F4A002DC4C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CED8DC2D4A72E137760F01F4 /* Pods-common-PitayaClientTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = PitayaClientTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tfg.PitayaClientTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PitayaClient.app/PitayaClient";
 			};
 			name = Release;
 		};
@@ -379,6 +542,15 @@
 			buildConfigurations = (
 				174AD641207BF58400C2D521 /* Debug */,
 				174AD642207BF58400C2D521 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		179CA79322254F4A002DC4C5 /* Build configuration list for PBXNativeTarget "PitayaClientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				179CA79422254F4A002DC4C5 /* Debug */,
+				179CA79522254F4A002DC4C5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

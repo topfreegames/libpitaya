@@ -1,8 +1,15 @@
 platform :ios, '8.0'
 
-source 'git@git.topfreegames.com:libs-frameworks/cocoapods-specs.git'
+source 'https://github.com/CocoaPods/Specs.git'
 
-target 'PitayaClient' do
+
+
+abstract_target 'common' do
   pod 'Pitaya', path: '../../'
-
+  target 'PitayaClient' do
+  end
+  target 'PitayaClientTests' do
+      pod 'Protobuf'
+  end
+  
 end
