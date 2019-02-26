@@ -114,4 +114,6 @@ d.data_p = @"This is a message";
 pc_binary_notify_with_timeout(client, "connector.notifysessiondata", [d.data bytes] ,[d.data length], NULL, 15, notify_error_cb);
 ```
 
+### The test server
 
+The source code for the test server used in  this example is [here](https://github.com/topfreegames/libpitaya/tree/master/pitaya-servers)
