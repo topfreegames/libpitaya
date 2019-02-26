@@ -11,6 +11,7 @@
 #include "tr_uv_tls.h"
 #include "tr_uv_tls_i.h"
 #include "tr_uv_tls_aux.h"
+#include "crypto.h"
 
 pc_transport_t* tr_uv_tls_create(pc_transport_plugin_t* plugin)
 {
@@ -47,61 +48,15 @@ void tr_uv_tls_release(pc_transport_plugin_t* plugin, pc_transport_t* trans)
     pc_lib_free(trans);
 }
 
-/*
- * the initilization code for openssl lib is extracted from nodejs
- */
-static uv_rwlock_t* locks;
-static int n;
-
-static void crypto_lock_cb(int mode, int n, const char* file, int line)
-{
-    pc_assert((mode & CRYPTO_LOCK) || (mode & CRYPTO_UNLOCK));
-    pc_assert((mode & CRYPTO_READ) || (mode & CRYPTO_WRITE));
-
-    if (mode & CRYPTO_LOCK) {
-        if (mode & CRYPTO_READ)
-            uv_rwlock_rdlock(locks + n);
-        else
-            uv_rwlock_wrlock(locks + n);
-    } else {
-        if (mode & CRYPTO_READ)
-            uv_rwlock_rdunlock(locks + n);
-        else
-            uv_rwlock_wrunlock(locks + n);
-    }
-}
-
-static void crypto_lock_init(void)
-{
-    int i;
-
-    n = CRYPTO_num_locks();
-    locks = (uv_rwlock_t* )pc_lib_malloc(n * sizeof(uv_rwlock_t));
-
-    for (i = 0; i < n; i++)
-        uv_rwlock_init(locks + i);
-}
-
-static void crypto_threadid_cb(CRYPTO_THREADID* tid)
-{
-    CRYPTO_THREADID_set_numeric(tid, (unsigned long)uv_thread_self());
-}
-
 void tr_uv_tls_plugin_on_register(pc_transport_plugin_t* plugin)
 {
     tr_uv_tls_transport_plugin_t* pl;
     tr_uv_tcp_plugin_on_register(plugin);
 
-    SSL_load_error_strings();
     ERR_load_BIO_strings();
-    SSL_library_init();
-
-    crypto_lock_init();
-    CRYPTO_set_locking_callback(crypto_lock_cb);
-    CRYPTO_THREADID_set_callback(crypto_threadid_cb);
 
     pl = (tr_uv_tls_transport_plugin_t* )plugin;
-    pl->ctx = SSL_CTX_new(TLSv1_2_client_method());
+    pl->ctx = SSL_CTX_new(TLS_client_method());
     if (!pl->ctx) {
         pc_lib_log(PC_LOG_ERROR, "tr_uv_tls_plugin_on_register - tls error: %s",
                 ERR_error_string(ERR_get_error(), NULL));
@@ -117,11 +72,6 @@ void tr_uv_tls_plugin_on_deregister(pc_transport_plugin_t* plugin)
         SSL_CTX_free(pl->ctx);
         pl->ctx = NULL;
     }
-
-    for (i = 0; i < n; i++)
-        uv_rwlock_destroy(locks + i);
-
-    pc_lib_free(locks);
 
     tr_uv_tcp_plugin_on_deregister(plugin);
 }

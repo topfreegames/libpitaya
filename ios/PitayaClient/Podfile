@@ -1,7 +1,5 @@
 platform :ios, '8.0'
 
-source 'git@git.topfreegames.com:libs-frameworks/cocoapods-specs.git'
-
 target 'PitayaClient' do
   pod 'Pitaya', path: '../../'
 
