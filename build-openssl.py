@@ -136,7 +136,7 @@ def android_build(ndk_dir, openssl_temp_dir, prefix):
     set_envs(ndk_dir, toolchain_dir)
 
     call_shell(
-        'cd {} && ./Configure android-armv7 --prefix={}'.format(
+        'cd {} && ./Configure android-armeabi --prefix={}'.format(
             openssl_temp_dir, prefix))
 
     build(openssl_temp_dir)
