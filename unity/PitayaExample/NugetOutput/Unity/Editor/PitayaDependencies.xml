@@ -1,5 +1,5 @@
 <dependencies>
   <iosPods>
-    <iosPod name="OpenSSL-Universal" version="~> 1.0.1.l"/>
+    <iosPod name="OpenSSL-TFG" version="~> 1.1.1a"/>
   </iosPods>
 </dependencies>
