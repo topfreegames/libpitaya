@@ -160,7 +160,10 @@ target_compile_definitions(pitaya
 
 if(WIN32)
     target_link_libraries(pitaya
-      PRIVATE uv_a)
+      PRIVATE
+        uv_a
+        # NOTE: CRYPT32.LIB is necessary in order to compile with OpenSSL 1.1
+        CRYPT32.LIB)
 elseif(ANDROID)
     find_package(Threads REQUIRED)
     target_link_libraries(pitaya
