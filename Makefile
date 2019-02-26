@@ -52,9 +52,8 @@ clean-docker-container:
 
 build-linux-docker: clean-docker-container
 	@docker build -t libpitaya .
-	@docker run --name libpitaya libpitaya:latest
-	@mkdir -p _builds/linux
-	@docker cp `docker ps -aqf "name=libpitaya"`:/app/_builds/linux/libpitaya-linux.so _builds/linux
+	@mkdir -p _builds
+	@docker run -v $(shell pwd):/app/ --name libpitaya libpitaya:latest
 	@$(MAKE) clean-docker-container
 
 .PHONY: build
