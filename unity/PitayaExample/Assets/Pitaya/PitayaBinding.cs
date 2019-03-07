@@ -410,7 +410,8 @@ namespace Pitaya
         {
             var route = Marshal.PtrToStringAnsi(routePtr);
             var buffer = (PitayaBuffer)Marshal.PtrToStructure(payloadBufferPtr, typeof(PitayaBuffer));
-            var bodyStr = Marshal.PtrToStringAnsi(buffer.Data, (int)buffer.Len);
+            var rawData = new byte[buffer.Len];
+            Marshal.Copy(buffer.Data, rawData, 0, (int)buffer.Len);
 
             WeakReference reference;
 
@@ -423,8 +424,7 @@ namespace Pitaya
             var listener = reference.Target as IPitayaListener;
             MainQueueDispatcher.Dispatch(() =>
             {
-                var serializedBody = Encoding.UTF8.GetBytes(bodyStr);
-                if (listener != null) listener.OnUserDefinedPush(route, serializedBody);
+                if (listener != null) listener.OnUserDefinedPush(route, rawData);
             });
         }
 
