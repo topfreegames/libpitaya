@@ -325,7 +325,7 @@ namespace Pitaya
             Dictionary<string, string> metadata;
             if (json.ContainsKey("metadata"))
             {
-                metadata = (Dictionary<string, string>)json["metadata"];
+                metadata = json["metadata"].DeserializeObject<Dictionary<string, string>>(jsonStr);
             }
             else
             {
