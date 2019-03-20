@@ -55,7 +55,6 @@ namespace Pitaya
             {
                 PitayaBinding.SetCertificateName(certificateName);
             }
-
         }
 
         public static void SetLogLevel(PitayaLogLevel level)

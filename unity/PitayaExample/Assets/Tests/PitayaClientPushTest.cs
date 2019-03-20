@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Threading;
 using NUnit.Framework;
-using Protos;
-using SimpleJson;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Pitaya.SimpleJson;

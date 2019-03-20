@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Threading;
 using NUnit.Framework;
-using SimpleJson;
 using UnityEngine;
 using UnityEngine.TestTools;
 

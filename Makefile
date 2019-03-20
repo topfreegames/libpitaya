@@ -1,4 +1,4 @@
-ANDROID_TOOLCHAIN_FILE = ../temp/android-ndk-r17b/build/cmake/android.toolchain.cmake
+ANDROID_TOOLCHAIN_FILE = temp/android-ndk-r17b/build/cmake/android.toolchain.cmake
 
 setup-mac:
 	@brew install ninja

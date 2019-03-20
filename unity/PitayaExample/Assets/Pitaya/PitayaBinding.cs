@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Pitaya;
+using Pitaya.SimpleJson;
 using Protos;
 
 //typedef void (*request_callback)(pc_client_t* client, unsigned int cbid, const char* resp);
@@ -325,7 +326,8 @@ namespace Pitaya
             Dictionary<string, string> metadata;
             if (json.ContainsKey("metadata"))
             {
-                metadata = (Dictionary<string, string>)json["metadata"];
+                metadata = (Dictionary<string, string>)SimpleJson.SimpleJson.CurrentJsonSerializerStrategy.DeserializeObject(json["metadata"],
+                    typeof(Dictionary<string, string>), new Dictionary<string, string>());
             }
             else
             {
