@@ -2,8 +2,12 @@
 
 import xml.etree.ElementTree
 import sys
+import os
 
 filepath = sys.argv[1]
+
+if not os.path.exists(filepath):
+    exit(1)
 
 e = xml.etree.ElementTree.parse(filepath).getroot()
 
