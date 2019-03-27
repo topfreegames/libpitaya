@@ -30,7 +30,7 @@ build-all: build-mac build-ios build-linux build-android build-win
 pack: build-all
 	@nuget pack LibPitaya.nuspec -OutputDirectory NugetOutput
 
-UNITY_PATH=/Applications/Unity2017416f1/Unity.app/Contents/MacOS/Unity
+UNITY_PATH=/Applications/Unity201836f1/Unity.app/Contents/MacOS/Unity
 
 test:
 	${UNITY_PATH} -runTests -projectPath $(shell pwd) -testResults $(shell pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
