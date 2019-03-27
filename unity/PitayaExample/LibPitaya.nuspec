@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>First release that gives full support to Unity2018 and drops support for Unity2017. It updates Protobuf to the official package in version 3.7, and updates the native library to use OpenSSL 1.1.1 (newest LTS version)</releaseNotes>
+    <releaseNotes>First release that gives full support to Unity2018 and drops support for Unity2017. It updates Protobuf to the official package in version 3.7, and updates the native library to use OpenSSL 1.1.1 (newest LTS version). Include libraries for net45</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
