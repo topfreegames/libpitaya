@@ -25,6 +25,11 @@ build-mac:
 	@cmake -H. -B_builds/mac -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
 	@cmake --build _builds/mac
 
+build-mac-xcode:
+	@rm -rf _builds/mac-xcode
+	@cmake -H. -B_builds/mac-xcode -GXcode -DBUILD_MACOS_BUNDLE=ON
+	@cmake --build _builds/mac-xcode --config Release
+
 build-linux:
 	@rm -rf _builds/linux
 	@cmake -H. -B_builds/linux -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
