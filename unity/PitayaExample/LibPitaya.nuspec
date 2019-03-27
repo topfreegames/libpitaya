@@ -20,6 +20,7 @@
     <file src="Assets/link.xml" target="" />
     <file src="Assets/Pitaya/Native/**/*.*" target="Native" />
     <file src="NugetOutput/lib/**" target="lib/netstandard2.0" />
+    <file src="NugetOutput/lib/**" target="lib/net45" />
     <file src="NugetOutput/Unity/**" target="" />
   </files>
 </package>
