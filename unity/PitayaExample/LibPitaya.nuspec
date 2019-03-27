@@ -2,23 +2,23 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>1.10.5</version>
+    <version>1.11.0</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Fixed an error where an error with metadata would crash the client</releaseNotes>
+    <releaseNotes>First release that gives full support to Unity2018 and drops support for Unity2017. It also updates Protobuf to the official package in version 3.7.</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
-      <dependency id="TFG.Protobuff35" version="3.6.1" />
+      <dependency id="Google.Protobuf" version="3.7.0" />
     </dependencies>
   </metadata>
   <files>
     <file src="Assets/Pitaya/Native/**/*.*" target="Native" />
-    <file src="NugetOutput/lib/**" target="" />
+    <file src="NugetOutput/lib/**" target="lib/netstandard2.0" />
     <file src="NugetOutput/Unity/**" target="" />
   </files>
 </package>
