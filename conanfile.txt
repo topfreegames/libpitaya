@@ -1,5 +1,5 @@
 [requires]
-OpenSSL/1.0.2q@conan/stable
+OpenSSL/1.1.1b@conan/stable
 zlib/1.2.11@conan/stable
 
 [generators]
