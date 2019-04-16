@@ -74,9 +74,15 @@ namespace Pitaya
 
         }
 
-        public void Connect(string host, int port)
+        public void Connect(string host, int port, string handshakeOpts = null)
         {
-            PitayaBinding.Connect(_client, host, port);
+            PitayaBinding.Connect(_client, host, port, handshakeOpts);
+        }
+
+        public void Connect(string host, int port, Dictionary<string, string> handshakeOpts)
+        {
+            var opts = Pitaya.SimpleJson.SimpleJson.SerializeObject(handshakeOpts);
+            PitayaBinding.Connect(_client, host, port, opts);
         }
 
         public void Request(string route, Action<string> action, Action<PitayaError> errorAction)

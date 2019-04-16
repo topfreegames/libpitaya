@@ -279,6 +279,69 @@ test_unexpected_disconnect(const MunitParameter params[], void *data)
     return MUNIT_OK;
 }
 
+static void
+test_connection_with_options_event_cb(pc_client_t* client,
+                                      int ev_type,
+                                      void* ex_data,
+                                      const char* arg1,
+                                      const char* arg2)
+{
+    static int EXPECTED_EVENTS[] = {
+        PC_EV_CONNECTED,
+        PC_EV_DISCONNECT,
+    };
+
+    Unused(client); Unused(arg1); Unused(arg2);
+    flag_t *flag = (flag_t*)ex_data;
+    int num_called = flag_get_num_called(flag);
+    assert_int(ev_type, ==, EXPECTED_EVENTS[num_called]);
+    flag_set(flag);
+}
+
+static MunitResult
+test_connection_with_options(const MunitParameter params[], void *data)
+{
+    Unused(data); Unused(params);
+    flag_t flag = flag_make();
+
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+    assert_int(pc_client_add_ev_handler(g_client, test_connection_with_options_event_cb, &flag, NULL),
+               !=, PC_EV_INVALID_HANDLER_ID);
+
+    const char* handshake_opts = "{\"my-options\": \"dog-evenry\"}";
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, handshake_opts),
+               ==, PC_RC_OK);
+    assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
+
+    assert_int(pc_client_disconnect(g_client), ==, PC_RC_OK);
+    assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
+
+    assert_int(pc_client_cleanup(g_client), ==, PC_RC_OK);
+
+    flag_cleanup(&flag);
+    return MUNIT_OK;
+}
+
+static MunitResult
+test_connection_with_options_fails_with_invalid_data(const MunitParameter params[], void *data)
+{
+    Unused(data); Unused(params);
+
+    pc_client_config_t config = PC_CLIENT_CONFIG_TEST;
+    pc_client_init_result_t res = pc_client_init(NULL, &config);
+    g_client = res.client;
+    assert_int(res.rc, ==, PC_RC_OK);
+
+    const char* handshake_opts = "{\"my-options\": dog-evenry\"}";
+    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, handshake_opts),
+               ==, PC_RC_INVALID_JSON);
+
+    return MUNIT_OK;
+}
+
 static MunitTest tests[] = {
     {"/invalid_disconnect", test_invalid_disconnect, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/event_cb", test_event_callback, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
@@ -286,6 +349,9 @@ static MunitTest tests[] = {
     {"/connect_errors", test_connect_errors, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/fails_to_connect_to_tls_server", test_fails_to_connect_to_tls_server, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {"/unexpected_disconnect", test_unexpected_disconnect, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/connection_with_options", test_connection_with_options, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
+    {"/connection_with_options_fails_with_invalid_data",
+     test_connection_with_options_fails_with_invalid_data, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 
