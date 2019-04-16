@@ -30,3 +30,4 @@ unity/PitayaExample/.idea
 unity/PitayaExample/.idea/*
 unity/PitayaExample/Assets/InitTestScene*
 compile_commands.json
+.ccls-cache
