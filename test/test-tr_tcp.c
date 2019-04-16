@@ -312,7 +312,7 @@ test_connection_with_options(const MunitParameter params[], void *data)
                !=, PC_EV_INVALID_HANDLER_ID);
 
     const char* handshake_opts = "{\"my-options\": \"dog-evenry\"}";
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, handshake_opts),
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tcp_port, handshake_opts),
                ==, PC_RC_OK);
     assert_int(flag_wait(&flag, 60), ==, FLAG_SET);
 
@@ -336,7 +336,7 @@ test_connection_with_options_fails_with_invalid_data(const MunitParameter params
     assert_int(res.rc, ==, PC_RC_OK);
 
     const char* handshake_opts = "{\"my-options\": dog-evenry\"}";
-    assert_int(pc_client_connect(g_client, LOCALHOST, g_test_server.tcp_port, handshake_opts),
+    assert_int(pc_client_connect(g_client, PITAYA_SERVER_URL, g_test_server.tcp_port, handshake_opts),
                ==, PC_RC_INVALID_JSON);
 
     return MUNIT_OK;
