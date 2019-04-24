@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
-      <HintPath>/Applications/Unity201836f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.dll</HintPath>
+      <HintPath>/Applications/Unity2018312f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -67,28 +67,28 @@
     <Compile Include="Assets\Pitaya\TypeSubscriber.cs" />
     <None Include="Assets\Pitaya\Pitaya.asmdef" />
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>/Applications/Unity201836f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>/Applications/Unity2018312f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>/Applications/Unity201836f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll</HintPath>
+      <HintPath>/Applications/Unity2018312f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestWWWModule">
-      <HintPath>/Applications/Unity201836f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+      <HintPath>/Applications/Unity2018312f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
       <HintPath>./Assets/Packages/Google.Protobuf/lib/netstandard1.0/Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
-      <HintPath>/Applications/Unity201836f1/Unity.app/Contents/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
+      <HintPath>/Applications/Unity2018312f1/Unity.app/Contents/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
     </Reference>
     <Reference Include="System.IO">
-      <HintPath>/Applications/Unity201836f1/Unity.app/Contents/NetStandard/compat/2.0.0/shims/netstandard/System.IO.dll</HintPath>
+      <HintPath>/Applications/Unity2018312f1/Unity.app/Contents/NetStandard/compat/2.0.0/shims/netstandard/System.IO.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime">
-      <HintPath>/Applications/Unity201836f1/Unity.app/Contents/NetStandard/compat/2.0.0/shims/netstandard/System.Runtime.dll</HintPath>
+      <HintPath>/Applications/Unity2018312f1/Unity.app/Contents/NetStandard/compat/2.0.0/shims/netstandard/System.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
-      <HintPath>/Applications/Unity201836f1/Unity.app/Contents/NetStandard/compat/2.0.0/shims/netfx/mscorlib.dll</HintPath>
+      <HintPath>/Applications/Unity2018312f1/Unity.app/Contents/NetStandard/compat/2.0.0/shims/netfx/mscorlib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
