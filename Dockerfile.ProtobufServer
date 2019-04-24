@@ -2,7 +2,7 @@ FROM alpine
 
 WORKDIR /app
 ADD ./out/protobuf_server_linux ./protobuf_server
-ADD ./pitaya-servers/protobuf-server/fixtures ./fixtures
+ADD ./fixtures ./fixtures
 
 EXPOSE 3350
 EXPOSE 3351
