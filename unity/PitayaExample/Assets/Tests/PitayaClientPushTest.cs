@@ -10,7 +10,7 @@ namespace Pitaya.Tests
     public class PitayaClientPushTest
     {
         private PitayaClient _client;
-        private const string ServerHost = "a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com";
+        private const string ServerHost = "libpitaya-tests.tfgco.com";
         private const int ServerPort = 3251;
         private Thread _mainThread;
 

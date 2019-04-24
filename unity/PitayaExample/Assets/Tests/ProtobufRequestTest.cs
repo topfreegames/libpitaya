@@ -8,10 +8,10 @@ namespace Pitaya.Tests
 {
     public class ProtobufRequestTest
     {
-    
+
         private PitayaClient _client;
 
-        private const string ServerHost = "a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com";
+        private const string ServerHost = "libpitaya-tests.tfgco.com";
         private const int ServerPort = 3351;
         private Response _response;
         private SessionData _sessionData;
@@ -47,7 +47,7 @@ namespace Pitaya.Tests
         {
 
             object response;
-            
+
 
             response = null;
             _isFinished = false;
@@ -72,15 +72,15 @@ namespace Pitaya.Tests
             Assert.AreEqual(typeof(Response), response.GetType());
 
         }
-        
+
         [UnityTest]
         public IEnumerator ShoulSendEmptyRequest()
         {
 
             Response response = null;
-            
+
             var sessionData = new SessionData();
-            
+
             _isFinished = false;
 
             _client.Request<Response>("connector.setsessiondata",
@@ -103,13 +103,13 @@ namespace Pitaya.Tests
             Assert.AreEqual(response.Code , 200);
 
         }
-        
+
         [UnityTest]
         public IEnumerator ShouldReceiveAnError()
         {
 
             object response;
-            
+
 
             response = null;
             _isFinished = false;
@@ -135,16 +135,16 @@ namespace Pitaya.Tests
             Assert.AreEqual("PIT-404", ((PitayaError)response).Code);
 
         }
-        
+
         [UnityTest]
         public IEnumerator ShoulReceiveAPushNotification()
         {
             object response = null;
             _isFinished = false;
-            
-            _client.OnRoute<SessionData>("some.push.route", data => { 
+
+            _client.OnRoute<SessionData>("some.push.route", data => {
                 response = data;
-                _isFinished = true; 
+                _isFinished = true;
             });
 
             _client.Notify("connector.notifysessiondata", _sessionData);
