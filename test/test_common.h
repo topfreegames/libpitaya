@@ -24,7 +24,7 @@
 #define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #define LOCALHOST "127.0.0.1"
-#define PITAYA_SERVER_URL "a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com"
+#define PITAYA_SERVER_URL "libpitaya-tests.tfgco.com"
 
 #define REQ_ROUTE "connector.getsessiondata"
 #define REQ_MSG "{\"name\": \"test\"}"
@@ -39,9 +39,9 @@
 #define NOTI_EX ((void*)0x33)
 #define NOTI_TIMEOUT 30
 
-#define CRT "fixtures/ca.crt"
+#define CRT "fixtures/myCA.pem"
 #define INCORRECT_CRT "fixtures/ca_incorrect.crt"
-#define SERVER_CRT "fixtures/server/client-ssl.localhost.crt"
+#define SERVER_CRT "fixtures/server/pitaya.crt"
 
 typedef struct {
     int tcp_port;

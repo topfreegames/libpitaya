@@ -89,7 +89,7 @@ test_add_key_pinned_errors(const MunitParameter params[], void *state)
 {
     assert_int(pc_lib_add_pinned_public_key_from_certificate_file("fixtures/asoijdoaisjdisajd"), ==, PC_RC_NO_SUCH_FILE);
     assert_int(pc_lib_add_pinned_public_key_from_certificate_file("fixtures/corrupt-ca.crt"), ==, PC_RC_ERROR);
-    assert_int(pc_lib_add_pinned_public_key_from_certificate_file("fixtures/ca.crt"), ==, PC_RC_OK);
+    assert_int(pc_lib_add_pinned_public_key_from_certificate_file("fixtures/myCA.pem"), ==, PC_RC_OK);
     pc_lib_clear_pinned_public_keys();
     return MUNIT_OK;
 }
@@ -156,7 +156,7 @@ test_key_not_pinned(const MunitParameter params[], void *state)
 {
     flag_t flag = flag_make();
 
-    pc_lib_add_pinned_public_key_from_certificate_file("fixtures/client-ssl.localhost.crt");
+    pc_lib_add_pinned_public_key_from_certificate_file("fixtures/server/pitaya.crt");
     pc_lib_clear_pinned_public_keys();
     pc_lib_skip_key_pin_check(false);
 

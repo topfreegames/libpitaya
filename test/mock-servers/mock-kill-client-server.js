@@ -63,8 +63,8 @@ const tcpServer = net.createServer((socket) => {
 
 
 const tlsOptions = {
-    key: fs.readFileSync('../../fixtures/server/client-ssl.localhost.key'),
-    cert: fs.readFileSync('../../fixtures/server/client-ssl.localhost.crt'),
+    key: fs.readFileSync('../../fixtures/server/pitaya.key'),
+    cert: fs.readFileSync('../../fixtures/server/pitaya.crt'),
     rejectUnauthorized: false,
 };
 
