@@ -29,7 +29,7 @@ namespace Pitaya.Tests
             _mainThread = Thread.CurrentThread;
             PitayaBinding.SkipKeyPinCheck(true);
 
-            _client = new PitayaClient("ca.crt");
+            _client = new PitayaClient("myCA.pem");
             PitayaClient.SetLogLevel(PitayaLogLevel.Debug);
 
             _client.Connect(ServerHost, ServerPort);

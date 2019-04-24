@@ -19,7 +19,7 @@ namespace Pitaya.Tests
         public void Init()
         {
             _corruptCaPath = "corrupt-ca.crt";
-            _caPath = "ca.crt";
+            _caPath = "myCA.pem";
             _serverCertPath = "client-ssl.localhost.crt";
         }
 

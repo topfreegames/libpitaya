@@ -20,7 +20,7 @@ func configureFrontend(port int) {
 	ws := acceptor.NewWSAcceptor(fmt.Sprintf(":%d", port))
 	tcp := acceptor.NewTCPAcceptor(fmt.Sprintf(":%d", port+1))
 	tls := acceptor.NewTCPAcceptor(fmt.Sprintf(":%d", port+2),
-		"./fixtures/server/client-ssl.localhost.crt", "./fixtures/server/client-ssl.localhost.key")
+		"./fixtures/server/pitaya.crt", "./fixtures/server/pitaya.key")
 
 	pitaya.Register(&services.Connector{},
 		component.WithName("connector"),
