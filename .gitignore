@@ -11,6 +11,7 @@ Assembly-CSharp.csproj.CoreCompileInputs.cache
 nanopb*.tar.gz
 openssl-build
 _builds
+.DS_Store
 
 server-exe
 server-exe-out
