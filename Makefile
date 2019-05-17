@@ -73,3 +73,6 @@ build-servers-linux: create-out-folder
 
 docker-build: build-servers-linux
 	@docker build -t libpitaya-test-servers .
+
+generate-xcode:
+	@cmake -H. -B_builds/xcode -GXcode -DBUILD_TESTING=ON
