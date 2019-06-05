@@ -20,6 +20,13 @@ build-android:
 				   -DANDROID_ABI=armeabi-v7a
 	@cmake --build _builds/android
 
+build-android-64:
+	@rm -rf _builds/android64
+	@cmake -GNinja -H. -B_builds/android64 -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
+				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
+				   -DANDROID_ABI=arm64-v8a
+	@cmake --build _builds/android64
+
 build-mac:
 	@rm -rf _builds/mac
 	@cmake -H. -B_builds/mac -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
