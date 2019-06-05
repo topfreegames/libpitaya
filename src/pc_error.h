@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <pitaya.h>
+#include <string.h>
 #include "pc_lib.h"
 #include "pc_JSON.h"
 
