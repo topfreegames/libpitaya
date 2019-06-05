@@ -369,7 +369,7 @@ void tcp__conn_done_cb(uv_connect_t* conn, int status)
         /* XXX: ignore return of uv_tcp_keepalive */
         uv_tcp_keepalive(&tt->socket, 1, 60);
 
-        pc_lib_log(PC_LOG_INFO, "tcp__conn_done_cb - tcp connected, send handshake");
+        pc_lib_log(PC_LOG_INFO, "tcp__conn_done_cb - tcp connected, sending handshake");
 
         tcp__send_handshake(tt);
 
@@ -604,8 +604,6 @@ void tcp__write_done_cb(uv_write_t* w, int status)
 
 int tcp__check_queue_timeout(QUEUE* ql, pc_client_t* client, int cont)
 {
-
-    pc_lib_log(PC_LOG_WARN, "tcp__check_queue_timeout ");
     QUEUE tmp;
     QUEUE* q;
     tr_uv_wi_t* wi;
@@ -795,7 +793,7 @@ void tcp__on_heartbeat(tr_uv_tcp_transport_t* tt)
         return;
     }
 
-    pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - tcp get heartbeat");
+    pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - received heartbeat from server");
     pc_assert(tt->state == TR_UV_TCP_DONE);
     pc_assert(uv_is_active((uv_handle_t*)&tt->hb_timeout_timer));
 
@@ -811,11 +809,11 @@ void tcp__on_heartbeat(tr_uv_tcp_transport_t* tt)
 
     tt->is_waiting_hb = 0;
 
-    if (tt->hb_rtt == -1 ) {
+    if (tt->hb_rtt == -1) {
         tt->hb_rtt = rtt;
     } else {
         tt->hb_rtt = (tt->hb_rtt * 2 + rtt) / 3;
-        pc_lib_log(PC_LOG_INFO, "tcp__on_heartbeat - calc rtt: %d", tt->hb_rtt);
+        pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - calc rtt: %d ms", tt->hb_rtt);
     }
 
     uv_timer_start(&tt->hb_timer, tcp__heartbeat_timer_cb, tt->hb_interval * 1000, 0);
