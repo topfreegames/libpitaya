@@ -24,7 +24,7 @@
     <file src="Assets/Pitaya/Native/Mac/*.*" target="Native/Mac" />
     <file src="Assets/Pitaya/Native/Windows/*.*" target="Native/Windows" />
     <file src="Assets/Pitaya/Native/Linux/*.*" target="Native/Linux" />
-    <file src="Assets/Pitaya/Native/include" target="Native/include" />
+    <file src="Assets/Pitaya/Native/include/*" target="Native/include" />
     <file src="NugetOutput/lib/**" target="lib/netstandard2.0" />
     <file src="NugetOutput/lib/**" target="lib/net45" />
     <file src="NugetOutput/Unity/**" target="" />
