@@ -6,6 +6,7 @@
 #include <pc_assert.h>
 
 #include <pc_lib.h>
+#include <string.h>
 
 #include "tr_uv_tcp_aux.h"
 #include "tr_uv_tls.h"

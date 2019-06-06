@@ -11,6 +11,7 @@
 
 #include <pc_lib.h>
 #include <pc_pitaya_i.h>
+#include <string.h>
 
 #include "tr_uv_tcp_aux.h"
 #include "tr_uv_tls_aux.h"
