@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Google.Protobuf;
 using UnityEngine;
 
@@ -53,7 +54,14 @@ namespace Pitaya
 
             if (certificateName != null)
             {
+#if UNITY_EDITOR
+                if (File.Exists(certificateName))
+                    PitayaBinding.SetCertificatePath(certificateName);
+                else
+                    PitayaBinding.SetCertificateName(certificateName);
+#else
                 PitayaBinding.SetCertificateName(certificateName);
+#endif
             }
         }
 
@@ -71,7 +79,6 @@ namespace Pitaya
         public PitayaClientState State
         {
             get { return PitayaBinding.State(_client); }
-
         }
 
         public void Connect(string host, int port, string handshakeOpts = null)

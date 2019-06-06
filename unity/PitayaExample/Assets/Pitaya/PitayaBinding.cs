@@ -189,6 +189,11 @@ namespace Pitaya
             var certPath = FindCertPathFromName(name);
             NativeSetCertificatePath(certPath, null);
         }
+        
+        public static void SetCertificatePath(string path)
+        {
+            NativeSetCertificatePath(path, null);
+        }
 
         public static void Request(IntPtr client, string route, byte[] msg, uint reqtId, int timeout)
         {
