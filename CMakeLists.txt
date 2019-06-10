@@ -66,6 +66,7 @@ else()
 endif()
 
 if(ANDROID)
+    set_target_properties(pitaya PROPERTIES OUTPUT_NAME "pitaya-android")
     target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/android/include)
     if(ANDROID_ABI STREQUAL armeabi-v7a)
         set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libssl.a)
