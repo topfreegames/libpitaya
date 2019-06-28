@@ -15,14 +15,14 @@ setup-android-linux:
 
 build-android:
 	@rm -rf _builds/android
-	@cmake -GNinja -H. -B_builds/android -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
+	@cmake -GNinja -H. -B_builds/android -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=MinSizeRel \
 				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
 				   -DANDROID_ABI=armeabi-v7a
 	@cmake --build _builds/android
 
 build-android-64:
 	@rm -rf _builds/android64
-	@cmake -GNinja -H. -B_builds/android64 -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
+	@cmake -GNinja -H. -B_builds/android64 -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=MinSizeRel \
 				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
 				   -DANDROID_ABI=arm64-v8a
 	@cmake --build _builds/android64
@@ -44,7 +44,7 @@ build-linux-debug:
 
 build-ios:
 	@rm -rf _builds/ios
-	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
+	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
 	@cmake --build _builds/ios
 
 build-mac-tests:

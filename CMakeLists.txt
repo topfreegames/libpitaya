@@ -95,7 +95,7 @@ endif()
 # Lib UV
 #
 set(BUILD_TESTING OFF CACHE BOOL "")
-add_subdirectory(deps/libuv-1.23.0)
+add_subdirectory(deps/libuv-1.23.1)
 
 #
 # Lib Zlib
