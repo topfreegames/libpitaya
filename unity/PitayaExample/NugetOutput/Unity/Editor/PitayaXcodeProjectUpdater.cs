@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+#if UNITY_IPHONE
+using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 using System.IO;
@@ -24,3 +25,4 @@ public class PitayaBuildPostprocessor
 		}
 	}
 }
+#endif
