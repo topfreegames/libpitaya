@@ -8,7 +8,7 @@ namespace Pitaya
 {
     public class PitayaClient : IDisposable, IPitayaListener
     {
-        public event Action<PitayaNetWorkState> NetWorkStateChangedEvent;
+        public event Action<PitayaNetWorkState, NetworkError> NetWorkStateChangedEvent;
 
         private const int DEFAULT_CONNECTION_TIMEOUT = 30;
 
@@ -205,9 +205,9 @@ namespace Pitaya
             _eventManager.InvokeErrorCallBack(rid, error);
         }
 
-        public void OnNetworkEvent(PitayaNetWorkState state)
+        public void OnNetworkEvent(PitayaNetWorkState state, NetworkError error)
         {
-            if(NetWorkStateChangedEvent != null ) NetWorkStateChangedEvent.Invoke(state);
+            if(NetWorkStateChangedEvent != null ) NetWorkStateChangedEvent.Invoke(state, error);
         }
 
         public void OnUserDefinedPush(string route, byte[] serializedBody)

@@ -17,7 +17,7 @@ public class Example : MonoBehaviour
 		_connected = false;
 		_requestSent = false;
 
-		_client.NetWorkStateChangedEvent += (ev) =>
+		_client.NetWorkStateChangedEvent += (ev, error) =>
 		{
 			if (ev == PitayaNetWorkState.Connected)
 			{

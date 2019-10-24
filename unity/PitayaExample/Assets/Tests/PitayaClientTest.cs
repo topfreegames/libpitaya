@@ -44,7 +44,7 @@ namespace Pitaya.Tests
             var called = false;
             var connectionState = PitayaNetWorkState.Disconnected;
 
-            _client.NetWorkStateChangedEvent += networkState => {
+            _client.NetWorkStateChangedEvent += (networkState, error) => {
                 called = true;
                 connectionState = networkState;
                 Assert.AreEqual(_mainThread, Thread.CurrentThread);
@@ -67,10 +67,11 @@ namespace Pitaya.Tests
             var called = false;
             var connectionState = PitayaNetWorkState.Disconnected;
 
-            _client.NetWorkStateChangedEvent += networkState => {
+            _client.NetWorkStateChangedEvent += (networkState, error) => {
                 called = true;
                 connectionState = networkState;
                 Assert.AreEqual(_mainThread, Thread.CurrentThread);
+                Assert.NotNull(error);
             };
 
             const string wrongServer = "1";
@@ -96,10 +97,11 @@ namespace Pitaya.Tests
             // Start with some initial value different from DISCONNECTED
             var connectionState = PitayaNetWorkState.Error;
 
-            _client.NetWorkStateChangedEvent += networkState => {
+            _client.NetWorkStateChangedEvent += (networkState, error) => {
                 called = true;
                 connectionState = networkState;
                 Assert.AreEqual(_mainThread, Thread.CurrentThread);
+                Assert.NotNull(error);
             };
 
             _client.Connect(ServerHost, unauthorizedPort);

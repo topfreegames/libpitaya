@@ -90,7 +90,7 @@ namespace Pitaya.Tests
 
             _client.Connect(ServerHost, ServerPort);
 
-            _client.NetWorkStateChangedEvent += (ev) =>
+            _client.NetWorkStateChangedEvent += (ev, error) =>
             {
                 connectFinished = true;
                 if (ev == PitayaNetWorkState.Connected)
