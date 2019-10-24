@@ -106,7 +106,9 @@ static void tr_tcp_on_pkg_handler(pc_pkg_type type, const char* data, size_t len
         case PC_PKG_KICK:
             tcp__on_kick_recieved(tt);
             break;
+
         default:
+            pc_lib_log(PC_LOG_ERROR, "tr_tcp_on_pkg_handler - received unknown packet type %d", type);
             break;
     }
 }
@@ -313,8 +315,6 @@ int tr_uv_tcp_connect(pc_transport_t* trans, const char* host, int port, const c
 
 int tr_uv_tcp_send(pc_transport_t* trans, const char* route, unsigned int seq_num, pc_buf_t buf, unsigned int req_id, int timeout)
 {
-    pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - ENTERED");
-
     int i;
     tr_uv_wi_t* wi;
     GET_TT;

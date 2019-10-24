@@ -363,7 +363,7 @@ void tcp__conn_done_cb(uv_connect_t* conn, int status)
         if (ret) {
             pc_lib_log(PC_LOG_ERROR, "tcp__conn_done_cb - start read from tcp error, reconn");
             tt->reconn_fn(tt);
-            return ;
+            return;
         }
 
         /* XXX: ignore return of uv_tcp_keepalive */
@@ -668,8 +668,6 @@ void tcp__write_check_timeout_cb(uv_timer_t* w)
 
     cont = 0;
 
-    pc_lib_log(PC_LOG_DEBUG, "tcp__write_check_timeout_cb - start to check timeout");
-
     pc_mutex_lock(&tt->wq_mutex);
     cont = tcp__check_queue_timeout(&tt->conn_pending_queue, tt->client, cont);
     cont = tcp__check_queue_timeout(&tt->write_wait_queue, tt->client, cont);
@@ -679,7 +677,6 @@ void tcp__write_check_timeout_cb(uv_timer_t* w)
     if (cont && !uv_is_active((uv_handle_t* )w)) {
         uv_timer_start(w, tt->write_check_timeout_cb, PC_TIMEOUT_CHECK_INTERVAL* 1000, 0);
     }
-    pc_lib_log(PC_LOG_DEBUG, "tcp__write_check_timeout_cb - finish to check timeout");
 }
 
 static void tcp__cleanup_pc_json(pc_JSON** j)
@@ -746,7 +743,7 @@ void tcp__send_heartbeat(tr_uv_tcp_transport_t* tt)
 
     pc_assert(tt->state == TR_UV_TCP_DONE);
 
-    pc_lib_log(PC_LOG_DEBUG, "tcp__send__heartbeat - send heartbeat");
+    pc_lib_log(PC_LOG_DEBUG, "tcp__send__heartbeat - [Heartbeat] sending");
 
     buf = pc_pkg_encode(PC_PKG_HEARBEAT, NULL, 0);
 
@@ -789,11 +786,11 @@ void tcp__on_heartbeat(tr_uv_tcp_transport_t* tt)
     int start = 0;
 
     if (!tt->is_waiting_hb) {
-        pc_lib_log(PC_LOG_WARN, "tcp__on_heartbeat - tcp is not waiting for heartbeat, ignore");
+        pc_lib_log(PC_LOG_WARN, "tcp__on_heartbeat - tcp is not waiting for heartbeat");
         return;
     }
 
-    pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - received heartbeat from server");
+    pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - [Heartbeat] received from server");
     pc_assert(tt->state == TR_UV_TCP_DONE);
     pc_assert(uv_is_active((uv_handle_t*)&tt->hb_timeout_timer));
 
@@ -829,7 +826,6 @@ void tcp__heartbeat_timer_cb(uv_timer_t* t)
 
     tcp__send_heartbeat(tt);
     tt->is_waiting_hb = 1;
-    pc_lib_log(PC_LOG_DEBUG, "tcp__heartbeat_timer_cb - start heartbeat timeout timer");
 
     uv_timer_start(&tt->hb_timeout_timer, tcp__heartbeat_timeout_cb, tt->hb_timeout * 1000, 0);
 }
@@ -841,7 +837,7 @@ void tcp__heartbeat_timeout_cb(uv_timer_t* t)
     pc_assert(tt->is_waiting_hb);
     pc_assert(t == &tt->hb_timeout_timer);
 
-    pc_lib_log(PC_LOG_WARN, "tcp__heartbeat_timeout_cb - will reconn, hb timeout");
+    pc_lib_log(PC_LOG_WARN, "tcp__heartbeat_timeout_cb - heartbeat timeout, will reconn");
     pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "HB Timeout", NULL);
     tt->reconn_fn(tt);
 }
@@ -877,6 +873,7 @@ void tcp__on_tcp_read_cb(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf
         return;
     }
 
+    pc_lib_log(PC_LOG_DEBUG, "Received TCP data from server, will parse package");
     pc_pkg_parser_feed(&tt->pkg_parser, buf->base, nread);
 }
 
@@ -1195,12 +1192,11 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
 
     tcp__send_handshake_ack(tt);
     if (tt->hb_interval != -1) {
-        pc_lib_log(PC_LOG_INFO, "tcp__on_handshake_resp - start heartbeat interval timer");
         uv_timer_start(&tt->hb_timer, tcp__heartbeat_timer_cb, tt->hb_interval * 1000, 0);
     }
 
     tt->state = TR_UV_TCP_DONE;
-    pc_lib_log(PC_LOG_INFO, "tcp__on_handshake_resp - handshake completely");
+    pc_lib_log(PC_LOG_INFO, "tcp__on_handshake_resp - handshake completed");
     pc_lib_log(PC_LOG_INFO, "tcp__on_handshake_resp - client connected");
     pc_trans_fire_event(tt->client, PC_EV_CONNECTED, NULL, NULL);
     uv_async_send(&tt->write_async);

@@ -101,8 +101,9 @@ static size_t pc__parse_pkg_body(pc_pkg_parser_t *parser, const char *data, size
 
     if(parser->pkg_offset == parser->pkg_size) {
         /* a complete package parsed */
-        parser->handler((pc_pkg_type)pc__pkg_type(parser->head_buf),
-                parser->pkg_buf, parser->pkg_size, parser->ex_data);
+        pc_pkg_type pkg_type = (pc_pkg_type)pc__pkg_type(parser->head_buf);
+        pc_lib_log(PC_LOG_DEBUG, "Complete package type parsed from server: %d", pkg_type);
+        parser->handler(pkg_type, parser->pkg_buf, parser->pkg_size, parser->ex_data);
         pc_pkg_parser_reset(parser);
     }
 

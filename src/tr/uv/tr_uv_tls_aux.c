@@ -150,6 +150,7 @@ void tls__conn_done_cb(uv_connect_t* conn, int status)
         /* SSL_read will write ClientHello to bio. */
         SSL_set_connect_state(tls->tls);
 
+        pc_lib_log(PC_LOG_DEBUG, "tls__conn_done_cb - will read tls data from bio");
         tls__read_from_bio(tls);
 
         /* write ClientHello out */
@@ -224,10 +225,8 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
         return ;
 
     if (tt->is_writing) {
-        pc_lib_log(PC_LOG_DEBUG, "tls__write_to_bio - use tcp is writing queue");
         head = &tls->when_tcp_is_writing_queue;
     } else {
-        pc_lib_log(PC_LOG_DEBUG, "tls__write_to_bio - use writing queue");
         head = &tt->writing_queue;
     }
 
@@ -297,6 +296,7 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
             QUEUE_INIT(q);
 
             wi = (tr_uv_wi_t* )QUEUE_DATA(q, tr_uv_wi_t, queue);
+
             ret = SSL_write(tls->tls, wi->buf.base, wi->buf.len);
             pc_assert(ret == -1 || ret == (int)(wi->buf.len));
             if (ret == -1) {
@@ -319,7 +319,6 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
                     tls->is_handshake_completed = 1;
                 }
 
-                pc_lib_log(PC_LOG_DEBUG, "tls__write_to_bio - move wi to writing queue or tcp write queue, seq_num: %u, req_id: %u", wi->seq_num, wi->req_id);
                 QUEUE_INIT(&wi->queue);
                 QUEUE_INSERT_TAIL(head, &wi->queue);
                 flag = 1;
@@ -349,7 +348,10 @@ static void tls__read_from_bio(tr_uv_tls_transport_t* tls)
                 tls->is_handshake_completed = 1;
             }
 
+            pc_lib_log(PC_LOG_DEBUG, "Received TLS data from server, will parse package (first byte: %d)", tls->rb[0]);
             pc_pkg_parser_feed(&tt->pkg_parser, tls->rb, read);
+        } else if (read == 0) {
+            pc_lib_log(PC_LOG_DEBUG, "Received TLS data from server, will NOT parse package (0 bytes)");
         }
     } while (read > 0);
 
@@ -504,6 +506,7 @@ void tls__write_done_cb(uv_write_t* w, int status)
 static void tls__cycle(tr_uv_tls_transport_t* tls)
 {
     tls__write_to_bio(tls);
+    pc_lib_log(PC_LOG_DEBUG, "tls__cycle - will read from bio");
     tls__read_from_bio(tls);
     tls__write_to_tcp(tls);
 }
@@ -580,6 +583,7 @@ void tls__cleanup_async_cb(uv_async_t* a)
 void tls__on_tcp_read_cb(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 {
     GET_TLS(stream);
+    pc_lib_log(PC_LOG_DEBUG, "tls__on_tcp_read_cb -- Got TLS data from server (nread == %lld)", nread);
 
     if ( nread < 0) {
         tcp__on_tcp_read_cb(stream, nread, buf);
