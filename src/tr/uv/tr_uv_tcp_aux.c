@@ -302,7 +302,7 @@ void tcp__conn_async_cb(uv_async_t* t)
     freeaddrinfo(ainfo);
 
     if (ret) {
-        pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "UV Conn Error", NULL);
+        pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "UV Conn Error", uv_strerror(ret));
         pc_lib_log(PC_LOG_ERROR, "tcp__conn_async_cb - uv tcp connect error: %s, will reconn", uv_strerror(ret));
         tt->reconn_fn(tt);
         return ;
@@ -384,7 +384,7 @@ void tcp__conn_done_cb(uv_connect_t* conn, int status)
         pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "Connect Timeout", NULL);
     } else {
         pc_lib_log(PC_LOG_DEBUG, "tcp__conn_done_cb - connect error, error: %s", uv_strerror(status));
-        pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "Connect Error", NULL);
+        pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "Connect Error", uv_strerror(status));
     }
 
     tt->reconn_fn(tt);
@@ -867,10 +867,10 @@ void tcp__on_tcp_read_cb(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf
 
         if (tt->state == TR_UV_TCP_DONE) {
             // If connection is completed, there was an unexpected disconnect
-            pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "Read Error Or Close", NULL);
+            pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "Read Error Or Close", uv_strerror(nread));
         } else {
             // Otherwise, the client failed to connect.
-            pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Failed to complete pitaya connection", NULL);
+            pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Failed to complete pitaya connection", uv_strerror(nread));
         }
 
         tt->reconn_fn(tt);

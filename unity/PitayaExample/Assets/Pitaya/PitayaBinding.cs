@@ -46,7 +46,7 @@ namespace Pitaya
     {
         void OnRequestResponse(uint rid, byte[] body);
         void OnRequestError(uint rid, PitayaError error);
-        void OnNetworkEvent(PitayaNetWorkState state);
+        void OnNetworkEvent(PitayaNetWorkState state, NetworkError error);
         void OnUserDefinedPush(string route, byte[] serializedBody);
     }
 
@@ -467,27 +467,45 @@ namespace Pitaya
                 switch (ev)
                 {
                     case PitayaConstants.PcEvConnected:
-                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Connected);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Connected, null);
                         break;
                     case PitayaConstants.PcEvConnectError:
-                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.FailToConnect);
+                    {
+                        string error = Marshal.PtrToStringAnsi(arg1Ptr);
+                        string description = Marshal.PtrToStringAnsi(arg2Ptr);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.FailToConnect, new NetworkError(error, description));
                         break;
+                    }
                     case PitayaConstants.PcEvConnectFailed:
-                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.FailToConnect);
+                    {
+                        string error = Marshal.PtrToStringAnsi(arg1Ptr);
+                        string description = Marshal.PtrToStringAnsi(arg2Ptr);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.FailToConnect, new NetworkError(error, description));
                         break;
+                    }
                     case PitayaConstants.PcEvDisconnect:
-                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected);
+                    {
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected, null);
                         break;
+                    }
                     case PitayaConstants.PcEvKickedByServer:
-                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Kicked);
-                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Kicked, null);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected, null);
                         break;
                     case PitayaConstants.PcEvUnexpectedDisconnect:
-                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected);
+                    {
+                        string error = Marshal.PtrToStringAnsi(arg1Ptr);
+                        string description = Marshal.PtrToStringAnsi(arg2Ptr);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Disconnected, new NetworkError(error, description));
                         break;
+                    }
                     case PitayaConstants.PcEvProtoError:
-                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Error);
+                    {
+                        string error = Marshal.PtrToStringAnsi(arg1Ptr);
+                        string description = Marshal.PtrToStringAnsi(arg2Ptr);
+                        if (listener != null) listener.OnNetworkEvent(PitayaNetWorkState.Error, new NetworkError(error, description));
                         break;
+                    }
                 }
                 DLog("OnEvent - main thread END");
             });
