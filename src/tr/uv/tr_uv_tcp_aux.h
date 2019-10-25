@@ -26,7 +26,6 @@ void tcp__cleanup_async_cb(uv_async_t* a);
 void tcp__disconnect_async_cb(uv_async_t* a);
 
 void tcp__heartbeat_timer_cb(uv_timer_t* t);
-void tcp__heartbeat_timeout_cb(uv_timer_t* t);
 void tcp__send_heartbeat(tr_uv_tcp_transport_t* tt);
 void tcp__on_heartbeat(tr_uv_tcp_transport_t* tt);
 

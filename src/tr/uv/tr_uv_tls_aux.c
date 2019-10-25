@@ -349,6 +349,7 @@ static void tls__read_from_bio(tr_uv_tls_transport_t* tls)
                 tls->is_handshake_completed = 1;
             }
 
+            pc_lib_log(PC_LOG_DEBUG, "Received TLS data from server, will parse package (first byte: %d, reead = %d)", tls->rb[0], read);
             pc_pkg_parser_feed(&tt->pkg_parser, tls->rb, read);
         }
     } while (read > 0);
@@ -424,6 +425,7 @@ static void tls__write_to_tcp(tr_uv_tls_transport_t* tls)
     buf.len = len;
 
     tt->write_req.data = tls;
+    pc_lib_log(PC_LOG_DEBUG, "tls__write_to_tcp - Writing to TLS socket");
     ret = uv_write(&tt->write_req, (uv_stream_t* )&tt->socket, &buf, 1, tls__write_done_cb);
 
     /*
@@ -450,6 +452,8 @@ void tls__write_done_cb(uv_write_t* w, int status)
     if (status) {
         pc_lib_log(PC_LOG_ERROR, "tcp__write_done_cb - uv_write callback error: %s", uv_strerror(status));
     }
+    
+    pc_lib_log(PC_LOG_DEBUG, "tcp__write_done_cb - uv_write callback success");
 
     status = status ? PC_RC_ERROR : PC_RC_OK;
 
