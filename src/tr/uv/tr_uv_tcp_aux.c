@@ -831,7 +831,6 @@ void tcp__heartbeat_timer_cb(uv_timer_t* t)
     }
 
     tcp__send_heartbeat(tt);
-    uv_timer_start(&tt->hb_timer, tcp__heartbeat_timer_cb, tt->hb_interval * 1000, 0);
 }
 
 void tcp__handshake_timer_cb(uv_timer_t* t)
@@ -1184,7 +1183,10 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     tcp__send_handshake_ack(tt);
     if (tt->hb_interval != -1) {
         pc_lib_log(PC_LOG_INFO, "tcp__on_handshake_resp - start heartbeat interval timer");
-        uv_timer_start(&tt->hb_timer, tcp__heartbeat_timer_cb, tt->hb_interval * 1000, 0);
+        uv_timer_start(&tt->hb_timer,
+                       tcp__heartbeat_timer_cb,
+                       tt->hb_interval * 1000, // We will first call the callback after this timer
+                       tt->hb_interval * 1000); // We continue repeating this call in this interval
     }
 
     tt->state = TR_UV_TCP_DONE;
