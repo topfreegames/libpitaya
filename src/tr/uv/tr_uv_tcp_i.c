@@ -89,6 +89,11 @@ static void tr_tcp_on_pkg_handler(pc_pkg_type type, const char* data, size_t len
 
     pc_assert(type == PC_PKG_HANDSHAKE || type == PC_PKG_HEARBEAT
            || type == PC_PKG_DATA || type == PC_PKG_KICK);
+    
+    // Update the last packet that we received from the server,
+    // in order to avoid a heartbeat timeout.
+    pc_lib_log(PC_LOG_DEBUG, "tr_tcp_on_pkg_handler - updating last server packet time");
+    tt->last_server_packet_time = uv_now(&tt->uv_loop);
 
     switch(type) {
         case PC_PKG_HANDSHAKE:
@@ -210,13 +215,9 @@ int tr_uv_tcp_init(pc_transport_t* trans, pc_client_t* client)
     ret = uv_timer_init(&tt->uv_loop, &tt->hb_timer);
     pc_assert(!ret);
 
-    ret = uv_timer_init(&tt->uv_loop, &tt->hb_timeout_timer);
-    pc_assert(!ret);
-
     tt->hb_timer.data = tt;
-    tt->hb_timeout_timer.data = tt;
-    tt->is_waiting_hb = 0;
     tt->hb_rtt = -1;
+    tt->last_server_packet_time = uv_now(&tt->uv_loop);
 
     pc_pkg_parser_init(&tt->pkg_parser, tr_tcp_on_pkg_handler, tt);
 

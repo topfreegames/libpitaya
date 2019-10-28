@@ -122,8 +122,7 @@ struct tr_uv_tcp_transport_s {
     int hb_interval;
     int hb_timeout;
     uv_timer_t hb_timer;
-    uv_timer_t hb_timeout_timer;
-    int is_waiting_hb;
+    uint64_t last_server_packet_time;
 
     /* here, we use heartbeat round-trip time to evaluate the quality of connection. */
     int hb_rtt;

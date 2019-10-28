@@ -58,7 +58,6 @@ void tcp__reset(tr_uv_tcp_transport_t* tt)
 
     pc_pkg_parser_reset(&tt->pkg_parser);
 
-    uv_timer_stop(&tt->hb_timeout_timer);
     uv_timer_stop(&tt->hb_timer);
 
     uv_timer_stop(&tt->check_timeout);
@@ -66,7 +65,6 @@ void tcp__reset(tr_uv_tcp_transport_t* tt)
     uv_timer_stop(&tt->reconn_delay_timer);
     uv_timer_stop(&tt->conn_timeout);
 
-    tt->is_waiting_hb = 0;
     tt->hb_rtt = -1;
 
     pc_mutex_lock(&tt->serializer_mutex);
@@ -257,6 +255,9 @@ void tcp__conn_async_cb(uv_async_t* t)
     hints.ai_socktype = SOCK_STREAM;
 
     uv_tcp_init(&tt->uv_loop, &tt->socket);
+    if (uv_tcp_nodelay(&tt->socket, true) != 0) {
+        pc_lib_log(PC_LOG_ERROR, "tcp__conn_async_cb - Failed to set tcp nodelay");
+    }
 
     tt->socket.data = tt;
 
@@ -340,9 +341,13 @@ void tcp__conn_done_cb(uv_connect_t* conn, int status)
     pc_assert(&tt->conn_req == conn);
     pc_assert(tt->is_connecting);
 
+    // TODO(lhahn): consider the consequences of using uv_now here,
+    // since it does get the cached time from the start of the current
+    // iteration of the uv_loop. This should not be a problem if we consider
+    // that each loop is ran relatively fast (taking seconds into consideration).
+    tt->last_server_packet_time = uv_now(&tt->uv_loop);
     tt->is_connecting = 0;
     if (tt->config->conn_timeout != PC_WITHOUT_TIMEOUT) {
-
         /*
          * NOTE: we hack uv here to get the rest timeout value of conn_timeout,
          *
@@ -374,9 +379,9 @@ void tcp__conn_done_cb(uv_connect_t* conn, int status)
         tcp__send_handshake(tt);
 
         if (tt->config->conn_timeout != PC_WITHOUT_TIMEOUT) {
-            uv_timer_start( &tt->handshake_timer, tcp__handshake_timer_cb, hs_timeout, 0);
+            uv_timer_start(&tt->handshake_timer, tcp__handshake_timer_cb, hs_timeout, 0);
         }
-        return ;
+        return;
     }
 
     if (status == UV_ECANCELED) {
@@ -484,6 +489,7 @@ void tcp__write_async_cb(uv_async_t* a)
 
     tt->write_req.data = tt;
 
+    pc_lib_log(PC_LOG_DEBUG, "tcp__write_async_cb - Writing to TCP socket");
     ret = uv_write(&tt->write_req, (uv_stream_t* )&tt->socket, bufs, buf_cnt, tcp__write_done_cb);
 
     pc_lib_free(bufs);
@@ -788,62 +794,43 @@ void tcp__on_heartbeat(tr_uv_tcp_transport_t* tt)
     int rtt = 0;
     int start = 0;
 
-    if (!tt->is_waiting_hb) {
-        pc_lib_log(PC_LOG_WARN, "tcp__on_heartbeat - tcp is not waiting for heartbeat, ignore");
-        return;
-    }
-
-    pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - received heartbeat from server");
+    pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - [Heartbeat] received from server");
     pc_assert(tt->state == TR_UV_TCP_DONE);
-    pc_assert(uv_is_active((uv_handle_t*)&tt->hb_timeout_timer));
 
+    // FIXME, TODO(lhahn): consider removing rtt code, since it is probably broken
     /*
      * we hacking uv timer to get the heartbeat rtt, rtt in millisec
      * int is enough to hold the value
      */
-    start = (int)(tt->hb_timeout_timer.timeout - tt->hb_timeout * 1000);
-
     rtt = (int)(tt->uv_loop.time - start);
-
-    uv_timer_stop(&tt->hb_timeout_timer);
-
-    tt->is_waiting_hb = 0;
 
     if (tt->hb_rtt == -1) {
         tt->hb_rtt = rtt;
     } else {
         tt->hb_rtt = (tt->hb_rtt * 2 + rtt) / 3;
         pc_lib_log(PC_LOG_DEBUG, "tcp__on_heartbeat - calc rtt: %d ms", tt->hb_rtt);
+        
     }
-
-    uv_timer_start(&tt->hb_timer, tcp__heartbeat_timer_cb, tt->hb_interval * 1000, 0);
 }
 
 void tcp__heartbeat_timer_cb(uv_timer_t* t)
 {
     GET_TT(t);
-
     pc_assert(t == &tt->hb_timer);
-    pc_assert(tt->is_waiting_hb == 0);
     pc_assert(tt->state == TR_UV_TCP_DONE);
+    
+    uint64_t threshold = (tt->hb_interval * 1000) * (PC_HEARTBEAT_TIMEOUT_FACTOR + 4); // +1 here to keep with the old behaviour
+    // We check whether the server stopped sending packets to the client.
+    // If it did we trigger a reconnection and stop sending heartbeats.
+    uint64_t time_elapsed = uv_now(&tt->uv_loop) - tt->last_server_packet_time;
+    if (time_elapsed > threshold) {
+        pc_lib_log(PC_LOG_WARN, "tcp__heartbeat_timer_cb - heartbeat timeout, will reconn");
+        pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "HB Timeout", NULL);
+        tt->reconn_fn(tt);
+        return;
+    }
 
     tcp__send_heartbeat(tt);
-    tt->is_waiting_hb = 1;
-    pc_lib_log(PC_LOG_DEBUG, "tcp__heartbeat_timer_cb - start heartbeat timeout timer");
-
-    uv_timer_start(&tt->hb_timeout_timer, tcp__heartbeat_timeout_cb, tt->hb_timeout * 1000, 0);
-}
-
-void tcp__heartbeat_timeout_cb(uv_timer_t* t)
-{
-    GET_TT(t);
-
-    pc_assert(tt->is_waiting_hb);
-    pc_assert(t == &tt->hb_timeout_timer);
-
-    pc_lib_log(PC_LOG_WARN, "tcp__heartbeat_timeout_cb - will reconn, hb timeout");
-    pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "HB Timeout", NULL);
-    tt->reconn_fn(tt);
 }
 
 void tcp__handshake_timer_cb(uv_timer_t* t)
@@ -1196,7 +1183,10 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     tcp__send_handshake_ack(tt);
     if (tt->hb_interval != -1) {
         pc_lib_log(PC_LOG_INFO, "tcp__on_handshake_resp - start heartbeat interval timer");
-        uv_timer_start(&tt->hb_timer, tcp__heartbeat_timer_cb, tt->hb_interval * 1000, 0);
+        uv_timer_start(&tt->hb_timer,
+                       tcp__heartbeat_timer_cb,
+                       tt->hb_interval * 1000, // We will first call the callback after this timer
+                       tt->hb_interval * 1000); // We continue repeating this call in this interval
     }
 
     tt->state = TR_UV_TCP_DONE;
