@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Better documentation
+- Unit testing (not only integration tests)
+- Better support for languages other than C#
 
 ## [3.0.2] - 2019-10-28
 ### Changed
