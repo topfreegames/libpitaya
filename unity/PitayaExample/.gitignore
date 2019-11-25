@@ -55,3 +55,4 @@ leaks.xml
 test-results-playmode.xml
 
 NugetOutput/binaries
+PitayaBuild.csproj
