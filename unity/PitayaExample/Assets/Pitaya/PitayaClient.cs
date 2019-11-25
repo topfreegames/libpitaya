@@ -37,7 +37,7 @@ namespace Pitaya
 
         public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT)
         {
-            Init(certificateName, certificateName != null, false, enableReconnect, DEFAULT_CONNECTION_TIMEOUT);
+            Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout);
         }
 
         ~PitayaClient()
