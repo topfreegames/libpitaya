@@ -34,3 +34,9 @@ UNITY_PATH=/Applications/Unity201836f1/Unity.app/Contents/MacOS/Unity
 
 test:
 	${UNITY_PATH} -runTests -projectPath $(shell pwd) -testResults $(shell pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
+
+UNITY_VERSION=
+
+build-template:
+	@sed 's/UNITY_VERSION/${UNITY_VERSION}/g' Pitaya-Build-Template.csproj > Pitaya-Build.csproj
+
