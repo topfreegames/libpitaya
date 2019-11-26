@@ -13,6 +13,7 @@ namespace Pitaya
         private const int DEFAULT_CONNECTION_TIMEOUT = 30;
 
         private IntPtr _client = IntPtr.Zero;
+        private PitayaMetrics _metricsAggr;
         private EventManager _eventManager;
         private bool _disposed;
         private uint _reqUid;
@@ -22,22 +23,27 @@ namespace Pitaya
 
         public PitayaClient()
         {
-            Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT);
+            Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT, null);
         }
 
         public PitayaClient(int connectionTimeout)
         {
-            Init(null, false, false, false, connectionTimeout);
+            Init(null, false, false, false, connectionTimeout, null);
         }
 
         public PitayaClient(string certificateName = null)
         {
-            Init(certificateName, certificateName != null, false, false, DEFAULT_CONNECTION_TIMEOUT);
+            Init(certificateName, certificateName != null, false, false, DEFAULT_CONNECTION_TIMEOUT, null);
         }
 
-        public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT)
+        public PitayaClient(PitayaMetrics.MetricsCallback metricsCB = null)
         {
-            Init(certificateName, certificateName != null, false, enableReconnect, DEFAULT_CONNECTION_TIMEOUT);
+            Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT, metricsCB);
+        }
+
+        public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT, PitayaMetrics.MetricsCallback metricsCB = null)
+        {
+            Init(certificateName, certificateName != null, false, enableReconnect, DEFAULT_CONNECTION_TIMEOUT, metricsCB);
         }
 
         ~PitayaClient()
@@ -45,12 +51,13 @@ namespace Pitaya
             Dispose();
         }
 
-        private void Init(string certificateName, bool enableTlS, bool enablePolling, bool enableReconnect, int connTimeout)
+        private void Init(string certificateName, bool enableTlS, bool enablePolling, bool enableReconnect, int connTimeout, PitayaMetrics.MetricsCallback metricsCB)
         {
             _eventManager = new EventManager();
             _typeRequestSubscriber = new TypeSubscriber<uint>();
             _typePushSubscriber = new TypeSubscriber<string>();
             _client = PitayaBinding.CreateClient(enableTlS, enablePolling, enableReconnect, connTimeout, this);
+            _metricsAggr = new PitayaMetrics(metricsCB);
 
             if (certificateName != null)
             {
@@ -83,11 +90,13 @@ namespace Pitaya
 
         public void Connect(string host, int port, string handshakeOpts = null)
         {
+            _metricsAggr.Start();
             PitayaBinding.Connect(_client, host, port, handshakeOpts);
         }
 
         public void Connect(string host, int port, Dictionary<string, string> handshakeOpts)
         {
+            _metricsAggr.Start();
             var opts = Pitaya.SimpleJson.SimpleJson.SerializeObject(handshakeOpts);
             PitayaBinding.Connect(_client, host, port, opts);
         }
@@ -208,6 +217,7 @@ namespace Pitaya
         public void OnNetworkEvent(PitayaNetWorkState state, NetworkError error)
         {
             if(NetWorkStateChangedEvent != null ) NetWorkStateChangedEvent.Invoke(state, error);
+            _metricsAggr.Update(state, error);
         }
 
         public void OnUserDefinedPush(string route, byte[] serializedBody)
