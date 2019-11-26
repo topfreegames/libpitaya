@@ -30,6 +30,7 @@ build-all: build-template build-mac build-ios build-linux build-android build-wi
 pack: build-all
 	@nuget pack LibPitaya.nuspec -OutputDirectory NugetOutput
 
+# UNITY_PATH should contain the path to the Unity.app folder
 UNITY_PATH=
 
 test:
