@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>3.0.2</version>
+    <version>3.0.3</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Refactor heartbeat, so that client is independent from server ones. This fixes a bug where the client would sometimes disconnect</releaseNotes>
+    <releaseNotes>Fix connection timeout not being passed on the contructor</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
