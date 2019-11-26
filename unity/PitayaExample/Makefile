@@ -30,13 +30,13 @@ build-all: build-template build-mac build-ios build-linux build-android build-wi
 pack: build-all
 	@nuget pack LibPitaya.nuspec -OutputDirectory NugetOutput
 
-UNITY_VERSION=Unity201836f1
+UNITY_PATH=
 
 test:
-	/Applications/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -runTests -projectPath $(shell pwd) -testResults $(shell pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
-
-UNITY_VERSION=
+	${UNITY_PATH}/Contents/MacOS/Unity -runTests -projectPath $(shell pwd) -testResults $(shell pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
 
 build-template:
-	@sed 's/UNITY_VERSION/${UNITY_VERSION}/g' Pitaya-Build-Template.csproj > Pitaya-Build.csproj
+	@echo "Configuring build template to use ${UNITY_VERSION}"
+	@sed 's~UNITY_PATH~${UNITY_PATH}~g' Pitaya-Build-Template.csproj > Pitaya-Build.csproj
+
 
