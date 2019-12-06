@@ -231,8 +231,8 @@ namespace Pitaya
 
         public void OnNetworkEvent(PitayaNetWorkState state, NetworkError error)
         {
-            if(NetWorkStateChangedEvent != null ) NetWorkStateChangedEvent.Invoke(state, error);
             _metricsAggr.Update(state, error);
+            if(NetWorkStateChangedEvent != null ) NetWorkStateChangedEvent.Invoke(state, error);
         }
 
         public void OnUserDefinedPush(string route, byte[] serializedBody)
@@ -261,6 +261,11 @@ namespace Pitaya
 
             _reqUid = 0;
             PitayaBinding.Disconnect(_client);
+
+            // We simulate a disconnect to the metrics aggregator. This is necessary because the dispose is called
+            // before the disconnect event can be fired.
+            _metricsAggr.Update(PitayaNetWorkState.Disconnected, null);
+
             PitayaBinding.Dispose(_client);
 
             _client = IntPtr.Zero;
