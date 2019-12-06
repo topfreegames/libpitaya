@@ -19,7 +19,7 @@ namespace Pitaya.Tests
         public void Setup()
         {
             _mainThread = Thread.CurrentThread;
-            _client = new PitayaClient(metricsCallbackFunc);
+            _client = new PitayaClient(MetricsCallbackFunc);
         }
 
         [TearDown]
@@ -31,10 +31,15 @@ namespace Pitaya.Tests
             _client = null;
         }
 
-        private void metricsCallbackFunc(PitayaMetrics.ConnectionSessionStats connectionSessionStats)
+        private static void MetricsCallbackFunc(PitayaMetrics.ConnectionSessionStats connectionSessionStats)
         {
-            UnityEngine.Debug.Log(string.Format("** REPORT **\n SessionTime = {0} | ConnectionTime = {1} | DisconnectionReason = {2} | ConnectionFailureDetails = {3}",
-            connectionSessionStats.SessionDurationSec, connectionSessionStats.ConnectionTime, connectionSessionStats.DisconnectionReason, connectionSessionStats.ConnectionFailureDetails));
+            UnityEngine.Debug.Log(string.Format(
+                "** REPORT **\n SessionTime = {0} | ConnectionTime = {1} | DisconnectionReason = {2} | ConnectionFailureDetails = {3}",
+                connectionSessionStats.SessionDurationSec,
+                connectionSessionStats.ConnectionTimeMs,
+                connectionSessionStats.ConnectionFinishReason,
+                connectionSessionStats.ConnectionFinishDetails
+            ));
         }
 
         [Test]
