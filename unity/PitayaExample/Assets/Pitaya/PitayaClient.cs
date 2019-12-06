@@ -126,9 +126,12 @@ namespace Pitaya
             _reqUid++;
             _typeRequestSubscriber.Subscribe(_reqUid, typeof(T));
 
-            Action<object> responseAction = res => { action((T) res); };
+            void ResponseAction(object res)
+            {
+                action((T) res);
+            }
 
-            _eventManager.AddCallBack(_reqUid, responseAction, errorAction);
+            _eventManager.AddCallBack(_reqUid, ResponseAction, errorAction);
 
             var serializer = PitayaBinding.ClientSerializer(_client);
 
@@ -138,9 +141,13 @@ namespace Pitaya
         public void Request(string route, string msg, int timeout, Action<string> action, Action<PitayaError> errorAction)
         {
             _reqUid++;
-            Action<object> responseAction = res => { action((string) res); };
 
-            _eventManager.AddCallBack(_reqUid, responseAction, errorAction);
+            void ResponseAction(object res)
+            {
+                action((string) res);
+            }
+
+            _eventManager.AddCallBack(_reqUid, ResponseAction, errorAction);
 
             PitayaBinding.Request(_client, route,JsonSerializer.Encode(msg), _reqUid, timeout);
         }
@@ -168,17 +175,25 @@ namespace Pitaya
 
         public void OnRoute(string route, Action<string> action)
         {
-            Action<object> responseAction = res => { action((string) res); };
-            _eventManager.AddOnRouteEvent(route, responseAction);
+            void ResponseAction(object res)
+            {
+                action((string) res);
+            }
+
+            _eventManager.AddOnRouteEvent(route, ResponseAction);
         }
 
         // start listening to a route
         public void OnRoute<T>(string route, Action<T> action)
         {
             _typePushSubscriber.Subscribe(route, typeof(T));
-            Action<object> responseAction = res => { action((T) res); };
 
-            _eventManager.AddOnRouteEvent(route, responseAction);
+            void ResponseAction(object res)
+            {
+                action((T) res);
+            }
+
+            _eventManager.AddOnRouteEvent(route, ResponseAction);
         }
 
         public void OffRoute(string route)
@@ -233,7 +248,7 @@ namespace Pitaya
                 decoded = JsonSerializer.Decode(serializedBody);
             }
 
-           _eventManager.InvokeOnEvent(route, decoded);
+            _eventManager.InvokeOnEvent(route, decoded);
         }
 
         public void Dispose()
