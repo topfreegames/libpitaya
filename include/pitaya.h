@@ -165,6 +165,11 @@ typedef struct {
 PC_EXPORT int pc_lib_version(void);
 PC_EXPORT const char* pc_lib_version_str(void);
 
+// This version of the function returns an owned version string,
+// that the application has to call free on. This is useful for interop with
+// C#, since it will always free a returned string from a unmanaged function.
+PC_EXPORT const char* pc_lib_version_owned_str(void);
+
 /**
  * If you do use default log callback,
  * this function will change the level of log out.
@@ -363,7 +368,6 @@ PC_EXPORT int tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
  * Macro implementation
  */
 #define pc_lib_version() PC_VERSION_NUM
-#define pc_lib_version_str() PC_VERSION_STR 
 
 #ifdef __cplusplus
 }

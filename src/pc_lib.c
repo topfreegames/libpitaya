@@ -460,3 +460,13 @@ void pc_lib_skip_key_pin_check(bool should_skip)
 {
     pc__skip_key_pin_check = should_skip;
 }
+
+const char *pc_lib_version_str(void)
+{
+    return PC_VERSION_STR;
+}
+
+const char* pc_lib_version_owned_str(void)
+{
+    return pc_lib_strdup(pc_lib_version_str());
+}
