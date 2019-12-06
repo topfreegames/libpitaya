@@ -10,11 +10,12 @@ namespace Pitaya
 {
     public class PitayaMetrics
     {
-        public ConnectionSessionStats connectionSessionStats;
         public delegate void MetricsCallback(ConnectionSessionStats stats);
-        private Stopwatch connectionWatch = new Stopwatch();
-        private Stopwatch sessionWatch = new Stopwatch();
-        private MetricsCallback cb;
+
+        public ConnectionSessionStats connectionSessionStats;
+        private Stopwatch _connectionWatch = new Stopwatch();
+        private Stopwatch _sessionWatch = new Stopwatch();
+        private MetricsCallback _cb;
 
         public enum ConnectionFailure
         {
@@ -23,7 +24,7 @@ namespace Pitaya
             Timeout,
         }
 
-        private static class disconnectionReason
+        private static class DisconnectionReason
         {
             public const string ConnectionEndedNormally = "ConnectionEndedNormally";
             public const string ConnectionTimeout = "ConnectionTimeout";
@@ -33,15 +34,15 @@ namespace Pitaya
             public const string ConnectionKicked = "Kicked";
         }
 
-        private PitayaNetWorkState[] sessionStartedStates = {
+        private static readonly PitayaNetWorkState[] SessionStartedStates = {
             PitayaNetWorkState.Connected, PitayaNetWorkState.FailToConnect, PitayaNetWorkState.Timeout, PitayaNetWorkState.Error
         };
 
-        private PitayaNetWorkState[] sessionErroredStates = {
+        private static readonly PitayaNetWorkState[] SessionErroredStates = {
             PitayaNetWorkState.FailToConnect, PitayaNetWorkState.Timeout, PitayaNetWorkState.Error
         };
 
-        private PitayaNetWorkState[] sessionEndStates = {
+        private static readonly PitayaNetWorkState[] SessionEndStates = {
             PitayaNetWorkState.Disconnected, PitayaNetWorkState.Kicked, PitayaNetWorkState.Closed
         };
 
@@ -70,65 +71,64 @@ namespace Pitaya
 
         public PitayaMetrics(MetricsCallback metricsCB = null)
         {
-            cb = metricsCB;
+            _cb = metricsCB;
         }
 
         public void Start()
         {
             connectionSessionStats = new ConnectionSessionStats();
-            sessionWatch.Start();
-            connectionWatch.Start();
+            _sessionWatch.Start();
+            _connectionWatch.Start();
         }
 
         public void Update(PitayaNetWorkState state, NetworkError error)
         {
             // Session started
-            if (sessionStartedStates.Contains(state))
+            if (SessionStartedStates.Contains(state))
             {
-                connectionWatch.Stop();
-                connectionSessionStats.ConnectionTime = connectionWatch.Elapsed;
+                _connectionWatch.Stop();
+                connectionSessionStats.ConnectionTime = _connectionWatch.Elapsed;
             }
 
             // Session ended
-            if (sessionEndStates.Contains(state) || sessionErroredStates.Contains(state))
+            if (SessionEndStates.Contains(state) || SessionErroredStates.Contains(state))
             {
-                stop(state, error);
+                Stop(state, error);
             }
         }
 
-        private void stop(PitayaNetWorkState state=PitayaNetWorkState.Disconnected, NetworkError error=null)
+        private void Stop(PitayaNetWorkState state=PitayaNetWorkState.Disconnected, NetworkError error=null)
         {
-            sessionWatch.Stop();
-            connectionSessionStats.SessionDurationSec = sessionWatch.Elapsed;
-            setDisconnectionReason(state, error);
+            _sessionWatch.Stop();
+            connectionSessionStats.SessionDurationSec = _sessionWatch.Elapsed;
+            SetDisconnectionReason(state, error);
 
-            if (cb != null)
-            {
-                cb(connectionSessionStats);
-            }
+            _cb?.Invoke(connectionSessionStats);
         }
 
-        private void setDisconnectionReason(PitayaNetWorkState state, NetworkError error)
+        private void SetDisconnectionReason(PitayaNetWorkState state, NetworkError error)
         {
             if (state == PitayaNetWorkState.Disconnected)
             {
                 // Disconnected with errors
-                if (error != null) {
+                if (error != null)
+                {
                     connectionSessionStats.DisconnectionReason = error.Error;
                     return;
                 }
 
                 // Disconnected normally
-                connectionSessionStats.DisconnectionReason = disconnectionReason.ConnectionEndedNormally;
+                connectionSessionStats.DisconnectionReason = DisconnectionReason.ConnectionEndedNormally;
                 return;
             }
 
             // Timeout trying to connect
             if (state == PitayaNetWorkState.Timeout)
             {
-                connectionSessionStats.DisconnectionReason = disconnectionReason.ConnectionTimeout;
+                connectionSessionStats.DisconnectionReason = DisconnectionReason.ConnectionTimeout;
                 connectionSessionStats.ConnectionFailure = ConnectionFailure.Timeout;
-                if (error != null) {
+                if (error != null)
+                {
                     connectionSessionStats.ConnectionFailureDetails = error.Error;
                 }
                 return;
@@ -138,34 +138,34 @@ namespace Pitaya
             if (state == PitayaNetWorkState.Error || state == PitayaNetWorkState.FailToConnect)
             {
                 connectionSessionStats.ConnectionFailure = ConnectionFailure.Error;
-                connectionSessionStats.DisconnectionReason = disconnectionReason.ConnectionErrored;
+                connectionSessionStats.DisconnectionReason = DisconnectionReason.ConnectionErrored;
 
                 if (state == PitayaNetWorkState.FailToConnect)
                 {
-                    connectionSessionStats.DisconnectionReason = disconnectionReason.FailedToConnect;
+                    connectionSessionStats.DisconnectionReason = DisconnectionReason.FailedToConnect;
                 }
 
                 // Error string is set
-                if (error != null) {
+                if (error != null)
+                {
                     connectionSessionStats.ConnectionFailureDetails = error.Error;
                     return;
                 }
-                
+
                 return;
             }
 
             // Closed connection
             if (state == PitayaNetWorkState.Closed)
             {
-                connectionSessionStats.DisconnectionReason = disconnectionReason.ConnectionClosed;
+                connectionSessionStats.DisconnectionReason = DisconnectionReason.ConnectionClosed;
                 return;
             }
 
             // Kicked
             if (state == PitayaNetWorkState.Kicked)
             {
-                connectionSessionStats.DisconnectionReason = disconnectionReason.ConnectionKicked;
-                return;
+                connectionSessionStats.DisconnectionReason = DisconnectionReason.ConnectionKicked;
             }
         }
     }
