@@ -69,6 +69,11 @@ namespace Pitaya
                 Debug.Log(data);
             }
         }
+        
+        public static string Version
+        {
+            get { return NativeLibVersion(); }
+        }
 
         static PitayaBinding()
         {
@@ -546,81 +551,82 @@ namespace Pitaya
 #else
         private const string LibName = "libpitaya-linux";
 #endif
+        [DllImport(LibName, EntryPoint = "pc_lib_version_owned_str", CallingConvention = CallingConvention.Cdecl)]
+        private static extern string NativeLibVersion();
 
-        // ReSharper disable UnusedMember.Local
-        [DllImport(LibName, EntryPoint = "tr_uv_tls_set_ca_file")]
+        [DllImport(LibName, EntryPoint = "tr_uv_tls_set_ca_file", CallingConvention = CallingConvention.Cdecl)]
         private static extern void NativeSetCertificatePath(string caFile, string caPath);
 
-        [DllImport(LibName, EntryPoint = "pc_unity_lib_init")]
+        [DllImport(LibName, EntryPoint = "pc_unity_lib_init", CallingConvention = CallingConvention.Cdecl)]
         private static extern void NativeLibInit(int logLevel, string caFile, string caPath, NativeAssertCallback assert, string platform, string buildNumber, string version);
 
-        [DllImport(LibName, EntryPoint = "pc_lib_set_default_log_level")]
+        [DllImport(LibName, EntryPoint = "pc_lib_set_default_log_level", CallingConvention = CallingConvention.Cdecl)]
         private static extern void NativeLibSetLogLevel(int logLevel);
 
-        [DllImport(LibName, EntryPoint = "pc_client_ev_str")]
+        [DllImport(LibName, EntryPoint = "pc_client_ev_str", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr NativeEvToStr(int ev);
-        [DllImport(LibName, EntryPoint = "pc_client_rc_str")]
+        [DllImport(LibName, EntryPoint = "pc_client_rc_str", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr NativeRcToStr(int rc);
 
-        [DllImport(LibName, EntryPoint = "pc_unity_create")]
+        [DllImport(LibName, EntryPoint = "pc_unity_create", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr NativeCreate(bool enableTls, bool enablePoll, bool enableReconnect, int connTimeout);
-        [DllImport(LibName, EntryPoint = "pc_unity_destroy")]
+        [DllImport(LibName, EntryPoint = "pc_unity_destroy", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeDestroy(IntPtr client);
 
-        [DllImport(LibName, EntryPoint = "pc_client_connect")]
+        [DllImport(LibName, EntryPoint = "pc_client_connect", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeConnect(IntPtr client, string host, int port, string handshakeOpts);
 
-        [DllImport(LibName, EntryPoint = "pc_client_disconnect")]
+        [DllImport(LibName, EntryPoint = "pc_client_disconnect", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeDisconnect(IntPtr client);
 
-        [DllImport(LibName, EntryPoint = "pc_unity_request")]
+        [DllImport(LibName, EntryPoint = "pc_unity_request", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeRequest(IntPtr client, string route, string msg, uint cbUid, int timeout, NativeRequestCallback callback, NativeErrorCallback errorCallback);
 
-        [DllImport(LibName, EntryPoint = "pc_unity_binary_request")]
+        [DllImport(LibName, EntryPoint = "pc_unity_binary_request", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeBinaryRequest(IntPtr client, string route, byte[] data, long len, uint cbUid, int timeout, NativeRequestCallback callback, NativeErrorCallback errorCallback);
 
-        [DllImport(LibName, EntryPoint = "pc_string_notify_with_timeout")]
+        [DllImport(LibName, EntryPoint = "pc_string_notify_with_timeout", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeNotify(IntPtr client, string route, string msg, IntPtr exData, int timeout, NativeNotifyCallback callback);
-        [DllImport(LibName, EntryPoint = "pc_binary_notify_with_timeout")]
+        [DllImport(LibName, EntryPoint = "pc_binary_notify_with_timeout", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeBinaryNotify(IntPtr client, string route, byte[] data, long len, IntPtr exData, int timeout, NativeNotifyCallback callback);
-        [DllImport(LibName, EntryPoint = "pc_client_poll")]
+        [DllImport(LibName, EntryPoint = "pc_client_poll", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativePoll(IntPtr client);
 
-        [DllImport(LibName, EntryPoint = "pc_client_add_ev_handler")]
+        [DllImport(LibName, EntryPoint = "pc_client_add_ev_handler", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeAddEventHandler(IntPtr client, NativeEventCallback callback, IntPtr exData, IntPtr destructor);
 
-        [DllImport(LibName, EntryPoint = "pc_client_set_push_handler")]
+        [DllImport(LibName, EntryPoint = "pc_client_set_push_handler", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeAddPushHandler(IntPtr client, NativePushCallback callback);
 
-        [DllImport(LibName, EntryPoint = "pc_client_rm_ev_handler")]
+        [DllImport(LibName, EntryPoint = "pc_client_rm_ev_handler", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeRemoveEventHandler(IntPtr client, int handlerId);
 
-        [DllImport(LibName, EntryPoint = "pc_client_conn_quality")]
+        [DllImport(LibName, EntryPoint = "pc_client_conn_quality", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeQuality(IntPtr client);
-        [DllImport(LibName, EntryPoint = "pc_client_state")]
+        [DllImport(LibName, EntryPoint = "pc_client_state", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeState(IntPtr client);
 
-        [DllImport(LibName, EntryPoint = "pc_client_serializer")]
+        [DllImport(LibName, EntryPoint = "pc_client_serializer", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr NativeSerializer(IntPtr client);
 
-        [DllImport(LibName, EntryPoint = "pc_client_free_serializer")]
+        [DllImport(LibName, EntryPoint = "pc_client_free_serializer", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr NativeFreeSerializer(IntPtr serializer);
 
         // ReSharper restore UnusedMember.Local
 
-        [DllImport(LibName, EntryPoint = "pc_lib_add_pinned_public_key_from_certificate_string")]
+        [DllImport(LibName, EntryPoint = "pc_lib_add_pinned_public_key_from_certificate_string", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeAddPinnedPublicKeyFromCertificateString(string ca_string);
 
-        [DllImport(LibName, EntryPoint = "pc_lib_add_pinned_public_key_from_certificate_file")]
+        [DllImport(LibName, EntryPoint = "pc_lib_add_pinned_public_key_from_certificate_file", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeAddPinnedPublicKeyFromCertificateFile(string caPath);
 
-        [DllImport(LibName, EntryPoint = "pc_lib_skip_key_pin_check")]
+        [DllImport(LibName, EntryPoint = "pc_lib_skip_key_pin_check", CallingConvention = CallingConvention.Cdecl)]
         private static extern void NativeSkipKeyPinCheck(bool shouldSkip);
 
-        [DllImport(LibName, EntryPoint = "pc_lib_clear_pinned_public_keys")]
+        [DllImport(LibName, EntryPoint = "pc_lib_clear_pinned_public_keys", CallingConvention = CallingConvention.Cdecl)]
         private static extern void NativeClearPinnedPublicKeys();
 
-        [DllImport(LibName, EntryPoint = "pc_unity_init_log_function")]
+        [DllImport(LibName, EntryPoint = "pc_unity_init_log_function", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NativeInitLogFunction(NativeLogFunction fn);
 #if UNITY_IPHONE && !UNITY_EDITOR
         [DllImport("__Internal")]
