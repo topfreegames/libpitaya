@@ -10,11 +10,20 @@ namespace Pitaya
     {
         public delegate void MetricsCallback(ConnectionSessionStats stats);
 
-        public enum PingStatus
+        public class Config
         {
-            Ok,
-            Timeout,
-            Error
+            private MetricsCallback _cb;
+            private string _pingRoute;
+            
+            public string PingRoute { get { return _pingRoute; } }
+            public MetricsCallback Cb { get { return _cb; } }
+
+            public Config(MetricsCallback cb, string pingRoute = null)
+            {
+                Assert.IsNotNull(cb);
+                _cb = cb;
+                _pingRoute = pingRoute;
+            }
         }
 
         private class RequestRecording
@@ -23,7 +32,13 @@ namespace Pitaya
             public Stopwatch Watch = new Stopwatch();
         }
 
-        public delegate void SendPing(Action<PingStatus> onPingDone);
+        private class PingRecording
+        {
+            public List<double> LatenciesMs = new List<double>();
+            public Stopwatch Watch = new Stopwatch();
+            public uint Loss = 0;
+            public uint Total = 0;
+        }
 
         private enum State
         {
@@ -51,10 +66,11 @@ namespace Pitaya
         private State _state;
         private ConnectedState _connectedState;
         private ConnectingState _connectingState;
-        private Dictionary<string, RequestRecording> _requestsLatencies = new Dictionary<string, RequestRecording>(15);
+        private readonly Dictionary<string, RequestRecording> _requestsLatencies;
+        private readonly PingRecording _pingRecording;
+        private Config _config;
 
         private ConnectionSessionStats _connectionSessionStats;
-        private readonly MetricsCallback _cb;
 
         private static class ConnectionFinishReason
         {
@@ -71,8 +87,8 @@ namespace Pitaya
             // Or should a pitaya client contain an id as well to distinguish different client instances?
             public uint Version;
             public double SessionDurationSec;
-            public uint PingAverage;
-            public uint PingStdDeviation;
+            public double PingAverage;
+            public double PingStdDeviation;
             public uint PingTotal;
             public uint PingLoss;
             public string ConnectionFinishReason;
@@ -91,13 +107,15 @@ namespace Pitaya
             }
         }
 
-        public PitayaMetrics(MetricsCallback metricsCB)
+        public PitayaMetrics(Config config)
         {
-            Assert.IsNotNull(metricsCB);
-            _cb = metricsCB;
+            Assert.IsNotNull(config);
+            _config = config;
             _state = State.NotConnected;
             _connectedState = null;
             _connectingState = null;
+            _pingRecording = new PingRecording();
+            _requestsLatencies = new Dictionary<string, RequestRecording>(15);
         }
 
         public void Start()
@@ -116,15 +134,22 @@ namespace Pitaya
         {
             // We should not assume here that the _state variable will be of a specific value. LibPitaya can buffer
             // requests even before the client is connected.
-            if (_requestsLatencies.TryGetValue(route, out RequestRecording recording))
+            if (route == _config.PingRoute)
             {
-                recording.Watch.Start();
+                _pingRecording.Watch.Start();
             }
             else
             {
-                var r = new RequestRecording();
-                _requestsLatencies.Add(route, r);
-                r.Watch.Start();
+                if (_requestsLatencies.TryGetValue(route, out RequestRecording recording))
+                {
+                    recording.Watch.Start();
+                }
+                else
+                {
+                    var r = new RequestRecording();
+                    _requestsLatencies.Add(route, r);
+                    r.Watch.Start();
+                }
             }
         }
 
@@ -135,13 +160,27 @@ namespace Pitaya
                 // TODO(lhahn): Should some errors not be collected here? For example, timeouts.
                 // for the moment just ignore errors...
             }
-            
-            Assert.IsTrue(_requestsLatencies.ContainsKey(route));
-            if (_requestsLatencies.TryGetValue(route, out RequestRecording recording))
+
+            if (route == _config.PingRoute)
             {
-                recording.Watch.Stop();
-                recording.LatenciesMs.Add(recording.Watch.Elapsed.TotalMilliseconds);
-                recording.Watch.Reset();
+                _pingRecording.Watch.Stop();
+                _pingRecording.LatenciesMs.Add(_pingRecording.Watch.Elapsed.TotalMilliseconds);
+                _pingRecording.Watch.Reset();
+                _pingRecording.Total++;
+                if (err != null && err.Code == "PC_RC_TIMEOUT")
+                {
+                    _pingRecording.Loss++;
+                }
+            }
+            else
+            {
+                Assert.IsTrue(_requestsLatencies.ContainsKey(route));
+                if (_requestsLatencies.TryGetValue(route, out RequestRecording recording))
+                {
+                    recording.Watch.Stop();
+                    recording.LatenciesMs.Add(recording.Watch.Elapsed.TotalMilliseconds);
+                    recording.Watch.Reset();
+                }
             }
         }
 
@@ -161,6 +200,14 @@ namespace Pitaya
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public void ForceStop()
+        {
+            // HACK(lhahn): We simulate a disconnect to the metrics aggregator. This is necessary because the dispose is called
+            // before the disconnect event can be fired in the PitayaClient class. This could be resolved in the future,
+            // but for the moment I think this solution won't have issues.
+            Update(PitayaNetWorkState.Disconnected, null);
         }
 
         private void UpdateConnectedState(PitayaNetWorkState pitayaState, NetworkError pitayaErr)
@@ -235,14 +282,6 @@ namespace Pitaya
             }
         }
 
-        public void ForceStop()
-        {
-            // HACK(lhahn): We simulate a disconnect to the metrics aggregator. This is necessary because the dispose is called
-            // before the disconnect event can be fired in the PitayaClient class. This could be resolved in the future,
-            // but for the moment I think this solution won't have issues.
-            Update(PitayaNetWorkState.Disconnected, null);
-        }
-
         private void StopConnectingState(NetworkError pitayaErr)
         {
             Assert.IsNotNull(pitayaErr);
@@ -250,7 +289,7 @@ namespace Pitaya
             Assert.IsNotNull(_connectingState);
             _connectionSessionStats.ConnectionFinishReason = ConnectionFinishReason.FailedToConnect;
             _connectionSessionStats.ConnectionFinishDetails = GetErrorDetails(pitayaErr);
-            CalculateRoutesMetrics(ref _connectionSessionStats);
+            CalculateRoutesAndPingMetrics(ref _connectionSessionStats);
 
             SendConnectionStatsSummaryAndResetState();
         }
@@ -274,14 +313,14 @@ namespace Pitaya
 
             _connectedState.SessionWatch.Stop();
             _connectionSessionStats.SessionDurationSec = _connectedState.SessionWatch.Elapsed.TotalSeconds;
-            CalculateRoutesMetrics(ref _connectionSessionStats);
+            CalculateRoutesAndPingMetrics(ref _connectionSessionStats);
 
             SendConnectionStatsSummaryAndResetState();
         }
 
         private void SendConnectionStatsSummaryAndResetState()
         {
-            _cb(_connectionSessionStats);
+            _config.Cb(_connectionSessionStats);
             _connectionSessionStats = DefaultConnectionSessionStats();
             _state = State.NotConnected;
             _connectingState = null;
@@ -290,36 +329,50 @@ namespace Pitaya
             _requestsLatencies.Clear();
         }
 
-        private void CalculateRoutesMetrics(ref ConnectionSessionStats connectionSessionStats)
+        private void CalculateRoutesAndPingMetrics(ref ConnectionSessionStats connectionSessionStats)
         {
             Assert.IsTrue(connectionSessionStats.RoutesLatencyMs.Count == 0);
             Assert.IsTrue(connectionSessionStats.RoutesStandardDeviation.Count == 0);
 
-            foreach (var kv in _requestsLatencies)
+            double CalculateAverage(List<double> arr)
             {
-                string route = kv.Key;
-                RequestRecording recording = kv.Value;
-
                 // Calculate the average
-                double averageLatency = 0;
-                for (var i = 0; i < recording.LatenciesMs.Count; ++i)
+                double average = 0;
+                for (var i = 0; i < arr.Count; ++i)
                 {
-                    averageLatency += recording.LatenciesMs[i];
+                    average += arr[i];
                 }
-                averageLatency /= recording.LatenciesMs.Count;
-                
-                // Calculate the standard deviation
-                double stdDeviation = 0;
-                for (var i = 0; i < recording.LatenciesMs.Count; ++i)
-                {
-                    stdDeviation += Math.Pow(recording.LatenciesMs[i] - averageLatency, 2);
-                }
-                stdDeviation /= recording.LatenciesMs.Count;
-                stdDeviation = Math.Sqrt(stdDeviation);
-
-                connectionSessionStats.RoutesLatencyMs.Add(route, averageLatency);
-                connectionSessionStats.RoutesStandardDeviation.Add(route, stdDeviation);
+                average /= arr.Count;
+                return average;
             }
+
+            double CalculateStdDeviation(List<double> arr, double avg)
+            {
+                double stdDeviation = 0;
+                for (var i = 0; i < arr.Count; ++i)
+                {
+                    stdDeviation += Math.Pow(arr[i] - avg, 2);
+                }
+                stdDeviation /= arr.Count;
+                stdDeviation = Math.Sqrt(stdDeviation);
+                return stdDeviation;
+            }
+
+            foreach (KeyValuePair<string, RequestRecording> kv in _requestsLatencies)
+            {
+                double averageLatency = CalculateAverage(kv.Value.LatenciesMs);
+                double stdDeviation = CalculateStdDeviation(kv.Value.LatenciesMs, averageLatency);
+
+                connectionSessionStats.RoutesLatencyMs.Add(kv.Key, averageLatency);
+                connectionSessionStats.RoutesStandardDeviation.Add(kv.Key, stdDeviation);
+            }
+
+            connectionSessionStats.PingAverage = CalculateAverage(_pingRecording.LatenciesMs);
+            connectionSessionStats.PingStdDeviation = CalculateStdDeviation(
+                _pingRecording.LatenciesMs, connectionSessionStats.PingAverage
+            );
+            connectionSessionStats.PingTotal = _pingRecording.Total;
+            connectionSessionStats.PingLoss = _pingRecording.Loss;
         }
 
         private ConnectionSessionStats DefaultConnectionSessionStats()

@@ -19,7 +19,7 @@ namespace Pitaya.Tests
         public void Setup()
         {
             _mainThread = Thread.CurrentThread;
-            _client = new PitayaClient(MetricsCallbackFunc);
+            _client = new PitayaClient(new PitayaMetrics.Config(MetricsCallbackFunc));
         }
 
         [TearDown]

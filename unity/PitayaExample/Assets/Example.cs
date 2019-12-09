@@ -30,11 +30,12 @@ public class Example : MonoBehaviour
 		});
 		
 		// _client = new PitayaClient("ca.crt");
-		_client = new PitayaClient(metricsCb: stats =>
+		_client = new PitayaClient(new PitayaMetrics.Config(stats =>
 		{
 			Debug.Log("=========> Received connection stats!");
 			Debug.Log(stats.Serialize());
-		});
+		}, "connector.getsessiondata"));
+
 		_connected = false;
 		_requestSent = false;
 

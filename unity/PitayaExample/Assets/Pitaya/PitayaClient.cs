@@ -36,14 +36,14 @@ namespace Pitaya
             Init(certificateName, certificateName != null, false, false, DefaultConnectionTimeout, null);
         }
 
-        public PitayaClient(PitayaMetrics.MetricsCallback metricsCb = null)
+        public PitayaClient(PitayaMetrics.Config config = null)
         {
-            Init(null, false, false, false, DefaultConnectionTimeout, metricsCb);
+            Init(null, false, false, false, DefaultConnectionTimeout, config);
         }
 
-        public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DefaultConnectionTimeout, PitayaMetrics.MetricsCallback metricsCb = null)
+        public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DefaultConnectionTimeout, PitayaMetrics.Config config = null)
         {
-            Init(certificateName, certificateName != null, false, enableReconnect, DefaultConnectionTimeout, metricsCb);
+            Init(certificateName, certificateName != null, false, enableReconnect, DefaultConnectionTimeout, config);
         }
 
         ~PitayaClient()
@@ -51,16 +51,22 @@ namespace Pitaya
             Dispose();
         }
 
-        private void Init(string certificateName, bool enableTlS, bool enablePolling, bool enableReconnect, int connTimeout, PitayaMetrics.MetricsCallback metricsCb)
+        private void Init(
+            string certificateName,
+            bool enableTlS,
+            bool enablePolling,
+            bool enableReconnect,
+            int connTimeout,
+            PitayaMetrics.Config config)
         {
             _eventManager = new EventManager();
             _typeRequestSubscriber = new TypeSubscriber<uint>();
             _typePushSubscriber = new TypeSubscriber<string>();
             _client = PitayaBinding.CreateClient(enableTlS, enablePolling, enableReconnect, connTimeout, this);
 
-            if (metricsCb != null)
+            if (config != null)
             {
-                _metricsAggr = new PitayaMetrics(metricsCb);
+                _metricsAggr = new PitayaMetrics(config);
             }
 
             if (certificateName != null)
