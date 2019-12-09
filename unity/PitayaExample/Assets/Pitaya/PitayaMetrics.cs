@@ -14,7 +14,7 @@ namespace Pitaya
         {
             private MetricsCallback _cb;
             private string _pingRoute;
-            
+
             public string PingRoute { get { return _pingRoute; } }
             public MetricsCallback Cb { get { return _cb; } }
 
@@ -36,8 +36,8 @@ namespace Pitaya
         {
             public List<double> LatenciesMs = new List<double>();
             public Stopwatch Watch = new Stopwatch();
-            public uint Loss = 0;
-            public uint Total = 0;
+            public uint Loss;
+            public uint Total;
         }
 
         private enum State
@@ -55,7 +55,7 @@ namespace Pitaya
         private class ConnectedState
         {
             public Stopwatch SessionWatch = new Stopwatch();
-            public bool KickReceived = false;
+            public bool KickReceived;
         }
 
         // The current version of the event that is being sent. This value should always increase when the
@@ -68,7 +68,7 @@ namespace Pitaya
         private ConnectingState _connectingState;
         private readonly Dictionary<string, RequestRecording> _requestsLatencies;
         private readonly PingRecording _pingRecording;
-        private Config _config;
+        private readonly Config _config;
 
         private ConnectionSessionStats _connectionSessionStats;
 
@@ -336,7 +336,9 @@ namespace Pitaya
 
             double CalculateAverage(List<double> arr)
             {
-                // Calculate the average
+                if (arr.Count == 0)
+                    return 0;
+
                 double average = 0;
                 for (var i = 0; i < arr.Count; ++i)
                 {
@@ -348,6 +350,9 @@ namespace Pitaya
 
             double CalculateStdDeviation(List<double> arr, double avg)
             {
+                if (arr.Count == 0)
+                    return 0;
+
                 double stdDeviation = 0;
                 for (var i = 0; i < arr.Count; ++i)
                 {
@@ -375,7 +380,7 @@ namespace Pitaya
             connectionSessionStats.PingLoss = _pingRecording.Loss;
         }
 
-        private ConnectionSessionStats DefaultConnectionSessionStats()
+        private static ConnectionSessionStats DefaultConnectionSessionStats()
         {
             return new ConnectionSessionStats
             {

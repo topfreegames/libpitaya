@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace Pitaya.Tests
     public class PitayaMetricsTest
     {
         const string ServerHost = "libpitaya-tests.tfgco.com";
+        const string GetSessionDataRoute = "connector.getsessiondata";
         const int ServerPort = 3251;
 
         PitayaClient _client;
@@ -24,23 +26,18 @@ namespace Pitaya.Tests
             _client = null;
         }
 
-        [UnityTest]
-        public IEnumerator StatsShouldBeReportedAtEndOfConnection()
+        static IEnumerator Connect(PitayaClient client)
         {
-            bool statsCalled = false;
-
-            _client = new PitayaClient(new PitayaMetrics.Config(stats => { statsCalled = true; }));
-            
             var called = false;
             var connectionState = PitayaNetWorkState.Disconnected;
 
-            _client.NetWorkStateChangedEvent += (networkState, error) => 
+            client.NetWorkStateChangedEvent += (networkState, error) => 
             {
                 called = true;
                 connectionState = networkState;
             };
 
-            _client.Connect(ServerHost, ServerPort);
+            client.Connect(ServerHost, ServerPort);
 
             while (!called)
             {
@@ -49,10 +46,47 @@ namespace Pitaya.Tests
 
             Assert.True(called);
             Assert.AreEqual(connectionState, PitayaNetWorkState.Connected);
-            
+        }
+
+        [UnityTest]
+        public IEnumerator StatsShouldBeReportedAtEndOfConnection()
+        {
+            bool statsCalled = false;
+
+            _client = new PitayaClient(new PitayaMetrics.Config(stats =>
+            {
+                statsCalled = true;
+                Assert.Equals(stats.ConnectionFinishReason, "UserRequest");
+            }));
+            yield return Connect(_client);
             _client.Disconnect();
             yield return new WaitForSeconds(0.2f);
             Assert.IsTrue(statsCalled);
+        }
+
+        [UnityTest]
+        public IEnumerator PingStatsShouldBeReportedOnlyWhenRouteIsCalled()
+        {
+            {
+                bool statsCalled = false;
+
+                _client = new PitayaClient(new PitayaMetrics.Config(
+                    stats =>
+                    {
+                        statsCalled = true;
+                        Assert.Less(Math.Abs(stats.PingAverage), 0.0001);
+                        Assert.Less(Math.Abs(stats.PingStdDeviation), 0.0001);
+                        Assert.Equals(stats.PingTotal, 0);
+                        Assert.Equals(stats.PingLoss, 0);
+                    },
+                    GetSessionDataRoute
+                ));
+
+                yield return Connect(_client);
+                _client.Disconnect();
+                yield return new WaitForSeconds(0.3f);
+                Assert.IsTrue(statsCalled);
+            }
         }
     }
 }
