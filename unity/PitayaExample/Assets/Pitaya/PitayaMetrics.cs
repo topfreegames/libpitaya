@@ -241,9 +241,9 @@ namespace Pitaya
             Assert.IsNull(_connectedState);
             Assert.IsNull(_connectingState);
 
+            // It is possible to receive a duplicated disconnected event, so we just ignore it.
             if (pitayaState != PitayaNetWorkState.Disconnected)
             {
-                // It is possible to receive a duplicated disconnected event, so we just ignore it.
                 throw new Exception(string.Format("PitayaMetrics received pitaya state {0} when in not connected state", pitayaState));
             }
         }
