@@ -2,6 +2,8 @@
 using System.IO;
 using UnityEngine;
 using Pitaya;
+using Pitaya.SimpleJson;
+using UnityEngine.UI;
 
 public class Example : MonoBehaviour
 {
@@ -9,11 +11,30 @@ public class Example : MonoBehaviour
 	private bool _connected;
 	private bool _requestSent;
 
+	public Button GetDataButton;
+
 	// Use this for initialization
 	private void Start()
 	{
+		GetDataButton.onClick.AddListener(() =>
+		{
+			_client.Request("connector.getsessiondata",
+				action: data =>
+				{
+					Debug.LogFormat("GetSessionData: {0}", data);
+				},
+				errorAction: err =>
+				{
+					Debug.LogFormat("GetSessionData Error: {0}", err);
+				});
+		});
+		
 		// _client = new PitayaClient("ca.crt");
-		_client = new PitayaClient();
+		_client = new PitayaClient(metricsCb: stats =>
+		{
+			Debug.Log("=========> Received connection stats!");
+			Debug.Log(stats.Serialize());
+		});
 		_connected = false;
 		_requestSent = false;
 
@@ -30,7 +51,7 @@ public class Example : MonoBehaviour
 			}
 		};
 
-		_client.Connect("a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com", 3251,
+		_client.Connect("libpitaya-tests.tfgco.com", 3251,
 			new Dictionary<string, string>
             {
                 {"oi", "mano"}
@@ -43,12 +64,11 @@ public class Example : MonoBehaviour
 		if (_connected && !_requestSent)
 		{
 			_client.Request("connector.getsessiondata",
-				(data) =>
+				action: data =>
                 {
 					Debug.Log("Got request data: " + data);
-	                File.WriteAllText("/Users/lhahn/Downloads/OH_MY_GOD.txt", "I Got the request data: " + data);
                 },
-				(err) =>
+				errorAction: (err) =>
 				{
 					Debug.LogError("Got error: code = " + err.Code + ", msg = " + err.Msg);
 				});

@@ -57,7 +57,11 @@ namespace Pitaya
             _typeRequestSubscriber = new TypeSubscriber<uint>();
             _typePushSubscriber = new TypeSubscriber<string>();
             _client = PitayaBinding.CreateClient(enableTlS, enablePolling, enableReconnect, connTimeout, this);
-            _metricsAggr = new PitayaMetrics(metricsCb);
+
+            if (metricsCb != null)
+            {
+                _metricsAggr = new PitayaMetrics(metricsCb);
+            }
 
             if (certificateName != null)
             {
@@ -90,13 +94,13 @@ namespace Pitaya
 
         public void Connect(string host, int port, string handshakeOpts = null)
         {
-            _metricsAggr.Start();
+            if (_metricsAggr != null) _metricsAggr.Start();
             PitayaBinding.Connect(_client, host, port, handshakeOpts);
         }
 
         public void Connect(string host, int port, Dictionary<string, string> handshakeOpts)
         {
-            _metricsAggr.Start();
+            if (_metricsAggr != null) _metricsAggr.Start();
             var opts = Pitaya.SimpleJson.SimpleJson.SerializeObject(handshakeOpts);
             PitayaBinding.Connect(_client, host, port, opts);
         }
@@ -123,15 +127,24 @@ namespace Pitaya
 
         public void Request<T>(string route, IMessage msg, int timeout, Action<T> action, Action<PitayaError> errorAction)
         {
+            if (_metricsAggr != null) _metricsAggr.StartRecordingRequest(route);
+
             _reqUid++;
             _typeRequestSubscriber.Subscribe(_reqUid, typeof(T));
 
             void ResponseAction(object res)
             {
+                if (_metricsAggr != null) _metricsAggr.StopRecordingRequest(route);
                 action((T) res);
             }
 
-            _eventManager.AddCallBack(_reqUid, ResponseAction, errorAction);
+            void ErrorAction(PitayaError err)
+            {
+                if (_metricsAggr != null) _metricsAggr.StopRecordingRequest(route, err);
+                errorAction(err);
+            }
+
+            _eventManager.AddCallBack(_reqUid, ResponseAction, ErrorAction);
 
             var serializer = PitayaBinding.ClientSerializer(_client);
 
@@ -140,14 +153,23 @@ namespace Pitaya
 
         public void Request(string route, string msg, int timeout, Action<string> action, Action<PitayaError> errorAction)
         {
+            if (_metricsAggr != null) _metricsAggr.StartRecordingRequest(route);
+
             _reqUid++;
 
             void ResponseAction(object res)
             {
+                _metricsAggr.StopRecordingRequest(route);
                 action((string) res);
             }
 
-            _eventManager.AddCallBack(_reqUid, ResponseAction, errorAction);
+            void ErrorAction(PitayaError err)
+            {
+                _metricsAggr.StopRecordingRequest(route, err);
+                errorAction(err);
+            }
+
+            _eventManager.AddCallBack(_reqUid, ResponseAction, ErrorAction);
 
             PitayaBinding.Request(_client, route,JsonSerializer.Encode(msg), _reqUid, timeout);
         }
@@ -231,7 +253,7 @@ namespace Pitaya
 
         public void OnNetworkEvent(PitayaNetWorkState state, NetworkError error)
         {
-            _metricsAggr.Update(state, error);
+            if (_metricsAggr != null) _metricsAggr.Update(state, error);
             if(NetWorkStateChangedEvent != null ) NetWorkStateChangedEvent.Invoke(state, error);
         }
 
@@ -261,11 +283,7 @@ namespace Pitaya
 
             _reqUid = 0;
             PitayaBinding.Disconnect(_client);
-
-            // We simulate a disconnect to the metrics aggregator. This is necessary because the dispose is called
-            // before the disconnect event can be fired.
-            _metricsAggr.Update(PitayaNetWorkState.Disconnected, null);
-
+            if (_metricsAggr != null) _metricsAggr.ForceStop();
             PitayaBinding.Dispose(_client);
 
             _client = IntPtr.Zero;
