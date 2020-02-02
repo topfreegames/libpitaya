@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>3.0.3</version>
+    <version>3.0.4</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Fix connection timeout not being passed on the contructor</releaseNotes>
+    <releaseNotes>Fixed Unity Editor required to be closed and reopened to update game version</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>

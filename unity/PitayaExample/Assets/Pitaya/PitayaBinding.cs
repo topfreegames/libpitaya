@@ -77,7 +77,45 @@ namespace Pitaya
             NativePushCallback = OnPush;
             NativeNotifyCallback = OnNotify;
             NativeErrorCallback = OnError;
+            
+            SetLogFunction(LogFunction);
+            NativeLibInit((int) _currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
+        }
 
+        private static void SetLogFunction(NativeLogFunction fn)
+        {
+            int rc = NativeInitLogFunction(fn);
+            if (rc != 0)
+            {
+                throw new Exception("Cannot initialize log function");
+            }
+        }
+
+        private static string BuildNumber()
+        {
+            switch (Application.platform)
+            {
+                case RuntimePlatform.IPhonePlayer:
+                    return _PitayaGetCFBundleVersion();
+                case RuntimePlatform.Android:
+                    return _AndroidBuildNumber();
+                default:
+                    return "1";
+            }
+        }
+        
+        private static string _AndroidBuildNumber()
+        {
+            var contextCls = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            var context = contextCls.GetStatic<AndroidJavaObject>("currentActivity");
+            var packageMngr = context.Call<AndroidJavaObject>("getPackageManager");
+            var packageName = context.Call<string>("getPackageName");
+            var packageInfo = packageMngr.Call<AndroidJavaObject>("getPackageInfo", packageName, 0);
+            return (packageInfo.Get<int>("versionCode")).ToString();
+        }
+
+        private static string Platform()
+        {
             string platform;
             switch (Application.platform)
             {
@@ -104,42 +142,18 @@ namespace Pitaya
                     break;
             }
 
-            SetLogFunction(LogFunction);
-            NativeLibInit((int)_currentLogLevel, null, null, OnAssert, platform, BuildNumber(), Application.version);
+            return platform;
         }
-
-        private static void SetLogFunction(NativeLogFunction fn)
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void OnEditorInitialize()
         {
-            int rc = NativeInitLogFunction(fn);
-            if (rc != 0)
+            if (Application.isEditor)
             {
-                throw new Exception("Cannot initialize log function");
+                NativeLibUpdateClientInfo(Platform(), BuildNumber(), Application.version);
             }
         }
-
-        private static string BuildNumber()
-        {
-            switch (Application.platform)
-            {
-                case RuntimePlatform.IPhonePlayer:
-                    return _PitayaGetCFBundleVersion();
-                case RuntimePlatform.Android:
-                    return _AndroidBuildNumber();
-                default:
-                    return "1";
-            }
-        }
-
-        private static string _AndroidBuildNumber()
-        {
-            var contextCls = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            var context = contextCls.GetStatic<AndroidJavaObject>("currentActivity");
-            var packageMngr = context.Call<AndroidJavaObject>("getPackageManager");
-            var packageName = context.Call<string>("getPackageName");
-            var packageInfo = packageMngr.Call<AndroidJavaObject>("getPackageInfo", packageName, 0);
-            return (packageInfo.Get<int>("versionCode")).ToString();
-        }
-
+        
         public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener)
         {
             var client = NativeCreate(enableTls, enablePolling, enableReconnect, connTimeout);
@@ -553,6 +567,9 @@ namespace Pitaya
 
         [DllImport(LibName, EntryPoint = "pc_unity_lib_init")]
         private static extern void NativeLibInit(int logLevel, string caFile, string caPath, NativeAssertCallback assert, string platform, string buildNumber, string version);
+
+        [DllImport(LibName, EntryPoint = "pc_unity_update_client_info")]
+        private static extern void NativeLibUpdateClientInfo(string platform, string buildNumber, string version);
 
         [DllImport(LibName, EntryPoint = "pc_lib_set_default_log_level")]
         private static extern void NativeLibSetLogLevel(int logLevel);
