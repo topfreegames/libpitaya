@@ -77,35 +77,9 @@ namespace Pitaya
             NativePushCallback = OnPush;
             NativeNotifyCallback = OnNotify;
             NativeErrorCallback = OnError;
-
-            string platform;
-            switch (Application.platform)
-            {
-                case RuntimePlatform.Android:
-                    platform = "android";
-                    break;
-                case RuntimePlatform.LinuxEditor:
-                case RuntimePlatform.LinuxPlayer:
-                    platform = "linux";
-                    break;
-                case RuntimePlatform.WindowsEditor:
-                case RuntimePlatform.WindowsPlayer:
-                    platform = "windows";
-                    break;
-                case RuntimePlatform.IPhonePlayer:
-                    platform = "ios";
-                    break;
-                case RuntimePlatform.OSXEditor:
-                case RuntimePlatform.OSXPlayer:
-                    platform = "mac";
-                    break;
-                default:
-                    platform = Application.platform.ToString();
-                    break;
-            }
-
+            
             SetLogFunction(LogFunction);
-            NativeLibInit((int)_currentLogLevel, null, null, OnAssert, platform, BuildNumber(), Application.version);
+            NativeLibInit((int) _currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
         }
 
         private static void SetLogFunction(NativeLogFunction fn)
@@ -129,7 +103,7 @@ namespace Pitaya
                     return "1";
             }
         }
-
+        
         private static string _AndroidBuildNumber()
         {
             var contextCls = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -140,6 +114,37 @@ namespace Pitaya
             return (packageInfo.Get<int>("versionCode")).ToString();
         }
 
+        private static string Platform()
+        {
+            switch (Application.platform)
+            {
+                case RuntimePlatform.Android:
+                    return "android";
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                    return "linux";
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    return "windows";
+                case RuntimePlatform.IPhonePlayer:
+                    return "ios";
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                    return "mac";
+                default:
+                    return Application.platform.ToString();
+            }
+        }
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void OnEditorInitialize()
+        {
+            if (Application.isEditor)
+            {
+                NativeLibUpdateClientInfo(Platform(), BuildNumber(), Application.version);
+            }
+        }
+        
         public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener)
         {
             var client = NativeCreate(enableTls, enablePolling, enableReconnect, connTimeout);
@@ -553,6 +558,9 @@ namespace Pitaya
 
         [DllImport(LibName, EntryPoint = "pc_unity_lib_init")]
         private static extern void NativeLibInit(int logLevel, string caFile, string caPath, NativeAssertCallback assert, string platform, string buildNumber, string version);
+
+        [DllImport(LibName, EntryPoint = "pc_unity_update_client_info")]
+        private static extern void NativeLibUpdateClientInfo(string platform, string buildNumber, string version);
 
         [DllImport(LibName, EntryPoint = "pc_lib_set_default_log_level")]
         private static extern void NativeLibSetLogLevel(int logLevel);
