@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit testing (not only integration tests)
 - Better support for languages other than C#
 
+## [3.0.4] - 2020-02-04
+### Fixed
+- c#: Fixed Unity Editor required to be closed and reopened to update game version
+
 ## [3.0.3] - 2019-10-28
 ### Fixed
 - c#: connection timeout parameter was not being used (a default was hardcodeed).
