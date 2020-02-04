@@ -116,33 +116,24 @@ namespace Pitaya
 
         private static string Platform()
         {
-            string platform;
             switch (Application.platform)
             {
                 case RuntimePlatform.Android:
-                    platform = "android";
-                    break;
+                    return "android";
                 case RuntimePlatform.LinuxEditor:
                 case RuntimePlatform.LinuxPlayer:
-                    platform = "linux";
-                    break;
+                    return "linux";
                 case RuntimePlatform.WindowsEditor:
                 case RuntimePlatform.WindowsPlayer:
-                    platform = "windows";
-                    break;
+                    return "windows";
                 case RuntimePlatform.IPhonePlayer:
-                    platform = "ios";
-                    break;
+                    return "ios";
                 case RuntimePlatform.OSXEditor:
                 case RuntimePlatform.OSXPlayer:
-                    platform = "mac";
-                    break;
+                    return "mac";
                 default:
-                    platform = Application.platform.ToString();
-                    break;
+                    return Application.platform.ToString();
             }
-
-            return platform;
         }
         
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
