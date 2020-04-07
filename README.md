@@ -7,6 +7,8 @@
 
 Libpitaya is currently under development and is not yet ready for production use. We are working on tests and better documentation and we'll update the project as soon as possible.
 
+Libpitaya C# binding for 4.0.0 and above require Unity 2019.3 to work.
+
 # Libpitaya
 
 Libpitaya is a SDK for building clients for projects using the pitaya game server framework and is built on top of [libpomelo2](https://github.com/NetEase/libpomelo2)
