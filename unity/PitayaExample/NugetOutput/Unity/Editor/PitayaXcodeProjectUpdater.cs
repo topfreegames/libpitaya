@@ -16,10 +16,10 @@ public class PitayaBuildPostprocessor
 			PBXProject proj = new PBXProject();
 			proj.ReadFromString(File.ReadAllText(projPath));
 
-			string target = proj.TargetGuidByName("Unity-iPhone");
+			string targetGuid = proj.GetUnityFrameworkTargetGuid();
 
 			// Pitaya should be linked with zlib when on iOS.
-			proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-lz");
+			proj.AddBuildProperty(targetGuid, "OTHER_LDFLAGS", "-lz");
 
 			File.WriteAllText(projPath, proj.WriteToString());
 		}
