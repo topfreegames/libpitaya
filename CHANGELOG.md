@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit testing (not only integration tests)
 - Better support for languages other than C#
 
+## [4.0.0] - 2020-04-04
+### Fixed
+- Fix AndroidJavaClass errors for Pitaya.dll in Android
+
+### Added
+- Add UnityEngine.AndroidJNIModule dependency (this breaks compatibility with Unity versions older than 2019.3)
+
 ## [3.0.4] - 2020-02-04
 ### Fixed
 - c#: Fixed Unity Editor required to be closed and reopened to update game version
