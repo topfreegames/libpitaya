@@ -241,5 +241,15 @@ namespace Pitaya
             _client = IntPtr.Zero;
             _disposed = true;
         }
+
+        public void ClearAllCallbacks()
+        {
+            _eventManager.ClearAllCallbacks();
+        }
+
+        public void RemoveAllOnRouteEvents()
+        {
+            _eventManager.RemoveAllOnRouteEvents();
+        }
     }
 }

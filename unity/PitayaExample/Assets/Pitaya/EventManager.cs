@@ -53,11 +53,16 @@ namespace Pitaya
             
         }
 
-
         private void ClearCallbacks(uint id)
         {
             _callBackMap.Remove(id);
             _errorCallBackMap.Remove(id);
+        }
+
+        public void ClearAllCallbacks()
+        {
+            _callBackMap.Clear();
+            _errorCallBackMap.Clear();
         }
 
 
@@ -78,6 +83,11 @@ namespace Pitaya
 
         public void RemoveOnRouteEvent(string routeName) {
             _eventMap.Remove(routeName);
+        }
+
+        public void RemoveAllOnRouteEvents()
+        {
+            _eventMap.Clear();
         }
 
 
