@@ -61,6 +61,7 @@ namespace Pitaya
         private static readonly Dictionary<IntPtr, WeakReference> Listeners = new Dictionary<IntPtr, WeakReference>();
         private static readonly Dictionary<IntPtr, int> EventHandlersIds = new Dictionary<IntPtr, int>();
         private static PitayaLogLevel _currentLogLevel = PitayaLogLevel.Disable;
+        private static bool IsNativeLibInitialized;
 
         private static void DLog(object data)
         {
@@ -79,7 +80,6 @@ namespace Pitaya
             NativeErrorCallback = OnError;
             
             SetLogFunction(LogFunction);
-            NativeLibInit((int) _currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
         }
 
         private static void SetLogFunction(NativeLogFunction fn)
@@ -147,6 +147,12 @@ namespace Pitaya
         
         public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener)
         {
+            if (!IsNativeLibInitialized)
+            {
+                NativeLibInit((int) _currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
+                IsNativeLibInitialized = true;
+            }
+            
             var client = NativeCreate(enableTls, enablePolling, enableReconnect, connTimeout);
             if (client == IntPtr.Zero)
             {
