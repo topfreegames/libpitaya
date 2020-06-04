@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit testing (not only integration tests)
 - Better support for languages other than C#
 
-## [4.0.1] - 2020-06-03
+## [4.1.0] - 2020-06-03
+### Added
+- ClearAllCallbacks method on PitayaClient class
+
 ### Fixed
 - Fix crash in Unity 2019.3 when running in Linux
 
