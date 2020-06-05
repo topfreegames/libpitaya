@@ -141,7 +141,9 @@ namespace Pitaya
         {
             if (Application.isEditor)
             {
+                NativeLibInit((int) _currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
                 NativeLibUpdateClientInfo(Platform(), BuildNumber(), Application.version);
+                IsNativeLibInitialized = true;
             }
         }
         
