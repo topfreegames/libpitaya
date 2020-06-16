@@ -80,6 +80,9 @@ namespace Pitaya
             NativeErrorCallback = OnError;
             
             SetLogFunction(LogFunction);
+#if UNITY_ANDROID
+            InitializeNativeLib();
+#endif
         }
 
         private static void SetLogFunction(NativeLogFunction fn)
@@ -141,19 +144,22 @@ namespace Pitaya
         {
             if (Application.isEditor)
             {
-                NativeLibInit((int) _currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
+#if !UNITY_ANDROID
+            InitializeNativeLib();
+#endif
                 NativeLibUpdateClientInfo(Platform(), BuildNumber(), Application.version);
-                IsNativeLibInitialized = true;
             }
+        }
+
+        private static void InitializeNativeLib()
+        {
+            NativeLibInit((int)_currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
+            IsNativeLibInitialized = true;
         }
         
         public static IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener)
         {
-            if (!IsNativeLibInitialized)
-            {
-                NativeLibInit((int) _currentLogLevel, null, null, OnAssert, Platform(), BuildNumber(), Application.version);
-                IsNativeLibInitialized = true;
-            }
+            if (!IsNativeLibInitialized) InitializeNativeLib();
             
             var client = NativeCreate(enableTls, enablePolling, enableReconnect, connTimeout);
             if (client == IntPtr.Zero)

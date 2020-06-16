@@ -2,16 +2,14 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>4.1.0</version>
+    <version>4.1.1-alpha.1</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Add ClearAllCallbacks method on PitayaClient class
-Fix crash in Unity 2019.3 when running in Linux
-Fix compatibility with Unity 2019.3
-This version breaks compatibility with Unity 2018.4 or older</releaseNotes>
+    <releaseNotes>Fix crash in Unity 2019.3 when running in Android
+* This version isn't compatible with Unity 2018.4 or older</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
