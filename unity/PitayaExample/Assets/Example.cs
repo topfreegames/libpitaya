@@ -5,7 +5,7 @@ using Pitaya;
 
 public class Example : MonoBehaviour
 {
-	private PitayaClient _client;
+	private IPitayaClient _client;
 	private bool _connected;
 	private bool _requestSent;
 
@@ -30,7 +30,7 @@ public class Example : MonoBehaviour
 			}
 		};
 
-		_client.Connect("a1d127034f31611e8858512b1bea90da-838011280.us-east-1.elb.amazonaws.com", 3251,
+		_client.Connect("127.0.0.1", 3251,
 			new Dictionary<string, string>
             {
                 {"oi", "mano"}
@@ -46,7 +46,7 @@ public class Example : MonoBehaviour
 				(data) =>
                 {
 					Debug.Log("Got request data: " + data);
-	                File.WriteAllText("/Users/lhahn/Downloads/OH_MY_GOD.txt", "I Got the request data: " + data);
+	                // File.WriteAllText("/Users/lhahn/Downloads/OH_MY_GOD.txt", "I Got the request data: " + data);
                 },
 				(err) =>
 				{
