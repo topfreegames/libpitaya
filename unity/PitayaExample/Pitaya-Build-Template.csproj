@@ -62,6 +62,7 @@
     <Compile Include="Assets\Pitaya\MainQueueDispatcher.cs" />
     <Compile Include="Assets\Pitaya\PitayaBinding.cs" />
     <Compile Include="Assets\Pitaya\PitayaClient.cs" />
+    <Compile Include="Assets\Pitaya\IPitayaClient.cs" />
     <Compile Include="Assets\Pitaya\PitayaConstants.cs" />
     <Compile Include="Assets\Pitaya\ProtobufSerializer.cs" />
     <Compile Include="Assets\Pitaya\Protos\Error.cs" />

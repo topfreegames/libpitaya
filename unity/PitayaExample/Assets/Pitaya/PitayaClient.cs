@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Pitaya
 {
-    public class PitayaClient : IDisposable, IPitayaListener
+    public class PitayaClient : IDisposable, IPitayaClient, IPitayaListener
     {
         public event Action<PitayaNetWorkState, NetworkError> NetWorkStateChangedEvent;
 
