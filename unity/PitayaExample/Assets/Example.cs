@@ -46,7 +46,6 @@ public class Example : MonoBehaviour
 				(data) =>
                 {
 					Debug.Log("Got request data: " + data);
-	                // File.WriteAllText("/Users/lhahn/Downloads/OH_MY_GOD.txt", "I Got the request data: " + data);
                 },
 				(err) =>
 				{
