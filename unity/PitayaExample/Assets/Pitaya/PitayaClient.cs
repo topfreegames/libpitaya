@@ -20,6 +20,9 @@ namespace Pitaya
         private TypeSubscriber<uint> _typeRequestSubscriber;
         private TypeSubscriber<string> _typePushSubscriber;
 
+        private Dictionary<uint, DateTime> _requestTimestamps;
+        private PitayaMetrics _metrics;
+
         public PitayaClient()
         {
             Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT);
@@ -51,6 +54,8 @@ namespace Pitaya
             _typeRequestSubscriber = new TypeSubscriber<uint>();
             _typePushSubscriber = new TypeSubscriber<string>();
             _client = PitayaBinding.CreateClient(enableTlS, enablePolling, enableReconnect, connTimeout, this);
+            _metrics = new PitayaMetrics();
+            _requestTimestamps = new Dictionary<uint, DateTime>();
 
             if (certificateName != null)
             {
@@ -123,6 +128,7 @@ namespace Pitaya
 
             var serializer = PitayaBinding.ClientSerializer(_client);
 
+            _requestTimestamps.Add(_reqUid, DateTime.Now);
             PitayaBinding.Request(_client, route, ProtobufSerializer.Encode(msg, serializer), _reqUid, timeout);
         }
 
@@ -133,6 +139,7 @@ namespace Pitaya
 
             _eventManager.AddCallBack(_reqUid, responseAction, errorAction);
 
+            _requestTimestamps.Add(_reqUid, DateTime.Now);
             PitayaBinding.Request(_client, route,JsonSerializer.Encode(msg), _reqUid, timeout);
         }
 
@@ -197,11 +204,13 @@ namespace Pitaya
                 decoded = JsonSerializer.Decode(data);
             }
 
+            MeasureRTT(rid);
             _eventManager.InvokeCallBack(rid, decoded);
         }
 
         public void OnRequestError(uint rid, PitayaError error)
         {
+            _requestTimestamps.Remove(rid);
             _eventManager.InvokeErrorCallBack(rid, error);
         }
 
@@ -250,6 +259,25 @@ namespace Pitaya
         public void RemoveAllOnRouteEvents()
         {
             _eventManager.RemoveAllOnRouteEvents();
+        }
+
+        // Gets the Return Trip Time for this connection (-1 if has no measurement yet).
+        public int GetRTT()
+        {
+            return _metrics.GetRTT();
+        }
+
+        private void MeasureRTT(uint rid)
+        {
+            DateTime _sentTimestamp;
+            var _timestampFound = _requestTimestamps.TryGetValue(rid, out _sentTimestamp);
+            if (_timestampFound)
+            {
+                TimeSpan ping = DateTime.Now - _sentTimestamp;
+                _metrics.PingReceived((int)ping.TotalMilliseconds);
+                _requestTimestamps.Remove(rid);
+            }
+
         }
     }
 }
