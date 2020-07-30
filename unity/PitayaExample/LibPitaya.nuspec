@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>4.1.1-alpha.1</version>
+    <version>4.2.0-alpha.1</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Fix crash in Unity 2019.3 when running in Android
+    <releaseNotes>Add IPitayaClient interface
 * This version isn't compatible with Unity 2018.4 or older</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
