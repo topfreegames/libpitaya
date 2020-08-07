@@ -20,23 +20,14 @@ namespace Pitaya
         private TypeSubscriber<uint> _typeRequestSubscriber;
         private TypeSubscriber<string> _typePushSubscriber;
 
-        public PitayaClient()
+        public PitayaClient() : this(false) {}
+        public PitayaClient(int connectionTimeout) : this(false, null, connectionTimeout: connectionTimeout) {}
+        public PitayaClient(string certificateName = null) : this(false, certificateName: certificateName) {}
+        
+        public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT, IPitayaQueueDispatcher queueDispatcher = null)
         {
-            Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT);
-        }
-
-        public PitayaClient(int connectionTimeout)
-        {
-            Init(null, false, false, false, connectionTimeout);
-        }
-
-        public PitayaClient(string certificateName = null)
-        {
-            Init(certificateName, certificateName != null, false, false, DEFAULT_CONNECTION_TIMEOUT);
-        }
-
-        public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT)
-        {
+            if (queueDispatcher == null) queueDispatcher = MainQueueDispatcher.Create();
+            PitayaBinding.QueueDispatcher = queueDispatcher;
             Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout);
         }
 

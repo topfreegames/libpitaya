@@ -4,46 +4,33 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Pitaya {
-    public class MainQueueDispatcher : MonoBehaviour
+    public class MainQueueDispatcher : MonoBehaviour, IPitayaQueueDispatcher
     {
-        private static MainQueueDispatcher _instance;
-        public static void Dispatch (Action action) { _instance._Dispatch (action); }
-        public static void DispatchAfter (float seconds, Action action) { _instance._DispatchAfter (seconds, action); }
+        static MainQueueDispatcher _instance;
 
-        private static void Create()
+        List<Action> _actions;
+        List<Action> _actionsCopy;
+        readonly object Lock = new object();
+        
+        public static MainQueueDispatcher Create(bool dontDestroyOnLoad = true)
         {
             if (_instance != null)
-                return;
+                return _instance;
             
             var go = new GameObject (typeof(MainQueueDispatcher).FullName);
             _instance = go.AddComponent<MainQueueDispatcher> ();
-            DontDestroyOnLoad(_instance.gameObject);
+            if (dontDestroyOnLoad) DontDestroyOnLoad(_instance.gameObject);
+            return _instance;
         }
-
-        private void _DispatchAfter(float seconds, Action action)
-        {
-            StartCoroutine(DispatchAfterProcess(seconds, action));
-        }
-
-        private static IEnumerator DispatchAfterProcess(float seconds, Action action)
-        {
-            yield return new WaitForSeconds(seconds);
-            if (action != null ) action.Invoke();
-        }
-
-        [RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void Initialize () {
-            Create ();
-        }
-
-        private List<Action> _actions;
-        private List<Action> _actionsCopy;
         
-        private static readonly object Lock = new object();
+        public void Dispatch (Action action) {
+            lock (Lock)
+            {
+                _actions.Add (action);
+            }
+        }
         
-        
-
-        private void Awake () {
+        void Awake () {
             lock (Lock)
             {
                 _actions = new List<Action>();
@@ -51,14 +38,7 @@ namespace Pitaya {
             }
         }
 
-    	private void _Dispatch (Action action) {
-	        lock (Lock)
-	        {
-	            _actions.Add (action);
-	        }
-        }
-
-        private void Update () {
+        void Update () {
             lock (Lock)
             {
                 _actionsCopy.Clear();
