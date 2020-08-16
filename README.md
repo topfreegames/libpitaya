@@ -53,7 +53,7 @@ make setup-mac
 make build-ios
 ```
 The iOS binary will be under `_builds/ios/libpitaya-ios.a`
-On iOS this library in conpiled statically wich means you must include in your project the dependencies `libz.a`,`libuv_a.a`,`libssl.a` and `libcrypto.a`.
+On iOS, this library will be compiled statically which means you *must* include in your project the dependencies `libz.a`,`libuv_a.a`,`libssl.a` and `libcrypto.a` as well.
 
 
 ### Building for Windows
