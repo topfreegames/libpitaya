@@ -62,6 +62,8 @@ namespace Pitaya
         private static readonly Dictionary<IntPtr, int> EventHandlersIds = new Dictionary<IntPtr, int>();
         private static PitayaLogLevel _currentLogLevel = PitayaLogLevel.Disable;
         private static bool IsNativeLibInitialized;
+        
+        public static IPitayaQueueDispatcher QueueDispatcher { get; set; } = new NullPitayaQueueDispatcher();
 
         private static void DLog(object data)
         {
@@ -405,7 +407,7 @@ namespace Pitaya
                 error = new PitayaError(code, "Internal Pitaya error");
             }
 
-            MainQueueDispatcher.Dispatch(() =>
+            QueueDispatcher.Dispatch(() =>
             {
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
@@ -422,7 +424,7 @@ namespace Pitaya
             var rawData = new byte[buffer.Len];
             Marshal.Copy(buffer.Data, rawData, 0, (int)buffer.Len);
 
-            MainQueueDispatcher.Dispatch(() =>
+            QueueDispatcher.Dispatch(() =>
             {
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
@@ -456,7 +458,7 @@ namespace Pitaya
             }
 
             var listener = reference.Target as IPitayaListener;
-            MainQueueDispatcher.Dispatch(() =>
+            QueueDispatcher.Dispatch(() =>
             {
                 if (listener != null) listener.OnUserDefinedPush(route, rawData);
             });
@@ -481,7 +483,7 @@ namespace Pitaya
 
             var listener = reference.Target as IPitayaListener;
 
-            MainQueueDispatcher.Dispatch(() =>
+            QueueDispatcher.Dispatch(() =>
             {
                 switch (ev)
                 {
