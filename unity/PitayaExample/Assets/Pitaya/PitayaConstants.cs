@@ -39,12 +39,6 @@ namespace Pitaya
         Error,
         Kicked
     }
-    
-    public enum PitayaSerializer
-    {        
-        Json,
-        Protobuf
-    }
 
     public enum PitayaLogLevel
     {

@@ -1,18 +1,19 @@
+using System;
 using System.Text;
 
 
 namespace Pitaya
 {
-    public static class JsonSerializer
+    public class JsonSerializer : IPitayaSerializer
     {
-        public static byte[] Encode(string obj)
+        public byte[] Encode(object obj)
         {
-            return obj != null ? Encoding.UTF8.GetBytes(obj) : null;
+            return obj != null ? Encoding.UTF8.GetBytes((string)obj) : null;
         }
 
-        public static string Decode(byte[] data)
+        public T Decode<T>(byte[] data)
         {
-            return Encoding.UTF8.GetString(data);
+            return (T)Convert.ChangeType(Encoding.UTF8.GetString(data), typeof(T));
         }
     }
 }

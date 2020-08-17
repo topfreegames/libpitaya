@@ -5,47 +5,58 @@ using UnityEngine;
 
 namespace Pitaya
 {
-    public static class ProtobufSerializer
+    public class ProtobufSerializer : IPitayaSerializer
     {
-        public static byte[] Encode(IMessage message, PitayaSerializer serializer)
+        public enum SerializationFormat
+        {        
+            Json,
+            Protobuf
+        }
+
+        SerializationFormat format;
+
+        public ProtobufSerializer(SerializationFormat format)
         {
-            if (PitayaSerializer.Protobuf == serializer)
+            this.format = format;
+        }
+        
+        public byte[] Encode(object message)
+        {
+            byte[] buffer = {};
+            switch (format)
             {
-                return message.ToByteArray();
+                case SerializationFormat.Protobuf:
+                    buffer = ((IMessage) message).ToByteArray();
+                    break;
+                case SerializationFormat.Json:
+                    var jsonFormatter = new JsonFormatter(new JsonFormatter.Settings(true));
+                    var jsonString = jsonFormatter.Format((IMessage)message);
+                    buffer = Encoding.UTF8.GetBytes(jsonString);
+                    break;
+                default:
+                    throw new Exception("Undefined SerializationFormat");
             }
-            
-            
-            var jsf = new JsonFormatter(new JsonFormatter.Settings(true));
-            var jsonString = jsf.Format(message);
-            
-            return Encoding.UTF8.GetBytes(jsonString);
 
+            return buffer;
         }
         
-        public static IMessage Decode(byte[] buffer, Type type, PitayaSerializer serializer)
+        public T Decode<T>(byte[] buffer)
         {
-            var res = (IMessage) Activator.CreateInstance(type);
-            if (PitayaSerializer.Protobuf == serializer)
-            {   
-                res.MergeFrom(buffer);
-                return res;
-
+            IMessage res = (IMessage) default(T);
+            switch (format)
+            {
+                case SerializationFormat.Protobuf:
+                    res.MergeFrom(buffer);
+                    break;
+                case SerializationFormat.Json:
+                    var stringified = Encoding.UTF8.GetString(buffer);
+                    res = JsonParser.Default.Parse(stringified, res.Descriptor);
+                    break;
+                default:
+                    throw new Exception("Undefined SerializationFormat");
             }
-            var stringified = Encoding.UTF8.GetString(buffer);
-            
-            return JsonParser.Default.Parse(stringified, res.Descriptor);
 
-//            return res;
-//            var parser = new MessageParser();
-            
-            return (IMessage) JsonUtility.FromJson(stringified, type);
-//            return (IMessage) JsonConvert.DeserializeObject(stringified, type);
+            return (T)res;
         }
-
-        public static T FromJson<T>(string json) where T : IMessage, new()
-        {
-            return JsonParser.Default.Parse<T>(json);
-        }
-        
     }
 }
