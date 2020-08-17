@@ -42,7 +42,7 @@ namespace Pitaya
         
         public T Decode<T>(byte[] buffer)
         {
-            IMessage res = (IMessage) default(T);
+            IMessage res = (IMessage) Activator.CreateInstance(typeof(T));
             switch (format)
             {
                 case SerializationFormat.Protobuf:
