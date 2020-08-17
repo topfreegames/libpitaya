@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Google.Protobuf;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Pitaya
@@ -143,7 +144,7 @@ namespace Pitaya
         /// </summary>
         public void Request(string route, string msg, int timeout, Action<string> action, Action<PitayaError> errorAction)
         {
-            RequestInternal(route, msg, timeout, new JsonSerializer(), action, errorAction);
+            RequestInternal(route, msg, timeout, new LegacyJsonSerializer(), action, errorAction);
         }
         
         void RequestInternal<TResponse, TRequest>(string route, TRequest msg, int timeout, IPitayaSerializer serializer, Action<TResponse> action, Action<PitayaError> errorAction)
@@ -194,7 +195,7 @@ namespace Pitaya
         /// </summary>
         public void Notify(string route, int timeout, string msg)
         {
-            byte[] bytes = new JsonSerializer().Encode(msg);
+            byte[] bytes = new LegacyJsonSerializer().Encode(msg);
             PitayaBinding.Notify(_client, route, bytes, timeout);
         }
         
@@ -208,7 +209,7 @@ namespace Pitaya
         /// </summary>
         public void OnRoute(string route, Action<string> action)
         {
-            OnRouteInternal(route, action, new JsonSerializer());
+            OnRouteInternal(route, action, new LegacyJsonSerializer());
         }
 
         // start listening to a route

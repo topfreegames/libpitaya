@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Protos;
 using UnityEngine;
@@ -15,34 +16,25 @@ namespace Pitaya.Tests
         [SetUp]
         public void Init()
         {
-            _data = "{\"data\":{\"name\":\"test\"}}";
-            _jsonStub = JsonUtility.FromJson<SessionData>(_data);
+            _data = _data = "{\"Data\":\"{\\\"name\\\":\\\"test\\\"}\"}";
+            _jsonStub = JsonConvert.DeserializeObject<SessionData>(_data);
             _jsonEncoded = Encoding.UTF8.GetBytes(_data);
         }
 
         [Test]
         public void ShouldEncodeMessageSuccessfully()
         {
-//            var encoded = JsonSerializer.Encode(_data);
-//
-//            Assert.AreEqual(encoded, _jsonEncoded);
+            var encoded = new JsonSerializer().Encode(_jsonStub);
+            Assert.AreEqual(_jsonEncoded, encoded);
         }
 
         [Test]
         public void ShouldDecodeMessageSuccessfully()
         {
-//            var decoded = JsonSerializer.Decode(_jsonEncoded);
-//        
-//            Assert.AreEqual(typeof(JObject), decoded.GetType());
-//            Assert.AreEqual(decoded, _jsonStub);
-        }
-
-        [Test]
-        public void ShouldNotEncodeMessageIfObjectIsNotJsonObject()
-        {
-//            const string wrongData = "wrong data";
-//
-//            Assert.Null(JsonSerializer.Encode(wrongData));
+            var decoded = new JsonSerializer().Decode<SessionData>(_jsonEncoded);
+        
+            Assert.AreEqual(typeof(SessionData), decoded.GetType());
+            Assert.AreEqual(decoded, _jsonStub);
         }
     }
 }
