@@ -166,6 +166,8 @@ namespace Pitaya
             Notify(route, -1, msg);
         }
         
+        /// <summary cref="Notify(string, object, int)">
+        /// </summary>
         public void Notify(string route, object msg, int timeout = -1)
         {
             IPitayaSerializer serializer = new JsonSerializer();
@@ -205,14 +207,15 @@ namespace Pitaya
         }
 
         /// <summary>
-        /// <para>DEPRECATED. Use <see cref="OnRoute(string, Action&lt;T&gt;)"/> instead.</para>
+        /// <para>DEPRECATED. Use <see cref="OnRoute&lt;T&gt;(string, Action&lt;T&gt;)"/> instead.</para>
         /// </summary>
         public void OnRoute(string route, Action<string> action)
         {
             OnRouteInternal(route, action, new LegacyJsonSerializer());
         }
 
-        // start listening to a route
+        /// <summary cref="OnRoute&lt;T&gt;(string, Action&lt;T&gt;)">
+        /// </summary>
         public void OnRoute<T>(string route, Action<T> action)
         {
             IPitayaSerializer serializer = new JsonSerializer();
