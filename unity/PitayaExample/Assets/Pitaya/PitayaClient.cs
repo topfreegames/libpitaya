@@ -11,6 +11,8 @@ namespace Pitaya
     {
         public event Action<PitayaNetWorkState, NetworkError> NetWorkStateChangedEvent;
 
+        public ISerializerFactory SerializerFactory { get; set; }
+        
         private const int DEFAULT_CONNECTION_TIMEOUT = 30;
 
         private IntPtr _client = IntPtr.Zero;
@@ -21,22 +23,22 @@ namespace Pitaya
 
         public PitayaClient()
         {
-            Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT);
+            Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT, new DefaultSerializerFactory());
         }
 
         public PitayaClient(int connectionTimeout)
         {
-            Init(null, false, false, false, connectionTimeout);
+            Init(null, false, false, false, connectionTimeout, new DefaultSerializerFactory());
         }
 
         public PitayaClient(string certificateName = null)
         {
-            Init(certificateName, certificateName != null, false, false, DEFAULT_CONNECTION_TIMEOUT);
+            Init(certificateName, certificateName != null, false, false, DEFAULT_CONNECTION_TIMEOUT, new DefaultSerializerFactory());
         }
 
         public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT)
         {
-            Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout);
+            Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout, new DefaultSerializerFactory());
         }
 
         ~PitayaClient()
@@ -44,8 +46,9 @@ namespace Pitaya
             Dispose();
         }
 
-        private void Init(string certificateName, bool enableTlS, bool enablePolling, bool enableReconnect, int connTimeout)
+        private void Init(string certificateName, bool enableTlS, bool enablePolling, bool enableReconnect, int connTimeout, ISerializerFactory serializerFactory)
         {
+            SerializerFactory = serializerFactory;
             _eventManager = new EventManager();
             _client = PitayaBinding.CreateClient(enableTlS, enablePolling, enableReconnect, connTimeout, this);
 
@@ -109,8 +112,8 @@ namespace Pitaya
         /// </summary>
         public void Request<TResponse>(string route, object msg, Action<TResponse> action, Action<PitayaError> errorAction, int timeout = -1)
         {
-            IPitayaSerializer serializer = new JsonSerializer();
-            if ((IMessage)msg != null) serializer = new ProtobufSerializer(PitayaBinding.ClientSerializer(_client));
+            IPitayaSerializer serializer = SerializerFactory.CreateJsonSerializer();
+            if ((IMessage)msg != null) serializer = SerializerFactory.CreateProtobufSerializer(PitayaBinding.ClientSerializer(_client));
             RequestInternal(route, msg, timeout, serializer, action, errorAction);
         }
 
@@ -136,7 +139,7 @@ namespace Pitaya
         public void Request<T>(string route, IMessage msg, int timeout, Action<T> action, Action<PitayaError> errorAction)
         {
             ProtobufSerializer.SerializationFormat format = PitayaBinding.ClientSerializer(_client);
-            RequestInternal(route, msg, timeout, new ProtobufSerializer(format), action, errorAction);
+            RequestInternal(route, msg, timeout, SerializerFactory.CreateProtobufSerializer(format), action, errorAction);
         }
         
         /// <summary>
@@ -170,8 +173,8 @@ namespace Pitaya
         /// </summary>
         public void Notify(string route, object msg, int timeout = -1)
         {
-            IPitayaSerializer serializer = new JsonSerializer();
-            if ((IMessage)msg != null) serializer = new ProtobufSerializer(PitayaBinding.ClientSerializer(_client));
+            IPitayaSerializer serializer = SerializerFactory.CreateJsonSerializer();
+            if ((IMessage)msg != null) serializer = SerializerFactory.CreateProtobufSerializer(PitayaBinding.ClientSerializer(_client));
             NotifyInternal(route, msg, serializer, timeout);
         }
 
@@ -181,7 +184,7 @@ namespace Pitaya
         public void Notify(string route, int timeout, IMessage msg)
         {
             ProtobufSerializer.SerializationFormat format = PitayaBinding.ClientSerializer(_client);
-            NotifyInternal(route, msg, new ProtobufSerializer(format), timeout);
+            NotifyInternal(route, msg, SerializerFactory.CreateProtobufSerializer(format), timeout);
         }
 
         /// <summary>
@@ -218,8 +221,8 @@ namespace Pitaya
         /// </summary>
         public void OnRoute<T>(string route, Action<T> action)
         {
-            IPitayaSerializer serializer = new JsonSerializer();
-            if (typeof(IMessage).IsAssignableFrom(typeof(T))) serializer = new ProtobufSerializer(PitayaBinding.ClientSerializer(_client));
+            IPitayaSerializer serializer = SerializerFactory.CreateJsonSerializer();
+            if (typeof(IMessage).IsAssignableFrom(typeof(T))) serializer = SerializerFactory.CreateProtobufSerializer(PitayaBinding.ClientSerializer(_client));
 
             OnRouteInternal(route, action, serializer);
         }

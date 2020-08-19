@@ -12,6 +12,7 @@ namespace Pitaya
         
         int Quality { get; }
         PitayaClientState State { get; }
+        ISerializerFactory SerializerFactory { get; set; }
         void Connect(string host, int port, string handshakeOpts = null);
         void Connect(string host, int port, Dictionary<string, string> handshakeOpts);
 
