@@ -61,6 +61,7 @@
     <Compile Include="Assets\Pitaya\JsonSerializer.cs" />
     <Compile Include="Assets\Pitaya\LegacyJsonSerializer.cs" />
     <Compile Include="Assets\Pitaya\MainQueueDispatcher.cs" />
+    <Compile Include="Assets\Pitaya\IPitayaQueueDispatcher.cs" />
     <Compile Include="Assets\Pitaya\PitayaBinding.cs" />
     <Compile Include="Assets\Pitaya\PitayaClient.cs" />
     <Compile Include="Assets\Pitaya\IPitayaClient.cs" />

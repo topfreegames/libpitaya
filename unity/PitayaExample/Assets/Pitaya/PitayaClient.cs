@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Google.Protobuf;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Pitaya
@@ -20,24 +19,15 @@ namespace Pitaya
         private bool _disposed;
         private uint _reqUid;
         private Dictionary<uint, Action<string, string>> _requestHandlers;
-
-        public PitayaClient()
+        
+        public PitayaClient() : this(false) {}
+        public PitayaClient(int connectionTimeout) : this(false, null, connectionTimeout: connectionTimeout) {}
+        public PitayaClient(string certificateName = null) : this(false, certificateName: certificateName) {}
+        
+        public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT, IPitayaQueueDispatcher queueDispatcher = null)
         {
-            Init(null, false, false, false, DEFAULT_CONNECTION_TIMEOUT, new DefaultSerializerFactory());
-        }
-
-        public PitayaClient(int connectionTimeout)
-        {
-            Init(null, false, false, false, connectionTimeout, new DefaultSerializerFactory());
-        }
-
-        public PitayaClient(string certificateName = null)
-        {
-            Init(certificateName, certificateName != null, false, false, DEFAULT_CONNECTION_TIMEOUT, new DefaultSerializerFactory());
-        }
-
-        public PitayaClient(bool enableReconnect = false, string certificateName = null, int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT)
-        {
+            if (queueDispatcher == null) queueDispatcher = MainQueueDispatcher.Create();
+            PitayaBinding.QueueDispatcher = queueDispatcher;
             Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout, new DefaultSerializerFactory());
         }
 
