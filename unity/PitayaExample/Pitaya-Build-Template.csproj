@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Pitaya\EventManager.cs" />
+    <Compile Include="Assets\Pitaya\ISerializerFactory.cs" />
     <Compile Include="Assets\Pitaya\JsonSerializer.cs" />
     <Compile Include="Assets\Pitaya\LegacyJsonSerializer.cs" />
     <Compile Include="Assets\Pitaya\MainQueueDispatcher.cs" />
