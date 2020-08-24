@@ -8,7 +8,9 @@
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Add IPitayaClient interface
+    <releaseNotes>Add support for strongly typed JSON de/serialization using Newtonsoft.Json
+* Deprecate methods explicitly using JsonObject and IMessage
+* Add IPitayaClient interface
 * This version isn't compatible with Unity 2018.4 or older</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>

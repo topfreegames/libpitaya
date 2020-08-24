@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for strongly typed JSON de/serialization using Newtonsoft.Json
+- Deprecated methods explicitly using JsonObject and IMessage
+- IPitayaClient interface
 - Better documentation
 - Unit testing (not only integration tests)
 - Better support for languages other than C#
