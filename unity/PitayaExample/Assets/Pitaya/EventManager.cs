@@ -38,7 +38,6 @@ namespace Pitaya
             ClearCallbacks(id);
             
             if (foundAction) action.Invoke(data);
-
         }
 
         public void InvokeErrorCallBack(uint id, PitayaError error)
@@ -49,8 +48,6 @@ namespace Pitaya
             ClearCallbacks(id);
             
             if (foundAction) action.Invoke(error);
-
-            
         }
 
         private void ClearCallbacks(uint id)
@@ -64,7 +61,6 @@ namespace Pitaya
             _callBackMap.Clear();
             _errorCallBackMap.Clear();
         }
-
 
         // Adds the event to eventMap by name.
         public void AddOnRouteEvent(string routeName, Action<byte[]> callback)
@@ -89,7 +85,6 @@ namespace Pitaya
         {
             _eventMap.Clear();
         }
-
 
         /// <summary>
         /// If the event exists,invoke the event when server return messge.
@@ -116,8 +111,8 @@ namespace Pitaya
         private void Dispose(bool disposing)
         {
             var errorCallBackMap = new Dictionary<uint, Action<PitayaError>>(_errorCallBackMap);
-			foreach (var callback in errorCallBackMap)
-				callback.Value.Invoke(new PitayaError(PitayaConstants.PitayaInternalError, "pitaya exited"));
+            foreach (var callback in errorCallBackMap)
+                callback.Value.Invoke(new PitayaError(PitayaConstants.PitayaInternalError, "pitaya exited"));
 
             _callBackMap.Clear();
             _eventMap.Clear();
