@@ -7,6 +7,7 @@ using UnityEngine.TestTools;
 
 namespace Pitaya.Tests
 {
+    [TestFixture, Category("integration")]
     public class AddPublicKeyPinningTest
     {
         private const string ServerHost = "libpitaya-tests.tfgco.com";

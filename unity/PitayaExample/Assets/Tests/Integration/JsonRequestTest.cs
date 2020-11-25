@@ -7,34 +7,26 @@ using Pitaya.SimpleJson;
 
 namespace Pitaya.Tests
 {
-    public class JsonSSLRequestTest
+    [TestFixture, Category("integration")]
+    public class JsonRequestTest
     {
-
         private PitayaClient _client;
 
         private const string ServerHost = "libpitaya-tests.tfgco.com";
-
-        private const int ServerPort = 3252;
+        private const int ServerPort = 3251;
         private JsonObject _jsonStub;
         private JsonObject _emptyJsonStub;
         private bool _isFinished;
         private string _data;
         private string _emptyData;
-        private Thread _mainThread;
 
         [SetUp]
         public void Init()
         {
-            // PitayaBinding.AddPinnedPublicKeyFromCaFile("client-ssl.localhost.crt");
-            _mainThread = Thread.CurrentThread;
-            PitayaBinding.SkipKeyPinCheck(true);
-
-            _client = new PitayaClient("myCA.pem");
+            _client = new PitayaClient();
             PitayaClient.SetLogLevel(PitayaLogLevel.Debug);
 
             _client.Connect(ServerHost, ServerPort);
-
-            Thread.Sleep(200);
 
             _data = "{\"Data\":{\"name\":\"test25\"}}";
             _jsonStub = (JsonObject)SimpleJson.SimpleJson.DeserializeObject(_data);
@@ -43,12 +35,18 @@ namespace Pitaya.Tests
 
             _isFinished = false;
 
+            Thread.Sleep(300);
+
             // clearing sessiondata
             _client.Request(
                 "connector.setsessiondata",
                 _emptyData,
-                res => { _isFinished = true; },
-                error => { _isFinished = true; }
+                res => {
+                    _isFinished = true;
+                },
+                error => {
+                    _isFinished = true;
+                }
             );
         }
 
@@ -64,11 +62,9 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldReturnJsonObjectWhenNoSubscriberIsAdded()
         {
-            while (!_isFinished)
-            {
+            while(!_isFinished) {
                 yield return new WaitForSeconds(0.3f);
             }
-
             _isFinished = false;
 
             object response = null;
@@ -79,20 +75,18 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
-            var resp = (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string) response);
+            var resp = (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string)response);
 
             Assert.True(_isFinished);
             Assert.NotNull(response);
@@ -103,11 +97,9 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldGetAndSetJsonObject()
         {
-            while (!_isFinished)
-            {
+            while(!_isFinished) {
                 yield return new WaitForSeconds(0.3f);
             }
-
             _isFinished = false;
 
             object response = null;
@@ -118,17 +110,15 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             _isFinished = false;
@@ -139,36 +129,29 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(0.3f);
             }
 
             Assert.True(_isFinished);
             Assert.NotNull(response);
-            Assert.AreEqual(response, _data);
-            Assert.AreEqual(SimpleJson.SimpleJson.DeserializeObject((string)response), _jsonStub);
-
-            _isFinished = false;
-
+            Assert.AreEqual(_data, response);
+            Assert.AreEqual(_jsonStub, (JsonObject)SimpleJson.SimpleJson.DeserializeObject((string)response));
         }
 
         [UnityTest]
         public IEnumerator ShouldReceiveEmptyDataWhenSettingNullRequest()
         {
-            while (!_isFinished)
-            {
+            while(!_isFinished) {
                 yield return new WaitForSeconds(0.3f);
             }
-
             _isFinished = false;
 
             object response = null;
@@ -178,17 +161,15 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.3f);
             }
 
             _isFinished = false;
@@ -199,33 +180,29 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.3f);
             }
 
             Assert.True(_isFinished);
             Assert.NotNull(response);
-            Assert.AreEqual(response, _emptyData);
-            Assert.AreEqual(SimpleJson.SimpleJson.DeserializeObject((string)response), _emptyJsonStub);
+            var responseJson = (JsonObject) SimpleJson.SimpleJson.DeserializeObject((string) response);
+            Assert.True(responseJson.ContainsKey("Data"));
         }
 
         [UnityTest]
         public IEnumerator ShouldReturnBadRequestWhenRequestingToInvalidRoute()
         {
-            while (!_isFinished)
-            {
+            while(!_isFinished) {
                 yield return new WaitForSeconds(0.3f);
             }
-
             _isFinished = false;
 
             object response = null;
@@ -235,17 +212,15 @@ namespace Pitaya.Tests
                 res => {
                     response = res;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 },
                 error => {
                     response = error;
                     _isFinished = true;
-                    Assert.AreEqual(_mainThread, Thread.CurrentThread);
                 }
             );
 
             while(!_isFinished) {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.3f);
             }
 
             Assert.True(_isFinished);

@@ -7,6 +7,7 @@ using Pitaya.SimpleJson;
 
 namespace Pitaya.Tests
 {
+    [TestFixture, Category("integration")]
     public class PitayaClientPushTest
     {
         private PitayaClient _client;
