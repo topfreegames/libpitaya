@@ -2,10 +2,10 @@
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Protos;
-using UnityEngine;
 
 namespace Pitaya.Tests
 {
+    [TestFixture, Category("unit")]
     public class JsonSerializerTest
     {
 

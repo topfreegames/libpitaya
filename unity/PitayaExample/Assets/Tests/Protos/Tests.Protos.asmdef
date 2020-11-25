@@ -1,10 +1,9 @@
 {
-    "name": "Tests",
+    "name": "Tests.Protos",
     "references": [
         "Pitaya",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "Tests.Protos"
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"
@@ -13,7 +12,6 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll",
         "Google.Protobuf.dll",
         "Newtonsoft.Json.dll"
     ],

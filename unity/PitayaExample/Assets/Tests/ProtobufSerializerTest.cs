@@ -5,6 +5,7 @@ using Protos;
 
 namespace Pitaya.Tests
 {
+    [TestFixture, Category("unit")]
     public class ProtobufSerializerTest
     {
 
