@@ -29,7 +29,7 @@ namespace Pitaya
             if (binding != null) _binding = binding;
             if (queueDispatcher == null) queueDispatcher = MainQueueDispatcher.Create();
             _binding.QueueDispatcher = queueDispatcher;
-            Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout, new DefaultSerializerFactory());
+            Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout, new SerializerFactory());
         }
 
         ~PitayaClient()
