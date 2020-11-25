@@ -104,7 +104,7 @@ namespace Pitaya
         public void Request<TResponse>(string route, object msg, Action<TResponse> action, Action<PitayaError> errorAction, int timeout = -1)
         {
             IPitayaSerializer serializer = SerializerFactory.CreateJsonSerializer();
-            if ((IMessage)msg != null) serializer = SerializerFactory.CreateProtobufSerializer(_binding.ClientSerializer(_client));
+            if (msg is IMessage) serializer = SerializerFactory.CreateProtobufSerializer(_binding.ClientSerializer(_client));
             RequestInternal(route, msg, timeout, serializer, action, errorAction);
         }
 
@@ -165,7 +165,7 @@ namespace Pitaya
         public void Notify(string route, object msg, int timeout = -1)
         {
             IPitayaSerializer serializer = SerializerFactory.CreateJsonSerializer();
-            if ((IMessage)msg != null) serializer = SerializerFactory.CreateProtobufSerializer(_binding.ClientSerializer(_client));
+            if (msg is IMessage) serializer = SerializerFactory.CreateProtobufSerializer(_binding.ClientSerializer(_client));
             NotifyInternal(route, msg, serializer, timeout);
         }
 
