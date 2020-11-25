@@ -28,7 +28,7 @@ namespace Pitaya
         {
             if (queueDispatcher == null) queueDispatcher = MainQueueDispatcher.Create();
             PitayaBinding.QueueDispatcher = queueDispatcher;
-            Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout, new DefaultSerializerFactory());
+            Init(certificateName, certificateName != null, false, enableReconnect, connectionTimeout, new SerializerFactory());
         }
 
         ~PitayaClient()
