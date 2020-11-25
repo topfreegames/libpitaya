@@ -15,9 +15,12 @@ namespace Pitaya.Tests
         private string _caPath;
         private string _corruptCaPath;
 
+        private PitayaBinding _binding;
+
         [SetUp]
         public void Init()
         {
+            _binding = new PitayaBinding();
             _corruptCaPath = "corrupt-ca.crt";
             _caPath = "myCA.pem";
             _serverCertPath = "client-ssl.localhost.crt";
@@ -26,19 +29,19 @@ namespace Pitaya.Tests
         [TearDown]
         public void TearDown()
         {
-            PitayaBinding.ClearPinnedPublicKeys();
+            _binding.ClearPinnedPublicKeys();
         }
 
         [UnityTest]
         public IEnumerator ShouldThrowInCaseOfErrorsWhenAddingKey()
         {
             Assert.Catch<Exception>(() =>
-                PitayaBinding.AddPinnedPublicKeyFromCertificateFile("non-existent-path"));
+                _binding.AddPinnedPublicKeyFromCertificateFile("non-existent-path"));
             Assert.Catch<Exception>(() =>
-                PitayaBinding.AddPinnedPublicKeyFromCertificateFile(_corruptCaPath));
+                _binding.AddPinnedPublicKeyFromCertificateFile(_corruptCaPath));
 
             var certText = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, _corruptCaPath));
-            Assert.Catch<Exception>(() => PitayaBinding.AddPinnedPublicKeyFromCertificateString(certText));
+            Assert.Catch<Exception>(() => _binding.AddPinnedPublicKeyFromCertificateString(certText));
 
             return null;
         }
@@ -46,14 +49,14 @@ namespace Pitaya.Tests
         [UnityTest]
         public IEnumerator ShouldWorkWithCorrectCertificates()
         {
-            Assert.DoesNotThrow(() => PitayaBinding.AddPinnedPublicKeyFromCertificateFile(_caPath));
-            Assert.DoesNotThrow(() => PitayaBinding.AddPinnedPublicKeyFromCertificateFile(_serverCertPath));
+            Assert.DoesNotThrow(() => _binding.AddPinnedPublicKeyFromCertificateFile(_caPath));
+            Assert.DoesNotThrow(() => _binding.AddPinnedPublicKeyFromCertificateFile(_serverCertPath));
 
             var caText = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, _caPath));
             var certText = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, _serverCertPath));
 
-            Assert.DoesNotThrow(() => PitayaBinding.AddPinnedPublicKeyFromCertificateString(caText));
-            Assert.DoesNotThrow(() => PitayaBinding.AddPinnedPublicKeyFromCertificateString(certText));
+            Assert.DoesNotThrow(() => _binding.AddPinnedPublicKeyFromCertificateString(caText));
+            Assert.DoesNotThrow(() => _binding.AddPinnedPublicKeyFromCertificateString(certText));
 
             return null;
         }
