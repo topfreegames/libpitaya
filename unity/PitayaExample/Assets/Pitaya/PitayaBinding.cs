@@ -50,7 +50,53 @@ namespace Pitaya
         void OnUserDefinedPush(string route, byte[] serializedBody);
     }
 
-    public static class PitayaBinding
+    public interface IPitayaBinding
+    {
+        IPitayaQueueDispatcher QueueDispatcher { get; set; }
+        IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener);
+        void Connect(IntPtr client, string host, int port, string handshakeOpts);
+        void Disconnect(IntPtr client);
+        void SetCertificateName(string name);
+        void SetCertificatePath(string path);
+        void Request(IntPtr client, string route, byte[] msg, uint reqtId, int timeout);
+        void Notify(IntPtr client, string route, byte[] msg, int timeout);
+        int Quality(IntPtr client);
+        PitayaClientState State(IntPtr client);
+        void Dispose(IntPtr client);
+        ProtobufSerializer.SerializationFormat ClientSerializer(IntPtr client);
+        void AddPinnedPublicKeyFromCertificateString(string caString);
+        void AddPinnedPublicKeyFromCertificateFile(string name);
+        void SkipKeyPinCheck(bool shouldSkip);
+        void ClearPinnedPublicKeys();
+    }
+
+    public class PitayaBinding : IPitayaBinding
+    {
+        public IPitayaQueueDispatcher QueueDispatcher
+        {
+            get => StaticPitayaBinding.QueueDispatcher;
+            set => StaticPitayaBinding.QueueDispatcher = value;
+        }
+
+        public IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener) { return StaticPitayaBinding.CreateClient(enableTls, enablePolling, enableReconnect, connTimeout, listener); }
+        public void SetLogLevel(PitayaLogLevel logLevel) { StaticPitayaBinding.SetLogLevel(logLevel); }
+        public void Connect(IntPtr client, string host, int port, string handshakeOpts) { StaticPitayaBinding.Connect(client, host, port, handshakeOpts); }
+        public void Disconnect(IntPtr client) { StaticPitayaBinding.Disconnect(client); }
+        public void SetCertificateName(string name) { StaticPitayaBinding.SetCertificateName(name); }
+        public void SetCertificatePath(string path) { StaticPitayaBinding.SetCertificatePath(path); }
+        public void Request(IntPtr client, string route, byte[] msg, uint reqtId, int timeout) { StaticPitayaBinding.Request(client, route, msg, reqtId, timeout); }
+        public void Notify(IntPtr client, string route, byte[] msg, int timeout) { StaticPitayaBinding.Notify(client, route, msg, timeout); }
+        public int Quality(IntPtr client) { return StaticPitayaBinding.Quality(client); }
+        public PitayaClientState State(IntPtr client) { return StaticPitayaBinding.State(client); }
+        public void Dispose(IntPtr client) { StaticPitayaBinding.Dispose(client); }
+        public ProtobufSerializer.SerializationFormat ClientSerializer(IntPtr client) { return StaticPitayaBinding.ClientSerializer(client); }
+        public void AddPinnedPublicKeyFromCertificateString(string caString) { StaticPitayaBinding.AddPinnedPublicKeyFromCertificateString(caString); }
+        public void AddPinnedPublicKeyFromCertificateFile(string name) { StaticPitayaBinding.AddPinnedPublicKeyFromCertificateFile(name); }
+        public void SkipKeyPinCheck(bool shouldSkip) { StaticPitayaBinding.SkipKeyPinCheck(shouldSkip); }
+        public void ClearPinnedPublicKeys() { StaticPitayaBinding.ClearPinnedPublicKeys(); }
+    }
+
+    public static class StaticPitayaBinding
     {
         private static readonly NativeNotifyCallback NativeNotifyCallback;
         private static readonly NativeRequestCallback NativeRequestCallback;
@@ -73,7 +119,7 @@ namespace Pitaya
             }
         }
 
-        static PitayaBinding()
+        static StaticPitayaBinding()
         {
             NativeRequestCallback = OnRequest;
             NativeEventCallback = OnEvent;
