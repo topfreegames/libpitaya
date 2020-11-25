@@ -26,9 +26,9 @@ namespace Pitaya.Tests
         [SetUp]
         public void Init()
         {
-            // PitayaBinding.AddPinnedPublicKeyFromCaFile("client-ssl.localhost.crt");
+            // StaticPitayaBinding.AddPinnedPublicKeyFromCaFile("client-ssl.localhost.crt");
             _mainThread = Thread.CurrentThread;
-            PitayaBinding.SkipKeyPinCheck(true);
+            StaticPitayaBinding.SkipKeyPinCheck(true);
 
             _client = new PitayaClient("myCA.pem");
             PitayaClient.SetLogLevel(PitayaLogLevel.Debug);
