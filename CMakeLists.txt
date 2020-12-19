@@ -34,6 +34,8 @@ set(pitaya_sources
     src/tr/uv/tr_uv_tls_aux.c
     src/tr/uv/tr_uv_tls_i.c
     src/tr/uv/tr_uv_tls.c
+        src/tr/uv/ikcp.c
+        src/tr/uv/tr_kcp.c
     src/tr/dummy/tr_dummy.c)
 
 set(pitaya_headers
@@ -56,6 +58,8 @@ set(pitaya_headers
     src/tr/uv/tr_uv_tls_aux.h
     src/tr/uv/tr_uv_tls_i.h
     src/tr/uv/tr_uv_tls.h
+        src/tr/uv/tr_kcp.h
+        src/tr/uv/ikcp.h
     src/tr/dummy/tr_dummy.h)
 
 if(BUILD_MACOS_BUNDLE)
