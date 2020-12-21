@@ -10,10 +10,10 @@ static void event_cb(pc_client_t* client, int ev_type, void* ex_data, const char
 }
 
 static void request_cb(const pc_request_t* req, const pc_buf_t *resp) {
-
+    printf("request cb with resp %s\n", resp->base);
 }
 
-static void request_err(const pc_request_t* req, pc_error_t *error) {
+static void request_err(const pc_request_t* req, const pc_error_t *error) {
 
 }
 
@@ -31,11 +31,13 @@ int main() {
     pc_client_t *client = result.client;
     pc_client_add_ev_handler(client, event_cb, NULL, NULL);
     pc_client_connect(client, "localhost", 3110, NULL);
-    pc_string_request_with_timeout(client, "connector.entry.entry", "hello", NULL, 3000, request_cb, request_err);
 
     int c;
     do {
         c = getchar();
+        if (c == 'b') {
+            pc_string_request_with_timeout(client, "connector.entry.entry", "{}", NULL, 3000, request_cb, request_err);
+        }
     } while (c != 'c');
 
     return 0;

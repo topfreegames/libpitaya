@@ -9,6 +9,7 @@
 #include "pc_pitaya_i.h"
 #include "pr_pkg.h"
 #include "pr_gzip.h"
+#include "pc_error.h"
 
 #define KCP_CONV 777
 
@@ -83,6 +84,44 @@ static void kcp__send_heartbeat(kcp_transport_t *tt) {
 static void kcp__on_heartbeat(kcp_transport_t *tt) {
     pc_lib_log(PC_LOG_DEBUG, "kcp__on_heartbeat - [Heartbeat] received from server");
     pc_assert(tt->state == TR_KCP_DONE);
+}
+
+static void kcp__on_data_received(kcp_transport_t *tt, const char* data, size_t len) {
+    uv_buf_t buf;
+    buf.base = (char*)data;
+    buf.len  = len;
+    pc_msg_t msg = pr_kcp_default_msg_decoder(tt, &buf);
+    if (msg.id == PC_INVALID_REQ_ID || !msg.buf.base) {
+        pc_lib_log(PC_LOG_ERROR, "kcp__on_data_recieved - decode error, will reconn");
+        pc_trans_fire_event(tt->client, PC_EV_PROTO_ERROR, "Decode Error", NULL);
+        tt->reconn_fn(tt);
+        return ;
+    }
+
+    if (msg.id == PC_NOTIFY_PUSH_REQ_ID && !msg.route) {
+        pc_lib_log(PC_LOG_ERROR, "kcp__on_data_recieved - push message without route, error, will reconn");
+        pc_trans_fire_event(tt->client, PC_EV_PROTO_ERROR, "No Route Specified", NULL);
+        tt->reconn_fn(tt);
+        return ;
+    }
+
+    pc_lib_log(PC_LOG_INFO, "kcp__on_data_received - received data, req_id: %d", msg.id);
+
+    if (msg.id != PC_NOTIFY_PUSH_REQ_ID) {
+        /* request */
+        if (msg.error) {
+            pc_error_t err = pc__error_server(&msg.buf);
+            pc_trans_resp(tt->client, msg.id, &msg.buf, &err);
+            pc__error_free(&err);
+        } else {
+            pc_trans_resp(tt->client, msg.id, &msg.buf, NULL);
+        }
+    } else {
+        pc_trans_fire_push_event(tt->client, msg.route, &msg.buf);
+    }
+
+    pc_lib_free((char *)msg.route);
+    pc_buf_free(&msg.buf);
 }
 
 static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
@@ -221,6 +260,7 @@ static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len
             kcp__on_heartbeat(tt);
             break;
         case PC_PKG_DATA:
+            kcp__on_data_received(tt, data, len);
             break;
         case PC_PKG_KICK:
             break;
@@ -542,6 +582,7 @@ uv_buf_t pr_kcp_default_msg_encoder(kcp_transport_t *tt, const pc_msg_t* msg) {
     uv_buf_t ub;
     ub.base = (char*)pb.base;
     ub.len = pb.len;
+    return ub;
 }
 
 pc_msg_t pr_kcp_default_msg_decoder(kcp_transport_t *tt, const uv_buf_t* buf) {
