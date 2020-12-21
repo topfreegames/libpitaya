@@ -95,6 +95,9 @@ uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct s
 static void kcp__receive_async(uv_async_t *handle) {
     kcp_transport_t *tt = handle->data;
     int size = ikcp_peeksize(tt->kcp);
+    if (size < 0) {
+        return;
+    }
     char *buf = pc_lib_malloc(size);
     int ret = ikcp_recv(tt->kcp, buf, size);
     if (ret < 0) {
@@ -258,6 +261,11 @@ static void kcp__send_handshake(kcp_transport_t *tt) {
     pc_lib_free(buf.base);
 }
 
+static void kcp__update(uv_timer_t* handle) {
+    kcp_transport_t *tt = handle->data;
+    ikcp_update(tt->kcp, time(NULL) * 1000);
+}
+
 static void kcp__conn_async(uv_async_t *handle) {
     kcp_transport_t *tt = handle->data;
 
@@ -273,7 +281,6 @@ static void kcp__conn_async(uv_async_t *handle) {
     hints.ai_flags = AI_ADDRCONFIG;
     hints.ai_socktype = SOCK_STREAM;
 
-    uv_udp_init(&tt->loop, &tt->send_socket);
     tt->send_socket.data = tt;
     int ret;
     ret = getaddrinfo(tt->host, NULL, &hints, &ainfo);
@@ -334,12 +341,6 @@ static void kcp__conn_async(uv_async_t *handle) {
     uv_udp_set_broadcast(&tt->send_socket, 1);
     tt->is_connecting = TRUE;
 
-    ret = uv_udp_recv_start(&tt->send_socket, uv_udp_alloc_buff, uv_udp_on_read);
-    if (ret) {
-        pc_lib_log(PC_LOG_ERROR, "kcp__conn_async_cb - start read from udp error");
-        tt->reconn_fn(tt);
-        return;
-    }
 
     tt->state = TR_KCP_HANDSHAKING;
     kcp__send_handshake(tt);
@@ -424,6 +425,14 @@ int tr_kcp_connect(pc_transport_t *trans, const char *host, int port, const char
     tt->host = pc_lib_strdup(host);
     tt->port = port;
 
+    uv_timer_start(&tt->timer_update, kcp__update, 0, 10);
+
+    int ret = uv_udp_recv_start(&tt->send_socket, uv_udp_alloc_buff, uv_udp_on_read);
+    if (ret) {
+        pc_lib_log(PC_LOG_ERROR, "kcp__conn - start read from udp error");
+        return PC_RC_ERROR;
+    }
+
     uv_async_send(&tt->conn_async);
 
     return PC_RC_OK;
@@ -479,4 +488,13 @@ static pc_transport_plugin_t instance =
 
 pc_transport_plugin_t *pc_tr_kcp_trans_plugin() {
     return &instance;
+}
+
+const char *tr_kcp_serializer(pc_transport_t *trans) {
+    kcp_transport_t *tt = (kcp_transport_t *) trans;
+    const char *serializer = NULL;
+    if (tt->serializer) {
+        serializer = pc_lib_strdup(tt->serializer);
+    }
+    return serializer;
 }

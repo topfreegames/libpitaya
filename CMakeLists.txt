@@ -34,8 +34,8 @@ set(pitaya_sources
     src/tr/uv/tr_uv_tls_aux.c
     src/tr/uv/tr_uv_tls_i.c
     src/tr/uv/tr_uv_tls.c
-        src/tr/uv/ikcp.c
-        src/tr/uv/tr_kcp.c
+    src/tr/uv/ikcp.c
+    src/tr/uv/tr_kcp.c
     src/tr/dummy/tr_dummy.c)
 
 set(pitaya_headers
@@ -58,8 +58,8 @@ set(pitaya_headers
     src/tr/uv/tr_uv_tls_aux.h
     src/tr/uv/tr_uv_tls_i.h
     src/tr/uv/tr_uv_tls.h
-        src/tr/uv/tr_kcp.h
-        src/tr/uv/ikcp.h
+    src/tr/uv/tr_kcp.h
+    src/tr/uv/ikcp.h
     src/tr/dummy/tr_dummy.h)
 
 if(BUILD_MACOS_BUNDLE)
@@ -68,6 +68,7 @@ if(BUILD_MACOS_BUNDLE)
 else()
     add_library(pitaya ${pitaya_sources} ${pitaya_headers})
 endif()
+
 
 if(ANDROID)
     set_target_properties(pitaya PROPERTIES OUTPUT_NAME "pitaya-android")
@@ -203,6 +204,12 @@ if(UNIX AND NOT APPLE)
     target_link_libraries(pitaya PRIVATE m dl)
 endif()
 
+#
+# kcp tester
+#
+add_executable(kcp_tester kcp_tester/main.c)
+target_include_directories(kcp_tester PUBLIC include)
+target_link_libraries(kcp_tester pitaya zlib uv_a ssl crypto)
 #
 # Tests
 #

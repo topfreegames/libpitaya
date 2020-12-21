@@ -28,6 +28,10 @@
 #    include "tr/uv/tr_uv_tls.h"
 #  endif /* tls */
 
+#  if !defined(PC_NO_KCP_TRANS)
+#    include "tr/uv/tr_kcp.h"
+#  endif /* kcp */
+
 #endif /* tcp */
 
 #define PC_MAX_PINNED_KEYS 10
@@ -168,6 +172,11 @@ void pc_lib_init(void (*pc_log)(int level, const char* msg, ...),
     tp = pc_tr_uv_tls_trans_plugin();
     pc_transport_plugin_register(tp);
     pc_lib_log(PC_LOG_INFO, "pc_lib_init - register tls plugin");
+#endif
+#if !defined(PC_NO_KCP_TRANS)
+    tp = pc_tr_kcp_trans_plugin();
+    pc_transport_plugin_register(tp);
+    pc_lib_log(PC_LOG_INFO, "pc_lit_init - register kcp plugin");
 #endif
     srand((unsigned int)time(0));
 

@@ -337,7 +337,7 @@
 				DEVELOPMENT_TEAM = 3THJCX5EUA;
 				INFOPLIST_FILE = PitayaClient/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.topfreegames.staticlibproject.PitayaClient;
+				PRODUCT_BUNDLE_IDENTIFIER = com.taihegames.staticlibproject.PitayaClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "9eb92fa2-d31e-4c9e-9a29-1e994d2f7136";
 				PROVISIONING_PROFILE_SPECIFIER = "Dev Top Free Games";
@@ -354,7 +354,7 @@
 				DEVELOPMENT_TEAM = 3THJCX5EUA;
 				INFOPLIST_FILE = PitayaClient/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.topfreegames.staticlibproject.PitayaClient;
+				PRODUCT_BUNDLE_IDENTIFIER = com.taihegames.staticlibproject.PitayaClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "30d91c0f-64c3-4c7b-a78e-54a7965a0c68";
 				PROVISIONING_PROFILE_SPECIFIER = "Dev Top Free Games";
