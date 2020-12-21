@@ -131,12 +131,14 @@ pc_unity_lib_init(int log_level, const char* ca_file, const char* ca_path, pc_un
 }
 
 CS_PITAYA_EXPORT pc_client_t *
-pc_unity_create(bool enable_tls, bool enable_poll, bool enable_reconnect, int conn_timeout) {
+pc_unity_create(int trans_mode, bool enable_poll, bool enable_reconnect, int conn_timeout) {
     pc_assert(conn_timeout >= 0);
     pc_client_init_result_t res = {0};
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
-    if (enable_tls) {
+    if (trans_mode == 1) {
         config.transport_name = PC_TR_NAME_UV_TLS;
+    } else if (trans_mode == 2) {
+        config.transport_name = PC_TR_NAME_KCP;
     }
 
     config.enable_polling = enable_poll;

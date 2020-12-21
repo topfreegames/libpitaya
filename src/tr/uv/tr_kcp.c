@@ -298,7 +298,8 @@ static void kcp__send_handshake(kcp_transport_t *tt) {
     pc_lib_free(data);
     pc_JSON_Delete(body);
 
-    ikcp_send(tt->kcp, buf.base, buf.len);
+    int ret = ikcp_send(tt->kcp, buf.base, buf.len);
+    pc_assert(!ret);
     pc_lib_free(buf.base);
 }
 
