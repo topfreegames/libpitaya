@@ -4,8 +4,6 @@
 
 #include "tr_kcp.h"
 #include <pc_assert.h>
-#include "ikcp.h"
-#include <uv.h>
 #include <pc_lib.h>
 #include "pc_JSON.h"
 #include "pc_pitaya_i.h"
@@ -14,43 +12,6 @@
 
 #define KCP_CONV 777
 
-typedef struct kcp_transport_s kcp_transport_t;
-
-struct kcp_transport_s {
-    pc_transport_t base;
-    pc_client_t *client;
-
-    const char *host;
-    int port;
-    struct sockaddr_in *addr4;
-    struct sockaddr_in6 *addr6;
-
-    pc_pkg_parser_t pkg_parser;
-    uint64_t last_server_packet_time;
-    int hb_interval;
-    int hb_timeout;
-    const char *serializer;
-
-    // kcp
-    ikcpcb *kcp;
-
-    // libuv
-    uv_loop_t loop;
-    uv_udp_t send_socket;
-    uv_timer_t timer_update;
-    uv_timer_t timer_heartbeat;
-    uv_thread_t worker;
-    pc_JSON *handshake_opts;
-
-    int is_connecting;
-    tr_kcp_state_t state;
-
-    // async
-    uv_async_t conn_async;
-    uv_async_t receive_async;
-
-    void (*reconn_fn)(kcp_transport_t *tt);
-};
 
 static void udp_on_send(uv_udp_send_t *req, int status) {
     free(req);
@@ -101,10 +62,45 @@ static void kcp__receive_async(uv_async_t *handle) {
     char *buf = pc_lib_malloc(size);
     int ret = ikcp_recv(tt->kcp, buf, size);
     if (ret < 0) {
+        pc_lib_free(buf);
         return;
     }
+
+    pc_pkg_parser_feed(&tt->pkg_parser, buf, ret);
+    pc_lib_free(buf);
 }
 
+static void kcp__send_heartbeat(kcp_transport_t *tt) {
+    uv_buf_t buf;
+    pc_lib_log(PC_LOG_DEBUG, "kcp__send_heartbeat - send heartbeat");
+    buf = pc_pkg_encode(PC_PKG_HEARBEAT, NULL, 0);
+
+    pc_assert(buf.len && buf.base);
+    ikcp_send(tt->kcp, buf.base, buf.len);
+    pc_lib_free(buf.base);
+}
+
+static void kcp__on_heartbeat(kcp_transport_t *tt) {
+    pc_lib_log(PC_LOG_DEBUG, "kcp__on_heartbeat - [Heartbeat] received from server");
+    pc_assert(tt->state == TR_KCP_DONE);
+}
+
+static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
+    kcp_transport_t *tt = t->data;
+    pc_assert(t == &tt->timer_heartbeat);
+    pc_assert(tt->state == TR_KCP_DONE);
+
+    uint64_t threshold = (tt->hb_interval * 1000) * (PC_HEARTBEAT_TIMEOUT_FACTOR + 1);
+    uint64_t time_elapsed = uv_now(&tt->loop) - tt->last_server_packet_time;
+    if (time_elapsed > threshold) {
+        pc_lib_log(PC_LOG_WARN, "kcp__heartbeat_time_cb - heartbeat timeout, will reconn");
+        pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "Heartbeat timeout", NULL);
+        tt->reconn_fn(tt);
+        return;
+    }
+
+    kcp__send_heartbeat(tt);
+}
 
 static void kcp__send_handshake_ack(kcp_transport_t *tt) {
     uv_buf_t buf;
@@ -115,6 +111,7 @@ static void kcp__send_handshake_ack(kcp_transport_t *tt) {
     if (ret < 0) {
         pc_lib_log(PC_LOG_ERROR, "kcp__send_handshake_ack - kcp send failed");
     }
+    pc_lib_free(buf.base);
 }
 
 static void kcp__on_handshake_resp(kcp_transport_t *tt, const char *data, size_t len) {
@@ -199,7 +196,10 @@ static void kcp__on_handshake_resp(kcp_transport_t *tt, const char *data, size_t
     res = NULL;
 
     kcp__send_handshake_ack(tt);
-    // todo: add heartbeat
+    if (tt->hb_interval != -1) {
+        pc_lib_log(PC_LOG_INFO, "kcp__on_handshake_resp - start heartbeat");
+        uv_timer_start(&tt->timer_heartbeat, kcp__heartbeat_timer_cb, tt->hb_interval * 1000, tt->hb_interval * 1000);
+    }
 
     tt->state = TR_KCP_DONE;
     pc_lib_log(PC_LOG_INFO, "kcp__on_handshake_resp - handshake completely");
@@ -218,6 +218,7 @@ static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len
             kcp__on_handshake_resp(tt, data, len);
             break;
         case PC_PKG_HEARBEAT:
+            kcp__on_heartbeat(tt);
             break;
         case PC_PKG_DATA:
             break;
@@ -390,6 +391,8 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
     k_tr->client = client;
     k_tr->state = TR_KCP_NOT_CONN;
 
+    k_tr->last_server_packet_time = uv_now(&k_tr->loop);
+
     pc_pkg_parser_init(&k_tr->pkg_parser, tr_kcp_on_pkg_handler, k_tr);
 
     uv_thread_create(&k_tr->worker, tr_kcp_thread_fn, &k_tr->loop);
@@ -440,6 +443,42 @@ int tr_kcp_connect(pc_transport_t *trans, const char *host, int port, const char
 
 int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
                 pc_buf_t buf, unsigned int req_id, int timeout) {
+    pc_lib_log(PC_LOG_DEBUG, "kcp_send - Entered");
+    kcp_transport_t *tt = (kcp_transport_t *)trans;
+    if (tt->state == TR_KCP_NOT_CONN) {
+        return PC_RC_INVALID_STATE;
+    }
+
+    pc_assert(trans && route && req_id != PC_INVALID_REQ_ID);
+
+    pc_msg_t m;
+    m.id = req_id;
+    m.buf = buf;
+    m.route = route;
+    uv_buf_t uv_buf = pr_kcp_default_msg_encoder(tt, &m);
+
+    pc_lib_log(PC_LOG_DEBUG, "tr_kcp_send - encoded msg length = %lu", uv_buf.len);
+
+    if (uv_buf.len == (unsigned int)-1) {
+        pc_assert(uv_buf.base == NULL && "uv_buf should be empty here");
+        pc_lib_log(PC_LOG_ERROR, "tr_kcp_send - encode msg failed, route: %s", route);
+        return PC_RC_ERROR;
+    }
+
+    uv_buf_t pkg_buf = pc_pkg_encode(PC_PKG_DATA, uv_buf.base, uv_buf.len);
+
+    pc_lib_log(PC_LOG_DEBUG, "tr_uv_tcp_send - encoded pkg length = %lu", pkg_buf.len);
+
+    pc_lib_free(uv_buf.base);
+
+    if (pkg_buf.len == (unsigned int)-1) {
+        pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - encode package failed");
+        return PC_RC_ERROR;
+    }
+
+    ikcp_send(tt->kcp, pkg_buf.base, pkg_buf.len);
+    pc_lib_free(pkg_buf.base);
+
     return 0;
 }
 
@@ -497,4 +536,17 @@ const char *tr_kcp_serializer(pc_transport_t *trans) {
         serializer = pc_lib_strdup(tt->serializer);
     }
     return serializer;
+}
+uv_buf_t pr_kcp_default_msg_encoder(kcp_transport_t *tt, const pc_msg_t* msg) {
+    pc_buf_t pb = pc_default_msg_encode(NULL, msg, !tt->disable_compression);
+    uv_buf_t ub;
+    ub.base = (char*)pb.base;
+    ub.len = pb.len;
+}
+
+pc_msg_t pr_kcp_default_msg_decoder(kcp_transport_t *tt, const uv_buf_t* buf) {
+    pc_buf_t pb;
+    pb.base = (uint8_t*)buf->base;
+    pb.len = buf->len;
+    return pc_default_msg_decode(NULL, &pb);
 }

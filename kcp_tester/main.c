@@ -33,7 +33,10 @@ int main() {
     pc_client_connect(client, "localhost", 3110, NULL);
     pc_string_request_with_timeout(client, "connector.entry.entry", "hello", NULL, 3000, request_cb, request_err);
 
-    int c = getchar();
+    int c;
+    do {
+        c = getchar();
+    } while (c != 'c');
 
     return 0;
 }
