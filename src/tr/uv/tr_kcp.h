@@ -7,6 +7,7 @@
 
 #include <pitaya_trans.h>
 #include <uv.h>
+#include <queue.h>
 #include "ikcp.h"
 #include "pr_msg.h"
 
@@ -32,16 +33,34 @@ int tr_kcp_quality(pc_transport_t *trans);
 pc_transport_plugin_t *tr_kcp_plugin(pc_transport_t *trans);
 
 typedef enum {
+    TR_KCP_WI_TYPE_NONE,
+    TR_KCP_WI_TYPE_NOTIFY,
+    TR_KCP_WI_TYPE_RESP,
+    TR_KCP_WI_TYPE_INTERNAL
+} tr_kcp_wi_type_t;
+
+typedef struct tr_kcp_wait_item_s {
+    QUEUE queue;
+    tr_kcp_wi_type_t type;
+
+    unsigned int seq_num;
+    unsigned int req_id;
+
+    uv_buf_t buf;
+    time_t timestamp;
+    int timeout;
+} tr_kcp_wait_item_t;
+
+typedef enum {
     TR_KCP_NOT_CONN,
     TR_KCP_CONNECTING,
     TR_KCP_HANDSHAKING,
     TR_KCP_DONE
 } tr_kcp_state_t;
 
+typedef struct tr_kcp_transport_s tr_kcp_transport_t;
 
-typedef struct kcp_transport_s kcp_transport_t;
-
-struct kcp_transport_s {
+struct tr_kcp_transport_s {
     pc_transport_t base;
     pc_client_t *client;
 
@@ -56,6 +75,8 @@ struct kcp_transport_s {
     int hb_timeout;
     const char *serializer;
     int disable_compression;
+    QUEUE write_wait_queue;
+    QUEUE conn_wait_queue;
 
     // kcp
     ikcpcb *kcp;
@@ -74,11 +95,12 @@ struct kcp_transport_s {
     // async
     uv_async_t conn_async;
     uv_async_t receive_async;
+    uv_async_t write_async;
 
-    void (*reconn_fn)(kcp_transport_t *tt);
+    void (*reconn_fn)(tr_kcp_transport_t *tt);
 };
 
-uv_buf_t pr_kcp_default_msg_encoder(kcp_transport_t *tt, const pc_msg_t* msg);
-pc_msg_t pr_kcp_default_msg_decoder(kcp_transport_t *tt, const uv_buf_t* buf);
+uv_buf_t pr_kcp_default_msg_encoder(tr_kcp_transport_t *tt, const pc_msg_t* msg);
+pc_msg_t pr_kcp_default_msg_decoder(tr_kcp_transport_t *tt, const uv_buf_t* buf);
 
 #endif //PITAYA_TR_KCP_H

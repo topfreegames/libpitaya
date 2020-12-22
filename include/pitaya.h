@@ -47,7 +47,8 @@ extern "C" {
 #define PC_RC_SERVER_ERROR -12
 #define PC_RC_UV_ERROR -13
 #define PC_RC_NO_SUCH_FILE -14
-#define PC_RC_MIN -15
+#define PC_RC_KCP_ERROR -15
+#define PC_RC_MIN -16
 
 typedef struct pc_client_s pc_client_t;
 typedef struct pc_request_s pc_request_t;

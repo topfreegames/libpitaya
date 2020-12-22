@@ -30,7 +30,7 @@ int main() {
     pc_client_init_result_t result = pc_client_init(NULL, &config);
     pc_client_t *client = result.client;
     pc_client_add_ev_handler(client, event_cb, NULL, NULL);
-    pc_client_connect(client, "localhost", 3110, NULL);
+    pc_client_connect(client, "127.0.0.1", 3110, NULL);
 
     int c;
     do {

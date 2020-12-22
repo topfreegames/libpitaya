@@ -19,7 +19,7 @@ static void udp_on_send(uv_udp_send_t *req, int status) {
 }
 
 static int udp_output(const char *buf, int len, ikcpcb *kcp, void *p) {
-    kcp_transport_t *trans = p;
+    tr_kcp_transport_t *trans = p;
     uv_udp_send_t *send_req = malloc(sizeof(uv_udp_send_t));
     memset(send_req, 0, sizeof(uv_udp_send_t));
     char *data = malloc(len);
@@ -49,13 +49,13 @@ uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct s
     if (nread <= 0) {
         return;
     }
-    kcp_transport_t *tt = req->data;
+    tr_kcp_transport_t *tt = req->data;
     ikcp_input(tt->kcp, buf->base, nread);
     uv_async_send(&tt->receive_async);
 }
 
 static void kcp__receive_async(uv_async_t *handle) {
-    kcp_transport_t *tt = handle->data;
+    tr_kcp_transport_t *tt = handle->data;
     int size = ikcp_peeksize(tt->kcp);
     if (size < 0) {
         return;
@@ -71,7 +71,7 @@ static void kcp__receive_async(uv_async_t *handle) {
     pc_lib_free(buf);
 }
 
-static void kcp__send_heartbeat(kcp_transport_t *tt) {
+static void kcp__send_heartbeat(tr_kcp_transport_t *tt) {
     uv_buf_t buf;
     pc_lib_log(PC_LOG_DEBUG, "kcp__send_heartbeat - send heartbeat");
     buf = pc_pkg_encode(PC_PKG_HEARBEAT, NULL, 0);
@@ -81,12 +81,12 @@ static void kcp__send_heartbeat(kcp_transport_t *tt) {
     pc_lib_free(buf.base);
 }
 
-static void kcp__on_heartbeat(kcp_transport_t *tt) {
+static void kcp__on_heartbeat(tr_kcp_transport_t *tt) {
     pc_lib_log(PC_LOG_DEBUG, "kcp__on_heartbeat - [Heartbeat] received from server");
     pc_assert(tt->state == TR_KCP_DONE);
 }
 
-static void kcp__on_data_received(kcp_transport_t *tt, const char* data, size_t len) {
+static void kcp__on_data_received(tr_kcp_transport_t *tt, const char* data, size_t len) {
     uv_buf_t buf;
     buf.base = (char*)data;
     buf.len  = len;
@@ -125,7 +125,7 @@ static void kcp__on_data_received(kcp_transport_t *tt, const char* data, size_t 
 }
 
 static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
-    kcp_transport_t *tt = t->data;
+    tr_kcp_transport_t *tt = t->data;
     pc_assert(t == &tt->timer_heartbeat);
     pc_assert(tt->state == TR_KCP_DONE);
 
@@ -141,7 +141,7 @@ static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
     kcp__send_heartbeat(tt);
 }
 
-static void kcp__send_handshake_ack(kcp_transport_t *tt) {
+static void kcp__send_handshake_ack(tr_kcp_transport_t *tt) {
     uv_buf_t buf;
     buf = pc_pkg_encode(PC_PKG_HANDSHAKE_ACK, NULL, 0);
     pc_lib_log(PC_LOG_INFO, "kcp__send_handshake_ack - send handshake ack");
@@ -151,9 +151,10 @@ static void kcp__send_handshake_ack(kcp_transport_t *tt) {
         pc_lib_log(PC_LOG_ERROR, "kcp__send_handshake_ack - kcp send failed");
     }
     pc_lib_free(buf.base);
+    uv_async_send(&tt->write_async);
 }
 
-static void kcp__on_handshake_resp(kcp_transport_t *tt, const char *data, size_t len) {
+static void kcp__on_handshake_resp(tr_kcp_transport_t *tt, const char *data, size_t len) {
     pc_assert(tt->state == TR_KCP_HANDSHAKING);
     pc_JSON *res = NULL;
 
@@ -245,8 +246,67 @@ static void kcp__on_handshake_resp(kcp_transport_t *tt, const char *data, size_t
     pc_trans_fire_event(tt->client, PC_EV_CONNECTED, NULL, NULL);
 }
 
+static void kcp__write_async(uv_async_t *t) {
+    tr_kcp_transport_t *tt = t->data;
+    if (tt->state == TR_KCP_NOT_CONN) {
+        return ;
+    }
+    int need_check = 0;
+    tr_kcp_wait_item_t *wi;
+    int buf_cnt = 0;
+    QUEUE *q;
+
+    if (tt->state == TR_KCP_DONE) {
+        while (!QUEUE_EMPTY(&tt->conn_wait_queue)) {
+            q = QUEUE_HEAD(&tt->conn_wait_queue);
+            QUEUE_REMOVE(q);
+            QUEUE_INIT(q);
+
+            wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+            QUEUE_INSERT_TAIL(&tt->write_wait_queue, q);
+        }
+    } else {
+        need_check = !QUEUE_EMPTY(&tt->conn_wait_queue);
+    }
+
+    QUEUE_FOREACH(q, &tt->write_wait_queue) {
+        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        if (wi->timeout != PC_WITHOUT_TIMEOUT) {
+            need_check = 1;
+        }
+        buf_cnt++;
+    }
+
+    if (buf_cnt == 0) {
+        return;
+    }
+    int ret;
+    while (!QUEUE_EMPTY(&tt->write_wait_queue)) {
+        q = QUEUE_HEAD(&tt->write_wait_queue);
+        QUEUE_REMOVE(q);
+        QUEUE_INIT(q);
+
+        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        ret = ikcp_send(tt->kcp, wi->buf.base, wi->buf.len);
+        if (ret) {
+            pc_lib_log(PC_LOG_ERROR, "kcp__write_async - kcp write error: %d", ret);
+            if (wi->type == TR_KCP_WI_TYPE_NOTIFY) {
+                pc_error_t err = pc__error_kcp(ret);
+                pc_trans_sent(tt->client, wi->seq_num, &err);
+            }
+            if (wi->type == TR_KCP_WI_TYPE_RESP) {
+                pc_error_t err = pc__error_kcp(ret);
+                pc_buf_t empty_buf = {0};
+                pc_trans_resp(tt->client, wi->req_id, &empty_buf, &err);
+            }
+        }
+        pc_lib_free(wi->buf.base);
+        pc_lib_free(wi);
+    }
+}
+
 static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len, void *ex_data) {
-    kcp_transport_t *tt = ex_data;
+    tr_kcp_transport_t *tt = ex_data;
     pc_assert(type == PC_PKG_HANDSHAKE || type == PC_PKG_HEARBEAT
               || type == PC_PKG_DATA || type == PC_PKG_KICK);
     pc_lib_log(PC_LOG_DEBUG, "tr_kcp_on_pkg_handler - updating last server packet time");
@@ -269,11 +329,11 @@ static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len
     }
 }
 
-static void kcp__reconn(kcp_transport_t *tt) {
+static void kcp__reconn(tr_kcp_transport_t *tt) {
 
 }
 
-static void kcp__send_handshake(kcp_transport_t *tt) {
+static void kcp__send_handshake(tr_kcp_transport_t *tt) {
     uv_buf_t buf;
     pc_JSON *sys;
     pc_JSON *body;
@@ -304,12 +364,12 @@ static void kcp__send_handshake(kcp_transport_t *tt) {
 }
 
 static void kcp__update(uv_timer_t* handle) {
-    kcp_transport_t *tt = handle->data;
+    tr_kcp_transport_t *tt = handle->data;
     ikcp_update(tt->kcp, time(NULL) * 1000);
 }
 
 static void kcp__conn_async(uv_async_t *handle) {
-    kcp_transport_t *tt = handle->data;
+    tr_kcp_transport_t *tt = handle->data;
 
     pc_assert(handle == &tt->conn_async);
     if (tt->is_connecting) {
@@ -389,7 +449,7 @@ static void kcp__conn_async(uv_async_t *handle) {
 }
 
 int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
-    kcp_transport_t *k_tr = (kcp_transport_t *) trans;
+    tr_kcp_transport_t *k_tr = (tr_kcp_transport_t *) trans;
     pc_assert(k_tr && client);
 
 
@@ -426,6 +486,13 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
     pc_assert(!ret);
     k_tr->receive_async.data = k_tr;
 
+    ret = uv_async_init(&k_tr->loop, &k_tr->write_async, kcp__write_async);
+    pc_assert(!ret);
+    k_tr->write_async.data = k_tr;
+
+    QUEUE_INIT(&k_tr->write_wait_queue);
+    QUEUE_INIT(&k_tr->conn_wait_queue);
+
     k_tr->host = NULL;
     k_tr->port = 0;
 
@@ -443,7 +510,7 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
 
 int tr_kcp_connect(pc_transport_t *trans, const char *host, int port, const char *handshake_opts) {
     pc_JSON *handshake;
-    kcp_transport_t *tt = (kcp_transport_t *) trans;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
     pc_assert(tt);
     pc_assert(host);
 
@@ -485,7 +552,7 @@ int tr_kcp_connect(pc_transport_t *trans, const char *host, int port, const char
 int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
                 pc_buf_t buf, unsigned int req_id, int timeout) {
     pc_lib_log(PC_LOG_DEBUG, "kcp_send - Entered");
-    kcp_transport_t *tt = (kcp_transport_t *)trans;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *)trans;
     if (tt->state == TR_KCP_NOT_CONN) {
         return PC_RC_INVALID_STATE;
     }
@@ -517,16 +584,39 @@ int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
         return PC_RC_ERROR;
     }
 
-    ikcp_send(tt->kcp, pkg_buf.base, pkg_buf.len);
-    pc_lib_free(pkg_buf.base);
+    tr_kcp_wait_item_t *item = pc_lib_malloc(sizeof(tr_kcp_wait_item_t));
+    memset(item, 0, sizeof(tr_kcp_wait_item_t));
+    QUEUE_INIT(&item->queue);
+    if (tt->state == TR_KCP_DONE) {
+        QUEUE_INSERT_TAIL(&tt->write_wait_queue, &item->queue);
+    } else {
+        QUEUE_INSERT_TAIL(&tt->conn_wait_queue, &item->queue);
+    }
 
-    return 0;
+    if (PC_NOTIFY_PUSH_REQ_ID == req_id) {
+        item->type = TR_KCP_WI_TYPE_NOTIFY;
+    } else {
+        item->type = TR_KCP_WI_TYPE_RESP;
+    }
+    item->buf = pkg_buf;
+    item->seq_num = seq_num;
+    item->req_id = req_id;
+    item->timestamp = time(NULL);
+    item->timeout = timeout;
+    if (tt->state == TR_KCP_CONNECTING || tt->state == TR_KCP_HANDSHAKING || tt->state == TR_KCP_DONE) {
+        uv_async_send(&tt->write_async);
+    }
+
+//    ikcp_send(tt->kcp, pkg_buf.base, pkg_buf.len);
+//    pc_lib_free(pkg_buf.base);
+
+    return PC_RC_OK;
 }
 
 
 static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
-    size_t len = sizeof(kcp_transport_t);
-    kcp_transport_t *tt = (kcp_transport_t *) pc_lib_malloc(len);
+    size_t len = sizeof(tr_kcp_transport_t);
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) pc_lib_malloc(len);
     memset(tt, 0, len);
 
     tt->base.init = tr_kcp_init;
@@ -539,7 +629,7 @@ static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
 }
 
 static void kcp_trans_release(pc_transport_plugin_t *plugin, pc_transport_t *trans) {
-    kcp_transport_t *tt = (kcp_transport_t *) trans;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
 
     if (tt->kcp) {
         ikcp_release(tt->kcp);
@@ -571,14 +661,14 @@ pc_transport_plugin_t *pc_tr_kcp_trans_plugin() {
 }
 
 const char *tr_kcp_serializer(pc_transport_t *trans) {
-    kcp_transport_t *tt = (kcp_transport_t *) trans;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
     const char *serializer = NULL;
     if (tt->serializer) {
         serializer = pc_lib_strdup(tt->serializer);
     }
     return serializer;
 }
-uv_buf_t pr_kcp_default_msg_encoder(kcp_transport_t *tt, const pc_msg_t* msg) {
+uv_buf_t pr_kcp_default_msg_encoder(tr_kcp_transport_t *tt, const pc_msg_t* msg) {
     pc_buf_t pb = pc_default_msg_encode(NULL, msg, !tt->disable_compression);
     uv_buf_t ub;
     ub.base = (char*)pb.base;
@@ -586,7 +676,7 @@ uv_buf_t pr_kcp_default_msg_encoder(kcp_transport_t *tt, const pc_msg_t* msg) {
     return ub;
 }
 
-pc_msg_t pr_kcp_default_msg_decoder(kcp_transport_t *tt, const uv_buf_t* buf) {
+pc_msg_t pr_kcp_default_msg_decoder(tr_kcp_transport_t *tt, const uv_buf_t* buf) {
     pc_buf_t pb;
     pb.base = (uint8_t*)buf->base;
     pb.len = buf->len;

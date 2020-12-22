@@ -16,6 +16,15 @@ pc__error_uv(int uv_code)
 }
 
 static pc_error_t
+pc__error_kcp(int kcp_code)
+{
+    pc_error_t err = {0};
+    err.code = PC_RC_KCP_ERROR;
+    err.uv_code = kcp_code;
+    return err;
+}
+
+static pc_error_t
 pc__error_server(const pc_buf_t *payload)
 {
     pc_assert(payload->base && payload->len > 0);
