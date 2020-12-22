@@ -50,8 +50,12 @@ uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct s
         return;
     }
     tr_kcp_transport_t *tt = req->data;
-    ikcp_input(tt->kcp, buf->base, nread);
-    uv_async_send(&tt->receive_async);
+    int ret = ikcp_input(tt->kcp, buf->base, nread);
+    if (ret < 0) {
+        pc_lib_log(PC_LOG_ERROR, "uv_udp_on_read - kcp input failed: %d", ret);
+    } else {
+        uv_async_send(&tt->receive_async);
+    }
 }
 
 static void kcp__receive_async(uv_async_t *handle) {
@@ -250,6 +254,10 @@ static void kcp__on_handshake_resp(tr_kcp_transport_t *tt, const char *data, siz
         res = pc_JSON_Parse(data);
     }
 
+    if (tt->config->conn_timeout != PC_WITHOUT_TIMEOUT) {
+        uv_timer_stop(&tt->timer_handshake_timeout);
+    }
+
     pc_lib_log(PC_LOG_INFO, "kcp__on_handshake_resp - kcp get handshake resp");
 
     if (!res) {
@@ -403,6 +411,14 @@ static void kcp__write_async(uv_async_t *t) {
     }
 
     pc_mutex_unlock(&tt->wq_mutex);
+
+    if (need_check) {
+        pc_lib_log(PC_LOG_DEBUG, "NEED A CHECK");
+        if (!uv_is_active((uv_handle_t *) &tt->timer_check_timeout)) {
+            pc_lib_log(PC_LOG_DEBUG, "kcp__write_async - start check timeout timer");
+            uv_timer_start(&tt->timer_check_timeout, kcp__write_check_timeout, PC_TIMEOUT_CHECK_INTERVAL * 1000, 0);
+        }
+    }
 }
 
 static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len, void *ex_data) {
@@ -458,6 +474,8 @@ static void kcp__reset(tr_kcp_transport_t *tt) {
     pc_lib_free((char*)tt->serializer);
     tt->serializer = NULL;
     uv_udp_recv_stop(&tt->send_socket);
+    ikcp_release(tt->kcp);
+    tt->kcp = NULL;
 
     pc_mutex_lock(&tt->wq_mutex);
     if (!QUEUE_EMPTY(&tt->conn_wait_queue)) {
@@ -560,13 +578,25 @@ static void kcp__update(uv_timer_t* handle) {
     ikcp_update(tt->kcp, time(NULL) * 1000);
 }
 
+static void kcp__handshake_timer_cb(uv_timer_t *t) {
+    tr_kcp_transport_t *tt = t->data;
+    pc_lib_log(PC_LOG_ERROR, "kcp__handshake_timer_cb - handshake timeout, will reconn");
+    pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "Connect Timeout", NULL);
+    tt->reconn_fn(tt);
+}
+
 static void kcp__conn_async(uv_async_t *handle) {
     tr_kcp_transport_t *tt = handle->data;
 
     pc_assert(handle == &tt->conn_async);
-    if (tt->is_connecting) {
-        return;
-    }
+
+    // kcp
+    ikcpcb *kcp = ikcp_create(KCP_CONV, tt);
+    kcp->output = udp_output;
+    tt->kcp = kcp;
+    memset(&tt->send_socket, 0, sizeof(uv_udp_t));
+    uv_udp_init(&tt->loop, &tt->send_socket);
+    tt->send_socket.data = tt;
 
     struct addrinfo hints;
     struct addrinfo *ainfo;
@@ -575,7 +605,6 @@ static void kcp__conn_async(uv_async_t *handle) {
     hints.ai_flags = AI_ADDRCONFIG;
     hints.ai_socktype = SOCK_STREAM;
 
-    tt->send_socket.data = tt;
     int ret;
     ret = getaddrinfo(tt->host, NULL, &hints, &ainfo);
     if (ret) {
@@ -633,11 +662,21 @@ static void kcp__conn_async(uv_async_t *handle) {
     uv_ip4_addr("0.0.0.0", 0, &broadcast_addr);
     uv_udp_bind(&tt->send_socket, (const struct sockaddr *) &broadcast_addr, 0);
     uv_udp_set_broadcast(&tt->send_socket, 1);
-    tt->is_connecting = TRUE;
 
+    ret = uv_udp_recv_start(&tt->send_socket, uv_udp_alloc_buff, uv_udp_on_read);
+    if (ret) {
+        pc_lib_log(PC_LOG_ERROR, "kcp__conn - start read from udp error");
+        return;
+    }
+    uv_timer_start(&tt->timer_update, kcp__update, 0, 10);
 
+    tt->last_server_packet_time = uv_now(&tt->loop);
     tt->state = TR_KCP_HANDSHAKING;
     kcp__send_handshake(tt);
+
+    if (tt->config->conn_timeout != PC_WITHOUT_TIMEOUT) {
+        uv_timer_start(&tt->timer_handshake_timeout, kcp__handshake_timer_cb, tt->config->conn_timeout * 1000, 0);
+    }
 }
 
 int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
@@ -651,17 +690,9 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
         return PC_RC_ERROR;
     }
 
-    // kcp
-    ikcpcb *kcp = ikcp_create(KCP_CONV, k_tr);
-    kcp->output = udp_output;
-    k_tr->kcp = kcp;
-
     int ret;
     k_tr->reconn_times = 0;
     k_tr->loop.data = k_tr;
-    ret = uv_udp_init(&k_tr->loop, &k_tr->send_socket);
-    pc_assert(!ret);
-    k_tr->send_socket.data = k_tr;
 
     pc_mutex_init(&k_tr->wq_mutex);
 
@@ -676,6 +707,10 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
     ret = uv_timer_init(&k_tr->loop, &k_tr->timer_check_timeout);
     pc_assert(!ret);
     k_tr->timer_check_timeout.data = k_tr;
+
+    ret = uv_timer_init(&k_tr->loop, &k_tr->timer_handshake_timeout);
+    pc_assert(!ret);
+    k_tr->timer_handshake_timeout.data = k_tr;
 
     ret = uv_timer_init(&k_tr->loop, &k_tr->timer_reconn_delay);
     pc_assert(!ret);
@@ -742,13 +777,6 @@ int tr_kcp_connect(pc_transport_t *trans, const char *host, int port, const char
     tt->host = pc_lib_strdup(host);
     tt->port = port;
 
-    uv_timer_start(&tt->timer_update, kcp__update, 0, 10);
-
-    int ret = uv_udp_recv_start(&tt->send_socket, uv_udp_alloc_buff, uv_udp_on_read);
-    if (ret) {
-        pc_lib_log(PC_LOG_ERROR, "kcp__conn - start read from udp error");
-        return PC_RC_ERROR;
-    }
 
     uv_async_send(&tt->conn_async);
 

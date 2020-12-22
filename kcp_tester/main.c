@@ -26,7 +26,7 @@ int main() {
 
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_KCP;
-    config.enable_reconn = false;
+    config.enable_reconn = 1;
     pc_client_init_result_t result = pc_client_init(NULL, &config);
     pc_client_t *client = result.client;
     pc_client_add_ev_handler(client, event_cb, NULL, NULL);
@@ -36,7 +36,7 @@ int main() {
     do {
         c = getchar();
         if (c == 'b') {
-            pc_string_request_with_timeout(client, "connector.entry.entry", "{}", NULL, 3000, request_cb, request_err);
+            pc_string_request_with_timeout(client, "connector.entry.entry", "{}", NULL, 3, request_cb, request_err);
         }
     } while (c != 'c');
 

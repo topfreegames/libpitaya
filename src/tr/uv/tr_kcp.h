@@ -92,6 +92,7 @@ struct tr_kcp_transport_s {
     uv_timer_t timer_update;
     uv_timer_t timer_heartbeat;
     uv_timer_t timer_check_timeout;
+    uv_timer_t timer_handshake_timeout;
     uv_timer_t timer_reconn_delay;
     uv_thread_t worker;
     pc_JSON *handshake_opts;
