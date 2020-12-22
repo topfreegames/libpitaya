@@ -119,6 +119,7 @@ static void kcp__on_data_received(tr_kcp_transport_t *tt, const char* data, size
 
         QUEUE *q;
         tr_kcp_wait_item_t *wi;
+        pc_mutex_lock(&tt->wq_mutex);
         QUEUE_FOREACH(q, &tt->resp_pending_queue) {
             wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
             pc_assert(wi->type == TR_KCP_WI_TYPE_RESP);
@@ -131,6 +132,7 @@ static void kcp__on_data_received(tr_kcp_transport_t *tt, const char* data, size
             pc_lib_free(wi);
             break;
         }
+        pc_mutex_unlock(&tt->wq_mutex);
     } else {
         pc_trans_fire_push_event(tt->client, msg.route, &msg.buf);
     }
@@ -204,9 +206,11 @@ static void kcp__write_check_timeout(uv_timer_t *t) {
     int count = 0;
     pc_lib_log(PC_LOG_DEBUG, "kcp__write_check_timeout - start check timeout");
 
+    pc_mutex_lock(&tt->wq_mutex);
     count += kcp__check_queue_timeout(&tt->conn_wait_queue, tt->client);
     count += kcp__check_queue_timeout(&tt->write_wait_queue, tt->client);
     count += kcp__check_queue_timeout(&tt->resp_pending_queue, tt->client);
+    pc_mutex_unlock(&tt->wq_mutex);
     if (count && !uv_is_active((uv_handle_t*)t)) {
         uv_timer_start(t, kcp__write_check_timeout, PC_TIMEOUT_CHECK_INTERVAL * 1000, 0);
     }
@@ -328,6 +332,7 @@ static void kcp__write_async(uv_async_t *t) {
     int buf_cnt = 0;
     QUEUE *q;
 
+    pc_mutex_lock(&tt->wq_mutex);
     if (tt->state == TR_KCP_DONE) {
         while (!QUEUE_EMPTY(&tt->conn_wait_queue)) {
             q = QUEUE_HEAD(&tt->conn_wait_queue);
@@ -350,6 +355,7 @@ static void kcp__write_async(uv_async_t *t) {
     }
 
     if (buf_cnt == 0) {
+        pc_mutex_unlock(&tt->wq_mutex);
         if (need_check) {
             pc_lib_log(PC_LOG_DEBUG, "NEED A CHECK");
             if (!uv_is_active((uv_handle_t *) &tt->timer_check_timeout)) {
@@ -395,6 +401,8 @@ static void kcp__write_async(uv_async_t *t) {
             }
         }
     }
+
+    pc_mutex_unlock(&tt->wq_mutex);
 }
 
 static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len, void *ex_data) {
@@ -421,8 +429,100 @@ static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len
     }
 }
 
-static void kcp__reconn(tr_kcp_transport_t *tt) {
+static void kcp__reset_wi(pc_client_t *client, tr_kcp_wait_item_t* wi) {
+    if (wi->type == TR_KCP_WI_TYPE_RESP) {
+        pc_lib_log(PC_LOG_DEBUG, "kcp__reset_wi - reset request, req_id: %u", wi->req_id);
+        pc_error_t err = pc__error_reset();
+        pc_buf_t empty_buf = {0};
+        pc_trans_resp(client, wi->req_id, &empty_buf, &err);
+    }
+    if (wi->type == TR_KCP_WI_TYPE_NOTIFY) {
+        pc_lib_log(PC_LOG_DEBUG, "kcp__reset_wi - reset notify, seq_num: %u", wi->seq_num);
+        pc_error_t err = pc__error_reset();
+        pc_trans_sent(client, wi->seq_num, &err);
+    }
 
+    pc_lib_free(wi->buf.base);
+    pc_lib_free(wi);
+}
+
+static void kcp__reset(tr_kcp_transport_t *tt) {
+    tr_kcp_wait_item_t *wi;
+    QUEUE *q;
+
+    pc_pkg_parser_reset(&tt->pkg_parser);
+    uv_timer_stop(&tt->timer_heartbeat);
+    uv_timer_stop(&tt->timer_reconn_delay);
+    uv_timer_stop(&tt->timer_check_timeout);
+    uv_timer_stop(&tt->timer_update);
+    pc_lib_free((char*)tt->serializer);
+    tt->serializer = NULL;
+    uv_udp_recv_stop(&tt->send_socket);
+
+    pc_mutex_lock(&tt->wq_mutex);
+    if (!QUEUE_EMPTY(&tt->conn_wait_queue)) {
+        QUEUE_ADD(&tt->write_wait_queue, &tt->conn_wait_queue);
+        QUEUE_INIT(&tt->conn_wait_queue);
+    }
+    while (!QUEUE_EMPTY(&tt->write_wait_queue)) {
+        q = QUEUE_HEAD(&tt->write_wait_queue);
+        QUEUE_REMOVE(q);
+        QUEUE_INIT(q);
+        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        kcp__reset_wi(tt->client, wi);
+    }
+    while (!QUEUE_EMPTY(&tt->resp_pending_queue)) {
+        q = QUEUE_HEAD(&tt->resp_pending_queue);
+        QUEUE_REMOVE(q);
+        QUEUE_INIT(q);
+        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        kcp__reset_wi(tt->client, wi);
+    }
+    pc_mutex_unlock(&tt->wq_mutex);
+
+    tt->state = TR_KCP_NOT_CONN;
+}
+
+static void kcp__reconn_delay_timer_cb(uv_timer_t *t) {
+    tr_kcp_transport_t *tt = t->data;
+    uv_timer_stop(t);
+    uv_async_send(&tt->conn_async);
+}
+
+static void kcp__reconn(tr_kcp_transport_t *tt) {
+    tt->reset_fn(tt);
+    tt->state = TR_KCP_CONNECTING;
+    const pc_client_config_t *config = tt->config;
+    if (!config->enable_reconn) {
+        pc_lib_log(PC_LOG_WARN, "tcp__reconn - trans want to reconnect, but is disabled");
+        tt->reconn_times = 0;
+        tt->state = TR_KCP_NOT_CONN;
+        return;
+    }
+
+    if (tt->reconn_times == 0) {
+        pc_trans_fire_event(tt->client, PC_EV_RECONNECT_STARTED, "kcp__reconn - Start reconn", NULL);
+    } else {
+        pc_mutex_lock(&tt->client->state_mutex);
+        tt->client->state = PC_ST_CONNECTING;
+        pc_mutex_unlock(&tt->client->state_mutex);
+    }
+    tt->reconn_times++;
+    if (config->reconn_max_retry != PC_ALWAYS_RETRY && config->reconn_max_retry < tt->reconn_times) {
+        pc_lib_log(PC_LOG_WARN, "kcp__reconn - reconn times exceeded");
+        tt->reconn_times = 0;
+        tt->state = TR_KCP_NOT_CONN;
+        return;
+    }
+
+    int timeout = config->reconn_delay * tt->reconn_times;
+    if (timeout > config->reconn_delay_max) {
+        timeout = config->reconn_delay_max;
+    }
+    timeout = (rand() % timeout) + timeout / 2;
+    pc_lib_log(PC_LOG_DEBUG, "kcp__reconn - reconnect, delay: %d", timeout);
+
+    uv_timer_start(&tt->timer_reconn_delay, kcp__reconn_delay_timer_cb, timeout * 1000, 0);
 }
 
 static void kcp__send_handshake(tr_kcp_transport_t *tt) {
@@ -557,10 +657,13 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
     k_tr->kcp = kcp;
 
     int ret;
+    k_tr->reconn_times = 0;
     k_tr->loop.data = k_tr;
     ret = uv_udp_init(&k_tr->loop, &k_tr->send_socket);
     pc_assert(!ret);
     k_tr->send_socket.data = k_tr;
+
+    pc_mutex_init(&k_tr->wq_mutex);
 
     ret = uv_timer_init(&k_tr->loop, &k_tr->timer_update);
     pc_assert(!ret);
@@ -573,6 +676,10 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
     ret = uv_timer_init(&k_tr->loop, &k_tr->timer_check_timeout);
     pc_assert(!ret);
     k_tr->timer_check_timeout.data = k_tr;
+
+    ret = uv_timer_init(&k_tr->loop, &k_tr->timer_reconn_delay);
+    pc_assert(!ret);
+    k_tr->timer_reconn_delay.data = k_tr;
 
     ret = uv_async_init(&k_tr->loop, &k_tr->conn_async, kcp__conn_async);
     pc_assert(!ret);
@@ -594,6 +701,8 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
     k_tr->port = 0;
 
     k_tr->client = client;
+    k_tr->config = pc_client_config(client);
+    k_tr->serializer = NULL;
     k_tr->state = TR_KCP_NOT_CONN;
 
     k_tr->last_server_packet_time = uv_now(&k_tr->loop);
@@ -683,12 +792,14 @@ int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
 
     tr_kcp_wait_item_t *item = pc_lib_malloc(sizeof(tr_kcp_wait_item_t));
     memset(item, 0, sizeof(tr_kcp_wait_item_t));
+    pc_mutex_lock(&tt->wq_mutex);
     QUEUE_INIT(&item->queue);
     if (tt->state == TR_KCP_DONE) {
         QUEUE_INSERT_TAIL(&tt->write_wait_queue, &item->queue);
     } else {
         QUEUE_INSERT_TAIL(&tt->conn_wait_queue, &item->queue);
     }
+    pc_mutex_unlock(&tt->wq_mutex);
 
     if (PC_NOTIFY_PUSH_REQ_ID == req_id) {
         item->type = TR_KCP_WI_TYPE_NOTIFY;
@@ -721,6 +832,7 @@ static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
     tt->base.send = tr_kcp_send;
     tt->base.serializer = tr_kcp_serializer;
     tt->reconn_fn = kcp__reconn;
+    tt->reset_fn = kcp__reset;
 
     return (pc_transport_t *) tt;
 }

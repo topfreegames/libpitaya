@@ -10,6 +10,7 @@
 #include <queue.h>
 #include "ikcp.h"
 #include "pr_msg.h"
+#include "pc_mutex.h"
 
 pc_transport_plugin_t *pc_tr_kcp_trans_plugin();
 
@@ -63,6 +64,8 @@ typedef struct tr_kcp_transport_s tr_kcp_transport_t;
 struct tr_kcp_transport_s {
     pc_transport_t base;
     pc_client_t *client;
+    const pc_client_config_t *config;
+
 
     const char *host;
     int port;
@@ -73,6 +76,7 @@ struct tr_kcp_transport_s {
     uint64_t last_server_packet_time;
     int hb_interval;
     int hb_timeout;
+    int reconn_times;
     const char *serializer;
     int disable_compression;
     QUEUE write_wait_queue;
@@ -88,11 +92,13 @@ struct tr_kcp_transport_s {
     uv_timer_t timer_update;
     uv_timer_t timer_heartbeat;
     uv_timer_t timer_check_timeout;
+    uv_timer_t timer_reconn_delay;
     uv_thread_t worker;
     pc_JSON *handshake_opts;
+    pc_mutex_t wq_mutex;
 
     int is_connecting;
-    tr_kcp_state_t state;
+    volatile tr_kcp_state_t state;
 
     // async
     uv_async_t conn_async;
@@ -100,6 +106,7 @@ struct tr_kcp_transport_s {
     uv_async_t write_async;
 
     void (*reconn_fn)(tr_kcp_transport_t *tt);
+    void (*reset_fn)(tr_kcp_transport_t *tt);
 };
 
 uv_buf_t pr_kcp_default_msg_encoder(tr_kcp_transport_t *tt, const pc_msg_t* msg);
