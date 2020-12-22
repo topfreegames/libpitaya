@@ -116,6 +116,21 @@ static void kcp__on_data_received(tr_kcp_transport_t *tt, const char* data, size
         } else {
             pc_trans_resp(tt->client, msg.id, &msg.buf, NULL);
         }
+
+        QUEUE *q;
+        tr_kcp_wait_item_t *wi;
+        QUEUE_FOREACH(q, &tt->resp_pending_queue) {
+            wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+            pc_assert(wi->type == TR_KCP_WI_TYPE_RESP);
+            if (wi->req_id != msg.id)
+                continue;
+
+            QUEUE_REMOVE(q);
+            QUEUE_INIT(q);
+            pc_lib_free(wi->buf.base);
+            pc_lib_free(wi);
+            break;
+        }
     } else {
         pc_trans_fire_push_event(tt->client, msg.route, &msg.buf);
     }
@@ -139,6 +154,63 @@ static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
     }
 
     kcp__send_heartbeat(tt);
+}
+
+static int kcp__check_queue_timeout(QUEUE *ql, pc_client_t* client) {
+    int count = 0;
+    QUEUE tmp;
+    QUEUE* q;
+    tr_kcp_wait_item_t *wi;
+    time_t now = time(NULL);
+
+    QUEUE_INIT(&tmp);
+    while(!QUEUE_EMPTY(ql)) {
+        q = QUEUE_HEAD(ql);
+        QUEUE_REMOVE(q);
+        QUEUE_INIT(q);
+
+        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        if (wi->timeout != PC_WITHOUT_TIMEOUT) {
+            if (now > wi->timestamp + wi->timeout) {
+                // timeout
+                if (wi->type == TR_KCP_WI_TYPE_NOTIFY) {
+                    pc_lib_log(PC_LOG_WARN, "kcp__check_queue_timeout - notify timeout, seq_num: %d", wi->seq_num);
+                    pc_error_t err = pc__error_timeout();
+                    pc_trans_sent(client, wi->seq_num, &err);
+                }
+                if (wi->type == TR_KCP_WI_TYPE_RESP) {
+                    pc_lib_log(PC_LOG_WARN, "kcp__check_queue_timeout - request timeout, req_id: %d", wi->req_id);
+                    pc_error_t err = pc__error_timeout();
+                    pc_buf_t empty_buf = {0};
+                    pc_trans_resp(client, wi->req_id, &empty_buf, &err);
+                }
+
+                pc_lib_free(wi->buf.base);
+                pc_lib_free(wi);
+            } else {
+                count += 1;
+                QUEUE_INSERT_TAIL(&tmp, q);
+            }
+        }
+    }
+
+    QUEUE_ADD(ql, &tmp);
+    QUEUE_INIT(&tmp);
+    return count;
+}
+
+static void kcp__write_check_timeout(uv_timer_t *t) {
+    tr_kcp_transport_t *tt = t->data;
+    int count = 0;
+    pc_lib_log(PC_LOG_DEBUG, "kcp__write_check_timeout - start check timeout");
+
+    count += kcp__check_queue_timeout(&tt->conn_wait_queue, tt->client);
+    count += kcp__check_queue_timeout(&tt->write_wait_queue, tt->client);
+    count += kcp__check_queue_timeout(&tt->resp_pending_queue, tt->client);
+    if (count && !uv_is_active((uv_handle_t*)t)) {
+        uv_timer_start(t, kcp__write_check_timeout, PC_TIMEOUT_CHECK_INTERVAL * 1000, 0);
+    }
+    pc_lib_log(PC_LOG_DEBUG, "kcp__write_check_timeout - finish to check timeout");
 }
 
 static void kcp__send_handshake_ack(tr_kcp_transport_t *tt) {
@@ -278,6 +350,13 @@ static void kcp__write_async(uv_async_t *t) {
     }
 
     if (buf_cnt == 0) {
+        if (need_check) {
+            pc_lib_log(PC_LOG_DEBUG, "NEED A CHECK");
+            if (!uv_is_active((uv_handle_t *) &tt->timer_check_timeout)) {
+                pc_lib_log(PC_LOG_DEBUG, "kcp__write_async - start check timeout timer");
+                uv_timer_start(&tt->timer_check_timeout, kcp__write_check_timeout, PC_TIMEOUT_CHECK_INTERVAL * 1000, 0);
+            }
+        }
         return;
     }
     int ret;
@@ -289,6 +368,7 @@ static void kcp__write_async(uv_async_t *t) {
         wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
         ret = ikcp_send(tt->kcp, wi->buf.base, wi->buf.len);
         if (ret) {
+            // failed
             pc_lib_log(PC_LOG_ERROR, "kcp__write_async - kcp write error: %d", ret);
             if (wi->type == TR_KCP_WI_TYPE_NOTIFY) {
                 pc_error_t err = pc__error_kcp(ret);
@@ -299,9 +379,21 @@ static void kcp__write_async(uv_async_t *t) {
                 pc_buf_t empty_buf = {0};
                 pc_trans_resp(tt->client, wi->req_id, &empty_buf, &err);
             }
+            pc_lib_free(wi->buf.base);
+            pc_lib_free(wi);
+        } else {
+            // send success
+            pc_lib_log(PC_LOG_DEBUG, "kcp__write_async - kcp write success");
+            if (wi->type == TR_KCP_WI_TYPE_NOTIFY) {
+                // notify has no response
+                pc_trans_sent(tt->client, wi->seq_num, NULL);
+                pc_lib_free(wi->buf.base);
+                pc_lib_free(wi);
+            } else {
+                // waiting for response
+                QUEUE_INSERT_TAIL(&tt->resp_pending_queue, q);
+            }
         }
-        pc_lib_free(wi->buf.base);
-        pc_lib_free(wi);
     }
 }
 
@@ -478,6 +570,10 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
     pc_assert(!ret);
     k_tr->timer_heartbeat.data = k_tr;
 
+    ret = uv_timer_init(&k_tr->loop, &k_tr->timer_check_timeout);
+    pc_assert(!ret);
+    k_tr->timer_check_timeout.data = k_tr;
+
     ret = uv_async_init(&k_tr->loop, &k_tr->conn_async, kcp__conn_async);
     pc_assert(!ret);
     k_tr->conn_async.data = k_tr;
@@ -492,6 +588,7 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
 
     QUEUE_INIT(&k_tr->write_wait_queue);
     QUEUE_INIT(&k_tr->conn_wait_queue);
+    QUEUE_INIT(&k_tr->resp_pending_queue);
 
     k_tr->host = NULL;
     k_tr->port = 0;

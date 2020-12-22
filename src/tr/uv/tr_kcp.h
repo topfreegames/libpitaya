@@ -77,6 +77,7 @@ struct tr_kcp_transport_s {
     int disable_compression;
     QUEUE write_wait_queue;
     QUEUE conn_wait_queue;
+    QUEUE resp_pending_queue;
 
     // kcp
     ikcpcb *kcp;
@@ -86,6 +87,7 @@ struct tr_kcp_transport_s {
     uv_udp_t send_socket;
     uv_timer_t timer_update;
     uv_timer_t timer_heartbeat;
+    uv_timer_t timer_check_timeout;
     uv_thread_t worker;
     pc_JSON *handshake_opts;
 
