@@ -39,6 +39,8 @@ int main() {
             pc_string_request_with_timeout(client, "connector.entry.entry", "{}", NULL, 3, request_cb, request_err);
         }
     } while (c != 'c');
+    pc_client_disconnect(client);
+    pc_client_cleanup(client);
 
     return 0;
 }

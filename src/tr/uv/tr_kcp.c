@@ -33,6 +33,20 @@ static int udp_output(const char *buf, int len, ikcpcb *kcp, void *p) {
     return ret;
 }
 
+static void uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+    if (nread <= 0) {
+        return;
+    }
+    tr_kcp_transport_t *tt = req->data;
+    int ret = ikcp_input(tt->kcp, buf->base, nread);
+    if (ret < 0) {
+        pc_lib_log(PC_LOG_ERROR, "uv_udp_on_read - kcp input failed: %d", ret);
+    } else {
+        uv_async_send(&tt->receive_async);
+    }
+    pc_lib_free(buf->base);
+}
+
 static void tr_kcp_thread_fn(void *arg) {
     uv_loop_t *loop = arg;
     pc_lib_log(PC_LOG_INFO, "tr_kcp_thread_fn - start uv loop");
@@ -44,19 +58,6 @@ static void uv_udp_alloc_buff(uv_handle_t *handle, size_t suggested_size, uv_buf
     buf->len = suggested_size;
 }
 
-static void
-uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
-    if (nread <= 0) {
-        return;
-    }
-    tr_kcp_transport_t *tt = req->data;
-    int ret = ikcp_input(tt->kcp, buf->base, nread);
-    if (ret < 0) {
-        pc_lib_log(PC_LOG_ERROR, "uv_udp_on_read - kcp input failed: %d", ret);
-    } else {
-        uv_async_send(&tt->receive_async);
-    }
-}
 
 static void kcp__receive_async(uv_async_t *handle) {
     tr_kcp_transport_t *tt = handle->data;
@@ -585,6 +586,11 @@ static void kcp__handshake_timer_cb(uv_timer_t *t) {
     tt->reconn_fn(tt);
 }
 
+static void kcp__config_kcp(ikcpcb *kcp) {
+    ikcp_nodelay(kcp, 1, 10, 2, 1);
+    ikcp_wndsize(kcp, 64, 64);
+}
+
 static void kcp__conn_async(uv_async_t *handle) {
     tr_kcp_transport_t *tt = handle->data;
 
@@ -593,7 +599,9 @@ static void kcp__conn_async(uv_async_t *handle) {
     // kcp
     ikcpcb *kcp = ikcp_create(KCP_CONV, tt);
     kcp->output = udp_output;
+    kcp__config_kcp(kcp);
     tt->kcp = kcp;
+
     memset(&tt->send_socket, 0, sizeof(uv_udp_t));
     uv_udp_init(&tt->loop, &tt->send_socket);
     tt->send_socket.data = tt;
@@ -849,6 +857,31 @@ int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
     return PC_RC_OK;
 }
 
+int tr_kcp_disconnect(pc_transport_t *trans) {
+    return 0;
+}
+
+int tr_kcp_cleanup(pc_transport_t *trans) {
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t*)trans;
+    if (tt->serializer) {
+        pc_lib_free((char*)tt->serializer);
+        tt->serializer = NULL;
+    }
+    pc_mutex_destroy(&tt->wq_mutex);
+
+    // After the thread exits, run pending close callbacks to avoid
+    // memory leaks.
+    uv_run(&tt->loop, UV_RUN_DEFAULT);
+    if (uv_loop_close(&tt->loop) == UV_EBUSY) {
+        pc_lib_log(PC_LOG_ERROR, "tr_kcp_cleanup - failed to close loop, it is busy");
+        return PC_RC_ERROR;
+    }
+    return PC_RC_OK;
+}
+
+int tr_kcp_quality(pc_transport_t *trans) {
+    return 11;
+}
 
 static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
     size_t len = sizeof(tr_kcp_transport_t);
@@ -859,6 +892,10 @@ static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
     tt->base.connect = tr_kcp_connect;
     tt->base.send = tr_kcp_send;
     tt->base.serializer = tr_kcp_serializer;
+    tt->base.disconnect = tr_kcp_disconnect;
+    tt->base.cleanup = tr_kcp_cleanup;
+    tt->base.quality = tr_kcp_quality;
+    tt->base.plugin = tr_kcp_plugin;
     tt->reconn_fn = kcp__reconn;
     tt->reset_fn = kcp__reset;
 
@@ -897,6 +934,10 @@ pc_transport_plugin_t *pc_tr_kcp_trans_plugin() {
     return &instance;
 }
 
+
+pc_transport_plugin_t *tr_kcp_plugin(pc_transport_t *trans) {
+    return &instance;
+}
 const char *tr_kcp_serializer(pc_transport_t *trans) {
     tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
     const char *serializer = NULL;
