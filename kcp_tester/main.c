@@ -14,7 +14,7 @@ static void request_cb(const pc_request_t* req, const pc_buf_t *resp) {
 }
 
 static void request_err(const pc_request_t* req, const pc_error_t *error) {
-
+    printf("request cb with error %s\n", error->payload.base);
 }
 
 int main() {
@@ -35,8 +35,15 @@ int main() {
     int c;
     do {
         c = getchar();
+        if (c == 'a') {
+            const char *msg = "{\"private_id\":\"8d89b428-4e06-43fb-a018-96653dd8b383\"}";
+            pc_string_request_with_timeout(client, "metagame.player.authenticatePlayer", msg, NULL, 3, request_cb, request_err);
+        }
         if (c == 'b') {
             pc_string_request_with_timeout(client, "connector.entry.entry", "{}", NULL, 3, request_cb, request_err);
+        }
+        if (c == 'z') {
+            pc_string_request_with_timeout(client ,"metagame.player.failed", "{}", NULL, 3, request_cb, request_err);
         }
     } while (c != 'c');
     pc_client_disconnect(client);

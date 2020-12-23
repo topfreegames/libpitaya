@@ -422,6 +422,37 @@ static void kcp__write_async(uv_async_t *t) {
     }
 }
 
+static void walk_cb(uv_handle_t *handle, void *arg) {
+    if (!uv_is_closing(handle)) {
+        uv_close(handle, NULL);
+    }
+}
+
+static void kcp__disconnect_async(uv_async_t *t) {
+    tr_kcp_transport_t *tt = t->data;
+    tt->reset_fn(tt);
+    tt->reconn_times = 0;
+    pc_lib_log(PC_LOG_DEBUG, "kcp__disconnect_async - send disconnect event");
+    pc_trans_fire_event(tt->client, PC_EV_DISCONNECT, NULL, NULL);
+}
+
+static void kcp__clean_async(uv_async_t *t) {
+    tr_kcp_transport_t *tt = t->data;
+    tt->reset_fn(tt);
+    if (tt->addr4) {
+        pc_lib_free(tt->addr4);
+        tt->addr4 = NULL;
+    }
+    if (tt->addr6) {
+        pc_lib_free(tt->addr6);
+        tt->addr6 = NULL;
+    }
+    tt->reconn_times = 0;
+    uv_stop(&tt->loop);
+    uv_walk(&tt->loop, walk_cb, NULL);
+    uv_run(&tt->loop, UV_RUN_DEFAULT);
+}
+
 static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len, void *ex_data) {
     tr_kcp_transport_t *tt = ex_data;
     pc_assert(type == PC_PKG_HANDSHAKE || type == PC_PKG_HEARBEAT
@@ -736,6 +767,14 @@ int tr_kcp_init(pc_transport_t *trans, pc_client_t *client) {
     pc_assert(!ret);
     k_tr->write_async.data = k_tr;
 
+    ret = uv_async_init(&k_tr->loop, &k_tr->clean_async, kcp__clean_async);
+    pc_assert(!ret);
+    k_tr->clean_async.data = k_tr;
+
+    ret = uv_async_init(&k_tr->loop, &k_tr->disconnect_async, kcp__disconnect_async);
+    pc_assert(!ret);
+    k_tr->disconnect_async.data = k_tr;
+
     QUEUE_INIT(&k_tr->write_wait_queue);
     QUEUE_INIT(&k_tr->conn_wait_queue);
     QUEUE_INIT(&k_tr->resp_pending_queue);
@@ -858,16 +897,25 @@ int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
 }
 
 int tr_kcp_disconnect(pc_transport_t *trans) {
-    return 0;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t*) trans;
+    uv_async_send(&tt->disconnect_async);
+    return PC_RC_OK;
 }
 
 int tr_kcp_cleanup(pc_transport_t *trans) {
     tr_kcp_transport_t *tt = (tr_kcp_transport_t*)trans;
+
+    uv_async_send(&tt->clean_async);
+    if (uv_thread_join(&tt->worker)) {
+        pc_lib_log(PC_LOG_ERROR, "tr_kcp_cleanup - join uv thread error");
+        return PC_RC_ERROR;
+    }
+
+    pc_mutex_destroy(&tt->wq_mutex);
     if (tt->serializer) {
         pc_lib_free((char*)tt->serializer);
         tt->serializer = NULL;
     }
-    pc_mutex_destroy(&tt->wq_mutex);
 
     // After the thread exits, run pending close callbacks to avoid
     // memory leaks.
@@ -904,19 +952,6 @@ static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
 
 static void kcp_trans_release(pc_transport_plugin_t *plugin, pc_transport_t *trans) {
     tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
-
-    if (tt->kcp) {
-        ikcp_release(tt->kcp);
-        tt->kcp = NULL;
-    }
-    if (tt->addr4) {
-        pc_lib_free(tt->addr4);
-        tt->addr4 = NULL;
-    }
-    if (tt->addr6) {
-        pc_lib_free(tt->addr6);
-        tt->addr6 = NULL;
-    }
 
     pc_lib_free(trans);
 }

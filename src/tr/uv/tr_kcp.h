@@ -105,6 +105,8 @@ struct tr_kcp_transport_s {
     uv_async_t conn_async;
     uv_async_t receive_async;
     uv_async_t write_async;
+    uv_async_t clean_async;
+    uv_async_t disconnect_async;
 
     void (*reconn_fn)(tr_kcp_transport_t *tt);
     void (*reset_fn)(tr_kcp_transport_t *tt);
