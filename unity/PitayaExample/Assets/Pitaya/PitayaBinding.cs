@@ -78,7 +78,7 @@ namespace Pitaya
             set => StaticPitayaBinding.QueueDispatcher = value;
         }
 
-        public IntPtr CreateClient(bool enableTls, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener) { return StaticPitayaBinding.CreateClient(enableTls, enablePolling, enableReconnect, connTimeout, listener); }
+        public IntPtr CreateClient(int transMode, bool enablePolling, bool enableReconnect, int connTimeout, IPitayaListener listener) { return StaticPitayaBinding.CreateClient(enableTls, enablePolling, enableReconnect, connTimeout, listener); }
         public void SetLogLevel(PitayaLogLevel logLevel) { StaticPitayaBinding.SetLogLevel(logLevel); }
         public void Connect(IntPtr client, string host, int port, string handshakeOpts) { StaticPitayaBinding.Connect(client, host, port, handshakeOpts); }
         public void Disconnect(IntPtr client) { StaticPitayaBinding.Disconnect(client); }

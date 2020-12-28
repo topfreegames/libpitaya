@@ -4,6 +4,8 @@
 
 #include "pitaya.h"
 #include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
 
 static void event_cb(pc_client_t* client, int ev_type, void* ex_data, const char* arg1, const char* arg2) {
     printf("receive event %d", ev_type);
@@ -15,6 +17,16 @@ static void request_cb(const pc_request_t* req, const pc_buf_t *resp) {
 
 static void request_err(const pc_request_t* req, const pc_error_t *error) {
     printf("request cb with error %s\n", error->payload.base);
+}
+
+static int running = 1;
+static void* thread_fn(void *arg) {
+    pc_client_t *client = arg;
+    while (running) {
+        sleep(2);
+        pc_string_request_with_timeout(client, "metagame.gameInfo.getGameInfo", "{}", NULL, 3, request_cb, request_err);
+    }
+    return NULL;
 }
 
 int main() {
@@ -33,6 +45,9 @@ int main() {
     pc_client_connect(client, "127.0.0.1", 3110, NULL);
 
     int c;
+
+    pthread_t thread;
+    pthread_create(&thread, NULL, thread_fn, client);
     do {
         c = getchar();
         if (c == 'a') {
@@ -46,6 +61,8 @@ int main() {
             pc_string_request_with_timeout(client ,"metagame.player.failed", "{}", NULL, 3, request_cb, request_err);
         }
     } while (c != 'c');
+    running = 0;
+    pthread_join(thread, NULL);
     pc_client_disconnect(client);
     pc_client_cleanup(client);
 

@@ -207,9 +207,11 @@ endif()
 #
 # kcp tester
 #
-#add_executable(kcp_tester kcp_tester/main.c)
-#target_include_directories(kcp_tester PUBLIC include)
-#target_link_libraries(kcp_tester pitaya zlib uv_a ssl crypto)
+if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
+    add_executable(kcp_tester kcp_tester/main.c)
+    target_include_directories(kcp_tester PUBLIC include)
+    target_link_libraries(kcp_tester PUBLIC pitaya zlib uv_a ssl crypto)
+endif()
 #
 # Tests
 #

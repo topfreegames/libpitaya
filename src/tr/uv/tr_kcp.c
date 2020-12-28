@@ -617,7 +617,12 @@ static void kcp__handshake_timer_cb(uv_timer_t *t) {
     tt->reconn_fn(tt);
 }
 
+static void kcp__log(const char *log, ikcpcb *kcp, void *user) {
+    pc_lib_log(PC_LOG_DEBUG, log);
+}
+
 static void kcp__config_kcp(ikcpcb *kcp) {
+    kcp->writelog = kcp__log;
     ikcp_nodelay(kcp, 1, 10, 2, 1);
     ikcp_wndsize(kcp, 64, 64);
 }
@@ -956,11 +961,14 @@ static void kcp_trans_release(pc_transport_plugin_t *plugin, pc_transport_t *tra
     pc_lib_free(trans);
 }
 
+static void kcp_trans_on_register(pc_transport_plugin_t *plugin) {
+}
+
 static pc_transport_plugin_t instance =
         {
                 kcp_trans_create,
                 kcp_trans_release,
-                NULL,
+                kcp_trans_on_register,
                 NULL,
                 PC_TR_NAME_KCP
         };
