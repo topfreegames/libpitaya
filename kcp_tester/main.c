@@ -47,7 +47,7 @@ static void mem_unregister(int v) {
 static void mem_check() {
     for (int i = 0; i < inc; i++) {
         if (mem_map[i]) {
-            printf("%d leak\n", i);
+            printf("%d not freed\n", i);
         }
     }
 }
@@ -69,6 +69,7 @@ void *checkMalloc(size_t s) {
     pthread_mutex_lock(&mutex);
     inc++;
     i[0] = inc;
+    mem_register(inc);
     pthread_mutex_unlock(&mutex);
 
     void *stack[50];
@@ -80,9 +81,8 @@ void *checkMalloc(size_t s) {
         printf("%s\n", symbols[a]);
     }
 
-    printf("malloc %d\n", inc);
+    printf("malloc %d\n", i[0]);
     free(symbols);
-    mem_register(i[0]);
     return p + sizeof(inc);
 }
 
@@ -92,7 +92,9 @@ void checkFree(void *p) {
         int *i = r;
         int v = i[0];
         printf("free %d\n", v);
+        pthread_mutex_lock(&mutex);
         mem_unregister(v);
+        pthread_mutex_unlock(&mutex);
         free(r);
     }
 }
@@ -141,6 +143,9 @@ int main() {
         }
         if (c == 'z') {
             pc_string_request_with_timeout(client ,"metagame.player.failed", "{}", NULL, 3, request_cb, request_err);
+        }
+        if (c == 'm') {
+            mem_check();
         }
     } while (c != 'c');
     running = 0;

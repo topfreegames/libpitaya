@@ -69,8 +69,6 @@ struct tr_kcp_transport_s {
 
     const char *host;
     int port;
-//    struct sockaddr_in *addr4;
-//    struct sockaddr_in6 *addr6;
     struct sockaddr_storage *addr;
 
     pc_pkg_parser_t pkg_parser;

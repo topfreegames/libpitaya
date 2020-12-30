@@ -31,7 +31,8 @@ static int udp_output(const char *buf, int len, ikcpcb *kcp, void *p) {
     return ret;
 }
 
-static void uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+static void
+uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
     if (nread <= 0) {
         pc_lib_free(buf->base);
         return;
@@ -90,23 +91,23 @@ static void kcp__on_heartbeat(tr_kcp_transport_t *tt) {
     pc_assert(tt->state == TR_KCP_DONE);
 }
 
-static void kcp__on_data_received(tr_kcp_transport_t *tt, const char* data, size_t len) {
+static void kcp__on_data_received(tr_kcp_transport_t *tt, const char *data, size_t len) {
     uv_buf_t buf;
-    buf.base = (char*)data;
-    buf.len  = len;
+    buf.base = (char *) data;
+    buf.len = len;
     pc_msg_t msg = pr_kcp_default_msg_decoder(tt, &buf);
     if (msg.id == PC_INVALID_REQ_ID || !msg.buf.base) {
         pc_lib_log(PC_LOG_ERROR, "kcp__on_data_recieved - decode error, will reconn");
         pc_trans_fire_event(tt->client, PC_EV_PROTO_ERROR, "Decode Error", NULL);
         tt->reconn_fn(tt);
-        return ;
+        return;
     }
 
     if (msg.id == PC_NOTIFY_PUSH_REQ_ID && !msg.route) {
         pc_lib_log(PC_LOG_ERROR, "kcp__on_data_recieved - push message without route, error, will reconn");
         pc_trans_fire_event(tt->client, PC_EV_PROTO_ERROR, "No Route Specified", NULL);
         tt->reconn_fn(tt);
-        return ;
+        return;
     }
 
     pc_lib_log(PC_LOG_INFO, "kcp__on_data_received - received data, req_id: %d", msg.id);
@@ -125,7 +126,7 @@ static void kcp__on_data_received(tr_kcp_transport_t *tt, const char* data, size
         tr_kcp_wait_item_t *wi;
         pc_mutex_lock(&tt->wq_mutex);
         QUEUE_FOREACH(q, &tt->resp_pending_queue) {
-            wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+            wi = (tr_kcp_wait_item_t *) QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
             pc_assert(wi->type == TR_KCP_WI_TYPE_RESP);
             if (wi->req_id != msg.id)
                 continue;
@@ -141,7 +142,7 @@ static void kcp__on_data_received(tr_kcp_transport_t *tt, const char* data, size
         pc_trans_fire_push_event(tt->client, msg.route, &msg.buf);
     }
 
-    pc_lib_free((char *)msg.route);
+    pc_lib_free((char *) msg.route);
     pc_buf_free(&msg.buf);
 }
 
@@ -168,20 +169,20 @@ static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
     kcp__send_heartbeat(tt);
 }
 
-static int kcp__check_queue_timeout(QUEUE *ql, pc_client_t* client) {
+static int kcp__check_queue_timeout(QUEUE *ql, pc_client_t *client) {
     int count = 0;
     QUEUE tmp;
-    QUEUE* q;
+    QUEUE *q;
     tr_kcp_wait_item_t *wi;
     time_t now = time(NULL);
 
     QUEUE_INIT(&tmp);
-    while(!QUEUE_EMPTY(ql)) {
+    while (!QUEUE_EMPTY(ql)) {
         q = QUEUE_HEAD(ql);
         QUEUE_REMOVE(q);
         QUEUE_INIT(q);
 
-        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        wi = (tr_kcp_wait_item_t *) QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
         if (wi->timeout != PC_WITHOUT_TIMEOUT) {
             if (now > wi->timestamp + wi->timeout) {
                 // timeout
@@ -221,7 +222,7 @@ static void kcp__write_check_timeout(uv_timer_t *t) {
     count += kcp__check_queue_timeout(&tt->write_wait_queue, tt->client);
     count += kcp__check_queue_timeout(&tt->resp_pending_queue, tt->client);
     pc_mutex_unlock(&tt->wq_mutex);
-    if (count && !uv_is_active((uv_handle_t*)t)) {
+    if (count && !uv_is_active((uv_handle_t *) t)) {
         uv_timer_start(t, kcp__write_check_timeout, PC_TIMEOUT_CHECK_INTERVAL * 1000, 0);
     }
     pc_lib_log(PC_LOG_DEBUG, "kcp__write_check_timeout - finish to check timeout");
@@ -333,7 +334,7 @@ static void kcp__on_handshake_resp(tr_kcp_transport_t *tt, const char *data, siz
 static void kcp__write_async(uv_async_t *t) {
     tr_kcp_transport_t *tt = t->data;
     if (tt->state == TR_KCP_NOT_CONN) {
-        return ;
+        return;
     }
     int need_check = 0;
     tr_kcp_wait_item_t *wi;
@@ -347,7 +348,7 @@ static void kcp__write_async(uv_async_t *t) {
             QUEUE_REMOVE(q);
             QUEUE_INIT(q);
 
-            wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+            wi = (tr_kcp_wait_item_t *) QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
             QUEUE_INSERT_TAIL(&tt->write_wait_queue, q);
         }
     } else {
@@ -355,7 +356,7 @@ static void kcp__write_async(uv_async_t *t) {
     }
 
     QUEUE_FOREACH(q, &tt->write_wait_queue) {
-        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        wi = (tr_kcp_wait_item_t *) QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
         if (wi->timeout != PC_WITHOUT_TIMEOUT) {
             need_check = 1;
         }
@@ -379,7 +380,7 @@ static void kcp__write_async(uv_async_t *t) {
         QUEUE_REMOVE(q);
         QUEUE_INIT(q);
 
-        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        wi = (tr_kcp_wait_item_t *) QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
         ret = ikcp_send(tt->kcp, wi->buf.base, wi->buf.len);
         if (ret) {
             // failed
@@ -473,7 +474,7 @@ static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len
     }
 }
 
-static void kcp__reset_wi(pc_client_t *client, tr_kcp_wait_item_t* wi) {
+static void kcp__reset_wi(pc_client_t *client, tr_kcp_wait_item_t *wi) {
     if (wi->type == TR_KCP_WI_TYPE_RESP) {
         pc_lib_log(PC_LOG_DEBUG, "kcp__reset_wi - reset request, req_id: %u", wi->req_id);
         pc_error_t err = pc__error_reset();
@@ -499,17 +500,17 @@ static void kcp__reset(tr_kcp_transport_t *tt) {
     uv_timer_stop(&tt->timer_reconn_delay);
     uv_timer_stop(&tt->timer_check_timeout);
     uv_timer_stop(&tt->timer_update);
-    pc_lib_free((char*)tt->serializer);
+    pc_lib_free((char *) tt->serializer);
     tt->serializer = NULL;
     uv_udp_recv_stop(&tt->send_socket);
-    if (tt->state !=TR_KCP_NOT_CONN && !uv_is_closing((const uv_handle_t *) &tt->send_socket)) {
+    if (tt->state != TR_KCP_NOT_CONN && !uv_is_closing((const uv_handle_t *) &tt->send_socket)) {
         uv_close((uv_handle_t *) &tt->send_socket, NULL);
     }
     ikcp_release(tt->kcp);
     tt->kcp = NULL;
 
     if (tt->host) {
-        pc_lib_free((void*)tt->host);
+        pc_lib_free((void *) tt->host);
     }
 
     pc_mutex_lock(&tt->wq_mutex);
@@ -521,14 +522,14 @@ static void kcp__reset(tr_kcp_transport_t *tt) {
         q = QUEUE_HEAD(&tt->write_wait_queue);
         QUEUE_REMOVE(q);
         QUEUE_INIT(q);
-        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        wi = (tr_kcp_wait_item_t *) QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
         kcp__reset_wi(tt->client, wi);
     }
     while (!QUEUE_EMPTY(&tt->resp_pending_queue)) {
         q = QUEUE_HEAD(&tt->resp_pending_queue);
         QUEUE_REMOVE(q);
         QUEUE_INIT(q);
-        wi = (tr_kcp_wait_item_t*)QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
+        wi = (tr_kcp_wait_item_t *) QUEUE_DATA(q, tr_kcp_wait_item_t, queue);
         kcp__reset_wi(tt->client, wi);
     }
     pc_mutex_unlock(&tt->wq_mutex);
@@ -608,7 +609,7 @@ static void kcp__send_handshake(tr_kcp_transport_t *tt) {
     pc_lib_free(buf.base);
 }
 
-static void kcp__update(uv_timer_t* handle) {
+static void kcp__update(uv_timer_t *handle) {
     tr_kcp_transport_t *tt = handle->data;
     ikcp_update(tt->kcp, time(NULL) * 1000);
 }
@@ -851,7 +852,7 @@ int tr_kcp_connect(pc_transport_t *trans, const char *host, int port, const char
 int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
                 pc_buf_t buf, unsigned int req_id, int timeout) {
     pc_lib_log(PC_LOG_DEBUG, "kcp_send - Entered");
-    tr_kcp_transport_t *tt = (tr_kcp_transport_t *)trans;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
     if (tt->state == TR_KCP_NOT_CONN) {
         return PC_RC_INVALID_STATE;
     }
@@ -866,7 +867,7 @@ int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
 
     pc_lib_log(PC_LOG_DEBUG, "tr_kcp_send - encoded msg length = %lu", uv_buf.len);
 
-    if (uv_buf.len == (unsigned int)-1) {
+    if (uv_buf.len == (unsigned int) -1) {
         pc_assert(uv_buf.base == NULL && "uv_buf should be empty here");
         pc_lib_log(PC_LOG_ERROR, "tr_kcp_send - encode msg failed, route: %s", route);
         return PC_RC_ERROR;
@@ -878,7 +879,7 @@ int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
 
     pc_lib_free(uv_buf.base);
 
-    if (pkg_buf.len == (unsigned int)-1) {
+    if (pkg_buf.len == (unsigned int) -1) {
         pc_lib_log(PC_LOG_ERROR, "tr_uv_tcp_send - encode package failed");
         return PC_RC_ERROR;
     }
@@ -915,13 +916,13 @@ int tr_kcp_send(pc_transport_t *trans, const char *route, unsigned int seq_num,
 }
 
 int tr_kcp_disconnect(pc_transport_t *trans) {
-    tr_kcp_transport_t *tt = (tr_kcp_transport_t*) trans;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
     uv_async_send(&tt->disconnect_async);
     return PC_RC_OK;
 }
 
 int tr_kcp_cleanup(pc_transport_t *trans) {
-    tr_kcp_transport_t *tt = (tr_kcp_transport_t*)trans;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
 
     uv_async_send(&tt->clean_async);
     if (uv_thread_join(&tt->worker)) {
@@ -931,7 +932,7 @@ int tr_kcp_cleanup(pc_transport_t *trans) {
 
     pc_mutex_destroy(&tt->wq_mutex);
     if (tt->serializer) {
-        pc_lib_free((char*)tt->serializer);
+        pc_lib_free((char *) tt->serializer);
         tt->serializer = NULL;
     }
 
@@ -994,6 +995,7 @@ pc_transport_plugin_t *pc_tr_kcp_trans_plugin() {
 pc_transport_plugin_t *tr_kcp_plugin(pc_transport_t *trans) {
     return &instance;
 }
+
 const char *tr_kcp_serializer(pc_transport_t *trans) {
     tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
     const char *serializer = NULL;
@@ -1002,17 +1004,18 @@ const char *tr_kcp_serializer(pc_transport_t *trans) {
     }
     return serializer;
 }
-uv_buf_t pr_kcp_default_msg_encoder(tr_kcp_transport_t *tt, const pc_msg_t* msg) {
+
+uv_buf_t pr_kcp_default_msg_encoder(tr_kcp_transport_t *tt, const pc_msg_t *msg) {
     pc_buf_t pb = pc_default_msg_encode(NULL, msg, !tt->disable_compression);
     uv_buf_t ub;
-    ub.base = (char*)pb.base;
+    ub.base = (char *) pb.base;
     ub.len = pb.len;
     return ub;
 }
 
-pc_msg_t pr_kcp_default_msg_decoder(tr_kcp_transport_t *tt, const uv_buf_t* buf) {
+pc_msg_t pr_kcp_default_msg_decoder(tr_kcp_transport_t *tt, const uv_buf_t *buf) {
     pc_buf_t pb;
-    pb.base = (uint8_t*)buf->base;
+    pb.base = (uint8_t *) buf->base;
     pb.len = buf->len;
     return pc_default_msg_decode(NULL, &pb);
 }
