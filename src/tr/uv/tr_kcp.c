@@ -26,13 +26,7 @@ static int udp_output(const char *buf, int len, ikcpcb *kcp, void *p) {
     memcpy(data, buf, len);
     uv_buf_t msg = uv_buf_init(data, len);
     send_req->data = tt;
-    struct sockaddr *send_addr;
-    if (tt->addr4) {
-        send_addr = (struct sockaddr *)tt->addr4;
-    } else {
-        send_addr = (struct sockaddr *)tt->addr6;
-    }
-    int ret = uv_udp_send(send_req, &tt->send_socket, &msg, 1, send_addr, udp_on_send);
+    int ret = uv_udp_send(send_req, &tt->send_socket, &msg, 1, (const struct sockaddr *) tt->addr, udp_on_send);
     pc_lib_free(data);
     return ret;
 }
@@ -322,12 +316,6 @@ static void kcp__on_handshake_resp(tr_kcp_transport_t *tt, const char *data, siz
         tt->serializer = pc_lib_strdup(tmp->valuestring);
     }
 
-    // todo
-    tmp = pc_JSON_GetObjectItem(sys, "useDict");
-    if (!tmp || tmp->type == pc_JSON_False) {
-
-    }
-
     pc_JSON_Delete(res);
     res = NULL;
 
@@ -450,13 +438,9 @@ static void kcp__disconnect_async(uv_async_t *t) {
 static void kcp__clean_async(uv_async_t *t) {
     tr_kcp_transport_t *tt = t->data;
     tt->reset_fn(tt);
-    if (tt->addr4) {
-        pc_lib_free(tt->addr4);
-        tt->addr4 = NULL;
-    }
-    if (tt->addr6) {
-        pc_lib_free(tt->addr6);
-        tt->addr6 = NULL;
+    if (tt->addr) {
+        pc_lib_free(tt->addr);
+        tt->addr = NULL;
     }
     tt->reconn_times = 0;
     uv_stop(&tt->loop);
@@ -704,25 +688,22 @@ static void kcp__conn_async(uv_async_t *handle) {
         return;
     }
 
-    if (tt->addr4) {
-        pc_lib_free(tt->addr4);
-        tt->addr4 = NULL;
-    }
-    if (tt->addr6) {
-        pc_lib_free(tt->addr6);
-        tt->addr6 = NULL;
+    if (tt->addr) {
+        pc_lib_free(tt->addr);
+        tt->addr = NULL;
     }
 
+    tt->addr = pc_lib_malloc(sizeof(struct sockaddr_storage));
+    memset(tt->addr, 0, sizeof(struct sockaddr_storage));
+
     if (addr4) {
-        tt->addr4 = pc_lib_malloc(sizeof(struct sockaddr_in));
-        memcpy(tt->addr4, addr4, sizeof(struct sockaddr_in));
+        memcpy(tt->addr, addr4, sizeof(struct sockaddr_in));
         // udp bind
         struct sockaddr_in broadcast_addr;
         uv_ip4_addr("0.0.0.0", 0, &broadcast_addr);
         ret = uv_udp_bind(&tt->send_socket, (const struct sockaddr *) &broadcast_addr, 0);
     } else {
-        tt->addr6 = pc_lib_malloc(sizeof(struct sockaddr_in6));
-        memcpy(tt->addr6, addr6, sizeof(struct sockaddr_in6));
+        memcpy(tt->addr, addr6, sizeof(struct sockaddr_in6));
         // udp bind
         struct sockaddr_in6 broadcast_addr;
         uv_ip6_addr("0.0.0.0", 0, &broadcast_addr);
