@@ -15,26 +15,31 @@
 
 
 static void udp_on_send(uv_udp_send_t *req, int status) {
-    free(req);
+    pc_lib_free(req);
 }
 
 static int udp_output(const char *buf, int len, ikcpcb *kcp, void *p) {
-    tr_kcp_transport_t *trans = p;
-    uv_udp_send_t *send_req = malloc(sizeof(uv_udp_send_t));
+    tr_kcp_transport_t *tt = p;
+    uv_udp_send_t *send_req = pc_lib_malloc(sizeof(uv_udp_send_t));
     memset(send_req, 0, sizeof(uv_udp_send_t));
-    char *data = malloc(len);
+    char *data = pc_lib_malloc(len);
     memcpy(data, buf, len);
     uv_buf_t msg = uv_buf_init(data, len);
-    send_req->data = trans;
-    struct sockaddr_in send_addr;
-    uv_ip4_addr(trans->host, trans->port, &send_addr);
-    int ret = uv_udp_send(send_req, &trans->send_socket, &msg, 1, (const struct sockaddr *) &send_addr, udp_on_send);
-    free(data);
+    send_req->data = tt;
+    struct sockaddr *send_addr;
+    if (tt->addr4) {
+        send_addr = (struct sockaddr *)tt->addr4;
+    } else {
+        send_addr = (struct sockaddr *)tt->addr6;
+    }
+    int ret = uv_udp_send(send_req, &tt->send_socket, &msg, 1, send_addr, udp_on_send);
+    pc_lib_free(data);
     return ret;
 }
 
 static void uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
     if (nread <= 0) {
+        pc_lib_free(buf->base);
         return;
     }
     tr_kcp_transport_t *tt = req->data;
@@ -144,6 +149,12 @@ static void kcp__on_data_received(tr_kcp_transport_t *tt, const char* data, size
 
     pc_lib_free((char *)msg.route);
     pc_buf_free(&msg.buf);
+}
+
+static void kcp__on_kick_received(tr_kcp_transport_t *tt) {
+    pc_lib_log(PC_LOG_INFO, "kcp__on_kick_received - kicked by server");
+    pc_trans_fire_event(tt->client, PC_EV_KICKED_BY_SERVER, NULL, NULL);
+    tt->reset_fn(tt);
 }
 
 static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
@@ -471,6 +482,7 @@ static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len
             kcp__on_data_received(tt, data, len);
             break;
         case PC_PKG_KICK:
+            kcp__on_kick_received(tt);
             break;
         default:
             break;
@@ -506,8 +518,15 @@ static void kcp__reset(tr_kcp_transport_t *tt) {
     pc_lib_free((char*)tt->serializer);
     tt->serializer = NULL;
     uv_udp_recv_stop(&tt->send_socket);
+    if (tt->state !=TR_KCP_NOT_CONN && !uv_is_closing((const uv_handle_t *) &tt->send_socket)) {
+        uv_close((uv_handle_t *) &tt->send_socket, NULL);
+    }
     ikcp_release(tt->kcp);
     tt->kcp = NULL;
+
+    if (tt->host) {
+        pc_lib_free((void*)tt->host);
+    }
 
     pc_mutex_lock(&tt->wq_mutex);
     if (!QUEUE_EMPTY(&tt->conn_wait_queue)) {
@@ -647,7 +666,7 @@ static void kcp__conn_async(uv_async_t *handle) {
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_UNSPEC;
     hints.ai_flags = AI_ADDRCONFIG;
-    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_socktype = SOCK_DGRAM;
 
     int ret;
     ret = getaddrinfo(tt->host, NULL, &hints, &ainfo);
@@ -697,19 +716,32 @@ static void kcp__conn_async(uv_async_t *handle) {
     if (addr4) {
         tt->addr4 = pc_lib_malloc(sizeof(struct sockaddr_in));
         memcpy(tt->addr4, addr4, sizeof(struct sockaddr_in));
+        // udp bind
+        struct sockaddr_in broadcast_addr;
+        uv_ip4_addr("0.0.0.0", 0, &broadcast_addr);
+        ret = uv_udp_bind(&tt->send_socket, (const struct sockaddr *) &broadcast_addr, 0);
     } else {
         tt->addr6 = pc_lib_malloc(sizeof(struct sockaddr_in6));
         memcpy(tt->addr6, addr6, sizeof(struct sockaddr_in6));
+        // udp bind
+        struct sockaddr_in6 broadcast_addr;
+        uv_ip6_addr("0.0.0.0", 0, &broadcast_addr);
+        ret = uv_udp_bind(&tt->send_socket, (const struct sockaddr *) &broadcast_addr, 0);
     }
+    freeaddrinfo(ainfo);
 
-    struct sockaddr_in broadcast_addr;
-    uv_ip4_addr("0.0.0.0", 0, &broadcast_addr);
-    uv_udp_bind(&tt->send_socket, (const struct sockaddr *) &broadcast_addr, 0);
-    uv_udp_set_broadcast(&tt->send_socket, 1);
+    if (ret) {
+        pc_lib_log(PC_LOG_ERROR, "kcp__conn - bind addr failed");
+        pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "Bind udp error", NULL);
+        tt->reconn_fn(tt);
+        return;
+    }
 
     ret = uv_udp_recv_start(&tt->send_socket, uv_udp_alloc_buff, uv_udp_on_read);
     if (ret) {
         pc_lib_log(PC_LOG_ERROR, "kcp__conn - start read from udp error");
+        pc_trans_fire_event(tt->client, PC_EV_CONNECT_ERROR, "Udp receive error", NULL);
+        tt->reconn_fn(tt);
         return;
     }
     uv_timer_start(&tt->timer_update, kcp__update, 0, 10);
