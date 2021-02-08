@@ -19,7 +19,7 @@ namespace Pitaya
         
         public byte[] Encode(object obj)
         {
-            string json = JsonConvert.SerializeObject(obj);
+            string json = JsonConvert.SerializeObject(obj, _settings);
             return System.Text.Encoding.UTF8.GetBytes(json);
         }
 
