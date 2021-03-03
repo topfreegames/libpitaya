@@ -446,7 +446,7 @@ static void kcp__clean_async(uv_async_t *t) {
     tt->reconn_times = 0;
     uv_stop(&tt->loop);
     uv_walk(&tt->loop, walk_cb, NULL);
-    uv_run(&tt->loop, UV_RUN_DEFAULT);
+//    uv_run(&tt->loop, UV_RUN_DEFAULT);
 }
 
 static void tr_kcp_on_pkg_handler(pc_pkg_type type, const char *data, size_t len, void *ex_data) {
@@ -511,6 +511,7 @@ static void kcp__reset(tr_kcp_transport_t *tt) {
 
     if (tt->host) {
         pc_lib_free((void *) tt->host);
+        tt->host = NULL;
     }
 
     pc_mutex_lock(&tt->wq_mutex);
@@ -946,6 +947,12 @@ int tr_kcp_cleanup(pc_transport_t *trans) {
     return PC_RC_OK;
 }
 
+void *tr_kcp_internal_data(pc_transport_t* trans)
+{
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
+    return &tt->loop;
+}
+
 int tr_kcp_quality(pc_transport_t *trans) {
     return 11;
 }
@@ -963,6 +970,7 @@ static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
     tt->base.cleanup = tr_kcp_cleanup;
     tt->base.quality = tr_kcp_quality;
     tt->base.plugin = tr_kcp_plugin;
+    tt->base.internal_data = tr_kcp_internal_data;
     tt->reconn_fn = kcp__reconn;
     tt->reset_fn = kcp__reset;
 
