@@ -102,7 +102,7 @@ int pr_compress(unsigned char** output,
                 long offset = strm.next_out - *output;
                 strm.avail_out += CHUNK;
                 *output_size += CHUNK;
-                *output = (unsigned char*)realloc(*output, *output_size);
+                *output = (unsigned char*)pc_lib_realloc(*output, *output_size);
                 strm.next_out = *output + offset;
                 ret = deflate(&strm, flush);
             }
@@ -117,7 +117,7 @@ int pr_compress(unsigned char** output,
     } while (flush != Z_FINISH);
     
     deflateEnd(&strm);
-    *output = (unsigned char*) realloc(*output, *output_size);
+    *output = (unsigned char*) pc_lib_realloc(*output, *output_size);
 
     return Z_OK;
 }
