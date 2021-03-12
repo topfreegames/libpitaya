@@ -91,7 +91,7 @@
       <HintPath>UNITY_PATH/Contents/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>/Users/felippeduran/Documents/Projects/libs-frameworks/libpitaya/unity/PitayaExample/Assets/Packages/TFG.JsonDotNet/Assemblies/AOT/Newtonsoft.Json.dll</HintPath>
+      <HintPath>./Assets/Packages/TFG.JsonDotNet/Assemblies/AOT/Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.IO">
       <HintPath>UNITY_PATH/Contents/NetStandard/compat/2.0.0/shims/netstandard/System.IO.dll</HintPath>
