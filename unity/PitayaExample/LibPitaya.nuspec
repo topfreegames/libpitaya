@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>3.1.0</version>
+    <version>3.1.0-alpha</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
