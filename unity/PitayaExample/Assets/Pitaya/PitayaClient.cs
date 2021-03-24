@@ -63,7 +63,7 @@ namespace Pitaya
                 // Get the attributes from the path/file
                 FileAttributes attr = File.GetAttributes(certificateName);
                 // Set the certificate path if Directory
-                if (attr.HasFlag(FileAtribbutes.Directory))
+                if (attr.HasFlag(FileAttributes.Directory))
                     PitayaBinding.SetCertificatePath(certificateName);
                 else
                     PitayaBinding.SetCertificateName(certificateName);
