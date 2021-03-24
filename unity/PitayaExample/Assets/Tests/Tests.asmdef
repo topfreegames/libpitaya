@@ -1,16 +1,28 @@
 {
     "name": "Tests",
     "references": [
-        "Pitaya"
+        "Pitaya",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Tests.Protos"
     ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
+    "includePlatforms": [
+        "Editor"
     ],
-    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": []
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Google.Protobuf.dll",
+        "Newtonsoft.Json.dll",
+        "NSubstitute.dll",
+        "System.Threading.Tasks.Extensions.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

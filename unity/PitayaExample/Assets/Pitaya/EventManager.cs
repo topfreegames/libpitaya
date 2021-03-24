@@ -5,20 +5,20 @@ namespace Pitaya
 {
     public class EventManager : IDisposable
     {
-        private readonly Dictionary<uint, Action<object>> _callBackMap;
+        private readonly Dictionary<uint, Action<byte[]>> _callBackMap;
        
         private readonly Dictionary<uint, Action<PitayaError>> _errorCallBackMap;
-        private readonly Dictionary<string, List<Action<object>>> _eventMap;
+        private readonly Dictionary<string, List<Action<byte[]>>> _eventMap;
 
         public EventManager()
         {
-            _callBackMap = new Dictionary<uint, Action<object>>();
-            _eventMap = new Dictionary<string, List<Action<object>>>();
+            _callBackMap = new Dictionary<uint, Action<byte[]>>();
+            _eventMap = new Dictionary<string, List<Action<byte[]>>>();
             _errorCallBackMap = new Dictionary<uint, Action<PitayaError>>();
         }
 
         //Adds callback to callBackMap by id.
-        public void AddCallBack(uint id, Action<object> callback, Action<PitayaError> errorCallBack)
+        public void AddCallBack(uint id, Action<byte[]> callback, Action<PitayaError> errorCallBack)
         {
             if (id > 0 && callback != null)
             {
@@ -30,15 +30,14 @@ namespace Pitaya
             }
         }
 
-        public void InvokeCallBack(uint id, object data)
+        public void InvokeCallBack(uint id, byte[] data)
         {
-            Action<object> action = null;
+            Action<byte[]> action = null;
             var foundAction = _callBackMap.TryGetValue(id, out action);
             
             ClearCallbacks(id);
             
             if (foundAction) action.Invoke(data);
-
         }
 
         public void InvokeErrorCallBack(uint id, PitayaError error)
@@ -49,10 +48,7 @@ namespace Pitaya
             ClearCallbacks(id);
             
             if (foundAction) action.Invoke(error);
-
-            
         }
-
 
         private void ClearCallbacks(uint id)
         {
@@ -60,18 +56,23 @@ namespace Pitaya
             _errorCallBackMap.Remove(id);
         }
 
+        public void ClearAllCallbacks()
+        {
+            _callBackMap.Clear();
+            _errorCallBackMap.Clear();
+        }
 
         // Adds the event to eventMap by name.
-        public void AddOnRouteEvent(string routeName, Action<object> callback)
+        public void AddOnRouteEvent(string routeName, Action<byte[]> callback)
         {
-            List<Action<object>> list;
+            List<Action<byte[]>> list;
             if (_eventMap.TryGetValue(routeName, out list))
             {
                 list.Add(callback);
             }
             else
             {
-                list = new List<Action<object>> { callback };
+                list = new List<Action<byte[]>> { callback };
                 _eventMap.Add(routeName, list);
             }
         }
@@ -80,13 +81,17 @@ namespace Pitaya
             _eventMap.Remove(routeName);
         }
 
+        public void RemoveAllOnRouteEvents()
+        {
+            _eventMap.Clear();
+        }
 
         /// <summary>
         /// If the event exists,invoke the event when server return messge.
         /// </summary>
         /// <returns></returns>
         ///
-        public void InvokeOnEvent(string route, object msg)
+        public void InvokeOnEvent(string route, byte[] msg)
         {
             if (!_eventMap.ContainsKey(route)) return;
 
@@ -105,8 +110,9 @@ namespace Pitaya
         // ReSharper disable once UnusedParameter.Local
         private void Dispose(bool disposing)
         {
-			foreach (var callback in _errorCallBackMap)
-				callback.Value.Invoke(new PitayaError(PitayaConstants.PitayaInternalError, "pitaya exited"));
+            var errorCallBackMap = new Dictionary<uint, Action<PitayaError>>(_errorCallBackMap);
+            foreach (var callback in errorCallBackMap)
+                callback.Value.Invoke(new PitayaError(PitayaConstants.PitayaInternalError, "pitaya exited"));
 
             _callBackMap.Clear();
             _eventMap.Clear();

@@ -1,117 +1,93 @@
-﻿using System.Collections;
-using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
-using Pitaya.SimpleJson;
 
 namespace Pitaya.Tests
 {
+    [TestFixture, Category("unit")]
     public class PitayaClientTest
     {
-        private PitayaClient _client;
-        private const string ServerHost = "libpitaya-tests.tfgco.com";
-        private const int ServerPort = 3251;
-
-        private Thread _mainThread;
-
-        [SetUp]
-        public void Setup()
+        public class TestResponse
         {
-            _mainThread = Thread.CurrentThread;
-            _client = new PitayaClient();
-        }
+            public string Attr;
+            public List<float> List;
 
-        [TearDown]
-        public void TearDown()
-        {
-            if (_client == null) return;
-            _client.Disconnect();
-            _client.Dispose();
-            _client = null;
-        }
+            public override bool Equals(object obj)
+            {
+                var o = obj as TestResponse;
+                if (o == null || obj.GetType() != typeof(TestResponse)) return false;
+                else return o.Attr == Attr && o.List.SequenceEqual(List);
+            }
 
+            public override int GetHashCode()
+            {
+                return base.GetHashCode() ^ Attr.GetHashCode() ^ List.GetHashCode();
+            }
+        }
+        
+        public class TestRequest {}
+        
         [Test]
-        public void ShouldCreateClient()
+        public void TestJsonRequestCall()
         {
-            Assert.NotNull(_client);
-            Assert.AreEqual(_client.State, PitayaClientState.Inited);
-        }
+            var route = "route";
 
-        [UnityTest]
-        public IEnumerator ShouldConnectCorrectly()
-        {
-            var called = false;
-            var connectionState = PitayaNetWorkState.Disconnected;
-
-            _client.NetWorkStateChangedEvent += (networkState, error) => {
-                called = true;
-                connectionState = networkState;
-                Assert.AreEqual(_mainThread, Thread.CurrentThread);
+            var expectedRes = new TestResponse
+            {
+                Attr = "wololo",
+                List = new List<float> { 14.3f, 11.0f, 65.4f }
             };
+            
+            var mockBinding = Substitute.For<IPitayaBinding>();
 
-            _client.Connect(ServerHost, ServerPort);
+            var res = Newtonsoft.Json.JsonConvert.SerializeObject(expectedRes);
 
-            while(!called) {
-                yield return new WaitForSeconds(0.5f);
-            }
-
-            Assert.True(called);
-            Assert.AreEqual(connectionState, PitayaNetWorkState.Connected);
-            Assert.AreEqual(_client.State, PitayaClientState.Connected);
+            var client = new PitayaClient(binding: mockBinding, queueDispatcher: new NullPitayaQueueDispatcher());
+            mockBinding.When(x => x.Request(Arg.Any<IntPtr>(), route, Arg.Any<byte[]>(), Arg.Any<uint>(), Arg.Any<int>())).Do(x =>
+            {
+                client.OnRequestResponse(1, Encoding.UTF8.GetBytes(res));
+            });
+            
+            var completionSource = new TaskCompletionSource<(TestResponse, PitayaError)>();
+            client.Request<TestResponse>(route, new TestRequest(), (TestResponse response) =>
+            {
+                completionSource.TrySetResult((response, null));
+            }, (PitayaError error) =>
+            {
+                completionSource.TrySetResult((null, error));
+            });
+            
+            (TestResponse resp, PitayaError err) = completionSource.Task.GetAwaiter().GetResult();
+            Assert.Null(err);
+            Assert.AreEqual(expectedRes, resp);
         }
-
-        [UnityTest]
-        public IEnumerator ShouldNotConnectToUnavailableServer()
+        
+        [Test]
+        public void TestJsonNotifyCall()
         {
-            var called = false;
-            var connectionState = PitayaNetWorkState.Disconnected;
+            var route = "route";
 
-            _client.NetWorkStateChangedEvent += (networkState, error) => {
-                called = true;
-                connectionState = networkState;
-                Assert.AreEqual(_mainThread, Thread.CurrentThread);
-                Assert.NotNull(error);
+            var expectedRes = new TestResponse
+            {
+                Attr = "wololo",
+                List = new List<float> { 14.3f, 11.0f, 65.4f }
             };
+            
+            var mockBinding = Substitute.For<IPitayaBinding>();
 
-            const string wrongServer = "1";
-            const int wrongPort = 1;
+            var res = Newtonsoft.Json.JsonConvert.SerializeObject(expectedRes);
 
-            _client.Connect(wrongServer, wrongPort);
-
-            while (!called) {
-                yield return new WaitForSeconds(0.5f);
-            }
-
-            Assert.True(called);
-            Assert.AreEqual(connectionState, PitayaNetWorkState.FailToConnect);
-        }
-
-        [UnityTest]
-        public IEnumerator ShouldClientBeDisconnectedIfUsesUnauthorizedServerPort()
-        {
-            const int unauthorizedPort = 3252;
-
-            var called = false;
-
-            // Start with some initial value different from DISCONNECTED
-            var connectionState = PitayaNetWorkState.Error;
-
-            _client.NetWorkStateChangedEvent += (networkState, error) => {
-                called = true;
-                connectionState = networkState;
-                Assert.AreEqual(_mainThread, Thread.CurrentThread);
-                Assert.NotNull(error);
-            };
-
-            _client.Connect(ServerHost, unauthorizedPort);
-
-            while(!called) {
-                yield return new WaitForSeconds(0.5f);
-            }
-
-            Assert.True(called);
-            Assert.AreEqual(PitayaNetWorkState.FailToConnect, connectionState);
+            var client = new PitayaClient(binding: mockBinding, queueDispatcher: new NullPitayaQueueDispatcher());
+            
+            Assert.DoesNotThrow(() =>
+            {
+                client.Notify(route, new TestResponse()); 
+            });
         }
     }
 }

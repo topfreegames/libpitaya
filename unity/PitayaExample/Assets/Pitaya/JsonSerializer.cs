@@ -1,18 +1,32 @@
-using System.Text;
-
+using Newtonsoft.Json;
 
 namespace Pitaya
 {
-    public static class JsonSerializer
+    public class JsonSerializer : IPitayaSerializer
     {
-        public static byte[] Encode(string obj)
+        JsonSerializerSettings _settings;
+
+        public JsonSerializer()
         {
-            return obj != null ? Encoding.UTF8.GetBytes(obj) : null;
+            _settings = new JsonSerializerSettings();
+            _settings.MissingMemberHandling = MissingMemberHandling.Error;
+        }
+        
+        public JsonSerializer(JsonSerializerSettings settings)
+        {
+            _settings = settings;
+        }
+        
+        public byte[] Encode(object obj)
+        {
+            string json = JsonConvert.SerializeObject(obj, _settings);
+            return System.Text.Encoding.UTF8.GetBytes(json);
         }
 
-        public static string Decode(byte[] data)
+        public T Decode<T>(byte[] data)
         {
-            return Encoding.UTF8.GetString(data);
+            string json = System.Text.Encoding.UTF8.GetString(data);
+            return (T)JsonConvert.DeserializeObject(json, typeof(T), _settings);
         }
     }
 }

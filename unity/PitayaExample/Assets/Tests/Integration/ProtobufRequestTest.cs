@@ -6,6 +6,7 @@ using UnityEngine.TestTools;
 
 namespace Pitaya.Tests
 {
+    [TestFixture, Category("integration")]
     public class ProtobufRequestTest
     {
 

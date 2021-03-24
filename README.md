@@ -7,6 +7,8 @@
 
 Libpitaya is currently under development and is not yet ready for production use. We are working on tests and better documentation and we'll update the project as soon as possible.
 
+Libpitaya C# binding for 4.0.0 and above require Unity 2019.3 to work.
+
 # Libpitaya
 
 Libpitaya is a SDK for building clients for projects using the pitaya game server framework and is built on top of [libpomelo2](https://github.com/NetEase/libpomelo2)
@@ -51,7 +53,7 @@ make setup-mac
 make build-ios
 ```
 The iOS binary will be under `_builds/ios/libpitaya-ios.a`
-On iOS this library in conpiled statically wich means you must include in your project the dependencies `libz.a`,`libuv_a.a`,`libssl.a` and `libcrypto.a`.
+On iOS, this library will be compiled statically which means you *must* include in your project the dependencies `libz.a`,`libuv_a.a`,`libssl.a` and `libcrypto.a` as well.
 
 
 ### Building for Windows
