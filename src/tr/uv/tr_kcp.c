@@ -157,7 +157,7 @@ static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
     pc_assert(t == &tt->timer_heartbeat);
     pc_assert(tt->state == TR_KCP_DONE);
 
-    uint64_t threshold = (tt->hb_interval * 1000) * (PC_HEARTBEAT_TIMEOUT_FACTOR + 1);
+    uint64_t threshold = (tt->hb_interval * 1000) * (PC_HEARTBEAT_TIMEOUT_FACTOR + 4);
     uint64_t time_elapsed = uv_now(&tt->loop) - tt->last_server_packet_time;
     if (time_elapsed > threshold) {
         pc_lib_log(PC_LOG_WARN, "kcp__heartbeat_time_cb - heartbeat timeout, will reconn");
