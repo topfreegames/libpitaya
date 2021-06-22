@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
     <authors>guthyerrz</authors>
     <owners>guthyerrz</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Add assembly definition file for editor</releaseNotes>
+    <releaseNotes>Fix crash caused by modified collection during enumeration in EventManager Dispose</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
