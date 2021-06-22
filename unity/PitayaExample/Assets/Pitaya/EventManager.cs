@@ -105,8 +105,9 @@ namespace Pitaya
         // ReSharper disable once UnusedParameter.Local
         private void Dispose(bool disposing)
         {
-			foreach (var callback in _errorCallBackMap)
-				callback.Value.Invoke(new PitayaError(PitayaConstants.PitayaInternalError, "pitaya exited"));
+            var errorCallBackMap = new Dictionary<uint, Action<PitayaError>>(_errorCallBackMap);
+                foreach (var callback in errorCallBackMap)
+                    callback.Value.Invoke(new PitayaError(PitayaConstants.PitayaInternalError, "pitaya exited"));
 
             _callBackMap.Clear();
             _eventMap.Clear();
