@@ -1,0 +1,15 @@
+{
+    "name": "Tests.PlayMode",
+    "references": [
+        "GUID:e1d16cc8949514687a81d7687e063a9b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
