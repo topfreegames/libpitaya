@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using NSubstitute.Exceptions;
 
 namespace Pitaya {
     public static class MainQueueDispatcherFactory
