@@ -46,7 +46,7 @@ make build-mac
 ```
 The Mac binary will be under `_builds/mac/libpitaya-mac.bundle`
 
-### Building for iOS
+### Building for iOS physical devices
 
 ```bash
 make setup-mac
@@ -55,6 +55,15 @@ make build-ios
 The iOS binary will be under `_builds/ios/libpitaya-ios.a`
 On iOS, this library will be compiled statically which means you *must* include in your project the dependencies `libz.a`,`libuv_a.a`,`libssl.a` and `libcrypto.a` as well.
 
+
+### Building for iOS simulators
+
+```bash
+make setup-mac
+make build-ios-simulator
+```
+The iOS binary will be under `_builds/ios-simulator/libpitaya-ios.a`
+As for physical device build, this library will be compiled statically, and other dependencies must be included manually.
 
 ### Building for Windows
 
