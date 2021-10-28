@@ -9,3 +9,6 @@ In order the run the tests, the user can open the unity project located in `unit
 
 ## Making a new release
 The script `release.py` in the root folder can be used to see the current version of the library and used to create a new one as well, example: `./release.py check --unity --release-notes 'Fixed a bug'`, `./release.py new --unity 1.2.3`.
+
+## Running on iOS simulator
+To run this project on iOS simulated devices, you must configure unity target SDK in `Project Settings > Player > Other Settings > Target SDK` and set `Simulator SDK` value.
