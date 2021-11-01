@@ -53,9 +53,9 @@ build-ios:
 	@cmake --build _builds/ios
 
 build-ios-simulator:
-	@rm -rf _builds/ios-emulator
-	@cmake -H. -B_builds/ios-emulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DIOS_PLATFORM=SIMULATOR64 -DIOS_SIMULATOR=true
-	@cmake --build _builds/ios-emulator
+	@rm -rf _builds/ios-simulator
+	@cmake -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DIOS_PLATFORM=SIMULATOR64 -DIOS_SIMULATOR=true
+	@cmake --build _builds/ios-simulator
 
 build-mac-tests:
 	@rm -rf _builds/mac-tests
