@@ -11,7 +11,8 @@
 #include "pr_gzip.h"
 #include "pc_error.h"
 
-#define KCP_CONV 777
+//#define KCP_CONV 777
+static int KCP_CONV = 1;
 
 
 static void udp_on_send(uv_udp_send_t *req, int status) {
@@ -19,6 +20,7 @@ static void udp_on_send(uv_udp_send_t *req, int status) {
 }
 
 static int udp_output(const char *buf, int len, ikcpcb *kcp, void *p) {
+    pc_lib_log(PC_LOG_DEBUG, "udp_output - kcp send data size: %d", len);
     tr_kcp_transport_t *tt = p;
     uv_udp_send_t *send_req = pc_lib_malloc(sizeof(uv_udp_send_t));
     memset(send_req, 0, sizeof(uv_udp_send_t));
@@ -33,6 +35,7 @@ static int udp_output(const char *buf, int len, ikcpcb *kcp, void *p) {
 
 static void
 uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+    pc_lib_log(PC_LOG_DEBUG, "uv_udp_on_read - udp receive data size: %ld", nread);
     if (nread <= 0) {
         pc_lib_free(buf->base);
         return;
@@ -65,6 +68,7 @@ static void kcp__receive_async(uv_async_t *handle) {
     if (size < 0) {
         return;
     }
+    pc_lib_log(PC_LOG_DEBUG, "kcp__receive_async - kcp receive data size: %d", size);
     char *buf = pc_lib_malloc(size);
     int ret = ikcp_recv(tt->kcp, buf, size);
     if (ret < 0) {
@@ -160,7 +164,7 @@ static void kcp__heartbeat_timer_cb(uv_timer_t *t) {
     uint64_t threshold = (tt->hb_interval * 1000) * (PC_HEARTBEAT_TIMEOUT_FACTOR + 4);
     uint64_t time_elapsed = uv_now(&tt->loop) - tt->last_server_packet_time;
     if (time_elapsed > threshold) {
-        pc_lib_log(PC_LOG_WARN, "kcp__heartbeat_time_cb - heartbeat timeout, will reconn");
+        pc_lib_log(PC_LOG_WARN, "kcp__heartbeat_time_cb - heartbeat timeout, elapsed %ld", time_elapsed);
         pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "Heartbeat timeout", NULL);
         tt->reconn_fn(tt);
         return;
@@ -628,8 +632,8 @@ static void kcp__log(const char *log, ikcpcb *kcp, void *user) {
 
 static void kcp__config_kcp(ikcpcb *kcp) {
     kcp->writelog = kcp__log;
-    ikcp_nodelay(kcp, 1, 10, 2, 1);
-    ikcp_wndsize(kcp, 64, 64);
+    ikcp_nodelay(kcp, 0, 30, 2, 1);
+    ikcp_wndsize(kcp, 256, 256);
 }
 
 static void kcp__conn_async(uv_async_t *handle) {
@@ -638,7 +642,9 @@ static void kcp__conn_async(uv_async_t *handle) {
     pc_assert(handle == &tt->conn_async);
 
     // kcp
-    ikcpcb *kcp = ikcp_create(KCP_CONV, tt);
+//    KCP_CONV += 1;
+    int kcp_conv = rand();
+    ikcpcb *kcp = ikcp_create(kcp_conv, tt);
     kcp->output = udp_output;
     kcp__config_kcp(kcp);
     tt->kcp = kcp;
