@@ -93,6 +93,8 @@ static void kcp__send_heartbeat(tr_kcp_transport_t *tt) {
 static void kcp__on_heartbeat(tr_kcp_transport_t *tt) {
     pc_lib_log(PC_LOG_DEBUG, "kcp__on_heartbeat - [Heartbeat] received from server");
     pc_assert(tt->state == TR_KCP_DONE);
+
+
 }
 
 static void kcp__on_data_received(tr_kcp_transport_t *tt, const char *data, size_t len) {
@@ -416,6 +418,7 @@ static void kcp__write_async(uv_async_t *t) {
     }
 
     pc_mutex_unlock(&tt->wq_mutex);
+    ikcp_flush(tt->kcp);
 
     if (need_check) {
         pc_lib_log(PC_LOG_DEBUG, "NEED A CHECK");
@@ -632,8 +635,8 @@ static void kcp__log(const char *log, ikcpcb *kcp, void *user) {
 
 static void kcp__config_kcp(ikcpcb *kcp) {
     kcp->writelog = kcp__log;
-    ikcp_nodelay(kcp, 0, 30, 2, 1);
-    ikcp_wndsize(kcp, 256, 256);
+    ikcp_nodelay(kcp, 1, 20, 2, 1);
+    ikcp_wndsize(kcp, 512, 512);
 }
 
 static void kcp__conn_async(uv_async_t *handle) {
