@@ -963,7 +963,8 @@ void *tr_kcp_internal_data(pc_transport_t* trans)
 }
 
 int tr_kcp_quality(pc_transport_t *trans) {
-    return 11;
+    tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
+    return tt->kcp->rx_rttval;
 }
 
 static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
