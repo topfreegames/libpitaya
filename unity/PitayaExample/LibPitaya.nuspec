@@ -2,16 +2,13 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>4.2.0-alpha.1</version>
-    <authors>guthyerrz</authors>
-    <owners>guthyerrz</owners>
+    <version>4.3.0</version>
+    <authors>Wildlife Studios</authors>
+    <owners>Wildlife Studios</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Add support for strongly typed JSON de/serialization using Newtonsoft.Json
-* Deprecate methods explicitly using JsonObject and IMessage
-* Add IPitayaClient interface
-* This version isn't compatible with Unity 2018.4 or older</releaseNotes>
+    <releaseNotes>Formal release of 4.3.0-x branches</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
