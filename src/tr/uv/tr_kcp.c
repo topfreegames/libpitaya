@@ -41,6 +41,7 @@ uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct s
         return;
     }
     tr_kcp_transport_t *tt = req->data;
+    tt->kcp->current = time(NULL) * 1000;
     int ret = ikcp_input(tt->kcp, buf->base, nread);
     if (ret < 0) {
         pc_lib_log(PC_LOG_ERROR, "uv_udp_on_read - kcp input failed: %d", ret);
@@ -64,20 +65,16 @@ static void uv_udp_alloc_buff(uv_handle_t *handle, size_t suggested_size, uv_buf
 
 static void kcp__receive_async(uv_async_t *handle) {
     tr_kcp_transport_t *tt = handle->data;
-    int size = ikcp_peeksize(tt->kcp);
-    if (size < 0) {
-        return;
-    }
-    pc_lib_log(PC_LOG_DEBUG, "kcp__receive_async - kcp receive data size: %d", size);
-    char *buf = pc_lib_malloc(size);
-    int ret = ikcp_recv(tt->kcp, buf, size);
-    if (ret < 0) {
-        pc_lib_free(buf);
-        return;
-    }
+    char buf[512];
+    while (1)
+    {
+        int ret = ikcp_recv(tt->kcp, buf, 512);
+        if (ret < 0) {
+            break;
+        }
 
-    pc_pkg_parser_feed(&tt->pkg_parser, buf, ret);
-    pc_lib_free(buf);
+        pc_pkg_parser_feed(&tt->pkg_parser, buf, ret);
+    }
 }
 
 static void kcp__send_heartbeat(tr_kcp_transport_t *tt) {
@@ -93,8 +90,6 @@ static void kcp__send_heartbeat(tr_kcp_transport_t *tt) {
 static void kcp__on_heartbeat(tr_kcp_transport_t *tt) {
     pc_lib_log(PC_LOG_DEBUG, "kcp__on_heartbeat - [Heartbeat] received from server");
     pc_assert(tt->state == TR_KCP_DONE);
-
-
 }
 
 static void kcp__on_data_received(tr_kcp_transport_t *tt, const char *data, size_t len) {
@@ -635,8 +630,8 @@ static void kcp__log(const char *log, ikcpcb *kcp, void *user) {
 
 static void kcp__config_kcp(ikcpcb *kcp) {
     kcp->writelog = kcp__log;
-    ikcp_nodelay(kcp, 1, 20, 2, 1);
-    ikcp_wndsize(kcp, 512, 512);
+    ikcp_nodelay(kcp, 0, 30, 2, 1);
+    ikcp_wndsize(kcp, 256, 256);
 }
 
 static void kcp__conn_async(uv_async_t *handle) {
