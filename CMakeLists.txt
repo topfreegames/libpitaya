@@ -60,7 +60,7 @@ set(pitaya_headers
     src/tr/uv/tr_uv_tls.h
     src/tr/uv/tr_kcp.h
     src/tr/uv/ikcp.h
-    src/tr/dummy/tr_dummy.h)
+    src/tr/dummy/tr_dummy.h src/tr/uv/iclock.h)
 
 if(BUILD_MACOS_BUNDLE)
     add_library(pitaya MODULE ${pitaya_sources} ${pitaya_headers})

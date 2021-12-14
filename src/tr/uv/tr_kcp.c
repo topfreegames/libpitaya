@@ -10,6 +10,7 @@
 #include "pr_pkg.h"
 #include "pr_gzip.h"
 #include "pc_error.h"
+#include "iclock.h"
 
 //#define KCP_CONV 777
 static int KCP_CONV = 1;
@@ -33,15 +34,14 @@ static int udp_output(const char *buf, int len, ikcpcb *kcp, void *p) {
     return ret;
 }
 
-static void
-uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+static void uv_udp_on_read(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
     pc_lib_log(PC_LOG_DEBUG, "uv_udp_on_read - udp receive data size: %ld", nread);
     if (nread <= 0) {
         pc_lib_free(buf->base);
         return;
     }
     tr_kcp_transport_t *tt = req->data;
-    tt->kcp->current = time(NULL) * 1000;
+    tt->kcp->current = iclock();
     int ret = ikcp_input(tt->kcp, buf->base, nread);
     if (ret < 0) {
         pc_lib_log(PC_LOG_ERROR, "uv_udp_on_read - kcp input failed: %d", ret);
@@ -621,7 +621,7 @@ static void kcp__send_handshake(tr_kcp_transport_t *tt) {
 
 static void kcp__update(uv_timer_t *handle) {
     tr_kcp_transport_t *tt = handle->data;
-    ikcp_update(tt->kcp, time(NULL) * 1000);
+    ikcp_update(tt->kcp, iclock());
 }
 
 static void kcp__handshake_timer_cb(uv_timer_t *t) {
@@ -637,7 +637,8 @@ static void kcp__log(const char *log, ikcpcb *kcp, void *user) {
 
 static void kcp__config_kcp(ikcpcb *kcp) {
     kcp->writelog = kcp__log;
-    ikcp_nodelay(kcp, 1, 30, 2, 1);
+    kcp->logmask = 65535;
+    ikcp_nodelay(kcp, 1, 10, 2, 1);
     ikcp_wndsize(kcp, 256, 256);
 }
 
