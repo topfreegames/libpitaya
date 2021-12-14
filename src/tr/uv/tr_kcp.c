@@ -65,15 +65,22 @@ static void uv_udp_alloc_buff(uv_handle_t *handle, size_t suggested_size, uv_buf
 
 static void kcp__receive_async(uv_async_t *handle) {
     tr_kcp_transport_t *tt = handle->data;
-    char buf[512];
     while (1)
     {
-        int ret = ikcp_recv(tt->kcp, buf, 512);
+        int size = ikcp_peeksize(tt->kcp);
+        if (size < 0) {
+            break;
+        }
+        pc_lib_log(PC_LOG_DEBUG, "kcp__receive_async - kcp receive data size: %d", size);
+        char *buf = pc_lib_malloc(size);
+        int ret = ikcp_recv(tt->kcp, buf, size);
         if (ret < 0) {
+            pc_lib_free(buf);
             break;
         }
 
         pc_pkg_parser_feed(&tt->pkg_parser, buf, ret);
+        pc_lib_free(buf);
     }
 }
 
@@ -630,7 +637,7 @@ static void kcp__log(const char *log, ikcpcb *kcp, void *user) {
 
 static void kcp__config_kcp(ikcpcb *kcp) {
     kcp->writelog = kcp__log;
-    ikcp_nodelay(kcp, 0, 30, 2, 1);
+    ikcp_nodelay(kcp, 1, 30, 2, 1);
     ikcp_wndsize(kcp, 256, 256);
 }
 
@@ -959,7 +966,7 @@ void *tr_kcp_internal_data(pc_transport_t* trans)
 
 int tr_kcp_quality(pc_transport_t *trans) {
     tr_kcp_transport_t *tt = (tr_kcp_transport_t *) trans;
-    return tt->kcp->rx_rttval;
+    return tt->kcp->rx_rto;
 }
 
 static pc_transport_t *kcp_trans_create(pc_transport_plugin_t *plugin) {
