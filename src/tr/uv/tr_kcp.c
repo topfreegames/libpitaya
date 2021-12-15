@@ -636,10 +636,11 @@ static void kcp__log(const char *log, ikcpcb *kcp, void *user) {
 }
 
 static void kcp__config_kcp(ikcpcb *kcp) {
-    kcp->writelog = kcp__log;
-    kcp->logmask = 65535;
-    ikcp_nodelay(kcp, 1, 10, 2, 1);
+//    kcp->writelog = kcp__log;
+//    kcp->logmask = 65535;
+    ikcp_nodelay(kcp, 1, 20, 2, 1);
     ikcp_wndsize(kcp, 256, 256);
+    kcp->stream = 1;
 }
 
 static void kcp__conn_async(uv_async_t *handle) {
