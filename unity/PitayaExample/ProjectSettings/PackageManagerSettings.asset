@@ -20,8 +20,8 @@ MonoBehaviour:
     m_Url: https://packages.unity.com
     m_Scopes: []
     m_IsDefault: 1
-  - m_Id: scoped:WildlifeStudios
-    m_Name: WildlifeStudios
+  - m_Id: scoped:Wildlife Studios
+    m_Name: Wildlife Studios
     m_Url: https://artifactory.tfgco.com/artifactory/api/npm/npm-local
     m_Scopes:
     - com.wildlifestudios
@@ -31,14 +31,14 @@ MonoBehaviour:
   m_RegistryInfoDraft:
     m_ErrorMessage: 
     m_Original:
-      m_Id: scoped:WildlifeStudios
-      m_Name: WildlifeStudios
+      m_Id: scoped:Wildlife Studios
+      m_Name: Wildlife Studios
       m_Url: https://artifactory.tfgco.com/artifactory/api/npm/npm-local
       m_Scopes:
       - com.wildlifestudios
       m_IsDefault: 0
     m_Modified: 0
-    m_Name: WildlifeStudios
+    m_Name: Wildlife Studios
     m_Url: https://artifactory.tfgco.com/artifactory/api/npm/npm-local
     m_Scopes:
     - com.wildlifestudios
