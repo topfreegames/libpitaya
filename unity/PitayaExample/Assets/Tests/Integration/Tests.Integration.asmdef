@@ -2,25 +2,17 @@
     "name": "Tests.Integration",
     "references": [
         "Pitaya",
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
         "Tests.Protos"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll",
-        "Google.Protobuf.dll",
-        "Newtonsoft.Json.dll"
+        "Google.Protobuf.dll"
     ],
     "autoReferenced": false,
-    "defineConstraints": [
-        "UNITY_INCLUDE_TESTS"
-    ],
+    "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
 }
