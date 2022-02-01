@@ -5,6 +5,8 @@
     "com.unity.ide.vscode": "1.2.4",
     "com.unity.test-framework": "1.1.29",
     "com.unity.toolchain.macos-x86_64-linux-x86_64": "1.0.0",
+    "com.unity.toolchain.win-x86_64-linux-x86_64": "1.0.0",
+    "com.unity.toolchain.linux-x86_64": "1.0.0",
     "com.wildlifestudios.nuget.nsubstitute": "4.2.2",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.audio": "1.0.0",
