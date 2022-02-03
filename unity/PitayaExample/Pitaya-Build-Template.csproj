@@ -85,13 +85,13 @@
       <HintPath>UNITY_PATH/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>./Assets/Packages/Google.Protobuf/lib/netstandard1.0/Google.Protobuf.dll</HintPath>
+      <HintPath>./Assets/Plugins/google.protobuf.3.7.0/lib/netstandard1.0/Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>UNITY_PATH/Contents/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>./Assets/Packages/TFG.JsonDotNet/Assemblies/AOT/Newtonsoft.Json.dll</HintPath>
+      <HintPath>./Assets/Plugins/newtonsoft.json.12.0.1/lib/netstandard2.0/Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.IO">
       <HintPath>UNITY_PATH/Contents/NetStandard/compat/2.0.0/shims/netstandard/System.IO.dll</HintPath>
