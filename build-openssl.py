@@ -10,6 +10,8 @@ import shutil
 import stat
 import tarfile
 
+from pathlib import Path
+
 def call_shell(cmd):
     sp.call(cmd, shell=True)
 
@@ -143,6 +145,10 @@ def mac_build(openssl_temp_dir, prefix):
 
 
 def mac_universal_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix):
+    # Ensure that prefix exists.
+    Path(prefix).mkdir(parents=True, exist_ok=True)
+    Path(prefix).joinpath("lib").mkdir(exist_ok=True)
+
     min_osx_version = '12.2'
     os.environ['CC'] = f'clang -mmacosx-version-min={min_osx_version}'
     os.environ['CROSS_COMPILE'] = ''
@@ -163,14 +169,10 @@ def mac_universal_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix):
     call_shell(f'cd {openssl_x64_temp_dir} && ./Configure darwin64-x86_64-cc --prefix={x64_prefix}')
     build(openssl_x64_temp_dir)
 
-    print('============================================================')
-    print(openssl_x64_temp_dir)
-    print(openssl_arm64_temp_dir)
-
     for lib in ["libssl.a", "libcrypto.a"]:
         print(f'creating universal binary for {lib}')
         call_shell(
-            f'lipo -create {os.path.join(arm64_prefix, "lib", lib)} {os.path.join(x64_prefix, "lib", lib)} {os.path.join(prefix, "lib", lib)}'
+            f'lipo -create {os.path.join(arm64_prefix, "lib", lib)} {os.path.join(x64_prefix, "lib", lib)} -output {os.path.join(prefix, "lib", lib)}'
         )
 
     call_shell(f'cp -r {os.path.join(arm64_prefix, "include")} {os.path.join(prefix, "include")}')
