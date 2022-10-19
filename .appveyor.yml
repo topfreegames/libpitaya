@@ -31,7 +31,7 @@ before_build:
   - python -m ensurepip --upgrade
   - python -m pip install conan
   - conan install . -if build
-  - cmake -H. -Bbuild -G "Visual Studio 15 2019 Win64" -DBUILD_SHARED_LIBS=ON
+  - cmake -H. -Bbuild -G "Visual Studio 16 2019" -DBUILD_SHARED_LIBS=ON
   - cd build
 
 build_script:
