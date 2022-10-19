@@ -23,7 +23,7 @@ artifacts:
     name: Libs
 
 install:
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 before_build:
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
@@ -31,7 +31,7 @@ before_build:
   - python -m ensurepip --upgrade
   - python -m pip install conan
   - conan install . -if build
-  - cmake -H. -Bbuild -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON
+  - cmake -H. -Bbuild -G "Visual Studio 15 2019 Win64" -DBUILD_SHARED_LIBS=ON
   - cd build
 
 build_script:
