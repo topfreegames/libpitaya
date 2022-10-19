@@ -5,7 +5,8 @@ clone_folder: '%USERPROFILE%\go\src\github.com\topfreegames\libpitaya'
 environment:
   nodejs_version: "Current"
   matrix:
-    - PYTHON: "C:\\Python38"
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_ARCH: "64"
 
 build:
   verbosity: detailed
@@ -27,7 +28,9 @@ install:
 before_build:
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
   - SET PATH=%PYTHON%;%PATH%
-  - pip install conan
+  - echo %PATH%
+  - dir %PYTHON%
+  - python3 pip install conan
   - conan install . -if build
   - cmake -H. -Bbuild -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON
   - cd build
