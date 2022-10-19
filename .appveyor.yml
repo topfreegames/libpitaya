@@ -24,7 +24,8 @@ install:
 
 before_build:
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
-  - pip3 install conan
+  - SET PATH=C:\Python38-x64;%PATH%
+  - pip install conan
   - conan install . -if build
   - cmake -H. -Bbuild -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON
   - cd build
