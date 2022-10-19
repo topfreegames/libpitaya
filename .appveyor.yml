@@ -27,7 +27,7 @@ install:
 
 before_build:
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
-  - SET PATH=%PYTHON%;%PATH%
+  - SET PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   - python -m ensurepip --upgrade
   - python -m pip install conan
   - conan install . -if build
