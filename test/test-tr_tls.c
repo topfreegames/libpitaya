@@ -195,6 +195,7 @@ test_successful_handshake(const MunitParameter params[], void *state)
 
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TLS;
+    config.enable_reconn = false;
 
     pc_client_init_result_t res = pc_client_init(NULL, &config);
     g_client = res.client;
@@ -235,6 +236,8 @@ connect_failed_event_cb(pc_client_t* client, int ev_type, void* ex_data, const c
     assert_int(ev_type, ==, PC_EV_CONNECT_FAILED);
     assert_string_equal(arg1, "TLS Handshake Error");
     assert_null(arg2);
+    //assert_string_equal(arg1, "Failed to complete pitaya connection");
+    //assert_string_equal(arg2, "end of file");
     flag_set(flag);
 }
 
@@ -258,6 +261,7 @@ test_no_client_certificate(const MunitParameter params[], void *state)
     Unused(state); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TLS;
+    config.enable_reconn = false;
 
     pc_client_init_result_t res = pc_client_init(NULL, &config);
     g_client = res.client;
@@ -279,6 +283,7 @@ test_wrong_client_certificate(const MunitParameter params[], void *state)
     Unused(state); Unused(params);
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
     config.transport_name = PC_TR_NAME_UV_TLS;
+    config.enable_reconn = false;
 
     pc_client_init_result_t res = pc_client_init(NULL, &config);
     g_client = res.client;

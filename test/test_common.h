@@ -24,7 +24,7 @@
 #define ArrayCount(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #define LOCALHOST "127.0.0.1"
-#define PITAYA_SERVER_URL "libpitaya-tests.tfgco.com"
+#define PITAYA_SERVER_URL "localhost"
 
 #define REQ_ROUTE "connector.getsessiondata"
 #define REQ_MSG "{\"name\": \"test\"}"

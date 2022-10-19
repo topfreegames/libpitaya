@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-package protos;
-
-message SessionData {
-    string data = 1;
-}
-

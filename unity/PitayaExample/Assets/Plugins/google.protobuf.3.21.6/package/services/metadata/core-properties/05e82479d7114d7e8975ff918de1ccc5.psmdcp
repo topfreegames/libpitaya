@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coreProperties xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties">
+  <dc:creator>Google Inc.</dc:creator>
+  <dc:description>C# runtime library for Protocol Buffers - Google's data interchange format.</dc:description>
+  <dc:identifier>Google.Protobuf</dc:identifier>
+  <version>3.21.6</version>
+  <keywords>Protocol Buffers Binary Serialization Format Google proto proto3</keywords>
+  <lastModifiedBy>NuGet.Build.Tasks.Pack, Version=6.0.0.278, Culture=neutral, PublicKeyToken=31bf3856ad364e35;</lastModifiedBy>
+</coreProperties>

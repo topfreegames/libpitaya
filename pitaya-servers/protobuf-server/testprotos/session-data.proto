@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package testprotos;
+
+option go_package = "github.com/topfreegames/libpitaya/pitaya-servers/protobuf-server/testprotos";
+
+message SessionData {
+    string data = 1;
+}
+

@@ -85,7 +85,7 @@
       <HintPath>UNITY_PATH/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>./Assets/Plugins/google.protobuf.3.7.0/lib/netstandard1.0/Google.Protobuf.dll</HintPath>
+      <HintPath>./Assets/Plugins/google.protobuf.3.20.3/lib/netstandard1.1/Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>UNITY_PATH/Contents/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
