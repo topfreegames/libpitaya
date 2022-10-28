@@ -1,7 +1,7 @@
 ANDROID_TOOLCHAIN_FILE = temp/android-ndk-r17b/build/cmake/android.toolchain.cmake
 
 setup-mac:
-	@brew install ninja
+	@brew install ninja cmake
 
 setup-android-mac:
 	@mkdir -p temp
@@ -49,12 +49,17 @@ build-linux-debug:
 
 build-ios:
 	@rm -rf _builds/ios
-	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
+	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
 	@cmake --build _builds/ios
 
 build-ios-simulator:
 	@rm -rf _builds/ios-simulator
-	@cmake -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DIOS_PLATFORM=SIMULATOR64 -DIOS_SIMULATOR=true
+	@cmake -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATOR64 -DSIMULATOR=true
+	@cmake --build _builds/ios-simulator
+
+build-ios-simulator-arm64:
+	@rm -rf _builds/ios-simulator
+	@cmake -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATORARM64 -DSIMULATOR=true
 	@cmake --build _builds/ios-simulator
 
 build-mac-tests:

@@ -50,7 +50,7 @@
 
 - (IBAction)onConnectBt:(id)sender {
     pc_client_config_t config = PC_CLIENT_CONFIG_DEFAULT;
-    config.transport_name = PC_TR_NAME_UV_TLS;
+    config.transport_name = PC_TR_NAME_UV_TCP;
     config.enable_reconn = false;
     
     pc_client_init_result_t result = pc_client_init(NULL, &config);
