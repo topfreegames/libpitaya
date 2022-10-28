@@ -191,6 +191,29 @@ Having done this, you can now run the tests using the run-tests.py script. If th
 
 **NOTE**: In most cases, you can just add the changes to the native library and it should be fine. However, if you change the interface of the library, you have to also update the csharp library.
 
+### Using the build-openssl.py script to generate open ssl builds
+
+Use it like the following:
+
+```
+# Android armv7
+
+./build-openssl.py --prefix /tmp/build_dir/android --compile-threads 32 --openssl-tar deps/openssl-1.1.1q.tar.gz android --ndk-dir /home/...path to.../android-ndk-r25b --arch armv7a
+
+# Android aarch64
+
+./build-openssl.py --prefix /tmp/build_dir/android --compile-threads 32 --openssl-tar deps/openssl-1.1.1q.tar.gz android --ndk-dir /home/...path to.../android-ndk-r25b --arch aarch64
+
+# Linux
+
+CC=gcc ./build-openssl.py --prefix /tmp/build_dir/linux --compile-threads 32 --openssl-tar deps/openssl-1.1.1q.tar.gz linux
+
+# Mac and iOS
+
+For these we use the project at https://github.com/tfgco/OpenSSL
+
+```
+
 ### Csharp lib contribution
 
 For more information, please look in [this](unity/PitayaExample/README.md) document.

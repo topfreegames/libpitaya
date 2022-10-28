@@ -1,15 +1,15 @@
 PODS:
   - libuv (1.4.0)
-  - OpenSSL-TFG (1.1.1a.3)
+  - OpenSSL-TFG (1.1.1q)
   - Pitaya (0.0.1):
     - libuv (~> 1.4.0)
-    - OpenSSL-TFG (~> 1.1.1a.3)
+    - OpenSSL-TFG (~> 1.1.1q)
 
 DEPENDENCIES:
   - Pitaya (from `../../`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  trunk:
     - libuv
     - OpenSSL-TFG
 
@@ -19,9 +19,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   libuv: 8497e469e7918518052d895945a4b17e6dbb088e
-  OpenSSL-TFG: 4182c11e2a5dfe952bee0ea855bb0f660e5562b6
-  Pitaya: 771700890284bf86ad7e09ac940194807ce8aa56
+  OpenSSL-TFG: b75735c503ea34501c5ea471964b95ff3d37fa19
+  Pitaya: 419a04df19dbec602ee2549bf612a13903a7f2a8
 
-PODFILE CHECKSUM: bb0fd389571ffaf25575f04f6f23a59bb7d6d42f
+PODFILE CHECKSUM: 3c0597f87f9d4569b4cf079ffd1b9af60a7964ce
 
-COCOAPODS: 1.5.0
+COCOAPODS: 1.11.3
