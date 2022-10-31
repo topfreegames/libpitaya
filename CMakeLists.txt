@@ -86,11 +86,7 @@ endif()
 # Lib UV
 #
 set(BUILD_TESTING OFF CACHE BOOL "")
-if(ANDROID AND ANDROID_ABI STREQUAL arm64-v8a)
-    add_subdirectory(deps/libuv-1.23.1)
-else()
-    add_subdirectory(deps/libuv-1.23.0)
-endif()
+add_subdirectory(deps/libuv-1.44.2)
 
 #
 # Lib Zlib

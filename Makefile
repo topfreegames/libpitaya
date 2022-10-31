@@ -27,10 +27,15 @@ build-android-64:
 				   -DANDROID_ABI=arm64-v8a
 	@cmake --build _builds/android64
 
-build-mac:
+build-mac-64:
 	@rm -rf _builds/mac
-	@cmake -H. -B_builds/mac -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
+	@cmake -H. -B_builds/mac -GNinja -DPLATFORM=MAC -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
 	@cmake --build _builds/mac
+
+build-mac-applesilicon:
+	@rm -rf _builds/mac_applesilicon
+	@cmake -H. -B_builds/mac_applesilicon -GNinja -DPLATFORM=MAC_ARM64 -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
+	@cmake --build _builds/mac_applesilicon
 
 build-mac-xcode:
 	@rm -rf _builds/mac-xcode
