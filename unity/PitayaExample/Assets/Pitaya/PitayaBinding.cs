@@ -611,7 +611,7 @@ namespace Pitaya
 #elif (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN)
         private const string LibName = "pitaya-windows";
 #else
-        private const string LibName = "libpitaya-linux";
+        private const string LibName = "pitaya-linux";
 #endif
 
         // ReSharper disable UnusedMember.Local
