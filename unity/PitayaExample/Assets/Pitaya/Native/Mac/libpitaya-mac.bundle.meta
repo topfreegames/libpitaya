@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 52b3df488d6704b77a7a575fedf135c3
+guid: 878143de3b8fc4b1c8673530731615aa
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -12,6 +12,7 @@ PluginImporter:
   validateReferences: 1
   platformData:
   - first:
+<<<<<<< HEAD
       : Any
     second:
       enabled: 0
@@ -32,6 +33,8 @@ PluginImporter:
       settings:
         CPU: ARMv7
   - first:
+=======
+>>>>>>> WIP: improve m1 support
       Any: 
     second:
       enabled: 0
@@ -41,6 +44,7 @@ PluginImporter:
     second:
       enabled: 1
       settings:
+<<<<<<< HEAD
         CPU: AnyCPU
         DefaultValueInitialized: true
         OS: OSX
@@ -68,12 +72,16 @@ PluginImporter:
       enabled: 0
       settings:
         CPU: AnyCPU
+=======
+        DefaultValueInitialized: true
+>>>>>>> WIP: improve m1 support
   - first:
       Standalone: OSXUniversal
     second:
       enabled: 1
       settings:
         CPU: AnyCPU
+<<<<<<< HEAD
   - first:
       Standalone: Win
     second:
@@ -95,6 +103,8 @@ PluginImporter:
         CPU: AnyCPU
         CompileFlags: 
         FrameworkDependencies: 
+=======
+>>>>>>> WIP: improve m1 support
   userData: 
   assetBundleName: 
   assetBundleVariant: 

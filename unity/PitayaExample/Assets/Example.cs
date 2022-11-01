@@ -30,7 +30,7 @@ public class Example : MonoBehaviour
 			}
 		};
 
-		_client.Connect("127.0.0.1", 3251,
+		_client.Connect("127.0.0.1", 3250,
 			new Dictionary<string, string>
             {
                 {"oi", "mano"}

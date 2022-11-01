@@ -693,11 +693,11 @@ namespace Pitaya
 
         [DllImport(LibName, EntryPoint = "pc_unity_init_log_function")]
         private static extern int NativeInitLogFunction(NativeLogFunction fn);
-#if UNITY_IPHONE && !UNITY_EDITOR
-        [DllImport("__Internal")]
-        private static extern string _PitayaGetCFBundleVersion();
-#else
+//#if UNITY_IPHONE && !UNITY_EDITOR
+//        [DllImport("__Internal")]
+//        private static extern string _PitayaGetCFBundleVersion();
+//#else
         private static string _PitayaGetCFBundleVersion() { return "1"; }
-#endif
+//#endif
     }
 }

@@ -37,30 +37,28 @@ def parse_args():
     parser_android.add_argument('--ndk-dir', required=True, dest='ndk_dir',
                                 help='Where is the Android NDK located.')
 
+    parser_android = subparsers.add_parser('ios-universal', help='Build a fat lib for ios, containing archs armv7s armv7 and arm64')
+
+    parser_android = subparsers.add_parser('ios-sim-universal', help='Build for iOS Simulator x86_64 and ARM64')
+ 
     parser_android = subparsers.add_parser('mac', help='Build for MacOSX')
+    
+    parser_android = subparsers.add_parser('mac-universal', help='Build for MacOSX x64 and ARM64 architecture')
 
     parser_android = subparsers.add_parser('windows', help='Build for Windows')
 
     parser_android = subparsers.add_parser('linux', help='Build for Linux')
     
-    parser_android = subparsers.add_parser('ios', help='Build for iOS')
-    parser_android.add_argument('--arch', required=True, dest='ios_arch',
-                                help='Define the iOS architecture to build, possible values [armv7, arm64]')
-
     return parser.parse_args()
-
 
 # Make a temporary directory for the openssl project extracted from the tar file
 # and return the path
 
-def make_openssl_temp_dir(openssl_tar):
-    tempdir = tempfile.gettempdir()
-    openssl_folder_name = os.path.basename(openssl_tar).split('.tar.gz')[0]
-    openssl_temp_dir = os.path.join(tempdir, openssl_folder_name)
-    print('Using temp dir {}'.format(openssl_temp_dir))
-
-    if os.path.exists(openssl_temp_dir):
-        shutil.rmtree(openssl_temp_dir)
+def make_openssl_temp_dir(root_folder, openssl_tar):
+    tempdir = os.path.join(tempfile.gettempdir(), root_folder)
+    print(f'Using temp dir {tempdir}')
+    openssl_folder_name = os.path.basename(openssl_tar).split('.')[0]
+    openssl_temp_dir = os.path.join(tempdir, os.path.basename(openssl_tar).removesuffix('.tar.gz'))
 
     with tarfile.open(openssl_tar, 'r:gz') as tar:
         tar.extractall(tempdir)
@@ -78,6 +76,8 @@ def make_openssl_temp_dir(openssl_tar):
 
 def set_envs(ndk_dir):
     toolchain_path = os.path.join(ndk_dir, 'toolchains/llvm/prebuilt/linux-x86_64/bin')
+    os.environ['ARCH_FLAGS'] = '-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16'
+    os.environ['ARCH_LINK'] = '-march=armv7-a -Wl,--fix-cortex-a8'
     os.environ['CPPFLAGS'] = '-fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing '
     os.environ['CXXFLAGS'] = '-fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -frtti -fexceptions '
     os.environ['CFLAGS'] = ' -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing '
@@ -88,7 +88,8 @@ def set_envs(ndk_dir):
 
 def build(openssl_temp_dir, compile_threads):
     print('Building...')
-    call_shell(f'cd {openssl_temp_dir} && make && make install')
+    call_shell('cd {} && make -j {}  && make install_sw'.format(
+        openssl_temp_dir, compile_threads))
 
 
 def android_build(ndk_dir, arch, openssl_temp_dir, prefix, compile_threads):
@@ -116,29 +117,130 @@ def android_build(ndk_dir, arch, openssl_temp_dir, prefix, compile_threads):
 
     build(openssl_temp_dir, compile_threads)
 
-def ios_build(arch, openssl_temp_dir, prefix, compile_threads):
-    openssl_ios_arch = ''
-    if arch == 'armv7':
-        openssl_ios_arch = 'ios-xcrun'
-    elif arch == 'arm64':
-        openssl_ios_arch = 'ios64-xcrun'
-    else:
-        print('Invalid ios arch selected: {}, choose one from: [armv7, arm64]'.format(arch))
-        sys.exit(1)
-    call_shell(
-        'cd {} && ./Configure {} --prefix={}'.format(
-            openssl_temp_dir, openssl_ios_arch, prefix))
+def iossim_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix, compile_threads):
+    Path(prefix).mkdir(parents=True, exist_ok=True)
+    Path(prefix).joinpath("lib").mkdir(exist_ok=True)
 
-    build(openssl_temp_dir, compile_threads)
+    temp_dir = tempfile.gettempdir()
+    arm64_prefix = os.path.join(temp_dir, 'arm64')
+    x64_prefix = os.path.join(temp_dir, 'x64')
+
+    os.environ['CFLAGS'] = '-Wno-error=implicit-function-declaration' # fix for compile issue https://github.com/openssl/openssl/issues/18720
+    print("=======================================================")
+    print("ARM64 iOS Simulator BUILD")
+    print("=======================================================")
+    call_shell(
+            f'cd {openssl_arm64_temp_dir} && ./Configure iossimulator-xcrun "-arch arm64 -fembed-bitcode" no-asm no-shared no-hw no-async --prefix={arm64_prefix}')
+    build(openssl_arm64_temp_dir, compile_threads)
+
+    print("=======================================================")
+    print("x86_64 iOS Simulator BUILD")
+    print("=======================================================")
+    call_shell(f'cd {openssl_x64_temp_dir} && ./Configure iossimulator-xcrun "-arch x86_64 -fembed-bitcode" no-tests --prefix={x64_prefix}')
+    build(openssl_x64_temp_dir, compile_threads)
+
+    for lib in ["libssl.a", "libcrypto.a"]:
+        print(f'creating universal binary for {lib}')
+        call_shell(
+            f'lipo -create {os.path.join(arm64_prefix, "lib", lib)} {os.path.join(x64_prefix, "lib", lib)} -output {os.path.join(prefix, "lib", lib)}'
+        )
+
+    call_shell(f'cp -r {os.path.join(arm64_prefix, "include")} {os.path.join(prefix, "include")}')
+
+def ios_build(openssl_arm64_temp_dir, openssl_arm64e_temp_dir, openssl_armv7s_temp_dir, openssl_armv7_temp_dir, prefix, compile_threads):
+
+    Path(prefix).mkdir(parents=True, exist_ok=True)
+    Path(prefix).joinpath("lib").mkdir(exist_ok=True)
+
+    temp_dir = tempfile.gettempdir()
+    arm64_prefix = os.path.join(temp_dir, 'arm64')
+    arm64e_prefix = os.path.join(temp_dir, 'arm64e')
+    armv7s_prefix = os.path.join(temp_dir, 'armv7s')
+    armv7_prefix = os.path.join(temp_dir, 'armv7')
+
+    os.environ['OPENSSL_LOCAL_CONFIG_DIR'] = f'{os.getcwd()}/openssl-config'
+    os.environ['CFLAGS'] = '-Wno-error=implicit-function-declaration' # fix for compile issue https://github.com/openssl/openssl/issues/18720
+    print("=======================================================")
+    print("ARM64 iOS BUILD")
+    print("=======================================================")
+    call_shell(
+            f'cd {openssl_arm64_temp_dir} && ./Configure ios64-xcrun no-asm no-async no-shared --prefix={arm64_prefix}')
+    build(openssl_arm64_temp_dir, compile_threads)
+
+    print("=======================================================")
+    print("ARM64e iOS BUILD")
+    print("=======================================================")
+    call_shell(
+            f'cd {openssl_arm64e_temp_dir} && ./Configure ios-xcrun-arm64e no-asm no-async no-shared --prefix={arm64e_prefix}')
+    build(openssl_arm64e_temp_dir, compile_threads)
+
+
+    print("=======================================================")
+    print("ARMV7S iOS BUILD")
+    print("=======================================================")
+    call_shell(
+            f'cd {openssl_armv7s_temp_dir} && ./Configure ios-xcrun-armv7s no-asm no-async no-shared --prefix={armv7s_prefix}')
+    build(openssl_armv7s_temp_dir, compile_threads)
+
+    print("=======================================================")
+    print("ARMV7 iOS BUILD")
+    print("=======================================================")
+    call_shell(
+            f'cd {openssl_armv7_temp_dir} && ./Configure ios-xcrun-armv7 no-asm no-async no-shared --prefix={armv7_prefix}')
+    build(openssl_armv7_temp_dir, compile_threads)
+
+    for lib in ["libssl.a", "libcrypto.a"]:
+        print(f'creating universal binary for {lib}')
+        call_shell(
+            f'lipo -create {os.path.join(arm64_prefix, "lib", lib)} {os.path.join(arm64e_prefix, "lib", lib)} {os.path.join(armv7s_prefix, "lib", lib)} {os.path.join(armv7_prefix, "lib", lib)} -output {os.path.join(prefix, "lib", lib)}'
+        )
+
+    call_shell(f'cp -r {os.path.join(arm64_prefix, "include")} {os.path.join(prefix, "include")}')
 
 def mac_build(openssl_temp_dir, prefix, compile_threads):
     min_osx_version = '10.7'
     os.environ['CC'] = 'clang -mmacosx-version-min={}'.format(min_osx_version)
     os.environ['CFLAGS'] = '-Wno-error=implicit-function-declaration' # fix for compile issue https://github.com/openssl/openssl/issues/18720
     os.environ['CROSS_COMPILE'] = ''
-    call_shell(f'cd {openssl_temp_dir} && ./Configure darwin64-x86_64-cc --prefix={prefix}')
+
+    call_shell(
+        'cd {} && ./Configure darwin64-x86_64-cc no-tests --prefix={}'.format(
+            openssl_temp_dir, prefix))
 
     build(openssl_temp_dir, compile_threads)
+
+def mac_universal_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix, compile_threads):
+    # Ensure that prefix exists.
+    Path(prefix).mkdir(parents=True, exist_ok=True)
+    Path(prefix).joinpath("lib").mkdir(exist_ok=True)
+
+    min_osx_version = '12.2'
+    os.environ['CC'] = f'clang -mmacosx-version-min={min_osx_version}'
+    os.environ['CROSS_COMPILE'] = ''
+
+    temp_dir = tempfile.gettempdir()
+    arm64_prefix = os.path.join(temp_dir, 'arm64')
+    x64_prefix = os.path.join(temp_dir, 'x64')
+
+    print("=======================================================")
+    print("ARM 64 BUILD")
+    print("=======================================================")
+    call_shell(f'cd {openssl_arm64_temp_dir} && ./Configure darwin64-arm64-cc no-tests --prefix={arm64_prefix}')
+    build(openssl_arm64_temp_dir, compile_threads)
+
+    print("=======================================================")
+    print("x86_64 BUILD")
+    print("=======================================================")
+    call_shell(f'cd {openssl_x64_temp_dir} && ./Configure darwin64-x86_64-cc no-tests --prefix={x64_prefix}')
+    build(openssl_x64_temp_dir, compile_threads)
+
+    for lib in ["libssl.a", "libcrypto.a"]:
+        print(f'creating universal binary for {lib}')
+        call_shell(
+            f'lipo -create {os.path.join(arm64_prefix, "lib", lib)} {os.path.join(x64_prefix, "lib", lib)} -output {os.path.join(prefix, "lib", lib)}'
+        )
+
+    call_shell(f'cp -r {os.path.join(arm64_prefix, "include")} {os.path.join(prefix, "include")}')
 
 
 def mac_universal_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix):
@@ -211,15 +313,30 @@ def main():
     prefix = os.path.abspath(prefix)
 
     if args.command == 'android':
+        openssl_temp_dir = make_openssl_temp_dir('android', openssl_tar)
         android_build(args.ndk_dir, args.android_arch, openssl_temp_dir, prefix, compile_threads)
     elif args.command == 'linux':
+        openssl_temp_dir = make_openssl_temp_dir('linux', openssl_tar)
         linux_build(openssl_temp_dir, prefix, compile_threads)
     elif args.command == 'mac':
+        openssl_temp_dir = make_openssl_temp_dir('mac', openssl_tar)
         mac_build(openssl_temp_dir, prefix, compile_threads)
+    elif args.command == 'ios-universal':
+        openssl_arm64_temp_dir = make_openssl_temp_dir('ios-arm64', openssl_tar)
+        openssl_arm64e_temp_dir = make_openssl_temp_dir('ios-arm64e', openssl_tar)
+        openssl_armv7_temp_dir = make_openssl_temp_dir('ios-armv7', openssl_tar)
+        openssl_armv7s_temp_dir = make_openssl_temp_dir('ios-armv7s', openssl_tar)
+        ios_build(openssl_arm64_temp_dir, openssl_arm64e_temp_dir, openssl_armv7s_temp_dir, openssl_armv7_temp_dir, prefix, compile_threads)
+    elif args.command == 'ios-sim-universal':
+        openssl_arm64_temp_dir = make_openssl_temp_dir('simulator-arm64', openssl_tar)
+        openssl_x64_temp_dir = make_openssl_temp_dir('simulator-x64', openssl_tar)
+        iossim_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix, compile_threads)
+    elif args.command == 'mac-universal':
+        openssl_arm64_temp_dir = make_openssl_temp_dir('mac-arm64', openssl_tar)
+        openssl_x64_temp_dir = make_openssl_temp_dir('mac-x64', openssl_tar)
+        mac_universal_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix, compile_threads)
     elif args.command == 'windows':
         windows_build(openssl_temp_dir, prefix, compile_threads)
-    elif args.command == 'ios':
-        ios_build(args.ios_arch, openssl_temp_dir, prefix, compile_threads)
 
 if __name__ == '__main__':
     main()
