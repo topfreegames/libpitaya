@@ -61,6 +61,11 @@ namespace Pitaya
             StaticPitayaBinding.SetLogLevel(level);
         }
 
+        public static void SetLogFunction(NativeLogFunction fn)
+        {
+            StaticPitayaBinding.SetLogFunction(fn);
+        }
+
         public int Quality
         {
             get { return _binding.Quality(_client); }
