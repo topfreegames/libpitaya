@@ -57,22 +57,35 @@ endif
 build-ios-fat: check-devteam-env
 	@rm -rf _builds/ios_combined
 	@cmake -H. -GXcode -B_builds/ios_combined -DCMAKE_INSTALL_PREFIX=./_builds/ios_combined -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=$(APPLE_DEVELOPMENT_TEAM) -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS64COMBINED -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
-	@cmake --build _builds/ios_combined --config Release
+	@cmake --build _builds/ios_combined --config Release -j
+
+build-ios-xcframework: build-ios build-ios-simulator-64 build-ios-simulator-applesilicon
+	@echo "Lipo simulator64 and arm64 together"
+	@rm -rf _builds/ios-xcframework
+	@mkdir -p _builds/tmp _builds/ios-xcframework/
+	@lipo -create _builds/ios-simulator/libpitaya-ios.a _builds/ios-simulator-applesilicon/libpitaya-ios.a -output _builds/tmp/libpitaya-ios.a
+	@lipo -create _builds/ios-simulator/deps/libuv-1.44.2/libuv_a.a _builds/ios-simulator-applesilicon/deps/libuv-1.44.2/libuv_a.a -output _builds/tmp/libuv_a.a
+	@echo "Building xcframework at _builds/ios-xcframework"
+	@xcodebuild -create-xcframework -library _builds/tmp/libpitaya-ios.a -headers ./include -library _builds/ios/libpitaya-ios.a -headers ./include -output _builds/ios-xcframework/libpitaya.xcframework
+	@xcodebuild -create-xcframework -library _builds/tmp/libuv_a.a -headers ./deps/libuv-1.44.2/include -library _builds/ios/deps/libuv-1.44.2/libuv_a.a -headers ./deps/libuv-1.44.2/include -output _builds/ios-xcframework/libuv.xcframework
+	@rm -rf _builds/tmp
+	@echo "Done"
+	## todo create xcframework for libuv and openssl with headers
 
 build-ios:
 	@rm -rf _builds/ios
-	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
-	@cmake --build _builds/ios --config Release
+	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS64 -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
+	@cmake --build _builds/ios --config Release -j
 
 build-ios-simulator-64:
 	@rm -rf _builds/ios-simulator
 	@cmake -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATOR64 -DSIMULATOR=true
-	@cmake --build _builds/ios-simulator --config Release
+	@cmake --build _builds/ios-simulator --config Release -j
 
 build-ios-simulator-applesilicon:
 	@rm -rf _builds/ios-simulator-applesilicon
 	@cmake -H. -B_builds/ios-simulator-applesilicon -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATORARM64 -DSIMULATOR=true
-	@cmake --build _builds/ios-simulator-applesilicon --config Release
+	@cmake --build _builds/ios-simulator-applesilicon --config Release -j
 
 build-mac-tests:
 	@rm -rf _builds/mac-tests

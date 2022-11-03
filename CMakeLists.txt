@@ -13,7 +13,6 @@ project(pitaya LANGUAGES C)
 #
 # Options passed as parameters
 #
-set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 set(PITAYA_OPENSSL_DIR "${CMAKE_SOURCE_DIR}/deps/openssl" CACHE STRING "Where is OpenSSL built.")
 option(BUILD_MACOS_BUNDLE "If it should build a .bundle library" OFF)
 
@@ -58,6 +57,10 @@ set(pitaya_headers
     src/tr/uv/tr_uv_tls_i.h
     src/tr/uv/tr_uv_tls.h
     src/tr/dummy/tr_dummy.h)
+
+if(APPLE AND NOT IOS)
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
+endif()
 
 if(BUILD_MACOS_BUNDLE)
     add_library(pitaya MODULE ${pitaya_sources} ${pitaya_headers})
@@ -220,9 +223,9 @@ if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
         # munit
         deps/munit/munit.c
         # nanopb
-        deps/nanopb-0.3.9.1/pb_common.c
-        deps/nanopb-0.3.9.1/pb_decode.c
-        deps/nanopb-0.3.9.1/pb_encode.c
+        deps/nanopb-0.4.6/pb_common.c
+        deps/nanopb-0.4.6/pb_decode.c
+        deps/nanopb-0.4.6/pb_encode.c
         # nanopb
         # Protobuf generated
         test/big-message.pb.c
@@ -240,10 +243,10 @@ if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
         # munit
         deps/munit/munit.h
         # nanopb
-        deps/nanopb-0.3.9.1/pb_common.h
-        deps/nanopb-0.3.9.1/pb_decode.h
-        deps/nanopb-0.3.9.1/pb_encode.h
-        deps/nanopb-0.3.9.1/pb.h
+        deps/nanopb-0.4.6/pb_common.h
+        deps/nanopb-0.4.6/pb_decode.h
+        deps/nanopb-0.4.6/pb_encode.h
+        deps/nanopb-0.4.6/pb.h
         # Protobuf generated
         test/big-message.pb.h
         test/error.pb.h
@@ -255,7 +258,7 @@ if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
         PUBLIC
           src
           deps/munit
-          deps/nanopb-0.3.9.1 test)
+          deps/nanopb-0.4.6 test)
     target_link_libraries(pitaya_tests PUBLIC pitaya Threads::Threads)
 
     add_custom_command(
