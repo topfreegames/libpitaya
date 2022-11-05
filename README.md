@@ -65,6 +65,15 @@ make build-ios-simulator
 The iOS binary will be under `_builds/ios-simulator/libpitaya-ios.a`
 As for physical device build, this library will be compiled statically, and other dependencies must be included manually.
 
+### Building xcframework compatible with both simulators (x64, arm64) and devices
+
+```bash
+make setup-mac
+make build-ios-xcframework
+```
+The xcframework will be under `_builds/ios-xcframework-libpitaya`
+You can also build openssl xcframeworks using ```make build-openssl-ios-xcframework```
+
 ### Building for Windows
 
 ```bash
