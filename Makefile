@@ -59,18 +59,32 @@ build-ios-fat: check-devteam-env
 	@cmake -H. -GXcode -B_builds/ios_combined -DCMAKE_INSTALL_PREFIX=./_builds/ios_combined -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=$(APPLE_DEVELOPMENT_TEAM) -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS64COMBINED -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
 	@cmake --build _builds/ios_combined --config Release -j
 
+build-openssl-ios-xcframework:
+	@rm -rf _builds/openssl/simulator
+	@rm -rf _builds/openssl/device
+	@rm -rf _builds/tmp _builds/ios-xcframework-openssl/
+	@echo "Building simulator lib"
+	@./build-openssl.py --prefix _builds/openssl/simulator --force --openssl-tar ./deps/openssl-1.1.1q.tar.gz ios-sim-universal
+	@echo "Building arm device lib"
+	@./build-openssl.py --prefix _builds/openssl/device --force --openssl-tar ./deps/openssl-1.1.1q.tar.gz ios-universal
+	@echo "Building xcframework at _builds/ios-xcframework-openssl"
+	@mkdir -p _builds/tmp _builds/ios-xcframework-openssl/
+	@xcodebuild -create-xcframework -library _builds/openssl/device/lib/libcrypto.a -headers ./deps/openssl/ios/include -library _builds/openssl/simulator/lib/libcrypto.a -headers ./deps/openssl/ios/include -output _builds/ios-xcframework-openssl/libcrypto.xcframework
+	@xcodebuild -create-xcframework -library _builds/openssl/device/lib/libssl.a -headers ./deps/openssl/ios/include -library _builds/openssl/simulator/lib/libssl.a -headers ./deps/openssl/ios/include -output _builds/ios-xcframework-openssl/libssl.xcframework
+	@echo "Done"
+
 build-ios-xcframework: build-ios build-ios-simulator-64 build-ios-simulator-applesilicon
 	@echo "Lipo simulator64 and arm64 together"
-	@rm -rf _builds/ios-xcframework
-	@mkdir -p _builds/tmp _builds/ios-xcframework/
+	@rm -rf _builds/ios-xcframework-libpitaya
+	@mkdir -p _builds/tmp _builds/ios-xcframework-libpitaya/
 	@lipo -create _builds/ios-simulator/libpitaya-ios.a _builds/ios-simulator-applesilicon/libpitaya-ios.a -output _builds/tmp/libpitaya-ios.a
 	@lipo -create _builds/ios-simulator/deps/libuv-1.44.2/libuv_a.a _builds/ios-simulator-applesilicon/deps/libuv-1.44.2/libuv_a.a -output _builds/tmp/libuv_a.a
-	@echo "Building xcframework at _builds/ios-xcframework"
-	@xcodebuild -create-xcframework -library _builds/tmp/libpitaya-ios.a -headers ./include -library _builds/ios/libpitaya-ios.a -headers ./include -output _builds/ios-xcframework/libpitaya.xcframework
-	@xcodebuild -create-xcframework -library _builds/tmp/libuv_a.a -headers ./deps/libuv-1.44.2/include -library _builds/ios/deps/libuv-1.44.2/libuv_a.a -headers ./deps/libuv-1.44.2/include -output _builds/ios-xcframework/libuv.xcframework
+	@rm -rf _builds/ios-xcframework-libpitaya
+	@echo "Building xcframework at _builds/ios-xcframework-libpitaya"
+	@xcodebuild -create-xcframework -library _builds/tmp/libpitaya-ios.a -headers ./include -library _builds/ios/libpitaya-ios.a -headers ./include -output _builds/ios-xcframework-libpitaya/libpitaya.xcframework
+	@xcodebuild -create-xcframework -library _builds/tmp/libuv_a.a -library _builds/ios/deps/libuv-1.44.2/libuv_a.a -output _builds/ios-xcframework-libpitaya/libuv.xcframework
 	@rm -rf _builds/tmp
 	@echo "Done"
-	## todo create xcframework for libuv and openssl with headers
 
 build-ios:
 	@rm -rf _builds/ios
