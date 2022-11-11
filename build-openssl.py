@@ -56,9 +56,13 @@ def parse_args():
 
 def make_openssl_temp_dir(root_folder, openssl_tar):
     tempdir = os.path.join(tempfile.gettempdir(), root_folder)
-    print(f'Using temp dir {tempdir}')
-    openssl_folder_name = os.path.basename(openssl_tar).split('.')[0]
-    openssl_temp_dir = os.path.join(tempdir, os.path.basename(openssl_tar).removesuffix('.tar.gz'))
+    openssl_folder_name = os.path.basename(openssl_tar).split('.tar.gz')[0]
+    openssl_temp_dir = Path(tempdir, os.path.basename(openssl_tar).split('.tar.gz')[0])
+
+    try:
+        shutil.rmtree(openssl_temp_dir)
+    except:
+        None
 
     with tarfile.open(openssl_tar, 'r:gz') as tar:
         tar.extractall(tempdir)
