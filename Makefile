@@ -1,17 +1,17 @@
-ANDROID_TOOLCHAIN_FILE ?= temp/android-ndk-r17b/build/cmake/android.toolchain.cmake
+ANDROID_TOOLCHAIN_FILE ?= temp/android-ndk-r25b/build/cmake/android.toolchain.cmake
 
 setup-mac:
 	@brew install ninja cmake
 
 setup-android-mac:
 	@mkdir -p temp
-	@curl https://dl.google.com/android/repository/android-ndk-r17b-darwin-x86_64.zip -o temp/android-ndk-r17b.zip
-	@unzip -qo temp/android-ndk-r17b.zip -d temp/
+	@curl https://dl.google.com/android/repository/android-ndk-r25b-darwin.zip -o temp/android-ndk-r25b.zip
+	@unzip -qo temp/android-ndk-r25b.zip -d temp/
 
 setup-android-linux:
 	@mkdir -p temp
-	@curl https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip -o temp/android-ndk-r17b.zip
-	@unzip -qo temp/android-ndk-r17b.zip -d temp/
+	@curl https://dl.google.com/android/repository/android-ndk-r25b-linux.zip -o temp/android-ndk-r25b.zip
+	@unzip -qo temp/android-ndk-r25b.zip -d temp/
 
 build-android:
 	@rm -rf _builds/android
