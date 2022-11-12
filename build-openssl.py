@@ -56,6 +56,7 @@ def parse_args():
 
 def make_openssl_temp_dir(root_folder, openssl_tar):
     tempdir = os.path.join(tempfile.gettempdir(), root_folder)
+    print(f'Using temp dir {tempdir}')
     openssl_folder_name = os.path.basename(openssl_tar).split('.tar.gz')[0]
     openssl_temp_dir = Path(tempdir, os.path.basename(openssl_tar).split('.tar.gz')[0])
 
@@ -305,6 +306,7 @@ def main():
         openssl_x64_temp_dir = make_openssl_temp_dir('mac-x64', openssl_tar)
         mac_universal_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix, compile_threads)
     elif args.command == 'windows':
+        openssl_temp_dir = make_openssl_temp_dir('windows', openssl_tar)
         windows_build(openssl_temp_dir, prefix, compile_threads)
 
 if __name__ == '__main__':

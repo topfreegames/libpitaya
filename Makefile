@@ -29,26 +29,30 @@ build-android-64:
 				   -DANDROID_ABI=arm64-v8a
 	@cmake --build _builds/android64
 
+build-windows:
+	@rm -rf _builds/windows
+	@cmake -H. -B_builds/windows -G "Visual Studio 17 2022" -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
+	@cmake --build  _builds/windows --config Release -j
 
 build-mac-universal:
 	@rm -rf _builds/mac
 	@cmake -H. -B_builds/mac -GNinja -DPLATFORM=MAC -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
-	@cmake --build _builds/mac
+	@cmake --build _builds/mac -j
 
 build-mac-xcode:
 	@rm -rf _builds/mac-xcode
 	@cmake -H. -B_builds/mac-xcode -GXcode -DBUILD_MACOS_BUNDLE=ON
-	@cmake --build _builds/mac-xcode --config Release
+	@cmake --build _builds/mac-xcode --config Release -j
 
 build-linux:
 	@rm -rf _builds/linux
 	@cmake -H. -B_builds/linux -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
-	@cmake --build _builds/linux
+	@cmake --build _builds/linux -j
 
 build-linux-debug:
 	@rm -rf _builds/linux-debug
 	@cmake -H. -B_builds/linux-debug -GNinja -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=ON
-	@cmake --build _builds/linux-debug
+	@cmake --build _builds/linux-debug -j
 
 check-devteam-env:
 ifndef APPLE_DEVELOPMENT_TEAM
@@ -134,3 +138,7 @@ docker-build: build-servers-linux
 
 generate-xcode:
 	@cmake -H. -B_builds/xcode -GXcode -DBUILD_TESTING=ON
+
+update-test-protos:
+	@python ./deps/nanopb-0.4.6/generator/nanopb_generator.py -I ./pitaya-servers/protobuf-server/protos/ -D ./test ./pitaya-servers/protobuf-server/protos/big-message.proto ./pitaya-servers/protobuf-server/protos/response.proto ./pitaya-servers/protobuf-server/protos/session-data.proto
+	@python ./deps/nanopb-0.4.6/generator/nanopb_generator.py -I ./unity/PitayaExample/Assets/Pitaya/Protos/ -D ./test ./unity/PitayaExample/Assets/Pitaya/Protos/error.proto
