@@ -1,9 +1,5 @@
 /*
-<<<<<<< HEAD
- * Copyright 1999-2021 The OpenSSL Project Authors. All Rights Reserved.
-=======
  * Copyright 1999-2022 The OpenSSL Project Authors. All Rights Reserved.
->>>>>>> WIP: improve m1 support
  *
  * Licensed under the OpenSSL license (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -43,13 +39,8 @@ extern "C" {
  * (Prior to 0.9.5a beta1, a different scheme was used: MMNNFFRBB for
  *  major minor fix final patch/beta)
  */
-<<<<<<< HEAD
-# define OPENSSL_VERSION_NUMBER  0x101010efL
-# define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1n  15 Mar 2022"
-=======
 # define OPENSSL_VERSION_NUMBER  0x1010111fL
 # define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1q  5 Jul 2022"
->>>>>>> WIP: improve m1 support
 
 /*-
  * The macros below are to be used for shared library (.so, .dll, ...)

@@ -272,7 +272,7 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                var rcStr = RcToStr(rc)
+                var rcStr = RcToStr(rc);
                 DLog(string.Format("request - failed to perform request {0}", rcStr));
 
                 WeakReference reference;

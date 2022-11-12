@@ -87,12 +87,9 @@ extern "C" {
 #ifndef OPENSSL_NO_SSL3_METHOD
 # define OPENSSL_NO_SSL3_METHOD
 #endif
-<<<<<<< HEAD
-=======
 #ifndef OPENSSL_NO_TESTS
 # define OPENSSL_NO_TESTS
 #endif
->>>>>>> WIP: improve m1 support
 #ifndef OPENSSL_NO_UBSAN
 # define OPENSSL_NO_UBSAN
 #endif
