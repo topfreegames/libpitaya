@@ -30,6 +30,7 @@ build-android-64:
 	@cmake --build _builds/android64
 
 build-windows:
+	@echo "Attention: This should be run from Developer PowerShell for VS, else it will fail"
 	@rm -rf _builds/windows
 	@cmake -H. -B_builds/windows -G "Visual Studio 17 2022" -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
 	@cmake --build  _builds/windows --config Release -j
