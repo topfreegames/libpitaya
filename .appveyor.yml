@@ -13,10 +13,10 @@ configuration: Release
 platform: x64
 
 artifacts:
-  - path: 'build\Release\*.dll'
+  - path: '_builds\windows\Release\*.dll'
     name: Dlls
 
-  - path: 'build\Release\*.lib'
+  - path: '_builds\windows\Release\*.lib'
     name: Libs
 
 install:
@@ -24,14 +24,12 @@ install:
 
 before_build:
   - cd %USERPROFILE%\go\src\github.com\topfreegames\libpitaya
-  - cmake -H. -Bbuild -G "Visual Studio 17 2022" -DBUILD_SHARED_LIBS=ON
-  - cd build
 
 build_script:
-  - cmake --build . --config Release
+  - make build-windows
 
 after_build:
-  - dir Release
+  - dir _builds\windows\Release
 
 deploy:
   description: 'Release'
