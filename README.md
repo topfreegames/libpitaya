@@ -73,13 +73,10 @@ make build-ios-xcframework
 The xcframework will be under `_builds/ios-xcframework-libpitaya`
 You can also build openssl xcframeworks using ```make build-openssl-ios-xcframework```
 
-### Building for Windows
+### Building for Windows (should use Developer Powershell for VS 2022)
 
 ```bash
-pip install conan # Install conan if you dont have it
-conan install . -if _builds/windows
-cmake -H. -B_builds/windows -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON
-cmake --build _builds/windows --config Release
+make build-windows
 ```
 
 The binaries for windows will then be located at `_builds/windows/pitaya-windows.dll` and `_builds/windows/pitaya-windows.lib`.
