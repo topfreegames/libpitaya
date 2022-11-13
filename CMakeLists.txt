@@ -164,6 +164,7 @@ if(WIN32)
         uv_a
         ssl
         crypto
+        zlibstatic
         # NOTE: CRYPT32.LIB is necessary in order to compile with OpenSSL 1.1
         CRYPT32.LIB)
 elseif(ANDROID)
