@@ -54,6 +54,10 @@ if(APPLE AND NOT IOS)
     set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 endif()
 
+if(UNIX AND NOT APPLE)
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
 if(BUILD_MACOS_BUNDLE)
     add_library(pitaya MODULE ${pitaya_sources} ${pitaya_headers})
     set_target_properties(pitaya PROPERTIES SUFFIX ".bundle")
