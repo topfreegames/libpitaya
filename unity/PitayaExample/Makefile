@@ -31,7 +31,7 @@ pack: build-all
 	@nuget pack LibPitaya.nuspec -OutputDirectory NugetOutput
 
 # UNITY_PATH should contain the path to the Unity.app folder
-UNITY_PATH=/Applications/Unity/Hub/Editor/2019.4.34f1/Unity.app
+UNITY_PATH?=/Applications/Unity/Hub/Editor/2021.3.11f1/Unity.app
 
 test:
 	${UNITY_PATH}/Contents/MacOS/Unity -runTests -projectPath $(shell pwd) -testResults $(shell pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
