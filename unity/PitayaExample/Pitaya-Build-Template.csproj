@@ -50,10 +50,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
-      <HintPath>UNITY_PATH/Contents/Managed/UnityEngine/UnityEngine.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
-      <HintPath>UNITY_PATH/Contents/Managed/UnityEditor.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/Managed/UnityEditor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -73,34 +73,34 @@
     <Compile Include="Assets\Pitaya\SimpleJson.cs" />
     <None Include="Assets\Pitaya\Pitaya.asmdef" />
     <Reference Include="UnityEngine.AndroidJNIModule">
-      <HintPath>UNITY_PATH/Contents/Managed/UnityEngine/UnityEngine.AndroidJNIModule.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/Managed/UnityEngine/UnityEngine.AndroidJNIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>UNITY_PATH/Contents/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>UNITY_PATH/Contents/Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestWWWModule">
-      <HintPath>UNITY_PATH/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
       <HintPath>./Assets/Plugins/google.protobuf.3.7.0/lib/netstandard1.0/Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
-      <HintPath>UNITY_PATH/Contents/NetStandard/ref/2.1.0/netstandard.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/ref/2.1.0/netstandard.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>./Assets/Plugins/newtonsoft.json.13.0.1/lib/netstandard2.0/Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.IO">
-      <HintPath>UNITY_PATH/Contents/NetStandard/compat/2.1.0/shims/netstandard/System.IO.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.1.0/shims/netstandard/System.IO.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime">
-      <HintPath>UNITY_PATH/Contents/NetStandard/compat/2.1.0/shims/netstandard/System.Runtime.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.1.0/shims/netstandard/System.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
-      <HintPath>UNITY_PATH/Contents/NetStandard/compat/2.1.0/shims/netfx/mscorlib.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.1.0/shims/netfx/mscorlib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
