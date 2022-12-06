@@ -1,8 +1,0 @@
-syntax="proto3";
-
-package protos;
-
-message Response {
-    int32 code = 1;
-    string msg = 2;
-}

@@ -80,7 +80,7 @@ read_repeated_string(pb_istream_t *stream, const pb_field_t *field, void **arg)
 
 typedef struct {
     size_t cap, len;
-    protos_BigMessageResponse_NpcsEntry *data;
+    testprotos_BigMessageResponse_NpcsEntry *data;
 } npc_entry_array_t;
 
 static bool
@@ -88,16 +88,16 @@ read_npc_entries(pb_istream_t *stream, const pb_field_t *field, void **arg)
 {
     npc_entry_array_t *array = (npc_entry_array_t*)(*arg);
 
-    protos_BigMessageResponse_NpcsEntry entry = protos_BigMessageResponse_NpcsEntry_init_zero;
+    testprotos_BigMessageResponse_NpcsEntry entry = testprotos_BigMessageResponse_NpcsEntry_init_zero;
     entry.key.funcs.decode = read_string;
     entry.value.name.funcs.decode = read_string;
     entry.value.publicId.funcs.decode = read_string;
 
-    assert_true(pb_decode(stream, protos_BigMessageResponse_NpcsEntry_fields, &entry));
+    assert_true(pb_decode(stream, testprotos_BigMessageResponse_NpcsEntry_fields, &entry));
 
     if (array->cap == array->len) {
         size_t new_cap = array->cap * 1.5;
-        protos_BigMessageResponse_NpcsEntry *new_data = realloc(array->data, sizeof(protos_BigMessageResponse_NpcsEntry) * new_cap);
+        testprotos_BigMessageResponse_NpcsEntry *new_data = realloc(array->data, sizeof(testprotos_BigMessageResponse_NpcsEntry) * new_cap);
         assert_not_null(new_data);
 
         array->cap = new_cap;
@@ -155,7 +155,7 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
     assert_not_null(resp);
     assert_int(resp->len, >, 0);
 
-    protos_BigMessage big_message = protos_BigMessage_init_zero;
+    testprotos_BigMessage big_message = testprotos_BigMessage_init_zero;
     big_message.code.funcs.decode = read_string;
     big_message.response.player.publicId.funcs.decode = read_string;
     big_message.response.player.accessToken.funcs.decode = read_string;
@@ -175,7 +175,7 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
         npc_entry_array_t *array = (npc_entry_array_t*)calloc(1, sizeof(npc_entry_array_t));
         array->cap = 2;
         array->len = 0;
-        array->data = (protos_BigMessageResponse_NpcsEntry*)calloc(array->cap, sizeof(protos_BigMessageResponse_NpcsEntry));
+        array->data = (testprotos_BigMessageResponse_NpcsEntry*)calloc(array->cap, sizeof(testprotos_BigMessageResponse_NpcsEntry));
         assert_not_null(array);
         assert_not_null(array->data);
         big_message.response.npcs.arg = array;
@@ -195,7 +195,7 @@ big_message_request_cb(const pc_request_t* req, const pc_buf_t *resp)
 
     pb_istream_t stream = pb_istream_from_buffer(resp->base, resp->len);
 
-    assert_true(pb_decode(&stream, protos_BigMessage_fields, &big_message));
+    assert_true(pb_decode(&stream, testprotos_BigMessage_fields, &big_message));
 
     assert_string_equal((char*)big_message.code.arg, "ABC-200");
     free(big_message.code.arg);
@@ -310,13 +310,13 @@ encoded_request_cb(const pc_request_t* req, const pc_buf_t *resp)
     assert_not_null(resp);
     assert_int(resp->len, >, 0);
 
-    protos_Response response = protos_Response_init_zero;
+    testprotos_Response response = testprotos_Response_init_zero;
     response.msg.funcs.decode = read_string;
     response.msg.arg = NULL;
 
     pb_istream_t stream = pb_istream_from_buffer(resp->base, resp->len);
 
-    assert_true(pb_decode(&stream, protos_Response_fields, &response));
+    assert_true(pb_decode(&stream, testprotos_Response_fields, &response));
 
     assert_int(response.code, ==, 200);
     assert_string_equal((char*)response.msg.arg, "success");
@@ -333,13 +333,13 @@ request_cb(const pc_request_t* req, const pc_buf_t *resp)
     assert_not_null(resp);
     assert_int(resp->len, >, 0);
 
-    protos_SessionData session_data = protos_SessionData_init_zero;
+    testprotos_SessionData session_data = testprotos_SessionData_init_zero;
     session_data.data.funcs.decode = read_string;
     session_data.data.arg = NULL;
 
     pb_istream_t stream = pb_istream_from_buffer(resp->base, resp->len);
 
-    assert_true(pb_decode(&stream, protos_SessionData_fields, &session_data));
+    assert_true(pb_decode(&stream, testprotos_SessionData_fields, &session_data));
     assert_string_equal((char*)session_data.data.arg, "THIS IS THE SESSION DATA");
 
     free(session_data.data.arg);
@@ -454,14 +454,14 @@ test_request_encoding(const MunitParameter params[], void *data)
         assert_string_equal(serializer, "protobuf");
         pc_client_free_serializer(serializer);
 
-        protos_SessionData session_data = protos_SessionData_init_zero;
+        testprotos_SessionData session_data = testprotos_SessionData_init_zero;
         session_data.data.funcs.encode = write_string;
         session_data.data.arg = "Joelho";
 
         uint8_t buf[256];
         pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
 
-        assert_true(pb_encode(&stream, protos_SessionData_fields, &session_data));
+        assert_true(pb_encode(&stream, testprotos_SessionData_fields, &session_data));
         assert_int(stream.bytes_written, <=, sizeof(buf));
         assert_int(pc_binary_request_with_timeout(g_client, "connector.setsessiondata", buf, stream.bytes_written, &flag_req,
                                                   REQ_TIMEOUT, encoded_request_cb, request_error_cb), ==, PC_RC_OK);

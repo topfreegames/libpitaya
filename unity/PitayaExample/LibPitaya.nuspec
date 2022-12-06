@@ -2,18 +2,26 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
+<<<<<<< Updated upstream
     <version>4.2.1</version>
+=======
+    <version>4.5.0</version>
+>>>>>>> Stashed changes
     <authors>Wildlife Studios</authors>
     <owners>Wildlife Studios</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
+<<<<<<< Updated upstream
     <releaseNotes>Formal release of 4.2.0-x branches</releaseNotes>
+=======
+    <releaseNotes>Formal release of 4.5.0-x branches</releaseNotes>
+>>>>>>> Stashed changes
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
-      <dependency id="Google.Protobuf" version="3.7.0" />
+      <dependency id="Google.Protobuf" version="3.21.6" />
     </dependencies>
   </metadata>
   <files>

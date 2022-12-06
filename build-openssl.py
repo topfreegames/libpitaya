@@ -43,7 +43,7 @@ def parse_args():
 # and return the path
 def make_openssl_temp_dir(openssl_tar):
     tempdir = tempfile.gettempdir()
-    openssl_folder_name = os.path.basename(openssl_tar).split('.')[0]
+    openssl_folder_name = os.path.basename(openssl_tar).split('.tar')[0]
     openssl_temp_dir = os.path.join(tempdir, openssl_folder_name)
 
     if os.path.exists(openssl_temp_dir):
