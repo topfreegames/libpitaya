@@ -12,6 +12,7 @@ nanopb*.tar.gz
 openssl-build
 _builds
 .DS_Store
+.idea
 
 server-exe
 server-exe-out
