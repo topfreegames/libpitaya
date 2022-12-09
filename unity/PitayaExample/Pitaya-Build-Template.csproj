@@ -88,19 +88,19 @@
       <HintPath>./Assets/Plugins/google.protobuf.3.12.4/lib/netstandard1.0/Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
-      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/ref/2.1.0/netstandard.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>./Assets/Plugins/newtonsoft.json.13.0.1/lib/netstandard2.0/Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.IO">
-      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.0.0/shims/netstandard/System.IO.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.1.0/shims/netstandard/System.IO.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime">
-      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.0.0/shims/netstandard/System.Runtime.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.1.0/shims/netstandard/System.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
-      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.0.0/shims/netfx/mscorlib.dll</HintPath>
+      <HintPath>UNITY_PATH/CONTENTS_DIR/NetStandard/compat/2.1.0/shims/netfx/mscorlib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
