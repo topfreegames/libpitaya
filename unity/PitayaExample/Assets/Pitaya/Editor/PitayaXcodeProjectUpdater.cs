@@ -21,9 +21,9 @@ public class PitayaBuildPostprocessor
       CopyDirectory(dir, Path.Combine(destPath, Path.GetFileName(dir)));
   }
 
-  private const string FRAMEWORK_PROJECT_ORIGIN_PATH =
+  private const string FRAMEWORK_ORIGIN_PATH =
     "Assets/Pitaya/Native/iOS"; // relative to project folder
-  private const string FRAMEWORK_BUILD_ORIGIN_PATH =
+  private const string FRAMEWORK_NUGET_ORIGIN_PATH =
     "Libraries/com.wildlifestudios.nuget.libpitaya/Native/iOS"; // relative to build folder
   private const string FRAMEWORK_TARGET_PATH =
     "Frameworks"; // relative to build folder
@@ -45,9 +45,9 @@ public class PitayaBuildPostprocessor
       proj.AddBuildProperty(targetGuid, "OTHER_LDFLAGS", "-lz");
     }
 
-    string originPath = FRAMEWORK_PROJECT_ORIGIN_PATH;
-    if (!Directory.Exists(FRAMEWORK_PROJECT_ORIGIN_PATH)) {
-      originPath = FRAMEWORK_BUILD_ORIGIN_PATH;
+    string originPath = FRAMEWORK_ORIGIN_PATH;
+    if (!Directory.Exists(FRAMEWORK_ORIGIN_PATH)) {
+      originPath = FRAMEWORK_NUGET_ORIGIN_PATH;
     }
 
     // Linking frameworks
@@ -55,7 +55,7 @@ public class PitayaBuildPostprocessor
       string sourcePath = Path.Combine(originPath, framework);
       string destPath = Path.Combine(FRAMEWORK_TARGET_PATH, framework);
 
-      CopyDirectory(Path.Combine(path, sourcePath), Path.Combine(path, destPath));
+      CopyDirectory(sourcePath, Path.Combine(path, destPath));
 
       string fileGuid = proj.AddFile(destPath, destPath);
       proj.AddFileToEmbedFrameworks(targetGuid, fileGuid);
