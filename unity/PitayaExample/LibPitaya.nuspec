@@ -13,12 +13,12 @@
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
-      <dependency id="Google.Protobuf" version="3.7.0" />
+      <dependency id="Google.Protobuf" version="3.12.4" />
     </dependencies>
   </metadata>
   <files>
     <file src="Assets/link.xml" target="" />
-    <file src="Assets/Pitaya/Native/iOS/*.*" target="Native/iOS" />
+    <file src="Assets/Pitaya/Native/iOS/**/*.*" target="Native/iOS" />
     <file src="Assets/Pitaya/Native/Android/armv7/*.*" target="Native/Android/armv7" />
     <file src="Assets/Pitaya/Native/Android/arm64/*.*" target="Native/Android/arm64" />
     <file src="Assets/Pitaya/Native/Mac/*.*" target="Native/Mac" />
