@@ -66,6 +66,13 @@ build-ios-fat: check-devteam-env
 	@cmake -H. -GXcode -B_builds/ios_combined -DCMAKE_INSTALL_PREFIX=./_builds/ios_combined -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=$(APPLE_DEVELOPMENT_TEAM) -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS64COMBINED -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
 	@cmake --build _builds/ios_combined --config Release -j
 
+build-openssl-ios-simulator64:
+	@rm -rf _builds/openssl/simulator
+	@rm -rf _builds/tmp _builds/ios-xcframework-openssl/
+	@echo "Building simulator lib"
+	@./build-openssl.py --prefix _builds/openssl/simulator --force --openssl-tar ./deps/openssl-1.1.1q.tar.gz ios-sim-universal
+	@echo "Done"
+
 build-openssl-ios-xcframework:
 	@rm -rf _builds/openssl/simulator
 	@rm -rf _builds/openssl/device
@@ -95,7 +102,7 @@ build-ios-xcframework: build-ios build-ios-simulator-64 build-ios-simulator-appl
 
 build-ios:
 	@rm -rf _builds/ios
-	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS64 -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
+	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS -DDEPLOYMENT_TARGET="10.0" -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
 	@cmake --build _builds/ios --config Release -j
 
 build-ios-simulator-64:

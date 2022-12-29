@@ -1,10 +1,13 @@
 # UNITY_PATH should contain the path to the Unity.app folder
-UNITY_PATH?=C:/Program Files/Unity/Hub/Editor/2021.3.13f1/Editor
 
 ifeq ($(OS),Windows_NT)
+	UNITY_PATH?=C:/Program Files/Unity/Hub/Editor/2021.3.13f1/Editor
+	NET_STANDARD_VER?=2.1.0
 	CONTENTS_DIR=Data
 	MSBUILD=MSBuild.exe
 else
+	UNITY_PATH?=/Applications/Unity/Hub/Editor/2019.4.40f1/Unity.app
+	NET_STANDARD_VER?=2.0.0
 	CONTENTS_DIR=Contents
 	MSBUILD=msbuild
 endif
@@ -48,6 +51,6 @@ test:
 
 build-template:
 	@echo "Configuring build template to use ${UNITY_VERSION}"
-	@sed 's~UNITY_PATH~${UNITY_PATH}~g; s~CONTENTS_DIR~${CONTENTS_DIR}~g' Pitaya-Build-Template.csproj > Pitaya-Build.csproj
+	@sed 's~UNITY_PATH~${UNITY_PATH}~g; s~NET_STANDARD_VER~${NET_STANDARD_VER}~g; s~CONTENTS_DIR~${CONTENTS_DIR}~g' Pitaya-Build-Template.csproj > Pitaya-Build.csproj
 
 
