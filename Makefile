@@ -16,17 +16,17 @@ setup-android-linux:
 build-android:
 	@rm -rf _builds/android
 	@cmake -GNinja -H. -B_builds/android -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
-				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
-					 -DANDROID_PLATFORM=android-23
-				   -DANDROID_ABI=armeabi-v7a
+		-DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
+		-DANDROID_PLATFORM=android-23 \
+		-DANDROID_ABI=armeabi-v7a
 	@cmake --build _builds/android
 
 build-android-64:
 	@rm -rf _builds/android64
 	@cmake -GNinja -H. -B_builds/android64 -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
-				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
-					 -DANDROID_PLATFORM=android-23
-				   -DANDROID_ABI=arm64-v8a
+		-DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
+		-DANDROID_PLATFORM=android-23 \
+		-DANDROID_ABI=arm64-v8a
 	@cmake --build _builds/android64
 
 build-windows:
@@ -56,7 +56,7 @@ build-linux-debug:
 	@cmake --build _builds/linux-debug -j
 
 check-devteam-env:
-ifndef APPLE_DEVELOPMENT_TEAM
+	ifndef APPLE_DEVELOPMENT_TEAM
 	$(error APPLE_DEVELOPMENT_TEAM is undefined)
 endif
 
@@ -123,7 +123,7 @@ build-mac-tests:
 clean-docker-container:
 	@if [[ `docker ps -aqf "name=libpitaya"` != "" ]]; then \
 		docker rm `docker ps -aqf "name=libpitaya"` ; \
-	fi
+		fi
 
 build-linux-docker: clean-docker-container
 	@docker build -t libpitaya .
