@@ -10,6 +10,8 @@ import shutil
 import stat
 import tarfile
 
+from pathlib import Path
+
 def call_shell(cmd):
     sp.call(cmd, shell=True)
 
@@ -30,11 +32,10 @@ def parse_args():
     parser_android.add_argument('--ndk-dir', required=True, dest='ndk_dir',
                                 help='Where is the Android NDK located.')
 
-    parser_android = subparsers.add_parser('mac', help='Build for MacOSX')
-
-    parser_android = subparsers.add_parser('windows', help='Build for Windows')
-
-    parser_android = subparsers.add_parser('linux', help='Build for Linux')
+    subparsers.add_parser('mac', help='Build for MacOSX')
+    subparsers.add_parser('mac-universal', help='Build for MacOSX x64 and Amd64 architectures (needs at least XCode 12)')
+    subparsers.add_parser('windows', help='Build for Windows')
+    subparsers.add_parser('linux', help='Build for Linux')
 
     return parser.parse_args()
 
@@ -70,8 +71,7 @@ def make_ndk_toolchain(ndk_dir, openssl_temp_dir):
         ndk_dir, 'build', 'tools', 'make_standalone_toolchain.py')
     install_dir = os.path.join(openssl_temp_dir, 'android-toolchain')
 
-    cmd = '{} --api 15 --arch arm --install-dir={} --deprecated-headers'.format(
-        toolchain_script, install_dir)
+    cmd = f'{toolchain_script} --api 15 --arch arm --install-dir={install_dir} --deprecated-headers'
 
     print('Making toolchain...')
     call_shell(cmd)
@@ -102,21 +102,17 @@ def set_envs(ndk_dir, toolchain_dir):
     os.environ['STRIP'] = ndk_toolchain_basename + '-strip'
     os.environ['ARCH_FLAGS'] = '-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16'
     os.environ['ARCH_LINK'] = '-march=armv7-a -Wl,--fix-cortex-a8'
-    os.environ['CPPFLAGS'] = ' {} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
-        os.environ['ARCH_FLAGS'])
-    os.environ['CXXFLAGS'] = ' {} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 -frtti -fexceptions '.format(
-        os.environ['ARCH_FLAGS'])
-    os.environ['CFLAGS'] = ' {} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '.format(
-        os.environ['ARCH_FLAGS'])
-    os.environ['LDFLAGS'] = ' {} '.format(os.environ['ARCH_LINK'])
+    os.environ['CPPFLAGS'] = f' {os.environ["ARCH_FLAGS"]} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '
+    os.environ['CXXFLAGS'] = f' {os.environ["ARCH_FLAGS"]} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 -frtti -fexceptions '
+    os.environ['CFLAGS'] = f' {os.environ["ARCH_FLAGS"]} -fPIC -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -finline-limit=64 '
+    os.environ['LDFLAGS'] = f' {os.environ["ARCH_LINK"]} '
     os.environ['CROSS_COMPILE'] = ''
-    os.environ['PATH'] = '{}:{}'.format(toolchain_path, os.environ['PATH'])
+    os.environ['PATH'] = f'{toolchain_path}:{os.environ["PATH"]}'
 
 
 def build(openssl_temp_dir):
     print('Building...')
-    call_shell('cd {} && make && make install'.format(
-        openssl_temp_dir))
+    call_shell(f'cd {openssl_temp_dir} && make && make install')
 
 
 def android_build(ndk_dir, openssl_temp_dir, prefix):
@@ -146,28 +142,57 @@ def mac_build(openssl_temp_dir, prefix):
     min_osx_version = '10.7'
     os.environ['CC'] = 'clang -mmacosx-version-min={}'.format(min_osx_version)
     os.environ['CROSS_COMPILE'] = ''
-    call_shell(
-        'cd {} && ./Configure darwin64-x86_64-cc --prefix={}'.format(
-            openssl_temp_dir, prefix))
+    call_shell(f'cd {openssl_temp_dir} && ./Configure darwin64-x86_64-cc --prefix={prefix}')
 
     build(openssl_temp_dir)
 
 
+def mac_universal_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix):
+    # Ensure that prefix exists.
+    Path(prefix).mkdir(parents=True, exist_ok=True)
+    Path(prefix).joinpath("lib").mkdir(exist_ok=True)
+
+    min_osx_version = '12.2'
+    os.environ['CC'] = f'clang -mmacosx-version-min={min_osx_version}'
+    os.environ['CROSS_COMPILE'] = ''
+
+    temp_dir = tempfile.gettempdir()
+    arm64_prefix = os.path.join(temp_dir, 'arm64')
+    x64_prefix = os.path.join(temp_dir, 'x64')
+
+    print("=======================================================")
+    print("ARM 64 BUILD")
+    print("=======================================================")
+    call_shell(f'cd {openssl_arm64_temp_dir} && ./Configure darwin64-arm64-cc --prefix={arm64_prefix}')
+    build(openssl_arm64_temp_dir)
+
+    print("=======================================================")
+    print("x86_64 BUILD")
+    print("=======================================================")
+    call_shell(f'cd {openssl_x64_temp_dir} && ./Configure darwin64-x86_64-cc --prefix={x64_prefix}')
+    build(openssl_x64_temp_dir)
+
+    for lib in ["libssl.a", "libcrypto.a"]:
+        print(f'creating universal binary for {lib}')
+        call_shell(
+            f'lipo -create {os.path.join(arm64_prefix, "lib", lib)} {os.path.join(x64_prefix, "lib", lib)} -output {os.path.join(prefix, "lib", lib)}'
+        )
+
+    call_shell(f'cp -r {os.path.join(arm64_prefix, "include")} {os.path.join(prefix, "include")}')
+
+
 def linux_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
-    os.environ['CC'] = '{} -fPIC'.format(os.environ['CC'])
-    call_shell(
-        'cd {} && ./Configure linux-x86_64 --prefix={}'.format(
-            openssl_temp_dir, prefix))
+    os.environ['CC'] = f'{os.environ["CC"]} -fPIC'
+    call_shell(f'cd {openssl_temp_dir} && ./Configure linux-x86_64 --prefix={prefix}')
 
     build(openssl_temp_dir)
 
 
 def windows_build(openssl_temp_dir, prefix):
     os.environ['CROSS_COMPILE'] = ''
-    call_shell(
-        'cd {} && perl Configure VC-WIN64A --prefix={}'.format(
-            openssl_temp_dir, prefix))
+    call_shell(f'cd {openssl_temp_dir} && perl Configure VC-WIN64A --prefix={prefix}')
+
     build(openssl_temp_dir)
 
 
@@ -187,17 +212,25 @@ def main():
             print('Prefix path already exist, pass --force to overwrite it.')
             sys.exit(1)
 
-    openssl_temp_dir = make_openssl_temp_dir(openssl_tar)
     prefix = os.path.abspath(prefix)
 
     if args.command == 'android':
+        openssl_temp_dir = make_openssl_temp_dir('android', openssl_tar)
         android_build(args.ndk_dir, openssl_temp_dir, prefix)
     elif args.command == 'linux':
+        openssl_temp_dir = make_openssl_temp_dir('linux', openssl_tar)
         linux_build(openssl_temp_dir, prefix)
     elif args.command == 'mac':
+        openssl_temp_dir = make_openssl_temp_dir('mac', openssl_tar)
         mac_build(openssl_temp_dir, prefix)
+    elif args.command == 'mac-universal':
+        openssl_arm64_temp_dir = make_openssl_temp_dir('mac-arm64', openssl_tar)
+        openssl_x64_temp_dir = make_openssl_temp_dir('mac-x64', openssl_tar)
+        mac_universal_build(openssl_arm64_temp_dir, openssl_x64_temp_dir, prefix)
     elif args.command == 'windows':
         windows_build(openssl_temp_dir, prefix)
+    else:
+        raise Exception('build command not recognized')
 
 
 if __name__ == '__main__':

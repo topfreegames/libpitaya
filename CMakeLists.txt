@@ -13,6 +13,7 @@ project(pitaya LANGUAGES C)
 #
 # Options passed as parameters
 #
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 set(PITAYA_OPENSSL_DIR "${CMAKE_SOURCE_DIR}/deps/openssl" CACHE STRING "Where is OpenSSL built.")
 option(BUILD_MACOS_BUNDLE "If it should build a .bundle library" OFF)
 
@@ -125,13 +126,13 @@ else()
         set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libssl.a)
         set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libcrypto.a)
     elseif(APPLE)
-        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/mac/include)
-        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libssl.a)
-        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libcrypto.a)
+        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/mac-universal/include)
+        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/mac-universal/lib/libssl.a)
+        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/mac-universal/lib/libcrypto.a)
     else() # Linux
-	    target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/linux/include)
-	    set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libssl.so)
-	    set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libcrypto.so)
+        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/linux/include)
+        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libssl.a)
+        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libcrypto.a)
     endif()
 
     add_library(ssl SHARED IMPORTED)

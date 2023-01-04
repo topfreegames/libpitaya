@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit testing (not only integration tests)
 - Better support for languages other than C#
 
+## [4.2.4] - 2022-08-15
+### Changed
+- Update Newtonsoft.Json dependency to 13.0.1
+
+## [4.2.3] - 2022-05-10
+### Added
+- Add support for macOS M1 machines
+
+## [4.2.2] - 2022-02-15
+### Changed
+- Compile LibPitaya DLLs using Unity 2019.4.34f1
+- Replace Json library used on Libpitaya from [JSON.NET for Unity 2.0.1](https://assetstore.unity.com/packages/tools/input-management/json-net-for-unity-11347) by [Newtonsoft.Json 12.0.1](https://www.nuget.org/packages/Newtonsoft.Json/12.0.1)
+
 ## [4.1.1] - Unreleased
 ### Fixed
 - Fix crash in Unity 2019.3 when running in Android

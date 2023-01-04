@@ -133,7 +133,7 @@ namespace Pitaya
 #endif
         }
 
-        private static void SetLogFunction(NativeLogFunction fn)
+        public static void SetLogFunction(NativeLogFunction fn)
         {
             int rc = NativeInitLogFunction(fn);
             if (rc != 0)
@@ -272,12 +272,13 @@ namespace Pitaya
 
             if (rc != PitayaConstants.PcRcOk)
             {
-                DLog(string.Format("request - failed to perform request {0}", RcToStr(rc)));
+                var rcStr = RcToStr(rc)
+                DLog(string.Format("request - failed to perform request {0}", rcStr));
 
                 WeakReference reference;
                 if (!Listeners.TryGetValue(client, out reference) || !reference.IsAlive) return;
                 var listener = reference.Target as IPitayaListener;
-                if (listener != null) listener.OnRequestError(reqtId, new PitayaError(PitayaConstants.PitayaInternalError, "Failed to send request"));
+                if (listener != null) listener.OnRequestError(reqtId, new PitayaError(rcStr, "Failed to send request"));
             }
         }
 
@@ -611,7 +612,7 @@ namespace Pitaya
 #elif (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN)
         private const string LibName = "pitaya-windows";
 #else
-        private const string LibName = "libpitaya-linux";
+        private const string LibName = "pitaya-linux";
 #endif
 
         // ReSharper disable UnusedMember.Local
