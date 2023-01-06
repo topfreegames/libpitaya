@@ -1,4 +1,4 @@
-ANDROID_TOOLCHAIN_FILE = temp/android-ndk-r17b/build/cmake/android.toolchain.cmake
+ANDROID_TOOLCHAIN_FILE = temp/android-ndk-r19c/build/cmake/android.toolchain.cmake
 
 setup-mac:
 	@brew install ninja
@@ -6,25 +6,25 @@ setup-mac:
 setup-android-mac:
 	@mkdir -p temp
 	@curl https://dl.google.com/android/repository/android-ndk-r17b-darwin-x86_64.zip -o temp/android-ndk-r17b.zip
-	@unzip -qo temp/android-ndk-r17b.zip -d temp/
+	@unzip -qo temp/android-ndk-r19c.zip -d temp/
 
 setup-android-linux:
 	@mkdir -p temp
 	@curl https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip -o temp/android-ndk-r17b.zip
-	@unzip -qo temp/android-ndk-r17b.zip -d temp/
+	@unzip -qo temp/android-ndk-r19c.zip -d temp/
 
 build-android:
 	@rm -rf _builds/android
 	@cmake -GNinja -H. -B_builds/android -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
 				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
-				   -DANDROID_ABI=armeabi-v7a
+				   -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-24
 	@cmake --build _builds/android
 
 build-android-64:
 	@rm -rf _builds/android64
 	@cmake -GNinja -H. -B_builds/android64 -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release \
 				   -DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
-				   -DANDROID_ABI=arm64-v8a
+				   -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24
 	@cmake --build _builds/android64
 
 build-mac:
@@ -49,13 +49,13 @@ build-linux-debug:
 
 build-ios:
 	@rm -rf _builds/ios
-	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
-	@cmake --build _builds/ios
+	@cmake -GXcode -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=OS -DDEPLOYMENT_TARGET=9.0
+	@cmake --build _builds/ios --config Release
 
 build-ios-simulator:
 	@rm -rf _builds/ios-simulator
-	@cmake -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DIOS_PLATFORM=SIMULATOR64 -DIOS_SIMULATOR=true
-	@cmake --build _builds/ios-simulator
+	@cmake -GXcode -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=OS -DDEPLOYMENT_TARGET=9.0 -DIOS_SIMULATOR=true -DIOS_PLATFORM=SIMULATOR6
+	@cmake --build _builds/ios-simulator --config Release
 
 build-mac-tests:
 	@rm -rf _builds/mac-tests
