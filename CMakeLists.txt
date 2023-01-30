@@ -1,13 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
 
-if(WIN32)
-    if(NOT EXISTS ${CMAKE_BINARY_DIR}/conan_paths.cmake)
-        message(FATAL_ERROR "Run conan install before running CMake")
-    endif()
-
-    include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-endif()
-
 project(pitaya LANGUAGES C)
 
 #
@@ -58,6 +50,14 @@ set(pitaya_headers
     src/tr/uv/tr_uv_tls.h
     src/tr/dummy/tr_dummy.h)
 
+if(APPLE AND NOT IOS)
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
+endif()
+
+if(UNIX AND NOT APPLE)
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
 if(BUILD_MACOS_BUNDLE)
     add_library(pitaya MODULE ${pitaya_sources} ${pitaya_headers})
     set_target_properties(pitaya PROPERTIES SUFFIX ".bundle")
@@ -85,11 +85,7 @@ endif()
 # Lib UV
 #
 set(BUILD_TESTING OFF CACHE BOOL "")
-if(ANDROID AND ANDROID_ABI STREQUAL arm64-v8a)
-    add_subdirectory(deps/libuv-1.23.1)
-else()
-    add_subdirectory(deps/libuv-1.23.0)
-endif()
+add_subdirectory(deps/libuv-1.44.2)
 
 #
 # Lib Zlib
@@ -97,9 +93,6 @@ endif()
 if(ANDROID)
     find_package(ZLIB REQUIRED)
     target_include_directories(pitaya PRIVATE ${ZLIB_INCLUDE_DIRS})
-elseif(WIN32)
-    find_package(ZLIB REQUIRED)
-    target_link_libraries(pitaya PRIVATE ZLIB::ZLIB)
 else()
     target_include_directories(pitaya PRIVATE PRIVATE deps/zlib ${CMAKE_BINARY_DIR}/deps/zlib)
     add_subdirectory(deps/zlib)
@@ -109,41 +102,40 @@ endif()
 # OpenSSL
 #
 if(WIN32)
-    find_package(OpenSSL REQUIRED)
-    target_link_libraries(pitaya PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-else()
-    if(ANDROID)
-      if(ANDROID_ABI STREQUAL armeabi-v7a)
-        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/android/include)
-        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libssl.a)
-        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libcrypto.a)
-      elseif(ANDROID_ABI STREQUAL arm64-v8a)
-        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/android/include)
-        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/arm64-v8a/libssl.a)
-        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/arm64-v8a/libcrypto.a)
-      else()
-        message(FATAL_ERROR "We don't support ANDROID_ABI=${ANDROID_ABI}")
-      endif()
-    elseif(IOS)
-        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/ios/include)
-        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libssl.a)
-        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libcrypto.a)
-    elseif(APPLE)
-        target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/mac/include)
-        set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libssl.a)
-        set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/mac/lib/libcrypto.a)
-    else() # Linux
-	    target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/linux/include)
-	    set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libssl.a)
-	    set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libcrypto.a)
-    endif()
-
-    add_library(ssl STATIC IMPORTED)
-    set_property(TARGET ssl PROPERTY IMPORTED_LOCATION ${SSL_LOCATION})
-
-    add_library(crypto STATIC IMPORTED)
-    set_property(TARGET crypto PROPERTY IMPORTED_LOCATION ${CRYPTO_LOCATION})
+    target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/windows/include) 
+    set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/windows/lib/libssl_static.lib)
+    set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/windows/lib/libcrypto_static.lib)
+elseif(ANDROID)
+  if(ANDROID_ABI STREQUAL armeabi-v7a)
+    target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/android/include)
+    set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libssl.a)
+    set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/armeabi-v7a/libcrypto.a)
+  elseif(ANDROID_ABI STREQUAL arm64-v8a)
+    target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/android/include)
+    set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/arm64-v8a/libssl.a)
+    set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/android/lib/arm64-v8a/libcrypto.a)
+  else()
+    message(FATAL_ERROR "We don't support ANDROID_ABI=${ANDROID_ABI}")
+  endif()
+elseif(IOS)
+  target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/ios/include)
+  set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libssl.a)
+  set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/ios/lib/libcrypto.a)
+elseif(APPLE)
+  target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/mac-universal/include)
+  set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/mac-universal/lib/libssl.a)
+  set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/mac-universal/lib/libcrypto.a)
+else() # Linux
+  target_include_directories(pitaya PRIVATE ${PITAYA_OPENSSL_DIR}/linux/include)
+  set(SSL_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libssl.a)
+  set(CRYPTO_LOCATION ${PITAYA_OPENSSL_DIR}/linux/lib/libcrypto.a)
 endif()
+
+add_library(ssl STATIC IMPORTED)
+set_property(TARGET ssl PROPERTY IMPORTED_LOCATION ${SSL_LOCATION})
+
+add_library(crypto STATIC IMPORTED)
+set_property(TARGET crypto PROPERTY IMPORTED_LOCATION ${CRYPTO_LOCATION})
 
 #
 # Android Log
@@ -174,6 +166,9 @@ if(WIN32)
     target_link_libraries(pitaya
       PRIVATE
         uv_a
+        ssl
+        crypto
+        zlibstatic
         # NOTE: CRYPT32.LIB is necessary in order to compile with OpenSSL 1.1
         CRYPT32.LIB)
 elseif(ANDROID)
@@ -223,9 +218,9 @@ if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
         # munit
         deps/munit/munit.c
         # nanopb
-        deps/nanopb-0.3.9.1/pb_common.c
-        deps/nanopb-0.3.9.1/pb_decode.c
-        deps/nanopb-0.3.9.1/pb_encode.c
+        deps/nanopb-0.4.6/pb_common.c
+        deps/nanopb-0.4.6/pb_decode.c
+        deps/nanopb-0.4.6/pb_encode.c
         # nanopb
         # Protobuf generated
         test/big-message.pb.c
@@ -243,22 +238,27 @@ if(NOT IOS AND NOT ANDROID AND NOT BUILD_MACOS_BUNDLE)
         # munit
         deps/munit/munit.h
         # nanopb
-        deps/nanopb-0.3.9.1/pb_common.h
-        deps/nanopb-0.3.9.1/pb_decode.h
-        deps/nanopb-0.3.9.1/pb_encode.h
-        deps/nanopb-0.3.9.1/pb.h
+        deps/nanopb-0.4.6/pb_common.h
+        deps/nanopb-0.4.6/pb_decode.h
+        deps/nanopb-0.4.6/pb_encode.h
+        deps/nanopb-0.4.6/pb.h
         # Protobuf generated
         test/big-message.pb.h
         test/error.pb.h
         test/response.pb.h
         test/session-data.pb.h)
 
-    set_target_properties(pitaya_tests PROPERTIES OUTPUT_NAME "tests")
+    if (WIN32)
+        set_target_properties(pitaya_tests PROPERTIES OUTPUT_NAME "tests" C_STANDARD 11)
+    else()
+        set_target_properties(pitaya_tests PROPERTIES OUTPUT_NAME "tests")
+    endif()
+
     target_include_directories(pitaya_tests
         PUBLIC
           src
           deps/munit
-          deps/nanopb-0.3.9.1 test)
+          deps/nanopb-0.4.6 test)
     target_link_libraries(pitaya_tests PUBLIC pitaya Threads::Threads)
 
     add_custom_command(

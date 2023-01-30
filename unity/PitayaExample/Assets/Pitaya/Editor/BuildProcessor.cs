@@ -11,9 +11,9 @@ public class DeleteUnnecessaryResources : IPreprocessBuildWithReport, IPostproce
     
     private const string IGNORE_MARK = "~";
 
-    private const string SIMULATOR_IDENTIFIER = "i386_x86_64";
+    private const string SIMULATOR_IDENTIFIER = "simulator";
     
-    private const string DEVICE_IDENTIFIER = "arm64_armv7";
+    private const string DEVICE_IDENTIFIER = "device";
  
     public int callbackOrder => default;
  

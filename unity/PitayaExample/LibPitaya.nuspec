@@ -2,23 +2,23 @@
 <package>
   <metadata>
     <id>LibPitaya</id>
-    <version>4.3.0</version>
+    <version>4.7.0</version>
     <authors>Wildlife Studios</authors>
     <owners>Wildlife Studios</owners>
     <projectUrl>https://github.com/topfreegames/libpitaya</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# client for the pitaya server</description>
-    <releaseNotes>Formal release of 4.3.0-x branches</releaseNotes>
+    <releaseNotes>Support for M1 macs</releaseNotes>
     <licenseUrl>https://github.com/topfreegames/libpitaya/blob/master/LICENSE</licenseUrl>
     <copyright>Copyright (c) 2018 TFG Co, NetEase Inc. and other pomelo contributors</copyright>
     <tags>pitaya libpitaya</tags>
     <dependencies>
-      <dependency id="Google.Protobuf" version="3.7.0" />
+      <dependency id="Google.Protobuf" version="3.12.4" />
     </dependencies>
   </metadata>
   <files>
     <file src="Assets/link.xml" target="" />
-    <file src="Assets/Pitaya/Native/iOS/*.*" target="Native/iOS" />
+    <file src="Assets/Pitaya/Native/iOS/**/*.*" target="Native/iOS" />
     <file src="Assets/Pitaya/Native/Android/armv7/*.*" target="Native/Android/armv7" />
     <file src="Assets/Pitaya/Native/Android/arm64/*.*" target="Native/Android/arm64" />
     <file src="Assets/Pitaya/Native/Mac/*.*" target="Native/Mac" />

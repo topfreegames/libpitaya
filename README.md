@@ -1,5 +1,4 @@
 <p align="center">
-  <a href="https://travis-ci.com/topfreegames/libpitaya"><img src="https://travis-ci.com/topfreegames/libpitaya.svg?branch=master" alt="Build Status"></img></a>
   <a href="https://ci.appveyor.com/project/leohahn/libpitaya"><img src="https://ci.appveyor.com/api/projects/status/326391ofs0q26s0d/branch/master?svg=true&passingText=Windows" alt="Windows Build Status"></a>
 </p>
 
@@ -65,13 +64,19 @@ make build-ios-simulator
 The iOS binary will be under `_builds/ios-simulator/libpitaya-ios.a`
 As for physical device build, this library will be compiled statically, and other dependencies must be included manually.
 
-### Building for Windows
+### Building xcframework compatible with both simulators (x64, arm64) and devices
 
 ```bash
-pip install conan # Install conan if you dont have it
-conan install . -if _builds/windows
-cmake -H. -B_builds/windows -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON
-cmake --build _builds/windows --config Release
+make setup-mac
+make build-ios-xcframework
+```
+The xcframework will be under `_builds/ios-xcframework-libpitaya`
+You can also build openssl xcframeworks using ```make build-openssl-ios-xcframework```
+
+### Building for Windows (should use Developer Powershell for VS 2022)
+
+```bash
+make build-windows
 ```
 
 The binaries for windows will then be located at `_builds/windows/pitaya-windows.dll` and `_builds/windows/pitaya-windows.lib`.
@@ -190,6 +195,29 @@ make_suites()
 Having done this, you can now run the tests using the run-tests.py script. If the tests pass, you should open a pull request.
 
 **NOTE**: In most cases, you can just add the changes to the native library and it should be fine. However, if you change the interface of the library, you have to also update the csharp library.
+
+### Using the build-openssl.py script to generate open ssl builds
+
+Use it like the following:
+
+```
+# Android armv7
+
+./build-openssl.py --prefix /tmp/build_dir/android --compile-threads 32 --openssl-tar deps/openssl-1.1.1q.tar.gz android --ndk-dir /home/...path to.../android-ndk-r25b --arch armv7a
+
+# Android aarch64
+
+./build-openssl.py --prefix /tmp/build_dir/android --compile-threads 32 --openssl-tar deps/openssl-1.1.1q.tar.gz android --ndk-dir /home/...path to.../android-ndk-r25b --arch aarch64
+
+# Linux
+
+CC=gcc ./build-openssl.py --prefix /tmp/build_dir/linux --compile-threads 32 --openssl-tar deps/openssl-1.1.1q.tar.gz linux
+
+# Mac and iOS
+
+For these we use the project at https://github.com/tfgco/OpenSSL
+
+```
 
 ### Csharp lib contribution
 

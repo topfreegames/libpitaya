@@ -1,3 +1,19 @@
+# UNITY_PATH should contain the path to the Unity.app folder
+
+ifeq ($(OS),Windows_NT)
+	UNITY_PATH?=C:/Program Files/Unity/Hub/Editor/2021.3.13f1/Editor
+	NET_STANDARD_VER?=2.1.0
+	CONTENTS_DIR=Data
+	MSBUILD=MSBuild.exe
+else
+	UNITY_PATH?=/Applications/Unity/Hub/Editor/2019.4.40f1/Unity.app
+	NET_STANDARD_VER?=2.0.0
+	CONTENTS_DIR=Contents
+	MSBUILD=msbuild
+endif
+
+
+
 clean:
 	@rm -rf Temp/bin/Release
 	@rm -rf obj
@@ -5,23 +21,23 @@ clean:
 	@rm -rf NugetOutput/binaries
 
 build-mac: clean
-	@msbuild Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release
+	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/mac/Pitaya.dll
 
 build-win: clean
-	@msbuild Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_WIN" /p:Configuration=Release
+	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_WIN" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/win/Pitaya.dll
 
 build-ios: clean
-	@msbuild Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_IPHONE" /p:Configuration=Release
+	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_IPHONE" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/ios/Pitaya.dll
 
 build-linux: clean
-	@msbuild Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_LINUX" /p:Configuration=Release
+	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_LINUX" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/linux/Pitaya.dll
 
 build-android: clean
-	@msbuild Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_ANDROID" /p:Configuration=Release
+	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_ANDROID" /p:Configuration=Release
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/android/Pitaya.dll
 
 build-all: build-template build-mac build-ios build-linux build-android build-win
@@ -30,14 +46,11 @@ build-all: build-template build-mac build-ios build-linux build-android build-wi
 pack: build-all
 	@nuget pack LibPitaya.nuspec -OutputDirectory NugetOutput
 
-# UNITY_PATH should contain the path to the Unity.app folder
-UNITY_PATH=/Applications/Unity/Hub/Editor/2019.4.34f1/Unity.app
-
 test:
 	${UNITY_PATH}/Contents/MacOS/Unity -runTests -projectPath $(shell pwd) -testResults $(shell pwd)/test-results-playmode.xml -testPlatform playmode -batchmode -nographics -logFile
 
 build-template:
 	@echo "Configuring build template to use ${UNITY_VERSION}"
-	@sed 's~UNITY_PATH~${UNITY_PATH}~g' Pitaya-Build-Template.csproj > Pitaya-Build.csproj
+	@sed 's~UNITY_PATH~${UNITY_PATH}~g; s~NET_STANDARD_VER~${NET_STANDARD_VER}~g; s~CONTENTS_DIR~${CONTENTS_DIR}~g' Pitaya-Build-Template.csproj > Pitaya-Build.csproj
 
 
