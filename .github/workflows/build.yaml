@@ -25,8 +25,8 @@ jobs:
         with:
           name: libpitaya_ios
           path: |
-            _builds/ios//Release-iphoneos/libpitaya-ios.a
-            _builds/ios//deps/libuv-v1.44.2/Release-iphoneos/libuv_a.a
+            _builds/ios/Release-iphoneos/libpitaya-ios.a
+            _builds/ios/deps/libuv-v1.44.2/Release-iphoneos/libuv_a.a
 
   build-mac:
     runs-on: macos-12
@@ -51,6 +51,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Install packages
+        run: sudo apt update && sudo apt install make cmake g++ git ninja-build python3 zlib1g-dev -y
+
       - name: Setup dependencies
         run: make setup-android-linux
 
@@ -68,6 +71,9 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Install packages
+        run: sudo apt update && sudo apt install make cmake g++ git ninja-build python3 zlib1g-dev -y
 
       - name: Setup dependencies
         run: make setup-android-linux
