@@ -1,0 +1,43 @@
+name: Run tests
+
+on:
+  push:
+    branches: '*'
+    tags:
+      - '*'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+  
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+  
+      - name: Docker Compose Setup
+        uses: ndeloof/install-compose-action@v0.0.1
+ 
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19.3
+  
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install make cmake g++ git ninja-build python3 zlib1g-dev -y
+  
+      - name: Build go binaries
+        run: make build-servers-linux
+  
+      - name: Build test binaries
+        run: make build-linux
+  
+      - name: Start dependencies
+        run: docker compose up -d
+  
+      - name: Run tests
+        run: ./run-tests.py --tests-dir _builds/linux
+
