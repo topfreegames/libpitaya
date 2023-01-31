@@ -1,0 +1,21 @@
+{
+  "name": "com.wildlifestudios.nuget.libpitaya",
+  "version": "RELEASE-VERSION",
+  "displayName": "(NuGet) LibPitaya",
+  "description": "C# client for the pitaya server",
+  "dependencies": {
+    "com.wildlifestudios.nuget.google.protobuf": "3.12.4",
+    "com.unity.nuget.newtonsoft-json": "3.0.2"
+  },
+  "author": {
+    "name": "Wildlife Studios"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.topfreegames.com/packages/nuget-libpitaya"
+  },
+  "publishConfig": {
+    "registry": "https://artifactory.tfgco.com/artifactory/api/npm/npm-local/"
+  },
+  "samples": []
+}
