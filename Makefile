@@ -58,7 +58,7 @@ build-linux-debug:
 check-devteam-env:
 	ifndef APPLE_DEVELOPMENT_TEAM
 	$(error APPLE_DEVELOPMENT_TEAM is undefined)
-endif
+	endif
 
 ## Needs development team for building iOS fat
 build-ios-fat: check-devteam-env
