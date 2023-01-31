@@ -1,0 +1,24 @@
+version: '3'
+services:
+  nats:
+    image: nats
+    ports:
+      - 4222:4222
+  etcd:
+    image: appcelerator/etcd
+    ports:
+      - 2379:2379
+  protoserver:
+    build:
+      dockerfile: ./Dockerfile.ProtobufServer
+    ports:
+      - 3350:3350
+      - 3351:3351
+      - 3352:3352
+  jsonserver:
+    build:
+      dockerfile: ./Dockerfile.JsonServer
+    ports:
+      - 3250:3250
+      - 3251:3251
+      - 3252:3252

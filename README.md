@@ -95,10 +95,26 @@ The binaries for windows will then be located at `_builds/linux/pitaya-linux.so`
 
 ## Tests
 
+# Test requirements
+Build the mac-tests image
+```bash
+make build-mac-tests
+```
+
+Build the binaries for the test Go servers
+```bash
+make docker-build
+```
+
+Start the test Go servers and their dependencies
+```bash
+docker compose up
+```
+
 In order to run the tests, you need [node](https://nodejs.org) installed. Running the tests are done by running the following script in the root folder:
 ```bash
 # The tests executable path are always placed alongside the pitaya library.
-./run-tests.py --tests-dir <tests-executable-directory>
+./run-tests.py --tests-dir <tests-executable-directory.. e.g. _builds/mac-tests>
 ```
 
 You can also pass command line options, for example:
