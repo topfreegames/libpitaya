@@ -39,6 +39,7 @@ typedef struct {
 
     SSL_CTX* ctx;
     int enable_verify;
+    const char* host;
 } tr_uv_tls_transport_plugin_t;
 
 pc_transport_t* tr_uv_tls_create(pc_transport_plugin_t* plugin);

@@ -132,6 +132,10 @@ int pc_client_connect(pc_client_t* client, const char* host, int port, const cha
     int state;
     int ret;
 
+#if !defined(PC_NO_UV_TLS_TRANS)
+    tr_uv_tls_set_sni_host(host);
+#endif
+
     if (!client || !host || port < 0 || port > (1 << 16) - 1) {
         pc_lib_log(PC_LOG_ERROR, "pc_client_connect - invalid args");
         return PC_RC_INVALID_ARG;

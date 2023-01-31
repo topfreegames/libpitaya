@@ -356,6 +356,7 @@ PC_EXPORT const char* pc_client_rc_str(int rc);
  * https://www.openssl.org/docs/man1.0.2/ssl/SSL_CTX_load_verify_locations.html
  */
 PC_EXPORT int tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path);
+PC_EXPORT void tr_uv_tls_set_sni_host(const char* ca_file);
 
 #endif /* uv_tls */
 

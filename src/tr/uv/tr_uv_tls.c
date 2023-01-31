@@ -48,3 +48,8 @@ int tr_uv_tls_set_ca_file(const char* ca_file, const char* ca_path)
         return PC_RC_ERROR;
     }
 }
+
+void tr_uv_tls_set_sni_host(const char* host)
+{
+    instance.host = host;
+}

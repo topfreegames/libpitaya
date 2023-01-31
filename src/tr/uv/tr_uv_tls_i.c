@@ -110,6 +110,12 @@ int tr_uv_tls_init(pc_transport_t* trans, pc_client_t* client)
         return PC_RC_ERROR;
     }
 
+    ret = SSL_set_tlsext_host_name(tls->tls, plugin->host);
+    if (!ret) {
+        ret = ERR_get_error();
+        pc_lib_log("Error settings TLS SNI with hostname %s. Error: ",plugin->host, ERR_error_string(ret, NULL));
+    }
+
     if (plugin->enable_verify) {
         SSL_set_verify(tls->tls, SSL_VERIFY_PEER, NULL);
     } else {
