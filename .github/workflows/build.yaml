@@ -37,13 +37,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build
-        run: make build-mac-universal
+        run: make build-mac-xcode
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
         with:
           name: libpitaya_mac
-          path: _builds/mac/libpitaya-mac.bundle
+          path: _builds/mac-xcode/libpitaya-mac.bundle
 
   build-android:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
         run: make setup-android-linux
 
       - name: Build
-        run: build-android
+        run: make build-android
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
@@ -73,7 +73,7 @@ jobs:
         run: make setup-android-linux
 
       - name: Build
-        run: build-android-64
+        run: make build-android-64
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
