@@ -18,6 +18,7 @@
   </metadata>
   <files>
     <file src="Assets/link.xml" target="" />
+    <file src="Assets/Pitaya/Editor/*.*" target="Editor" />
     <file src="Assets/Pitaya/Native/iOS/**/*.*" target="Native/iOS" />
     <file src="Assets/Pitaya/Native/Android/armv7/*.*" target="Native/Android/armv7" />
     <file src="Assets/Pitaya/Native/Android/arm64/*.*" target="Native/Android/arm64" />

@@ -12,30 +12,7 @@ PluginImporter:
   validateReferences: 1
   platformData:
   - first:
-<<<<<<< HEAD
-      : Any
-    second:
-      enabled: 0
-      settings:
-        Exclude Android: 1
-        Exclude Editor: 0
-        Exclude Linux: 1
-        Exclude Linux64: 1
-        Exclude LinuxUniversal: 1
-        Exclude OSXUniversal: 0
-        Exclude Win: 1
-        Exclude Win64: 1
-        Exclude iOS: 1
-  - first:
-      Android: Android
-    second:
-      enabled: 0
-      settings:
-        CPU: ARMv7
-  - first:
-=======
->>>>>>> WIP: improve m1 support
-      Any: 
+      Any:
     second:
       enabled: 0
       settings: {}
@@ -44,67 +21,13 @@ PluginImporter:
     second:
       enabled: 1
       settings:
-<<<<<<< HEAD
-        CPU: AnyCPU
         DefaultValueInitialized: true
-        OS: OSX
-  - first:
-      Facebook: Win
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-  - first:
-      Facebook: Win64
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-  - first:
-      Standalone: Linux
-    second:
-      enabled: 0
-      settings:
-        CPU: x86
-  - first:
-      Standalone: Linux64
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-=======
-        DefaultValueInitialized: true
->>>>>>> WIP: improve m1 support
   - first:
       Standalone: OSXUniversal
     second:
       enabled: 1
       settings:
         CPU: AnyCPU
-<<<<<<< HEAD
-  - first:
-      Standalone: Win
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-  - first:
-      Standalone: Win64
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-  - first:
-      iPhone: iOS
-    second:
-      enabled: 0
-      settings:
-        AddToEmbeddedBinaries: false
-        CPU: AnyCPU
-        CompileFlags: 
-        FrameworkDependencies: 
-=======
->>>>>>> WIP: improve m1 support
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:

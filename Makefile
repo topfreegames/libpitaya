@@ -57,8 +57,8 @@ build-linux-debug:
 
 check-devteam-env:
 	ifndef APPLE_DEVELOPMENT_TEAM
-	$(error APPLE_DEVELOPMENT_TEAM is undefined)
-endif
+		$(error APPLE_DEVELOPMENT_TEAM is undefined)
+	endif
 
 ## Needs development team for building iOS fat
 build-ios-fat: check-devteam-env
@@ -123,7 +123,7 @@ build-mac-tests:
 clean-docker-container:
 	@if [[ `docker ps -aqf "name=libpitaya"` != "" ]]; then \
 		docker rm `docker ps -aqf "name=libpitaya"` ; \
-		fi
+	fi
 
 build-linux-docker: clean-docker-container
 	@docker build -t libpitaya .
