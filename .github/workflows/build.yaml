@@ -20,4 +20,63 @@ jobs:
       - name: Build
         run: make build-ios
 
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_ios
+          path: |
+            _builds/ios//Release-iphoneos/libpitaya-ios.a
+            _builds/ios//deps/libuv-v1.44.2/Release-iphoneos/libuv_a.a
 
+  build-mac:
+    runs-on: macos-12
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.4.1.app/Contents/Developer
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: make build-mac-universal
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_mac
+          path: _builds/mac/libpitaya-mac.bundle
+
+  build-android:
+    runs-on: ubuntu-latest
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup dependencies
+        run: make setup-android-linux
+
+      - name: Build
+        run: build-android
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_android
+          path: _builds/android/libpitaya-android.so
+
+  build-android-64:
+    runs-on: ubuntu-latest
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup dependencies
+        run: make setup-android-linux
+
+      - name: Build
+        run: build-android-64
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_android64
+          path: _builds/android64/libpitaya-android.so
