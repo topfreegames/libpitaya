@@ -13,8 +13,8 @@ cp include/* package/Native/include
 cp -r ./unity/PitayaExample/Assets/Pitaya/Editor package
 sed -i "s/RELEASE-VERSION/${VERSION}/g" package/package.json
 
-cp libpitaya/libpitaya_android64/* package/Native/Android/arm64/
-cp libpitaya/libpitaya_android/* package/Native/Android/armv7/
-cp libpitaya/libpitaya_linux/* package/Native/Linux/
-cp libpitaya/libpitaya_mac package/Native/Mac/
-cp libpitaya/libpitaya_ios package/Native/iOS/
+cp libpitaya_android64/* package/Native/Android/arm64/
+cp libpitaya_android/* package/Native/Android/armv7/
+cp libpitaya_linux/* package/Native/Linux/
+cp libpitaya_mac package/Native/Mac/
+cp libpitaya_ios package/Native/iOS/
