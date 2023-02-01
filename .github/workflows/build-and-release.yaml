@@ -19,6 +19,9 @@ jobs:
       - name: Build
         run: make build-ios
 
+      - name: find
+        run: find _builds/ios
+
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
         with:
@@ -137,7 +140,7 @@ jobs:
         run: VERSION=${{steps.tag.outputs.tag}} ./release.sh
 
       - name: Publish to artifactory
-        run: cd nuget && npm publish
+        run: cd package && npm publish
 
       - name: Create Release
         id: create_release
