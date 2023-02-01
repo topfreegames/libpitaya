@@ -17,4 +17,4 @@ cp libpitaya_android64/* package/Native/Android/arm64/
 cp libpitaya_android/* package/Native/Android/armv7/
 cp libpitaya_linux/* package/Native/Linux/
 cp libpitaya_mac/* package/Native/Mac/
-cp libpitaya_ios/* package/Native/iOS/
+find libpitaya_ios -exec cp "{}" package/Native/iOS/ \;
