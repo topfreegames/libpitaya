@@ -2,9 +2,8 @@ name: Build binaries
 
 on:
   push:
-    branches: '*'
     tags:
-      - '*'
+      - 'v*'
   pull_request:
     branches: [ master ]
 
@@ -86,3 +85,71 @@ jobs:
         with:
           name: libpitaya_android64
           path: _builds/android64/libpitaya-android.so
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install packages
+        run: sudo apt update && sudo apt install make cmake g++ git ninja-build python3 zlib1g-dev -y
+
+      - name: Build
+        run: make build-linux
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_linux
+          path: _builds/linux/libpitaya-linux.so
+
+  release:
+    runs-on: ubuntu-latest
+    needs: 
+      - build-ios
+      - build-mac
+      - build-android
+      - build-android-64
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - run: npm install -g npm-cli-login
+      - run: npm-cli-login login -u "${{ secrets.ARTIFACTORY_USER }}" -p "${{ secrets.ARTIFACTORY_PASS }}" -e "tools-team@tfgco.com" -r "https://artifactory.tfgco.com/artifactory/api/npm/npm-local" -s @wls
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: true
+
+      - name: Run release script
+        run: VERSION=${{steps.tag.outputs.tag}} release.sh
+
+      - name: Publish to artifactory
+        run: cd nuget && npm publish
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - To be implemented
+          draft: false
+          prerelease: ${{ contains( 'alpha', github.ref ) }}
+
+      

@@ -1,0 +1,6 @@
+<linker>
+    <assembly fullname="Google.Protobuf" preserve="all"/>
+    <assembly fullname="Newtonsoft.Json" ignoreIfMissing="1">
+        <namespace fullname="System.Runtime.CompilerServices" preserve="all" />
+    </assembly>
+</linker>
