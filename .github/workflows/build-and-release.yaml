@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: libpitaya_mac
-          path: _builds/mac-xcode/libpitaya-mac.bundle
+          path: _builds/mac-xcode/Release/libpitaya-mac.bundle
 
   build-android:
     runs-on: ubuntu-latest
