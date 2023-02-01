@@ -111,6 +111,7 @@ jobs:
       - build-mac
       - build-android
       - build-android-64
+      - build-linux
     steps:
 
       - name: Checkout repo
