@@ -19,16 +19,13 @@ jobs:
       - name: Build
         run: make build-ios
 
-      - name: find
-        run: find _builds/ios
-
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
         with:
           name: libpitaya_ios
           path: |
-            _builds/ios/Release-iphoneos/libpitaya-ios.a
-            _builds/ios/deps/libuv-v1.44.2/Release-iphoneos/libuv_a.a
+            _builds/ios/libpitaya-ios.a
+            _builds/ios/deps/libuv-v1.44.2/libuv_a.a
 
   build-mac:
     runs-on: macos-12
@@ -129,6 +126,9 @@ jobs:
 
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
+
+      - name: find
+        run: find .
 
       - name: Get tag
         id: tag
