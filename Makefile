@@ -48,12 +48,12 @@ build-mac-xcode:
 build-linux:
 	@rm -rf _builds/linux
 	@cmake -H. -B_builds/linux -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
-	@cmake --build _builds/linux -j
+	@cmake --build _builds/linux
 
 build-linux-debug:
 	@rm -rf _builds/linux-debug
 	@cmake -H. -B_builds/linux-debug -GNinja -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=ON
-	@cmake --build _builds/linux-debug -j
+	@cmake --build _builds/linux-debug
 
 check-devteam-env:
 	ifndef APPLE_DEVELOPMENT_TEAM

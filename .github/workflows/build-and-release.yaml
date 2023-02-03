@@ -102,7 +102,34 @@ jobs:
           name: libpitaya_linux
           path: _builds/linux/libpitaya-linux.so
 
-  release:
+  build-dll:
+    name: Build DLLs
+    runs-on: ubuntu-latest
+    env:
+      UNITY_PATH: "/opt/unity/Editor"
+      CONTENTS_DIR: "Data"
+      MSBUILD: "/opt/unity/Editor/Data/MonoBleedingEdge/bin-linux64/xbuild"
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: set unity version
+        id: unity-version
+        run: out=$(grep "m_EditorVersion:" unity/PitayaExample/ProjectSettings/ProjectVersion.txt | awk '{print $2}'); echo "unityversion=${out}" >> $GITHUB_OUTPUT
+
+      - name: run unity container
+        run: docker run --rm --workdir /project --env MSBUILD --env CONTENTS_DIR --env UNITY_PATH -v ${PWD}/unity/PitayaExample:/project unityci/editor:ubuntu-${{ steps.unity-version.outputs.unityversion }}-windows-mono-1 /bin/bash -c "apt update && apt install -y make && make build-template && make build-all"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pitaya-dlls
+          path: unity/PitayaExample/NugetOutput/binaries
+
+
+  package:
     runs-on: ubuntu-latest
     needs: 
       - build-ios
@@ -110,6 +137,7 @@ jobs:
       - build-android
       - build-android-64
       - build-linux
+      - build-dll
     steps:
 
       - name: Checkout repo
@@ -137,6 +165,11 @@ jobs:
       - name: Publish to artifactory
         run: cd package && npm publish
 
+  release:
+    runs-on: ubuntu-latest
+    needs: 
+      - package
+    steps:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
