@@ -160,7 +160,7 @@ jobs:
           strip_v: true
 
       - name: Run release script
-        run: VERSION=${{steps.tag.outputs.tag}} ./release.sh
+        run: VERSION=${{steps.tag.outputs.tag}} ./package.sh
 
       - name: Publish to artifactory
         run: cd package && npm publish

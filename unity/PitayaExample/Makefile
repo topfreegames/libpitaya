@@ -3,13 +3,13 @@
 ifeq ($(OS),Windows_NT)
 	UNITY_PATH?=C:/Program Files/Unity/Hub/Editor/2021.3.13f1/Editor
 	NET_STANDARD_VER?=2.1.0
-	CONTENTS_DIR=Data
-	MSBUILD=MSBuild.exe
+	CONTENTS_DIR?=Data
+	MSBUILD?=MSBuild.exe
 else
 	UNITY_PATH?=/Applications/Unity/Hub/Editor/2019.4.40f1/Unity.app
 	NET_STANDARD_VER?=2.0.0
-	CONTENTS_DIR=Contents
-	MSBUILD=msbuild
+	CONTENTS_DIR?=Contents
+	MSBUILD?=msbuild
 endif
 
 
@@ -22,23 +22,23 @@ clean:
 
 build-mac: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release
-	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/mac/Pitaya.dll
+	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/mac/Pitaya.dll
 
 build-win: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_WIN" /p:Configuration=Release
-	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/win/Pitaya.dll
+	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/win/Pitaya.dll
 
 build-ios: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_IPHONE" /p:Configuration=Release
-	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/ios/Pitaya.dll
+	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/ios/Pitaya.dll
 
 build-linux: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_LINUX" /p:Configuration=Release
-	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/linux/Pitaya.dll
+	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/linux/Pitaya.dll
 
 build-android: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_ANDROID" /p:Configuration=Release
-	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/android/Pitaya.dll
+	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/android/Pitaya.dll
 
 build-all: build-template build-mac build-ios build-linux build-android build-win
 	@cp -r Assets/Pitaya/Native NugetOutput/binaries
