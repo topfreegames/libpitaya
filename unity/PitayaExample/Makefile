@@ -22,22 +22,27 @@ clean:
 
 build-mac: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_OSX" /p:Configuration=Release
+	@mkdir -p NugetOutput/lib/netstandard2.0/mac
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/mac/Pitaya.dll
 
 build-win: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_WIN" /p:Configuration=Release
+	@mkdir -p NugetOutput/lib/netstandard2.0/win
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/win/Pitaya.dll
 
 build-ios: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_IPHONE" /p:Configuration=Release
+	@mkdir -p NugetOutput/lib/netstandard2.0/ios
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/ios/Pitaya.dll
 
 build-linux: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_STANDALONE_LINUX" /p:Configuration=Release
+	@mkdir -p NugetOutput/lib/netstandard2.0/linux
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/linux/Pitaya.dll
 
 build-android: clean
 	@${MSBUILD} Pitaya-Build.csproj /t:Rebuild /p:DefineConstants="UNITY_ANDROID" /p:Configuration=Release
+	@mkdir -p NugetOutput/lib/netstandard2.0/android
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/android/Pitaya.dll
 
 build-all: build-template build-mac build-ios build-linux build-android build-win
