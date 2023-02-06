@@ -20,7 +20,9 @@ public class PitayaBuildPostprocessor
 
 			// Pitaya should be linked with zlib when on iOS.
 			proj.AddBuildProperty(targetGuid, "OTHER_LDFLAGS", "-lz");
-
+			
+			
+			
 			File.WriteAllText(projPath, proj.WriteToString());
 		}
 	}
