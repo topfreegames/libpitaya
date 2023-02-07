@@ -90,11 +90,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install packages
-        run: sudo apt update && sudo apt install make cmake g++ git ninja-build python3 zlib1g-dev -y
+      - name: Build linux image with target glibc version
+        run: docker build -t builder .
 
-      - name: Build
-        run: make build-linux
+      - name: Build linux lib from version supported in Dockerfile
+        run: docker run --rm --workdir /project --env MSBUILD --env CONTENTS_DIR --env UNITY_PATH -v ${PWD}:/project builder:latest /bin/bash -c "make build-linux"
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
