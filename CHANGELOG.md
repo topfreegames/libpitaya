@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.1] - 2023-02-07
+### Fixed
+- (unity) Fix post processor to manage pitaya libraries on iOS builds.
+
 ## [4.6.0] - 2023-01-31
 ### Changed
 - Improve ARM64 support
@@ -13,13 +17,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Better documentation
 - Unit testing (not only integration tests)
 - Better support for languages other than C#
+- (unity) Update Google.Protobuf dependency to 3.12.4
 
 ### Fixed
 - Fix appveyor builds
 
 ## [4.2.4] - 2022-08-15
 ### Changed
-- Update Newtonsoft.Json dependency to 13.0.1
+- (unity) Update Newtonsoft.Json dependency to 13.0.1
 
 ## [4.2.3] - 2022-05-10
 ### Added
