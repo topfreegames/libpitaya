@@ -142,6 +142,13 @@ void tls__conn_done_cb(uv_connect_t* conn, int status)
 
     tcp__conn_done_cb(conn, status);
 
+    pc_lib_log(PC_LOG_DEBUG, "Setting TLS SNI with hostname %s.",tls->base.host);
+    int ret = SSL_set_tlsext_host_name(tls->tls, tls->base.host);
+    if (!ret) {
+        ret = ERR_get_error();
+        pc_lib_log(PC_LOG_ERROR, "Error settings TLS SNI with hostname %s. Error: %s",tls->base.host, ERR_error_string(ret, NULL));
+    }
+
     if (!status) {
         pc_lib_log(PC_LOG_INFO, "tls__conn_done_cb - send client hello");
 
