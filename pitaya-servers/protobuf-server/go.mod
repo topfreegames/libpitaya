@@ -3,6 +3,7 @@ module github.com/topfreegames/libpitaya/pitaya-servers/protobuf-server
 go 1.17
 
 require (
+	github.com/golang/protobuf v1.5.2
 	github.com/topfreegames/pitaya v1.1.10
 	google.golang.org/protobuf v1.28.1
 )
@@ -22,7 +23,6 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/google/uuid v1.1.4 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
@@ -58,8 +58,8 @@ require (
 	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd // indirect
 	golang.org/x/net v0.0.0-20220105145211-5b0dc2dfae98 // indirect
-	golang.org/x/sys v0.0.0-20220111092808-5a964db01320 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/text v0.3.8 // indirect
 	google.golang.org/genproto v0.0.0-20211118181313-81c1377c94b1 // indirect
 	google.golang.org/grpc v1.41.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
