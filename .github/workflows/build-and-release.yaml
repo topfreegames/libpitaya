@@ -39,7 +39,7 @@ jobs:
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
         with:
-          name: libpitaya_ios
+          name: libpitaya_ios-simulator
           path: |
             _builds/ios-simulator/libpitaya-ios.a
             _builds/ios-simulator/deps/libuv**/libuv_a.a
