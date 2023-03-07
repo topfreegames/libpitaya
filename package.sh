@@ -25,6 +25,7 @@ cp libpitaya_android64/* package/Native/Android/arm64/
 cp libpitaya_android/* package/Native/Android/armv7/
 cp libpitaya_linux/* package/Native/Linux/
 cp libpitaya_mac/* package/Native/Mac/
-find libpitaya_ios -type f -exec cp "{}" package/Native/iOS/ \;
+find libpitaya_ios -type f -exec cp "{}" package/Native/iOS/device/ \;
+find libpitaya_ios-simulator -type f -exec cp "{}" package/Native/iOS/simulator/ \;
 
 cp -r pitaya-dlls/* package/
