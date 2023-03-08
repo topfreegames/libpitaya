@@ -20,12 +20,6 @@ public class PitayaBuildPostprocessor
         {
             var projPath = path + "/Unity-iPhone.xcodeproj/project.pbxproj";
             var currPath = Directory.GetCurrentDirectory();
-            var lookupPaths = new string[]
-            {
-                Path.Combine(currPath, "Assets"), // relative to project path
-                Path.Combine(currPath, "Library", "PackageCache"), // relative to project path
-                Path.Combine(path, "Libraries") // relative to build path
-            };
 
             PBXProject proj = new PBXProject();
             proj.ReadFromString(File.ReadAllText(projPath));
@@ -35,13 +29,20 @@ public class PitayaBuildPostprocessor
             // Pitaya should be linked with zlib when on iOS.
             proj.AddBuildProperty(targetGuid, "OTHER_LDFLAGS", "-lz");
 
+            var lookupPaths = new string[]
+            {
+                Path.Combine(currPath, "Assets"), // relative to project path
+                Path.Combine(currPath, "Library", "PackageCache"), // relative to project path
+                Path.Combine(path, "Libraries") // relative to build path
+            };
             var filesToRemove = new List<string>();
             foreach (var lookupPath in lookupPaths)
             {
-                if (Directory.Exists(lookupPath)) {
+                if (Directory.Exists(lookupPath))
+                {
                     filesToRemove
-                    .AddRange(Directory.GetFiles(lookupPath, "*", SearchOption.AllDirectories)
-                    .Where(f => f.Contains(GetPathToHide())));
+                        .AddRange(Directory.GetFiles(lookupPath, "*", SearchOption.AllDirectories)
+                        .Where(f => f.Contains(GetPathToHide())));
                 }
             }
 
@@ -50,17 +51,17 @@ public class PitayaBuildPostprocessor
             // is running (device or simulator).
             foreach (var file in filesToRemove)
             {
-                var relative = GetRelativePath(path + Path.DirectorySeparatorChar, file);
-                var fileGuid = proj.FindFileGuidByRealPath(relative);
+                var relativePath = GetRelativePath(path + Path.DirectorySeparatorChar, file);
+                var fileGuid = proj.FindFileGuidByRealPath(relativePath);
                 if (fileGuid == null)
                 {
-                    fileGuid = proj.FindFileGuidByProjectPath(relative);
+                    fileGuid = proj.FindFileGuidByProjectPath(relativePath);
                 }
                 // Files will be kept in the build folder, but won't be referenced in the built project
                 proj.RemoveFile(fileGuid);
             }
 
-            File.WriteAllText(projPath, proj.WriteToString());
+            proj.WriteToFile(projPath);
         }
     }
 
