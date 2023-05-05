@@ -19,7 +19,7 @@ public class PitayaBuildPostprocessor
         Console.WriteLine("[PostProcess] - Starting removing unecessary files from build");
         if (buildTarget == BuildTarget.iOS)
         {
-            var projPath = path + "/Unity-iPhone.xcodeproj/project.pbxproj";
+            var projPath = PBXProject.GetPBXProjectPath(path);
             Console.WriteLine("[PostProcess] - Project path: " + projPath);
 
             PBXProject proj = new PBXProject();
