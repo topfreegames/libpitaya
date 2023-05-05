@@ -6,8 +6,8 @@ ifeq ($(OS),Windows_NT)
 	CONTENTS_DIR?=Data
 	MSBUILD?=MSBuild.exe
 else
-	UNITY_PATH?=/Applications/Unity/Hub/Editor/2019.4.40f1/Unity.app
-	NET_STANDARD_VER?=2.0.0
+	UNITY_PATH?=/Applications/Unity/Hub/Editor/2021.3.13f1/Unity.app
+	NET_STANDARD_VER?=2.1.0
 	CONTENTS_DIR?=Contents
 	MSBUILD?=msbuild
 endif
