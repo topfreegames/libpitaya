@@ -1,0 +1,207 @@
+name: Build binaries
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-ios:
+    runs-on: macos-12
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.4.1.app/Contents/Developer
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+ 
+      - name: Build
+        run: make build-ios
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_ios
+          path: |
+            _builds/ios/libpitaya-ios.a
+            _builds/ios/deps/libuv**/libuv_a.a
+
+  build-ios-simulator-64:
+    runs-on: macos-12
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.4.1.app/Contents/Developer
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: make build-ios-simulator-64
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_ios-simulator
+          path: |
+            _builds/ios-simulator/libpitaya-ios.a
+            _builds/ios-simulator/deps/libuv**/libuv_a.a
+
+  build-mac:
+    runs-on: macos-12
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.4.1.app/Contents/Developer
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: make build-mac-xcode
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_mac
+          path: _builds/mac-xcode/Release/libpitaya-mac.bundle
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install packages
+        run: sudo apt update && sudo apt install make cmake g++ git ninja-build python3 zlib1g-dev -y
+
+      - name: Setup dependencies
+        run: make setup-android-linux
+
+      - name: Build
+        run: make build-android
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_android
+          path: _builds/android/libpitaya-android.so
+
+  build-android-64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install packages
+        run: sudo apt update && sudo apt install make cmake g++ git ninja-build python3 zlib1g-dev -y
+
+      - name: Setup dependencies
+        run: make setup-android-linux
+
+      - name: Build
+        run: make build-android-64
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_android64
+          path: _builds/android64/libpitaya-android.so
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Build linux image with target glibc version
+        run: docker build -t builder .
+
+      - name: Build linux lib from version supported in Dockerfile
+        run: docker run --rm --workdir /project --env MSBUILD --env CONTENTS_DIR --env UNITY_PATH -v ${PWD}:/project builder:latest /bin/bash -c "make build-linux"
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpitaya_linux
+          path: _builds/linux/libpitaya-linux.so
+
+  build-dll:
+    name: Build DLLs
+    runs-on: ubuntu-latest
+    env:
+      UNITY_PATH: "/opt/unity/Editor"
+      CONTENTS_DIR: "Data"
+      MSBUILD: "/opt/unity/Editor/Data/MonoBleedingEdge/bin-linux64/xbuild"
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: set unity version
+        id: unity-version
+        run: out=$(grep "m_EditorVersion:" unity/PitayaExample/ProjectSettings/ProjectVersion.txt | awk '{print $2}'); echo "unityversion=${out}" >> $GITHUB_OUTPUT
+
+      - name: run unity container
+        run: docker run --rm --workdir /project --env MSBUILD --env CONTENTS_DIR --env UNITY_PATH -v ${PWD}/unity/PitayaExample:/project unityci/editor:ubuntu-${{ steps.unity-version.outputs.unityversion }}-windows-mono-1 /bin/bash -c "apt update && apt install -y make && make build-template && make build-all"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pitaya-dlls
+          path: unity/PitayaExample/NugetOutput/binaries
+
+
+  package:
+    runs-on: ubuntu-latest
+    needs: 
+      - build-ios
+      - build-ios-simulator-64
+      - build-mac
+      - build-android
+      - build-android-64
+      - build-linux
+      - build-dll
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - run: npm install -g npm-cli-login
+      - run: npm-cli-login login -u "${{ secrets.ARTIFACTORY_USER }}" -p "${{ secrets.ARTIFACTORY_PASS }}" -e "tools-team@tfgco.com" -r "https://artifactory.tfgco.com/artifactory/api/npm/npm-local" -s @wls
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: true
+
+      - name: Run release script
+        run: VERSION=${{steps.tag.outputs.tag}} ./package.sh
+
+      - name: Publish to artifactory
+        run: cd package && npm publish
+
+  release:
+    runs-on: ubuntu-latest
+    needs: 
+      - package
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - To be implemented
+          draft: false
+          prerelease: ${{ contains( 'alpha', github.ref ) }}
+
+      
