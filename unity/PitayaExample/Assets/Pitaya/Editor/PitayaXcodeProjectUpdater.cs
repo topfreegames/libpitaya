@@ -16,10 +16,11 @@ public class PitayaBuildPostprocessor
     [PostProcessBuild]
     public static void OnPostprocessBuild(BuildTarget buildTarget, string path)
     {
+        Console.WriteLine("[PostProcess] - Starting removing unecessary files from build");
         if (buildTarget == BuildTarget.iOS)
         {
             var projPath = path + "/Unity-iPhone.xcodeproj/project.pbxproj";
-            var currPath = Directory.GetCurrentDirectory();
+            Console.WriteLine("[PostProcess] - Project path: " + projPath);
 
             PBXProject proj = new PBXProject();
             proj.ReadFromString(File.ReadAllText(projPath));
@@ -29,12 +30,7 @@ public class PitayaBuildPostprocessor
             // Pitaya should be linked with zlib when on iOS.
             proj.AddBuildProperty(targetGuid, "OTHER_LDFLAGS", "-lz");
 
-            var lookupPaths = new string[]
-            {
-                Path.Combine(currPath, "Assets"), // relative to project path
-                Path.Combine(currPath, "Library", "PackageCache"), // relative to project path
-                Path.Combine(path, "Libraries") // relative to build path
-            };
+            var lookupPaths = new string[]{path};
             var filesToRemove = new List<string>();
             foreach (var lookupPath in lookupPaths)
             {
@@ -57,8 +53,9 @@ public class PitayaBuildPostprocessor
                 {
                     fileGuid = proj.FindFileGuidByProjectPath(relativePath);
                 }
-                // Files will be kept in the build folder, but won't be referenced in the built project
+
                 proj.RemoveFile(fileGuid);
+                DeleteFileInXcodeProject(file);
             }
 
             proj.WriteToFile(projPath);
@@ -86,6 +83,17 @@ public class PitayaBuildPostprocessor
             rel = $".{ Path.DirectorySeparatorChar }{ rel }";
         }
         return rel;
+    }
+
+    private static void DeleteFileInXcodeProject(string path)
+    {
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            Console.WriteLine("[PostProcess] - Deleted file: " + path);
+        } else {
+            Console.WriteLine("[PostProcess] - Didn't find file: " + path);
+        }
     }
 }
 #endif
