@@ -28,4 +28,5 @@ cp libpitaya_mac/* package/PitayaNativeLibraries/Mac/
 find libpitaya_ios -type f -exec cp "{}" package/PitayaNativeLibraries/iOS/device/ \;
 find libpitaya_ios-simulator -type f -exec cp "{}" package/PitayaNativeLibraries/iOS/simulator/ \;
 
-cp -r pitaya-dlls/* package/
+# We probably don't need this
+# cp -r pitaya-dlls/* package/
