@@ -46,7 +46,7 @@ build-android: clean
 	@cp Temp/bin/Release/Pitaya.dll NugetOutput/lib/netstandard2.0/android/Pitaya.dll
 
 build-all: build-template build-mac build-ios build-linux build-android build-win
-	@cp -r Assets/Pitaya/Native NugetOutput/binaries
+	@cp -r Assets/Pitaya/PitayaNativeLibraries NugetOutput/binaries
 
 pack: build-all
 	@nuget pack LibPitaya.nuspec -OutputDirectory NugetOutput
