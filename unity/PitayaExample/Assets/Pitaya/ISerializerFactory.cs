@@ -5,7 +5,7 @@ namespace Pitaya
     public interface ISerializerFactory
     {
         IPitayaSerializer CreateJsonSerializer();
-        IPitayaSerializer CreateProtobufSerializer(ProtobufSerializer.SerializationFormat format);
+        IPitayaSerializer CreateProtobufSerializer();
     }
 
     public class SerializerFactory : ISerializerFactory
@@ -24,9 +24,9 @@ namespace Pitaya
             return new JsonSerializer(_settings);
         }
         
-        public IPitayaSerializer CreateProtobufSerializer(ProtobufSerializer.SerializationFormat format)
+        public IPitayaSerializer CreateProtobufSerializer()
         {
-            return new ProtobufSerializer(format);
+            return new ProtobufSerializer();
         }
         
     }

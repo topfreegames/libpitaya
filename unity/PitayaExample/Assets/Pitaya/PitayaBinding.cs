@@ -42,6 +42,13 @@ internal struct PitayaBuffer
 
 namespace Pitaya
 {
+
+    public enum SerializationFormat
+    {        
+        Json,
+        Protobuf
+    }
+
     public interface IPitayaListener
     {
         void OnRequestResponse(uint rid, byte[] body);
@@ -63,7 +70,7 @@ namespace Pitaya
         int Quality(IntPtr client);
         PitayaClientState State(IntPtr client);
         void Dispose(IntPtr client);
-        ProtobufSerializer.SerializationFormat ClientSerializer(IntPtr client);
+        SerializationFormat ClientSerializer(IntPtr client);
         void AddPinnedPublicKeyFromCertificateString(string caString);
         void AddPinnedPublicKeyFromCertificateFile(string name);
         void SkipKeyPinCheck(bool shouldSkip);
@@ -89,7 +96,7 @@ namespace Pitaya
         public int Quality(IntPtr client) { return StaticPitayaBinding.Quality(client); }
         public PitayaClientState State(IntPtr client) { return StaticPitayaBinding.State(client); }
         public void Dispose(IntPtr client) { StaticPitayaBinding.Dispose(client); }
-        public ProtobufSerializer.SerializationFormat ClientSerializer(IntPtr client) { return StaticPitayaBinding.ClientSerializer(client); }
+        public SerializationFormat ClientSerializer(IntPtr client) { return StaticPitayaBinding.ClientSerializer(client); }
         public void AddPinnedPublicKeyFromCertificateString(string caString) { StaticPitayaBinding.AddPinnedPublicKeyFromCertificateString(caString); }
         public void AddPinnedPublicKeyFromCertificateFile(string name) { StaticPitayaBinding.AddPinnedPublicKeyFromCertificateFile(name); }
         public void SkipKeyPinCheck(bool shouldSkip) { StaticPitayaBinding.SkipKeyPinCheck(shouldSkip); }
@@ -313,12 +320,12 @@ namespace Pitaya
             NativeDestroy(client);
         }
 
-        public static ProtobufSerializer.SerializationFormat ClientSerializer(IntPtr client)
+        public static SerializationFormat ClientSerializer(IntPtr client)
         {
             IntPtr nativeSerializer = NativeSerializer(client);
             var serializer = Marshal.PtrToStringAnsi(nativeSerializer);
             NativeFreeSerializer(nativeSerializer);
-            return PitayaConstants.SerializerJson.Equals(serializer) ? ProtobufSerializer.SerializationFormat.Json : ProtobufSerializer.SerializationFormat.Protobuf;
+            return PitayaConstants.SerializerJson.Equals(serializer) ? SerializationFormat.Json : SerializationFormat.Protobuf;
         }
 
         public static void AddPinnedPublicKeyFromCertificateString(string caString)
@@ -389,14 +396,14 @@ namespace Pitaya
             return certPath;
         }
 
-        private static PitayaError CreatePitayaError(PitayaBindingError errorBinding, ProtobufSerializer.SerializationFormat format)
+        private static PitayaError CreatePitayaError(PitayaBindingError errorBinding, SerializationFormat format)
         {
             var rawData = new byte[errorBinding.Buffer.Len];
             Marshal.Copy(errorBinding.Buffer.Data, rawData, 0, (int)errorBinding.Buffer.Len);
 
-            if (format == ProtobufSerializer.SerializationFormat.Protobuf)
+            if (format == SerializationFormat.Protobuf)
             {
-                Error error = new ProtobufSerializer(format).Decode<Error>(rawData);
+                Error error = new ProtobufSerializer().Decode<Error>(rawData);
                 return new PitayaError(error.Code, error.Msg, error.Metadata);
             }
 
