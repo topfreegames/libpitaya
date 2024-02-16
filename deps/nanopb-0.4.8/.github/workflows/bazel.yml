@@ -1,0 +1,35 @@
+name: Bazel 
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+    paths:
+      - '**bazel**'
+  pull_request:
+    paths:
+      - '**bazel**'
+
+jobs:
+  build_embedded:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-11]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Mount bazel cache
+        uses: actions/cache@v2
+        with:
+          path: "/home/runner/.cache/bazel"
+          key: ${{ runner.os }}-bazel
+
+      - name: Test
+        run: |
+          bazelisk test //...
+
+      - name: Build
+        run: |
+          bazelisk build //...

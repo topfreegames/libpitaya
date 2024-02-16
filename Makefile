@@ -148,5 +148,5 @@ generate-xcode:
 	@cmake -H. -B_builds/xcode -GXcode -DBUILD_TESTING=ON
 
 update-test-protos:
-	@python ./deps/nanopb-0.4.6/generator/nanopb_generator.py -I ./pitaya-servers/protobuf-server/protos/ -D ./test ./pitaya-servers/protobuf-server/protos/big-message.proto ./pitaya-servers/protobuf-server/protos/response.proto ./pitaya-servers/protobuf-server/protos/session-data.proto
-	@python ./deps/nanopb-0.4.6/generator/nanopb_generator.py -I ./unity/PitayaExample/Assets/Pitaya/Protos/ -D ./test ./unity/PitayaExample/Assets/Pitaya/Protos/error.proto
+	@python3 ./deps/nanopb-0.4.8/generator/nanopb_generator.py -I ./pitaya-servers/protobuf-server/protos/ -D ./test ./pitaya-servers/protobuf-server/protos/big-message.proto ./pitaya-servers/protobuf-server/protos/response.proto ./pitaya-servers/protobuf-server/protos/session-data.proto
+	@python3 ./deps/nanopb-0.4.8/generator/nanopb_generator.py -I ./unity/PitayaExample/Assets/Pitaya/Protos/ -D ./test ./unity/PitayaExample/Assets/Pitaya/Protos/error.proto
