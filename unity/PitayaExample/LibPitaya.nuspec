@@ -19,13 +19,13 @@
   <files>
     <file src="Assets/link.xml" target="" />
     <file src="Assets/Pitaya/Editor/*.*" target="Editor" />
-    <file src="Assets/Pitaya/Native/iOS/**/*.*" target="Native/iOS" />
-    <file src="Assets/Pitaya/Native/Android/armv7/*.*" target="Native/Android/armv7" />
-    <file src="Assets/Pitaya/Native/Android/arm64/*.*" target="Native/Android/arm64" />
-    <file src="Assets/Pitaya/Native/Mac/*.*" target="Native/Mac" />
-    <file src="Assets/Pitaya/Native/Windows/*.*" target="Native/Windows" />
-    <file src="Assets/Pitaya/Native/Linux/*.*" target="Native/Linux" />
-    <file src="Assets/Pitaya/Native/include/*" target="Native/include" />
+    <file src="Assets/Pitaya/PitayaNativeLibraries/iOS/**/*.*" target="PitayaNativeLibraries/iOS" />
+    <file src="Assets/Pitaya/PitayaNativeLibraries/Android/armv7/*.*" target="PitayaNativeLibraries/Android/armv7" />
+    <file src="Assets/Pitaya/PitayaNativeLibraries/Android/arm64/*.*" target="PitayaNativeLibraries/Android/arm64" />
+    <file src="Assets/Pitaya/PitayaNativeLibraries/Mac/*.*" target="PitayaNativeLibraries/Mac" />
+    <file src="Assets/Pitaya/PitayaNativeLibraries/Windows/*.*" target="PitayaNativeLibraries/Windows" />
+    <file src="Assets/Pitaya/PitayaNativeLibraries/Linux/*.*" target="PitayaNativeLibraries/Linux" />
+    <file src="Assets/Pitaya/PitayaNativeLibraries/include/*" target="PitayaNativeLibraries/include" />
     <file src="NugetOutput/lib/**" target="lib/netstandard2.0" />
     <file src="NugetOutput/lib/**" target="lib/net45" />
     <file src="NugetOutput/Unity/**" target="" />
