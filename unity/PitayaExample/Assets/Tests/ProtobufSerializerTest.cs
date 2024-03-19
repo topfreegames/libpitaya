@@ -56,7 +56,7 @@ namespace Pitaya.Tests
             _bigMessageEncodedProtobuf = new byte[] {0x0A, 0x02, 0x32, 0x32, 0x12, 0x74, 0x0A, 0x34, 0x0A, 0x08, 0x70, 0x75, 0x62, 0x6C, 0x69, 0x63, 0x49, 0x64, 0x12, 0x05, 0x54, 0x6F, 0x6B, 0x65, 0x6E, 0x1A, 0x0A, 0x50, 0x6C, 0x61, 0x79, 0x65, 0x72, 0x4E, 0x61, 0x6D, 0x65, 0x22, 0x05, 0x69, 0x74, 0x65, 0x6D, 0x31, 0x22, 0x05, 0x69, 0x74, 0x65, 0x6D, 0x32, 0x29, 0xCD, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0x00, 0x40, 0x12, 0x2C, 0x0A, 0x07, 0x6E, 0x70, 0x63, 0x5F, 0x6B, 0x65, 0x79, 0x12, 0x21, 0x0A, 0x08, 0x4E, 0x50, 0x43, 0x5F, 0x4E, 0x41, 0x4D, 0x45, 0x11, 0x9A, 0x99, 0x99, 0x99, 0x99, 0x99, 0x24, 0x40, 0x1A, 0x0C, 0x4E, 0x50, 0x43, 0x5F, 0x70, 0x75, 0x62, 0x6C, 0x69, 0x63, 0x49, 0x44, 0x1A, 0x06, 0x63, 0x68, 0x65, 0x73, 0x74, 0x31, 0x1A, 0x06, 0x63, 0x68, 0x65, 0x73, 0x74, 0x32};
 
 
-            _responseEncoded = new ProtobufSerializer(ProtobufSerializer.SerializationFormat.Protobuf).Encode(_responseStub);
+            _responseEncoded = new ProtobufSerializer().Encode(_responseStub);
 
         }
         
@@ -71,7 +71,7 @@ namespace Pitaya.Tests
         [Test]
         public void ShouldEncodeProtobufMessageSuccessfully()
         {
-            var output = new ProtobufSerializer(ProtobufSerializer.SerializationFormat.Protobuf).Encode(_bigMessageStub);
+            var output = new ProtobufSerializer().Encode(_bigMessageStub);
             Assert.True(output.Length > 0);
             Assert.True(ByteArrayCompare(output, _bigMessageEncodedProtobuf));
 
@@ -81,7 +81,7 @@ namespace Pitaya.Tests
         [Test]
         public void ShouldDecodeProtobufMessageSuccessfully()
         {
-            var obj = new ProtobufSerializer(ProtobufSerializer.SerializationFormat.Protobuf).Decode<Response>(_responseEncoded);
+            var obj = new ProtobufSerializer().Decode<Response>(_responseEncoded);
 
             Assert.True(typeof(Response) == obj.GetType());
             Assert.True(IsResponseEquals(obj, _responseStub));
@@ -90,7 +90,7 @@ namespace Pitaya.Tests
         [Test]
         public void ShouldEncodeJsonMessageSuccessfully()
         {
-            var output = new ProtobufSerializer(ProtobufSerializer.SerializationFormat.Json).Encode(_bigMessageStub);
+            var output = new ProtobufSerializer().Encode(_bigMessageStub);
             Assert.True(output.Length > 0);
         }
         
@@ -98,7 +98,7 @@ namespace Pitaya.Tests
         [Test]
         public void ShouldDecodeJsonMessageSuccessfully()
         {
-            var obj = new ProtobufSerializer(ProtobufSerializer.SerializationFormat.Json).Decode<Response>(_respondeMessageEncodeJson);
+            var obj = new ProtobufSerializer().Decode<Response>(_respondeMessageEncodeJson);
 
             Assert.AreEqual(typeof(Response), obj.GetType());
             Assert.AreEqual(obj, _responseStub);

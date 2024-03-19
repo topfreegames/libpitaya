@@ -12,8 +12,8 @@ namespace Pitaya.Tests
     {
         private PitayaClient _client;
 
-        private const string ServerHost = "libpitaya-tests.tfgco.com";
-        private const int ServerPort = 3251;
+        private const string ServerHost = "localhost";
+        private const int ServerPort = 3351;
         private JsonObject _jsonStub;
         private JsonObject _emptyJsonStub;
         private bool _isFinished;

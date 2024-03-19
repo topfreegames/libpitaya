@@ -108,9 +108,17 @@ namespace Pitaya
         /// </summary>
         public void Request<TResponse>(string route, object msg, Action<TResponse> action, Action<PitayaError> errorAction, int timeout = -1)
         {
-            IPitayaSerializer serializer = SerializerFactory.CreateJsonSerializer();
-            if (msg is IMessage) serializer = SerializerFactory.CreateProtobufSerializer(_binding.ClientSerializer(_client));
-            RequestInternal(route, msg, timeout, serializer, action, errorAction);
+            switch(_binding.ClientSerializer(_client))
+            {
+                case SerializationFormat.Json:
+                    RequestInternal(route, msg, timeout, SerializerFactory.CreateJsonSerializer() , action, errorAction);
+                    break;
+                case SerializationFormat.Protobuf:
+                    RequestInternal(route, msg, timeout, SerializerFactory.CreateProtobufSerializer(), action, errorAction);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         /// <summary>
@@ -134,8 +142,7 @@ namespace Pitaya
         /// </summary>
         public void Request<T>(string route, IMessage msg, int timeout, Action<T> action, Action<PitayaError> errorAction)
         {
-            ProtobufSerializer.SerializationFormat format = _binding.ClientSerializer(_client);
-            RequestInternal(route, msg, timeout, SerializerFactory.CreateProtobufSerializer(format), action, errorAction);
+            RequestInternal(route, msg, timeout, SerializerFactory.CreateProtobufSerializer(), action, errorAction);
         }
         
         /// <summary>
@@ -169,9 +176,17 @@ namespace Pitaya
         /// </summary>
         public void Notify(string route, object msg, int timeout = -1)
         {
-            IPitayaSerializer serializer = SerializerFactory.CreateJsonSerializer();
-            if (msg is IMessage) serializer = SerializerFactory.CreateProtobufSerializer(_binding.ClientSerializer(_client));
-            NotifyInternal(route, msg, serializer, timeout);
+            switch(_binding.ClientSerializer(_client))
+            {
+                case SerializationFormat.Json:
+                    NotifyInternal(route, msg, SerializerFactory.CreateJsonSerializer(), timeout);
+                    break;
+                case SerializationFormat.Protobuf:
+                    NotifyInternal(route, msg, SerializerFactory.CreateProtobufSerializer(), timeout);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         /// <summary>
@@ -179,8 +194,7 @@ namespace Pitaya
         /// </summary>
         public void Notify(string route, int timeout, IMessage msg)
         {
-            ProtobufSerializer.SerializationFormat format = _binding.ClientSerializer(_client);
-            NotifyInternal(route, msg, SerializerFactory.CreateProtobufSerializer(format), timeout);
+            NotifyInternal(route, msg, SerializerFactory.CreateProtobufSerializer(), timeout);
         }
 
         /// <summary>
@@ -217,10 +231,17 @@ namespace Pitaya
         /// </summary>
         public void OnRoute<T>(string route, Action<T> action)
         {
-            IPitayaSerializer serializer = SerializerFactory.CreateJsonSerializer();
-            if (typeof(IMessage).IsAssignableFrom(typeof(T))) serializer = SerializerFactory.CreateProtobufSerializer(_binding.ClientSerializer(_client));
-
-            OnRouteInternal(route, action, serializer);
+            switch(_binding.ClientSerializer(_client))
+            {
+                case SerializationFormat.Json:
+                    OnRouteInternal(route, action, SerializerFactory.CreateJsonSerializer());
+                    break;
+                case SerializationFormat.Protobuf:
+                    OnRouteInternal(route, action, SerializerFactory.CreateProtobufSerializer());
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
         
         private void OnRouteInternal<T>(string route, Action<T> action, IPitayaSerializer serializer)

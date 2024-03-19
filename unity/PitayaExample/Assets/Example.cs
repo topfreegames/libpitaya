@@ -12,7 +12,7 @@ public class Example : MonoBehaviour
 	// Use this for initialization
 	private void Start()
 	{
-		// _client = new PitayaClient("ca.crt");
+		//_client = new PitayaClient("ca.crt");
 		_client = new PitayaClient();
 		_connected = false;
 		_requestSent = false;
@@ -30,7 +30,7 @@ public class Example : MonoBehaviour
 			}
 		};
 
-		_client.Connect("127.0.0.1", 3250,
+		_client.Connect("127.0.0.1", 3351,
 			new Dictionary<string, string>
             {
                 {"oi", "mano"}

@@ -11,8 +11,8 @@ namespace Pitaya.Tests
     public class PitayaClientTest
     {
         private PitayaClient _client;
-        private const string ServerHost = "libpitaya-tests.tfgco.com";
-        private const int ServerPort = 3251;
+        private const string ServerHost = "localhost";
+        private const int ServerPort = 3351;
 
         private Thread _mainThread;
 
@@ -54,7 +54,7 @@ namespace Pitaya.Tests
             _client.Connect(ServerHost, ServerPort);
 
             while(!called) {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(1f);
             }
 
             Assert.True(called);
