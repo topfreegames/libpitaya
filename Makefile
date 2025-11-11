@@ -42,8 +42,8 @@ build-mac-universal:
 
 build-mac-xcode:
 	@rm -rf _builds/mac-xcode
-	@cmake -H. -B_builds/mac-xcode -GXcode -DBUILD_MACOS_BUNDLE=ON
-	@cmake --build _builds/mac-xcode --config Release -j
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/mac-xcode -GXcode -DBUILD_MACOS_BUNDLE=ON
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 --build _builds/mac-xcode --config Release -j
 
 build-linux:
 	@rm -rf _builds/linux
@@ -102,13 +102,13 @@ build-ios-xcframework: build-ios build-ios-simulator-64 build-ios-simulator-appl
 
 build-ios:
 	@rm -rf _builds/ios
-	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS -DDEPLOYMENT_TARGET="10.0" -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
-	@cmake --build _builds/ios --config Release -j
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS -DDEPLOYMENT_TARGET="10.0" -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 --build _builds/ios --config Release -j
 
 build-ios-simulator-64:
 	@rm -rf _builds/ios-simulator
-	@cmake -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATOR64 -DSIMULATOR=true
-	@cmake --build _builds/ios-simulator --config Release -j
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATOR64 -DSIMULATOR=true
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 --build _builds/ios-simulator --config Release -j
 
 build-ios-simulator-applesilicon:
 	@rm -rf _builds/ios-simulator-applesilicon
