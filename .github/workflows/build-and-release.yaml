@@ -8,8 +8,6 @@ on:
 jobs:
   build-ios:
     runs-on: macos-latest
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_13.4.1.app/Contents/Developer
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -27,8 +25,6 @@ jobs:
 
   build-ios-simulator-64:
     runs-on: macos-latest
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_13.4.1.app/Contents/Developer
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -46,8 +42,6 @@ jobs:
 
   build-mac:
     runs-on: macos-latest
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_13.4.1.app/Contents/Developer
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
