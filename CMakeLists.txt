@@ -95,6 +95,8 @@ if(ANDROID)
     target_include_directories(pitaya PRIVATE ${ZLIB_INCLUDE_DIRS})
 else()
     target_include_directories(pitaya PRIVATE PRIVATE deps/zlib ${CMAKE_BINARY_DIR}/deps/zlib)
+    # Disable zlib example programs (not needed for library builds, causes linker issues on iOS)
+    set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Disable zlib examples" FORCE)
     add_subdirectory(deps/zlib)
 endif()
 
