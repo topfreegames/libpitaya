@@ -43,7 +43,7 @@ build-mac-universal:
 build-mac-xcode:
 	@rm -rf _builds/mac-xcode
 	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/mac-xcode -GXcode -DBUILD_MACOS_BUNDLE=ON
-	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 --build _builds/mac-xcode --config Release --parallel
+	@cmake --build _builds/mac-xcode --config Release --parallel
 
 build-linux:
 	@rm -rf _builds/linux
@@ -103,12 +103,12 @@ build-ios-xcframework: build-ios build-ios-simulator-64 build-ios-simulator-appl
 build-ios:
 	@rm -rf _builds/ios
 	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS -DDEPLOYMENT_TARGET="10.0" -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
-	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 --build _builds/ios --config Release --parallel
+	@cmake --build _builds/ios --config Release --parallel
 
 build-ios-simulator-64:
 	@rm -rf _builds/ios-simulator
 	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATOR64 -DSIMULATOR=true
-	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 --build _builds/ios-simulator --config Release --parallel
+	@cmake --build _builds/ios-simulator --config Release --parallel
 
 build-ios-simulator-applesilicon:
 	@rm -rf _builds/ios-simulator-applesilicon
