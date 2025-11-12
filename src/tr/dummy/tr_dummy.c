@@ -35,7 +35,7 @@ static int dummy_connect(pc_transport_t* trans, const char* host, int port, cons
     return PC_RC_OK;
 }
 
-static int dummy_send(pc_transport_t* trans, const char* route, unsigned int seq_num, const pc_buf_t *msg_buf, unsigned int req_id, int timeout)
+static int dummy_send(pc_transport_t* trans, const char* route, unsigned int seq_num, pc_buf_t msg_buf, unsigned int req_id, int timeout)
 {
     dummy_transport_t* d_tr = (dummy_transport_t* )trans;
     pc_assert(d_tr);
