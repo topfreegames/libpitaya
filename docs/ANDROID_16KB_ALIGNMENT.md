@@ -35,36 +35,25 @@ elseif(ANDROID)
 
 ### 2. Verification Script
 
-Created `verify_16kb_alignment.sh` to check alignment of built libraries:
+Created `check_elf_alignment.sh` ([ref](https://developer.android.com/guide/practices/page-sizes#elf-alignment)) to check alignment of built libraries:
 
 ```bash
-# Check all project .so files
-./verify_16kb_alignment.sh
-
 # Check specific .so file
-./verify_16kb_alignment.sh path/to/library.so
+./check_elf_alignment.sh path/to/library.so
 ```
 
 ## Building with 16KB Alignment
 
 ### Prerequisites
 ```bash
-# Install verification tools (macOS)
-brew install binutils
+make setup-macos
+make setup-android-mac # or `make setup-android-linux` on Linux
 ```
 
 ### Build Commands
 ```bash
-# For ARM64 (mandatory 16KB alignment)
-cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-21 ..
-make
-
-# For ARMv7 (optional 16KB alignment)
-cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-21 ..
-make
-
-# Verify alignment after build
-./verify_16kb_alignment.sh
+make build-ios
+# Check `Makefile` to see other build targets
 ```
 
 ## Unity Integration
@@ -93,6 +82,7 @@ make
 ### Manual Verification
 ```bash
 # Check alignment with readelf
+brew install binutils
 export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
 readelf -l your_library.so | grep -A 1 "LOAD"
 
@@ -104,7 +94,7 @@ readelf -l your_library.so | grep -A 1 "LOAD"
 ### Automated Verification
 ```bash
 # Use the provided script
-./verify_16kb_alignment.sh
+./check_elf_alignment.sh
 ```
 
 ## Troubleshooting
