@@ -143,8 +143,13 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #    if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
 #      include <unix.h> /* for fdopen */
 #    else
+       /* PATCH: Only define fdopen workaround on non-POSIX systems */
+       /* Modern iOS/macOS have fdopen() - defining it causes conflicts with SDK headers */
+       /* See: https://github.com/madler/zlib/issues/820 - Fixed in zlib 1.3+ */
 #      ifndef fdopen
-#        define fdopen(fd,mode) NULL /* No fdopen() */
+#        if !defined(_POSIX_VERSION)
+#          define fdopen(fd,mode) NULL /* No fdopen() */
+#        endif
 #      endif
 #    endif
 #  endif

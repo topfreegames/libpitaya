@@ -293,7 +293,7 @@ endif()
 if(PLATFORM_INT STREQUAL "OS")
   set(SDK_NAME iphoneos)
   if(NOT ARCHS)
-    set(ARCHS armv7 armv7s arm64)
+    set(ARCHS arm64)
     set(APPLE_TARGET_TRIPLE_INT arm-apple-ios${DEPLOYMENT_TARGET})
   else()
     set(APPLE_TARGET_TRIPLE_INT ${ARCHS_SPLIT}-apple-ios${DEPLOYMENT_TARGET})  
@@ -515,9 +515,9 @@ endif()
 
 # Use bitcode or not
 if(NOT DEFINED ENABLE_BITCODE AND NOT ARCHS MATCHES "((^|;|, )(i386|x86_64))+")
-  # Unless specified, enable bitcode support by default
-  message(STATUS "[DEFAULTS] Enabling bitcode support by default. ENABLE_BITCODE not provided!")
-  set(ENABLE_BITCODE ON)
+  # Bitcode has been deprecated by Apple and removed in Xcode 15+, so disable it by default
+  message(STATUS "[DEFAULTS] Disabling bitcode support by default (deprecated by Apple). ENABLE_BITCODE not provided!")
+  set(ENABLE_BITCODE OFF)
 elseif(NOT DEFINED ENABLE_BITCODE)
   message(STATUS "[DEFAULTS] Disabling bitcode support by default on simulators. ENABLE_BITCODE not provided for override!")
   set(ENABLE_BITCODE OFF)

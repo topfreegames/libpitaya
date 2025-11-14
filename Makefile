@@ -33,17 +33,17 @@ build-windows:
 	@echo "Attention: This should be run from Developer PowerShell for VS, else it will fail"
 	@rm -rf _builds/windows
 	@cmake -H. -B_builds/windows -G "Visual Studio 17 2022" -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
-	@cmake --build  _builds/windows --config Release -j
+	@cmake --build  _builds/windows --config Release --parallel
 
 build-mac-universal:
 	@rm -rf _builds/mac
 	@cmake -H. -B_builds/mac -GNinja -DPLATFORM=MAC -DCMAKE_BUILD_TYPE=Release -DBUILD_MACOS_BUNDLE=ON
-	@cmake --build _builds/mac -j
+	@cmake --build _builds/mac --parallel
 
 build-mac-xcode:
 	@rm -rf _builds/mac-xcode
-	@cmake -H. -B_builds/mac-xcode -GXcode -DBUILD_MACOS_BUNDLE=ON
-	@cmake --build _builds/mac-xcode --config Release -j
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/mac-xcode -GXcode -DBUILD_MACOS_BUNDLE=ON
+	@cmake --build _builds/mac-xcode --config Release --parallel
 
 build-linux:
 	@rm -rf _builds/linux
@@ -64,7 +64,7 @@ check-devteam-env:
 build-ios-fat: check-devteam-env
 	@rm -rf _builds/ios_combined
 	@cmake -H. -GXcode -B_builds/ios_combined -DCMAKE_INSTALL_PREFIX=./_builds/ios_combined -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=$(APPLE_DEVELOPMENT_TEAM) -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS64COMBINED -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
-	@cmake --build _builds/ios_combined --config Release -j
+	@cmake --build _builds/ios_combined --config Release --parallel
 
 build-openssl-ios-simulator64:
 	@rm -rf _builds/openssl/simulator
@@ -102,18 +102,18 @@ build-ios-xcframework: build-ios build-ios-simulator-64 build-ios-simulator-appl
 
 build-ios:
 	@rm -rf _builds/ios
-	@cmake -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS -DDEPLOYMENT_TARGET="10.0" -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
-	@cmake --build _builds/ios --config Release -j
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/ios -DCMAKE_BUILD_TYPE=Release -DPLATFORM=OS -DDEPLOYMENT_TARGET="10.0" -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake
+	@cmake --build _builds/ios --config Release --parallel
 
 build-ios-simulator-64:
 	@rm -rf _builds/ios-simulator
-	@cmake -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATOR64 -DSIMULATOR=true
-	@cmake --build _builds/ios-simulator --config Release -j
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/ios-simulator -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATOR64 -DSIMULATOR=true
+	@cmake --build _builds/ios-simulator --config Release --parallel
 
 build-ios-simulator-applesilicon:
 	@rm -rf _builds/ios-simulator-applesilicon
 	@cmake -H. -B_builds/ios-simulator-applesilicon -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATORARM64 -DSIMULATOR=true
-	@cmake --build _builds/ios-simulator-applesilicon --config Release -j
+	@cmake --build _builds/ios-simulator-applesilicon --config Release --parallel
 
 build-mac-tests:
 	@rm -rf _builds/mac-tests

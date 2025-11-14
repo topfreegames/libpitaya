@@ -173,6 +173,12 @@ if(WIN32)
         CRYPT32.LIB)
 elseif(ANDROID)
     find_package(Threads REQUIRED)
+
+    # Add 16KB page size alignment for Android (required for Android 15+ devices)
+    # This ensures compatibility with devices that use 16KB memory pages
+    # Required for ARM64, optional but recommended for ARMv7
+    target_link_options(pitaya PRIVATE "-Wl,-z,max-page-size=16384")
+
     target_link_libraries(pitaya
       PRIVATE
         Threads::Threads

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning]
 (https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Fixed iOS build compatibility with Xcode 16 and modern macOS runners (removed armv7/armv7s, disabled bitcode, fixed CMake 4.x parallel build syntax)
+- Patched vendored zlib to prevent fdopen macro conflicts with iOS 18+ SDK headers
+
 ## [4.6.2] - 2023-05-05
 ### Fixed
 - (unity) Fix post processor to manage pitaya libraries on iOS builds.
