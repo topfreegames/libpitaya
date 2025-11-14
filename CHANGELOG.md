@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning]
 (https://semver.org/spec/v2.0.0.html).
 
+## 4.6.4 - 2025-11-14
+### Changed
+- Updated zlib dependency from v1.2.13 to v1.3.1
+
 ## 4.6.3 - 2025-11-14
 ### Changed
 - Add support for 16kb page size on Android builds
@@ -11,7 +15,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 - Fixed iOS build compatibility with Xcode 16 and modern macOS runners (removed armv7/armv7s, disabled bitcode, fixed CMake 4.x parallel build syntax)
 - Patched vendored zlib to prevent fdopen macro conflicts with iOS 18+ SDK headers
-- Disabled zlib example programs to prevent linker errors on iOS (zlib 1.3.1+ compatibility)
 
 ## [4.6.2] - 2023-05-05
 ### Fixed
