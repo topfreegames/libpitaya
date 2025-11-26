@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
 
   s.source_files = ['src/**/*', 'include/**/*', 'cs/contrib/*']
 
-  s.dependency 'OpenSSL-TFG', '~> 1.1.1q' 
+  s.dependency 'OpenSSL-TFG', '~> 1.1.1q'
   s.dependency 'libuv', '~> 1.4.0'
 
 end
