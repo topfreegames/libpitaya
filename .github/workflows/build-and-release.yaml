@@ -49,6 +49,56 @@ jobs:
       - name: Build
         run: make build-mac-xcode
 
+      - name: Check rpath for system library fallback
+        run: |
+          BUNDLE="_builds/mac-xcode/Release/libpitaya-mac.bundle"
+          
+          # Display bundle dependencies
+          echo "=== Bundle dependencies ==="
+          otool -L "$BUNDLE" | head -10
+          echo ""
+          
+          # Display rpath entries
+          echo "=== Rpath entries ==="
+          otool -l "$BUNDLE" | grep -A2 "LC_RPATH" || echo "WARNING: No rpath entries found"
+          echo ""
+          
+          # Check if /usr/lib is in rpath
+          if ! otool -l "$BUNDLE" | grep -q "path /usr/lib"; then
+            echo "❌ ERROR: /usr/lib is NOT in rpath!"
+            echo "The bundle will fail to load on target machines."
+            echo ""
+            echo "To fix this, add to CMakeLists.txt:"
+            echo "  if(APPLE AND BUILD_MACOS_BUNDLE)"
+            echo "    set_target_properties(pitaya PROPERTIES"
+            echo "      BUILD_RPATH \"/usr/lib\""
+            echo "      INSTALL_RPATH \"/usr/lib\")"
+            echo "  endif()"
+            exit 1
+          fi
+          
+          echo "✅ /usr/lib is in rpath"
+          echo ""
+          
+          # Test if bundle can be loaded
+          echo "=== Testing bundle loading ==="
+          cat > /tmp/test_bundle.c << 'EOF'
+          #include <dlfcn.h>
+          #include <stdio.h>
+          int main(int argc, char **argv) {
+              void* handle = dlopen(argv[1], RTLD_NOW);
+              if (!handle) {
+                  printf("ERROR: %s\n", dlerror());
+                  return 1;
+              }
+              printf("SUCCESS: Bundle loads correctly\n");
+              dlclose(handle);
+              return 0;
+          }
+          EOF
+          cc -o /tmp/test_bundle /tmp/test_bundle.c
+          /tmp/test_bundle "$BUNDLE"
+
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
