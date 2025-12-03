@@ -187,6 +187,18 @@ elseif(ANDROID)
         ssl
         crypto
         ${ANDROID_LOG_LIB})
+elseif(APPLE AND BUILD_MACOS_BUNDLE)
+   # Add /usr/lib to rpath so @rpath/libz.1.dylib can be found
+    set_target_properties(pitaya PROPERTIES
+        BUILD_RPATH "/usr/lib"
+        INSTALL_RPATH "/usr/lib"
+    )
+    target_link_libraries(pitaya
+      PRIVATE
+        zlib
+        uv_a
+        ssl
+        crypto)
 else()
     target_link_libraries(pitaya
       PRIVATE
