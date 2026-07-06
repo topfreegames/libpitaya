@@ -165,6 +165,24 @@ jobs:
           name: libpitaya_linux
           path: _builds/linux/libpitaya-linux.so
 
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Build linux image with target glibc version (arm64)
+        run: docker build -t builder .
+
+      - name: Build linux arm64 lib from version supported in Dockerfile
+        run: docker run --rm --workdir /project --env MSBUILD --env CONTENTS_DIR --env UNITY_PATH -v ${PWD}:/project builder:latest /bin/bash -c "make build-linux"
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libpitaya_linux_arm64
+          path: _builds/linux/libpitaya-linux.so
+
   build-dll:
     name: Build DLLs
     runs-on: ubuntu-latest
@@ -200,6 +218,7 @@ jobs:
       - build-android
       - build-android-64
       - build-linux
+      - build-linux-arm64
       - build-dll
     steps:
       - name: Checkout repo
