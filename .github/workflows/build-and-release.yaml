@@ -175,7 +175,21 @@ jobs:
         run: docker build -t builder .
 
       - name: Build linux arm64 lib from version supported in Dockerfile
-        run: docker run --rm --workdir /project --env MSBUILD --env CONTENTS_DIR --env UNITY_PATH -v ${PWD}:/project builder:latest /bin/bash -c "make build-linux"
+        # The vendored deps/openssl/linux is a precompiled x86_64 OpenSSL, so on
+        # arm64 the final link fails ("libssl.a ... file in wrong format"). Rebuild
+        # OpenSSL 1.1.1q for linux-aarch64 into deps/openssl/linux before building.
+        run: |
+          docker run --rm --workdir /project --env MSBUILD --env CONTENTS_DIR --env UNITY_PATH -v ${PWD}:/project builder:latest /bin/bash -c '
+            set -e
+            apt-get update && apt-get install -y perl
+            tar xzf deps/openssl-1.1.1q.tar.gz -C /tmp
+            cd /tmp/openssl-1.1.1q
+            ./Configure linux-aarch64 --prefix=/project/deps/openssl/linux
+            make -j"$(nproc)"
+            make install_sw
+            cd /project
+            make build-linux
+          '
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
