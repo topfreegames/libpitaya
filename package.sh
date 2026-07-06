@@ -24,6 +24,7 @@ cp -r ./unity/PitayaExample/Assets/Pitaya/Editor package
 cp libpitaya_android64/* package/PitayaNativeLibraries/Android/arm64/
 cp libpitaya_android/* package/PitayaNativeLibraries/Android/armv7/
 cp libpitaya_linux/* package/PitayaNativeLibraries/Linux/
+cp libpitaya_linux_arm64/* package/PitayaNativeLibraries/Linux/arm64/
 cp libpitaya_mac/* package/PitayaNativeLibraries/Mac/
 find libpitaya_ios -type f -exec cp "{}" package/PitayaNativeLibraries/iOS/device/ \;
 find libpitaya_ios-simulator -type f -exec cp "{}" package/PitayaNativeLibraries/iOS/simulator/ \;
