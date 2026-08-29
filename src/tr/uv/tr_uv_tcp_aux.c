@@ -957,8 +957,8 @@ void tcp__on_data_recieved(tr_uv_tcp_transport_t* tt, const char* data, size_t l
 void tcp__on_kick_recieved(tr_uv_tcp_transport_t* tt)
 {
     pc_lib_log(PC_LOG_INFO, "tcp__on_kick_recieved - kicked by server");
-    pc_trans_fire_event(tt->client, PC_EV_KICKED_BY_SERVER, NULL, NULL);
     tt->reset_fn(tt);
+    pc_trans_fire_event(tt->client, PC_EV_KICKED_BY_SERVER, NULL, NULL);
 }
 
 void tcp__send_handshake(tr_uv_tcp_transport_t* tt)
@@ -1073,8 +1073,8 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
 
     if (!res) {
         pc_lib_log(PC_LOG_ERROR, "tcp__on_handshake_resp - handshake resp is not valid json");
-        pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Handshake Error", NULL);
         tt->reset_fn(tt);
+        pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Handshake Error", NULL);
         return ;
     }
 
@@ -1082,9 +1082,9 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
 
     if (!tmp || tmp->type != pc_JSON_Number || (code = tmp->valueint) != PC_HANDSHAKE_OK) {
         pc_lib_log(PC_LOG_ERROR, "tcp__on_handshake_resp - handshake fail, code: %d", code);
+        tt->reset_fn(tt);
         pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Handshake Error", NULL);
         pc_JSON_Delete(res);
-        tt->reset_fn(tt);
         return ;
     }
 
@@ -1092,9 +1092,9 @@ void tcp__on_handshake_resp(tr_uv_tcp_transport_t* tt, const char* data, size_t 
     sys = pc_JSON_GetObjectItem(res, "sys");
     if (!sys) {
         pc_lib_log(PC_LOG_ERROR, "tcp__on_handshake_resp - handshake fail, no sys field");
+        tt->reset_fn(tt);
         pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Handshake Error", NULL);
         pc_JSON_Delete(res);
-        tt->reset_fn(tt);
         return ;
     }
 

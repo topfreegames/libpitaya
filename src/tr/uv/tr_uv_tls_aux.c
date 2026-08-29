@@ -208,9 +208,10 @@ static void tls__emit_error_event(tr_uv_tls_transport_t* tls)
 
     if (!tls->is_handshake_completed) {
         /* won't reconnect if tls handshake failed */
-        pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "TLS Handshake Error", NULL);
         tt->reset_fn(tt);
+        pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "TLS Handshake Error", NULL);
     } else {
+        tt->reset_fn(tt);
         pc_trans_fire_event(tt->client, PC_EV_UNEXPECTED_DISCONNECT, "TLS Error", NULL);
         tt->reconn_fn(tt);
     }
@@ -273,8 +274,8 @@ static void tls__write_to_bio(tr_uv_tls_transport_t* tls)
             if (!tls->is_handshake_completed) {
                 if (!tls__public_key_pinned(tls)) {
                     pc_lib_log(PC_LOG_ERROR, "Public key is not pinned.");
-                    pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Public key from server is not pinned.", NULL);
                     tt->reset_fn(tt);
+                    pc_trans_fire_event(tt->client, PC_EV_CONNECT_FAILED, "Public key from server is not pinned.", NULL);
                     return;
                 }
 
