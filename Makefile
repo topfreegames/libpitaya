@@ -112,7 +112,7 @@ build-ios-simulator-64:
 
 build-ios-simulator-applesilicon:
 	@rm -rf _builds/ios-simulator-applesilicon
-	@cmake -H. -B_builds/ios-simulator-applesilicon -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATORARM64 -DSIMULATOR=true
+	@cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -H. -B_builds/ios-simulator-applesilicon -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=SIMULATORARM64 -DSIMULATOR=true
 	@cmake --build _builds/ios-simulator-applesilicon --config Release --parallel
 
 build-mac-tests:
